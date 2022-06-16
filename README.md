@@ -1,7 +1,7 @@
 
 
 ### Todo Tasks
-
+```
   = Unstarted
 o = WIP
 / = Happy path works
@@ -50,8 +50,8 @@ x = Done
 - [ ] Networking API
 - - [ ] Serialize entire game state
 - [ ] Auto Sync Engine class
-- [ ] Move project to SPM; requires heavily modifing SDL to support -fmodules compile flag
-
+- [ ] Move project to SPM; requires heavily modifing SDL to support -fmodules compile flag
+```
 
 I'm not sure how I want to design an ECS. I would always prefer to use an existing solution like flecs. Though I want to support hardcoded classes first. I also have previously designed a way for dynamic behavior via components + json. It removed the need of state machines because state was just the makeup of the components the entity had. 
 
