@@ -1,4 +1,7 @@
+## Mopixs
+#### Name to be changed
 
+2D Game engine in Swift
 
 ### Todo Tasks
 ```
@@ -7,50 +10,50 @@ o = WIP
 / = Happy path works
 x = Done
 
-- [o] Virtual Drive
-- - [/] Directory mounted drive - reading files
-- - [ ] Directory mounted drive - writing files
-- - [ ] File mounted drive - reading/writing files
-- - [ ] File mounted drive - support compression: zstd, deflate
-- - [ ] File change callbacks - For hot reloading assets
-- [/] Atlas Generator / Dynamic Image Packer
-- - [ ] Plugin style codecs; JPEGXL
-- [ ] Loading and Drawing Fonts
-- [ ] Sprite sheets / pregenerated atlas
-- [o] Tweening library
-- [ ] Audio
-- - [ ] Wav and Ogg
-- - [ ] Sound Effects API
-- - [ ] Music Api
-- - [ ] Some way sync sound with game actions (mario odyssey)
-- - [ ] Plugin style codecs
-- - [ ] Sequencer / Instruments (like pico-8)
-- [o] UI
-- - [ ] Views, Images, Shadows, Fonts, Layer Effects (clipping, masks, border, shadows), Tables, Zoom/Tiling for scrollview, video player
-- - [ ] Images
-- - [ ] TextView
-- - [ ] Effects (clipping, masks, border, shadows)
-- - [ ] Gestures, User interaction
-- - [ ] ScrollView
-- - [ ] Tables
-- - [ ] Video player
-- [o] Input API
-- - [ ] Gamepad / Joystick Support
-- - [ ] Keyboard Support
-- - [o] Keymapping to virtual gamepad
-- - [ ] Load keymapping from file
-- - [ ] Support downloading/uploading mappings for devices
-- [ ] Project Editor
-- - [ ] Level Editor; Serializes with json5/binary
-- - [ ] Drag and drop resources; Resources can be referenced in the level editor
-- - [ ] Templates; Define and reuse stuff
-- - [ ] Style sheet; Globaly? defined parameters (padding; text color; etc)
-- - [ ] Basic Image editor (mspaint)
-- - [ ] Basic sequencer
-- [ ] Networking API
-- - [ ] Serialize entire game state
-- [ ] Auto Sync Engine class
-- [ ] Move project to SPM; requires heavily modifing SDL to support -fmodules compile flag
+[o] Virtual Drive
+- [/] Directory mounted drive - reading files
+- [ ] Directory mounted drive - writing files
+- [ ] File mounted drive - reading/writing files
+- [ ] File mounted drive - support compression: zstd, deflate
+- [ ] File change callbacks - For hot reloading assets
+[/] Atlas Generator / Dynamic Image Packer
+- [ ] Plugin style codecs; JPEGXL
+[ ] Loading and Drawing Fonts
+[ ] Sprite sheets / pregenerated atlas
+[o] Tweening library
+[ ] Audio
+- [ ] Wav and Ogg
+- [ ] Sound Effects API
+- [ ] Music Api
+- [ ] Some way sync sound with game actions (mario odyssey)
+- [ ] Plugin style codecs
+- [ ] Sequencer / Instruments (like pico-8)
+[o] UI
+- [ ] Views, Images, Shadows, Fonts, Layer Effects (clipping, masks, border, shadows), Tables, Zoom/Tiling for scrollview, video player
+- [ ] Images
+- [ ] TextView
+- [ ] Effects (clipping, masks, border, shadows)
+- [ ] Gestures, User interaction
+- [ ] ScrollView
+- [ ] Tables
+- [ ] Video player
+[o] Input API
+- [ ] Gamepad / Joystick Support
+- [ ] Keyboard Support
+- [o] Keymapping to virtual gamepad
+- [ ] Load keymapping from file
+- [ ] Support downloading/uploading mappings for devices
+[ ] Project Editor
+- [ ] Level Editor; Serializes with json5/binary
+- [ ] Drag and drop resources; Resources can be referenced in the level editor
+- [ ] Templates; Define and reuse stuff
+- [ ] Style sheet; Globaly? defined parameters (padding; text color; etc)
+- [ ] Basic Image editor (mspaint)
+- [ ] Basic sequencer
+[ ] Networking API
+- [ ] Serialize entire game state
+[ ] Auto Sync Engine class
+[ ] Move project to SPM; requires heavily modifing SDL to support -fmodules compile flag
 ```
 
 I'm not sure how I want to design an ECS. I would always prefer to use an existing solution like flecs. Though I want to support hardcoded classes first. I also have previously designed a way for dynamic behavior via components + json. It removed the need of state machines because state was just the makeup of the components the entity had. 
@@ -82,6 +85,7 @@ I also spent a chunk of time wrapping The-Forge api to nim. One of the reasons I
 ### Virtual Drive
 
 Virtual drive allows you to combine directories into one virtual drive. This is to make modding much easier. Lets say a mod adds more maps your resource directory could look like:
+```
 C:/game/BaseGame.1.0.1/maps/01.dat
 C:/game/BaseGame.1.0.1/maps/02.dat
 C:/game/MyMod.0.0.1/maps/02.dat
@@ -91,8 +95,8 @@ mounting both will produce this virtual file system:
 /maps/01.dat
 /maps/02.dat (from MyMod)
 /maps/03.dat
-
-02.dat from BaseGame is still accessable via vd://BaseGame.1.0.1/02.dat
+````
+02.dat from BaseGame is still accessable via `vd://BaseGame.1.0.1/02.dat`
 
 Example Usage:
 ```
@@ -112,9 +116,10 @@ Example Usage:
 ```
 
 Urls to virtual files are expected or returned in URI format:
+```
 vd://<package_name>.<version>/<path>
 or
 vd://<package_name>/<path>
 or
 vd:/<path>
-
+```
