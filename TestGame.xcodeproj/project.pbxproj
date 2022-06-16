@@ -339,7 +339,7 @@
 		DFA4557E2804804500638A35 /* common.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = common.c; sourceTree = "<group>"; };
 		DFA8ADE3285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = oryx_16bit_scifi_vehicles_105.bmp; sourceTree = "<group>"; };
 		DFA8ADE4285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = oryx_16bit_scifi_vehicles_189.bmp; sourceTree = "<group>"; };
-		DFA8ADEB285976C300DDC22B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		DFA8ADEB285976C300DDC22B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		DFC58370280641770097E39B /* TimeBank.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBank.swift; sourceTree = "<group>"; };
 		DFC5837B280641AF0097E39B /* IntervalBank.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntervalBank.swift; sourceTree = "<group>"; };
 		DFC583D9280773DA0097E39B /* Window.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Window.swift; sourceTree = "<group>"; };
