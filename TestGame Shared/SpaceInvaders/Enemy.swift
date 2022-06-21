@@ -14,7 +14,7 @@ class Enemy {
     var pos: Point<Int>
     var numSteps = 0
     var direction = 1
-    var collisionNode:CollisionNode2D = CollisionNode2D(x: 0, y: 0, width: 10, height: 10)
+    var collisionNode:CollisionNode2D = CollisionNode2D(x: 0, y: 0, width: 24, height: 24)
     var isAlive = false
     
     func logic() {
@@ -25,5 +25,6 @@ class Enemy {
         }
         let moveSpeed = 10
         pos.x += moveSpeed * direction
+        numSteps += direction
     }
 }

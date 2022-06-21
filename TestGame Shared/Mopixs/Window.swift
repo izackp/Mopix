@@ -84,12 +84,17 @@ public class Window {
         return newDevice
     }
     */
-    open func draw(time:UInt64) throws {
-        if (_needsDisplay == false) { return }
-        _needsDisplay = false
-        try renderer.setDrawColor(red: 0xFF, green: 0xFF, blue: 0xFF, alpha: 0xFF)
+    open func drawStart() throws {
+        try renderer.setDrawColor(red: 0x00, green: 0x00, blue: 0x00, alpha: 0xFF)
         try renderer.clear()
-        
+    }
+    
+    open func draw(time:UInt64) throws {
+        //if (_needsDisplay == false) { return }
+        //_needsDisplay = false
+        //try renderer.setDrawColor(red: 0xFF, green: 0xFF, blue: 0xFF, alpha: 0xFF)
+        //try renderer.clear()
+        /*
         let surface = try SDLSurface(rgb: (0, 0, 0, 0), size: (width: 1, height: 1), depth: 32)
         let color = SDLColor(
             format: try SDLPixelFormat(format: .argb8888),
@@ -99,7 +104,10 @@ public class Window {
         let surfaceTexture = try SDLTexture(renderer: renderer, surface: surface)
         try surfaceTexture.setBlendMode([.alpha])
         try renderer.copy(surfaceTexture, destination: SDL_Rect(x: 100, y: 100, w: 200, h: 200))
+         */
         
+    }
+    open func drawFinish() {
         renderer.present()
     }
     

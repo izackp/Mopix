@@ -20,6 +20,11 @@ struct EntityPool<T> {
         pendingItems.append(contentsOf: newItemList)
     }
     
+    mutating func insertPending() {
+        items.append(contentsOf: pendingItems)
+        pendingItems.removeAll()
+    }
+    
     //TODO: Check if faster or slower; hopefully avoids copy of structs
     mutating func forEach(_ action:(inout T)->()) {
         for i in 0..<items.count {

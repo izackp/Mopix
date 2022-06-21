@@ -30,9 +30,7 @@ final class CustomWindow: Window {
         
         Task { [weak self] in
             do {
-                let resources = Bundle.main.bundleURL.appendingPathComponent("Contents").appendingPathComponent("Resources")
-                print("Mounting: \(resources)")
-                try await self?.parentApp.vd.mountPath(path: resources)
+
                 print("Loading Textures..")
                 let sprite = try imageManager.sprite(named:"oryx_16bit_scifi_vehicles_105.bmp")
                 print("idk: \(String(describing: sprite?.texture.sourceRect))")
@@ -57,18 +55,19 @@ final class CustomWindow: Window {
     }
     
     override func draw(time: UInt64) throws {
-        try renderer.setDrawColor(red: 0x00, green: 0x00, blue: 0x00, alpha: 0xFF)
-        try renderer.clear()
+        //try renderer.setDrawColor(red: 0x00, green: 0x00, blue: 0x00, alpha: 0xFF)
+        //try renderer.clear()
+        /*
         let texture = pixelTexture
         
         try rootView.draw(renderer, texture: texture)
         if let randomImage = randomImage {
             let dest = randomImage.texture.sourceRect.sdlRect()
             randomImage.draw(renderer, dest)
-        }
+        }*/
         
         // render to screen
-        renderer.present()
+        //renderer.present()
     }
     
     func buildTexture() throws -> SDLTexture {

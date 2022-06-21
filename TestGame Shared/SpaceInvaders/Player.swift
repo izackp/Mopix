@@ -16,6 +16,7 @@ class Player : IVirutalControllerListener {
     }
     
     var pos = Point<Int>.zero
+    var vel = Vector<Int>.zero
     var clientId:UInt32 = 0
     var deviceId:UInt32 = 0
     weak var scene:SIScene!
@@ -34,7 +35,8 @@ class Player : IVirutalControllerListener {
     }
     
     func logic() {
-        
+        pos.x += vel.x
+        pos.y += vel.y
     }
     
     func onInput(_ controller: VirtualController) {
@@ -44,13 +46,24 @@ class Player : IVirutalControllerListener {
                 let button = commandEnum.buttonId
             else { continue }
             
-            switch (button) {
-            case ButtonId.dpadLeft: pos.x -= 3; break
-            case ButtonId.dpadRight: pos.x += 3; break
-            case ButtonId.action:
-                let i = Bullet(self.pos + Point<Int>(0, -10), Vector(0, -10))
-                scene.bullets.append(i)
-            default: break
+            if (eachCommand.value == 1) {
+                switch (button) {
+                case ButtonId.dpadLeft: vel.x = -3; break
+                case ButtonId.dpadRight: vel.x = 3; break
+                default: break
+                }
+            } else {
+                if (vel.x < 0 && button == ButtonId.dpadLeft) {
+                    vel.x = 0
+                }
+                if (vel.x > 0 && button == ButtonId.dpadRight) {
+                    vel.x = 0
+                }
+                if (button == ButtonId.action) {
+                    let i = Bullet(self.pos + Point<Int>(0, -10), Vector(0, -10))
+                    i.isAlive = true
+                    scene.bullets.append(i)
+                }
             }
         }
     }

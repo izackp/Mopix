@@ -19,6 +19,8 @@ class Bullet {
     
     func logic(_ scene:SIScene) {
         pos = pos + vec
+        collisionNode.x = pos.x
+        collisionNode.y = pos.y
         if (scene.bounds.collides(collisionNode) == false) {
             //destroy self
             isAlive = false

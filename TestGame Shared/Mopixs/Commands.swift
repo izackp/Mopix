@@ -183,7 +183,7 @@ public enum CommandId: UInt32, ExpressibleByIntegerLiteral {
     var buttonId: ButtonId? {
         let value = self.rawValue
         if (value < 19) {
-            return ButtonId(rawValue: 19)
+            return ButtonId(rawValue: Int(value))
         }
         return nil
     }

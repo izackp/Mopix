@@ -54,7 +54,7 @@ public class ImageManager {
         self.atlas = atlas
         self.drive = drive
     }
-    let _imageCache:[String:Image] = [:]
+    var _imageCache:[String:Image] = [:]
     
     func sprite(named:String) throws -> Image? {
         guard let url = drive.urlForFileName(named) else { return nil }
@@ -82,6 +82,7 @@ public class ImageManager {
                 let idk:SubTexture = try atlas.saveIntoAtlas(bufferPtr, bytesPerPixel: 0, width: width, pitch: pitch)
                 return Image(texture: idk, atlas: atlas)
             }
+            _imageCache[path] = image
             return image
         } catch {
             print("Couldn't load sprite: \(error.localizedDescription)")

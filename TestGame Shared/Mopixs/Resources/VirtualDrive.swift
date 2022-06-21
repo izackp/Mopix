@@ -80,7 +80,7 @@ public class VirtualDrive {
         return nil
     }
             
-    func mountPath(path:URL, mountDir:Substring = "/") async throws {
+    func mountPath(path:URL, mountDir:Substring = "/") throws {
         if (path.isFileURL == false) {
             throw GenericError("Url is not a file path \(path.absoluteString)")
         }

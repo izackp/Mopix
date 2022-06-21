@@ -39,6 +39,10 @@ public struct Point<T: Numeric>: Equatable {
         }
     }
     
+    public func offset(_ x: T, _ y: T) -> Point<T> {
+        return Point(self.x + x, self.y + y)
+    }
+    
     static func - (left: Point<T>, right: Point<T>) -> Point<T> {
         return Point<T>(left.x - right.x, left.y - right.y)
     }
