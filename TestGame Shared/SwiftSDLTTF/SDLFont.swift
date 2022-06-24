@@ -34,6 +34,7 @@ extension Character {
         guard let ch = scaler else { throw GenericError("Can't convert \(self) to UInt32")}
         return ch
     }
+    
     internal func toSurface(_ block:(_ ch:UInt32) -> (UnsafeMutablePointer<SDL_Surface>?)) throws -> SDLSurface {
         let ch = try toUInt32()
         let result = block(ch)
@@ -75,7 +76,7 @@ public final class SDLFont {
     }
     
     //MARK: - Attributes
-    static func byteSwappedUnicode(_ swapped:Bool) {
+    public static func byteSwappedUnicode(_ swapped:Bool) {
         TTF_ByteSwappedUNICODE(swapped.toSDLBool())
     }
     
@@ -89,21 +90,21 @@ public final class SDLFont {
         case strikethrough = 0x00000008
     }
     
-    func getStyle() -> BitMaskOptionSet<FontStyle> {
+    public func getStyle() -> BitMaskOptionSet<FontStyle> {
         let style = TTF_GetFontStyle(internalPointer)
         return BitMaskOptionSet<FontStyle>(rawValue: style)
     }
     
-    func setStyle(_ style:BitMaskOptionSet<FontStyle>) {
+    public func setStyle(_ style:BitMaskOptionSet<FontStyle>) {
         TTF_SetFontStyle(internalPointer, style.rawValue)
     }
     
-    func getOutline() -> Int {
+    public func getOutline() -> Int {
         let outline = TTF_GetFontOutline(internalPointer)
         return Int(outline)
     }
     
-    func setOutline(_ outline:Int) {
+    public func setOutline(_ outline:Int) {
         TTF_SetFontOutline(internalPointer, Int32(outline))
     }
     
@@ -115,12 +116,12 @@ public final class SDLFont {
         case lightSubpixel = 4
     }
     
-    func getHinting() -> Hinting {
+    public func getHinting() -> Hinting {
         let result = TTF_GetFontHinting(internalPointer)
         return Hinting(rawValue: result)!// ?? FontHinting.normal
     }
     
-    func setHinting(_ hinting:Hinting) {
+    public func setHinting(_ hinting:Hinting) {
         TTF_SetFontHinting(internalPointer, hinting.rawValue)
     }
     
@@ -130,70 +131,70 @@ public final class SDLFont {
         case right = 2
     }
     
-    func getWrappedAlign() -> WrappedAlign {
+    public func getWrappedAlign() -> WrappedAlign {
         let result = TTF_GetFontWrappedAlign(internalPointer)
         return WrappedAlign(rawValue: result)!// ?? FontHinting.normal
     }
     
-    func setWrappedAlign(_ alignment:WrappedAlign) {
+    public func setWrappedAlign(_ alignment:WrappedAlign) {
         TTF_SetFontWrappedAlign(internalPointer, alignment.rawValue)
     }
     
-    func height() -> Int {
+    public func height() -> Int {
         return Int(TTF_FontHeight(internalPointer))
     }
     
-    func ascent() -> Int {
+    public func ascent() -> Int {
         return Int(TTF_FontAscent(internalPointer))
     }
     
-    func descent() -> Int {
+    public func descent() -> Int {
         return Int(TTF_FontDescent(internalPointer))
     }
     
-    func lineSkip() -> Int {
+    public func lineSkip() -> Int {
         return Int(TTF_FontLineSkip(internalPointer))
     }
     
-    func getKerningAllowed() -> Bool {
+    public func getKerningAllowed() -> Bool {
         return TTF_GetFontKerning(internalPointer) > 0
     }
     
-    func setKerningAllowed(_ value:Bool) {
+    public func setKerningAllowed(_ value:Bool) {
         let conv:Int32 = value ? 1 : 0
         TTF_SetFontKerning(internalPointer, conv)
     }
     
-    func faces() -> Int {
+    public func faces() -> Int {
         return Int(TTF_FontFaces(internalPointer))
     }
     
-    func facesIsFixedWidth() -> Bool {
+    public func facesIsFixedWidth() -> Bool {
         return TTF_FontFaceIsFixedWidth(internalPointer) > 0
     }
     
-    func faceFamilyName() -> String? {
+    public func faceFamilyName() -> String? {
         guard let cStr = TTF_FontFaceFamilyName(internalPointer) else { return nil }
         return String(cString: cStr)
     }
     
-    func faceStyleName() -> String? {
+    public func faceStyleName() -> String? {
         guard let cStr = TTF_FontFaceStyleName(internalPointer) else { return nil }
         return String(cString: cStr)
     }
     
-    func glphyIsProvided(_ c:Character) throws -> Bool {
+    public func glphyIsProvided(_ c:Character) throws -> Bool {
         let ch = try c.toUInt32()
         let result = TTF_GlyphIsProvided32(internalPointer, ch)
         return (result > 0)
     }
     
-    struct GlyphMetrics {
-        let frame:Frame<Int> //TODO: remove? Strongly ties this to the game engine..
-        let advance:Int
+    public struct GlyphMetrics {
+        public let frame:Frame<Int> //TODO: remove? Strongly ties this to the game engine..
+        public let advance:Int
     }
     
-    func glyphMetrics(c:Character) throws -> GlyphMetrics {
+    public func glyphMetrics(c:Character) throws -> GlyphMetrics {
         var minX:Int32 = 0
         var maxX:Int32 = 0
         var minY:Int32 = 0
@@ -207,13 +208,13 @@ public final class SDLFont {
         return GlyphMetrics(frame: frame, advance: Int(advance))
     }
     
-    func setFontSize(ptSize:Int, hdpi:Int = 0, vdpi:Int = 0) throws {
+    public func setFontSize(ptSize:Int, hdpi:Int = 0, vdpi:Int = 0) throws {
         let result = TTF_SetFontSizeDPI(internalPointer, Int32(ptSize), UInt32(hdpi), UInt32(vdpi))
         try result.sdlThrow(type: type(of: self))
     }
     
     //Swift string is backed by UTF-8 so it doesn't make sense to support more than that.
-    func size(_ str:String) throws -> (Int,Int) {
+    public func size(_ str:String) throws -> (Int,Int) {
         var w:Int32 = 0
         var h:Int32 = 0
         try str.withCString { (cStr:UnsafePointer<CChar>) in
