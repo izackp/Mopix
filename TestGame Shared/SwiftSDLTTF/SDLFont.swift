@@ -42,7 +42,6 @@ extension Character {
     }
 }
 
-//TODO: A big question here.. do we use built in Font from foundation?
 public final class SDLFont {
     
     // MARK: - Properties
