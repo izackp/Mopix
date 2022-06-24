@@ -59,9 +59,8 @@ public final class SDLSurface {
         self.internalPointer = ptr
     }
     
-    public init(ptr:UnsafeMutableRawBufferPointer) throws {
-        
-        let rwops = SDL_RWFromMem(ptr.baseAddress, Int32(ptr.count))
+    public init(bmpDataPtr:UnsafeMutableRawBufferPointer) throws {
+        let rwops = SDL_RWFromMem(bmpDataPtr.baseAddress, Int32(bmpDataPtr.count))
         let internalPointer = SDL_LoadBMP_RW(rwops, 0)
         self.internalPointer = try internalPointer.sdlThrow(type: type(of: self))
     }

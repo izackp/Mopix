@@ -20,6 +20,10 @@ struct EntityPool<T> {
         pendingItems.append(contentsOf: newItemList)
     }
     
+    //We have no idea what will create an entity: A collision, a death, an event so
+    //by adding to pending we can either garunteee execution on the same tick or the next
+    //and avoid inconsistency (missing events) by running them all again over pending
+    //or saving them for the next tick
     mutating func insertPending() {
         items.append(contentsOf: pendingItems)
         pendingItems.removeAll()

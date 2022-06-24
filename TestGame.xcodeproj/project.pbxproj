@@ -7,12 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DF2D827228662EED00D4A860 /* TTF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827128662EED00D4A860 /* TTF.swift */; };
+		DF2D827328662EED00D4A860 /* TTF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827128662EED00D4A860 /* TTF.swift */; };
+		DF2D827428662EED00D4A860 /* TTF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827128662EED00D4A860 /* TTF.swift */; };
+		DF2D82762866300C00D4A860 /* SDLFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82752866300C00D4A860 /* SDLFont.swift */; };
+		DF2D82772866300C00D4A860 /* SDLFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82752866300C00D4A860 /* SDLFont.swift */; };
+		DF2D82782866300C00D4A860 /* SDLFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82752866300C00D4A860 /* SDLFont.swift */; };
 		DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DD92851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DDA2851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */; };
 		DF6D4DDD28521DB80046BF8D /* CommandRepeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */; };
 		DF6D4DDE28521DB80046BF8D /* CommandRepeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */; };
+		DF81A1E828638CE50089E898 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1E728638CE50089E898 /* TextView.swift */; };
+		DF81A1E928638CE50089E898 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1E728638CE50089E898 /* TextView.swift */; };
+		DF81A1EA28638CE50089E898 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1E728638CE50089E898 /* TextView.swift */; };
+		DF81A1F328638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
+		DF81A1F428638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
+		DF81A1F528638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
+		DF81A1F7286418B50089E898 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF81A1F6286418B50089E898 /* SDL2_ttf.framework */; };
+		DF81A1F9286418BB0089E898 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF81A1F8286418BB0089E898 /* SDL2_ttf.framework */; };
+		DF81A1FB286418BF0089E898 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF81A1FA286418BF0089E898 /* SDL2_ttf.framework */; };
 		DFA454FA2804599600638A35 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DFA454F82804599600638A35 /* LaunchScreen.storyboard */; };
 		DFA455022804599600638A35 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA455012804599600638A35 /* AppDelegate.swift */; };
 		DFA455042804599600638A35 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA455032804599600638A35 /* GameViewController.swift */; };
@@ -322,8 +337,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DF2D827128662EED00D4A860 /* TTF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTF.swift; sourceTree = "<group>"; };
+		DF2D82752866300C00D4A860 /* SDLFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDLFont.swift; sourceTree = "<group>"; };
 		DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Commands+SDL.swift"; sourceTree = "<group>"; };
 		DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRepeater.swift; sourceTree = "<group>"; };
+		DF81A1E728638CE50089E898 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
+		DF81A1F228638D6D0089E898 /* UIRenderContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRenderContext.swift; sourceTree = "<group>"; };
+		DF81A1F6286418B50089E898 /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF81A1F8286418BB0089E898 /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF81A1FA286418BF0089E898 /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFA454E92804599600638A35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DFA454EE2804599600638A35 /* TestGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFA454F92804599600638A35 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -411,6 +433,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF81A1FB286418BF0089E898 /* SDL2_ttf.framework in Frameworks */,
 				DFE172322804DE8100C44AB0 /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -419,6 +442,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF81A1F9286418BB0089E898 /* SDL2_ttf.framework in Frameworks */,
 				DFE173E1280621C900C44AB0 /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -427,6 +451,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF81A1F7286418B50089E898 /* SDL2_ttf.framework in Frameworks */,
 				DFE173E0280621C300C44AB0 /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -448,6 +473,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DF2D826928662ED000D4A860 /* SwiftSDLTTF */ = {
+			isa = PBXGroup;
+			children = (
+				DF2D827128662EED00D4A860 /* TTF.swift */,
+				DF2D82752866300C00D4A860 /* SDLFont.swift */,
+			);
+			path = SwiftSDLTTF;
+			sourceTree = "<group>";
+		};
 		DF6D4DCF2851DF420046BF8D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -474,6 +508,7 @@
 		DFA454E52804599500638A35 /* TestGame Shared */ = {
 			isa = PBXGroup;
 			children = (
+				DF2D826928662ED000D4A860 /* SwiftSDLTTF */,
 				DFA8ADDB2858FB2100DDC22B /* ExternalFiles */,
 				DFCA78602821D4A40099BC21 /* Extensions */,
 				DFE172592805104800C44AB0 /* SwiftSDL */,
@@ -536,6 +571,9 @@
 		DFA45582280480A100638A35 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DF81A1FA286418BF0089E898 /* SDL2_ttf.framework */,
+				DF81A1F8286418BB0089E898 /* SDL2_ttf.framework */,
+				DF81A1F6286418B50089E898 /* SDL2_ttf.framework */,
 				DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */,
 			);
 			name = Frameworks;
@@ -565,6 +603,8 @@
 			children = (
 				DFC583EF28077C9C0097E39B /* Layouts.swift */,
 				DFC583F328077CD00097E39B /* View.swift */,
+				DF81A1E728638CE50089E898 /* TextView.swift */,
+				DF81A1F228638D6D0089E898 /* UIRenderContext.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -1007,6 +1047,7 @@
 				DFCA78662821E6560099BC21 /* Animator.swift in Sources */,
 				DFE17281280510B500C44AB0 /* PixelFormat.swift in Sources */,
 				DFFF55D0285BB22C00536EAD /* Player.swift in Sources */,
+				DF2D82762866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFC5860A28125A900097E39B /* Common.swift in Sources */,
 				DFC583FC280792000097E39B /* MoPixUtil.swift in Sources */,
 				DFCA77FD281B30D00099BC21 /* OS.swift in Sources */,
@@ -1022,6 +1063,8 @@
 				DFE1726C280510B500C44AB0 /* Surface.swift in Sources */,
 				DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */,
 				DFE17272280510B500C44AB0 /* DisplayMode.swift in Sources */,
+				DF81A1E828638CE50089E898 /* TextView.swift in Sources */,
+				DF2D827228662EED00D4A860 /* TTF.swift in Sources */,
 				DFE1727E280510B500C44AB0 /* CountableSet.swift in Sources */,
 				DFFF55E4285BB2A800536EAD /* Enemy.swift in Sources */,
 				DFE17269280510B500C44AB0 /* VideoDisplay.swift in Sources */,
@@ -1036,6 +1079,7 @@
 				DFCA7801281B37050099BC21 /* String+Util.swift in Sources */,
 				DFC5837C280641AF0097E39B /* IntervalBank.swift in Sources */,
 				DFC584042807A8610097E39B /* SDLColor+Ext.swift in Sources */,
+				DF81A1F328638D6D0089E898 /* UIRenderContext.swift in Sources */,
 				DFC5860F28125B240097E39B /* Geometry+SDL.swift in Sources */,
 				DFE17290280510B500C44AB0 /* SDLWindow.swift in Sources */,
 				DFFF55DC285BB27700536EAD /* CollisionNode2D.swift in Sources */,
@@ -1052,8 +1096,10 @@
 				DFCA77812818AF020099BC21 /* VirtualDrive.swift in Sources */,
 				DFE17276280510B500C44AB0 /* Error.swift in Sources */,
 				DFC583F128077C9C0097E39B /* Layouts.swift in Sources */,
+				DF81A1F428638D6D0089E898 /* UIRenderContext.swift in Sources */,
 				DFA455802804804500638A35 /* common.c in Sources */,
 				DFFF55E1285BB28B00536EAD /* Scene.swift in Sources */,
+				DF81A1E928638CE50089E898 /* TextView.swift in Sources */,
 				DFC5861028125B240097E39B /* Geometry+SDL.swift in Sources */,
 				DFC585D72811CAD70097E39B /* AtlasAllocator.swift in Sources */,
 				DFCA786B2821E9F80099BC21 /* SpaceInvaders.swift in Sources */,
@@ -1075,6 +1121,7 @@
 				DFC583EC2807762B0097E39B /* Engine.swift in Sources */,
 				DFC583E0280774380097E39B /* Window+Ext.swift in Sources */,
 				DFFABF37282C675200C9ABAA /* Commands.swift in Sources */,
+				DF2D827328662EED00D4A860 /* TTF.swift in Sources */,
 				DFFF55D5285BB23900536EAD /* EntityPool.swift in Sources */,
 				DFC584052807A8620097E39B /* SDLColor+Ext.swift in Sources */,
 				DFC583E82807750B0097E39B /* TestGameApp.swift in Sources */,
@@ -1085,6 +1132,7 @@
 				DF6D4DD92851DF6E0046BF8D /* Commands+SDL.swift in Sources */,
 				DFA455042804599600638A35 /* GameViewController.swift in Sources */,
 				DFE1726A280510B500C44AB0 /* VideoDisplay.swift in Sources */,
+				DF2D82772866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFE172DF2805C72E00C44AB0 /* Geometry.swift in Sources */,
 				DFA455022804599600638A35 /* AppDelegate.swift in Sources */,
 				DFE1728E280510B500C44AB0 /* Texture.swift in Sources */,
@@ -1135,6 +1183,7 @@
 				DFCA78682821E6560099BC21 /* Animator.swift in Sources */,
 				DFE1726B280510B500C44AB0 /* VideoDisplay.swift in Sources */,
 				DFFF55D2285BB22C00536EAD /* Player.swift in Sources */,
+				DF2D82782866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFC5860C28125A900097E39B /* Common.swift in Sources */,
 				DFC583FE280792000097E39B /* MoPixUtil.swift in Sources */,
 				DFCA77FF281B30D00099BC21 /* OS.swift in Sources */,
@@ -1150,6 +1199,8 @@
 				DFC583E1280774380097E39B /* Window+Ext.swift in Sources */,
 				DF6D4DDA2851DF6E0046BF8D /* Commands+SDL.swift in Sources */,
 				DFE17271280510B500C44AB0 /* BlendMode.swift in Sources */,
+				DF81A1EA28638CE50089E898 /* TextView.swift in Sources */,
+				DF2D827428662EED00D4A860 /* TTF.swift in Sources */,
 				DFE17292280510B500C44AB0 /* SDLWindow.swift in Sources */,
 				DFFF55E6285BB2A800536EAD /* Enemy.swift in Sources */,
 				DFE1726E280510B500C44AB0 /* Surface.swift in Sources */,
@@ -1164,6 +1215,7 @@
 				DFCA7803281B37050099BC21 /* String+Util.swift in Sources */,
 				DFC5837E280641AF0097E39B /* IntervalBank.swift in Sources */,
 				DFC584062807A8620097E39B /* SDLColor+Ext.swift in Sources */,
+				DF81A1F528638D6D0089E898 /* UIRenderContext.swift in Sources */,
 				DFC5861128125B240097E39B /* Geometry+SDL.swift in Sources */,
 				DFE17295280510B500C44AB0 /* Color.swift in Sources */,
 				DFFF55DE285BB27700536EAD /* CollisionNode2D.swift in Sources */,

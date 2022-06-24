@@ -16,6 +16,9 @@ public class TickBank {
     var _timePerTick:UInt64 //relative to start
     var _timeBank:UInt64
     
+    var _lastTime:UInt64 = 0
+    var _currentTime:UInt64 = 0
+    
     public init(startTime:UInt64, timePerTick:UInt64, startingTick:UInt64) {
         _startTime = startTime
         _startTick = startingTick
@@ -32,13 +35,15 @@ public class TickBank {
         return Float(_timeBank) / Float(_timePerTick)
     }
 
-    public func deposit(time:UInt64) {
-        _timeBank += time
+    public func setCurrentTime(time:UInt64) {
+        _currentTime = time
+        //_timeBank += time
     }
 
     public func withdraw() -> Bool {
-        if (_timeBank >= _timePerTick) {
-            _timeBank -= _timePerTick
+        let delta = _currentTime - _lastTime
+        if (delta >= _timePerTick) {
+            _lastTime += _timePerTick
             _ticks += 1
             return true
         }
@@ -46,9 +51,10 @@ public class TickBank {
     }
     
     public func withdrawAll() -> UInt64 {
-        let amount = _timeBank / _timePerTick
+        let delta = _currentTime - _lastTime
+        let amount = delta / _timePerTick
         let total = amount * _timePerTick
-        _timeBank -= total
+        _lastTime += total
         _ticks += amount
         return amount
     }

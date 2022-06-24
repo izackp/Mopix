@@ -43,13 +43,46 @@ public class Image {
         } catch {
             print("Couldn't draw image")
         }
+    }
+}
 
+//A few ways we can do this:
+//Lazy: Add to atlas as we go. However, the glyph could end up in another texture page
+//Upfront: Load it all at once
+//Temp: Load it once lazily, in order to draw string to texture.
+//Immediate: Don't add to atlas and draw directly..
+//I think we can accomplish 'Temp' via only lazy. We just need to drop the font when we're done with it.
+public class Font {
+    let _fileUrl:URL
+    var _glyphs:[Character:SubTexture] = [:] //TODO: Array or dictionary?
+    let _atlas:ImageAtlas
+    let _pointSize:Int
+    public init(atlas: ImageAtlas, url:URL, pointSize:Int) {
+        _atlas = atlas
+        _pointSize = pointSize
+        _fileUrl = url
+    }
+    
+    func draw(_ renderer:SDLRenderer, _ dest:SDL_Rect, _ c:Character) {
+        /*
+        do {
+            let subTexture = try _glyphs.fetchOrInsert(c) {
+                let data = try Data(contentsOf: _fileUrl)
+                
+            }
+            
+            let sdlTexture = _atlas.listPages[subTexture.texturePageIndex]
+            let source = subTexture.sourceRect.sdlRect()
+            try renderer.copy(sdlTexture.texture, source: source, destination: dest)
+        } catch {
+            print("Couldn't draw image")
+        }*/
     }
 }
 
 public class ImageManager {
     let atlas:ImageAtlas
-    let drive:VirtualDrive
+    let drive:VirtualDrive //TODO: doesn't _need_ to be in here.. maybe we can make a subclass
     public init(atlas: ImageAtlas, drive: VirtualDrive) {
         self.atlas = atlas
         self.drive = drive
@@ -70,13 +103,12 @@ public class ImageManager {
             guard var file = try drive.readFile(url) else { return nil }
         
             let preFormatSurface = try file.withUnsafeMutableBytes { (ptr:UnsafeMutableRawBufferPointer) in
-                return try SDLSurface.init(ptr: ptr)
+                return try SDLSurface.init(bmpDataPtr: ptr)
             }
             let surface = try preFormatSurface.convertSurface(format: SDL_PIXELFORMAT_ARGB8888)
             let width = surface.width
             let numPixels = surface.width * surface.height * 4
-            let pitch = surface.pitch//surface.pitch == width * bytesPerPixel //TODO: yea resolve this
-            //let bytesPerPixel = surface.pitch
+            let pitch = surface.pitch
             let image = try surface.withUnsafeMutableBytes { (ptr:UnsafeMutableRawPointer) -> Image in
                 let bufferPtr = UnsafeRawBufferPointer(start: ptr, count: numPixels)
                 let idk:SubTexture = try atlas.saveIntoAtlas(bufferPtr, bytesPerPixel: 0, width: width, pitch: pitch)

@@ -7,6 +7,8 @@
 
 import Foundation
 
+
+
 class Enemy {
     init (_ pos: Point<Int>) {
         self.pos = pos
@@ -14,7 +16,7 @@ class Enemy {
     var pos: Point<Int>
     var numSteps = 0
     var direction = 1
-    var collisionNode:CollisionNode2D = CollisionNode2D(x: 0, y: 0, width: 24, height: 24)
+    var collisionNode = CollisionNode2D(x: 0, y: 0, width: 24, height: 24)
     var isAlive = false
     
     func logic() {
@@ -23,7 +25,7 @@ class Enemy {
         } else if (numSteps == -10) {
             direction = 1
         }
-        let moveSpeed = 10
+        let moveSpeed = 2
         pos.x += moveSpeed * direction
         numSteps += direction
     }

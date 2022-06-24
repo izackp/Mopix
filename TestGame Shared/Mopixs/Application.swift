@@ -7,6 +7,80 @@
 
 import Foundation
 import SDL2
+import SDL2_ttf
+
+extension Dictionary {
+    mutating func fetchOrInsert(_ key:Key, _ builder:()throws->(Value)) rethrows -> Value {
+        if let item = self[key] {
+            return item
+        }
+        
+        let newItem = try builder()
+        self[key] = newItem
+        return newItem
+    }
+}
+
+func approxRollingAverage(avg: Double, input: Double, numSamples:Double) -> Double {
+    var result = avg - avg/numSamples
+    result += input/numSamples
+    return result
+}
+
+public class SingleStat {
+    var average:Double = 0
+    /*public init(average: Double) {
+        self.average = average
+    }*/
+    
+    public func measure(_ block:() throws ->()) rethrows {
+        let time = CFAbsoluteTimeGetCurrent()
+        try block()
+        let elapsed = CFAbsoluteTimeGetCurrent() - time
+        insertSample(elapsed)
+    }
+    
+    public func insertSample(_ value:Double) {
+        average = approxRollingAverage(avg: average, input: value, numSamples: 60)
+    }
+}
+
+public class Stats {
+    
+    var stats:[String: SingleStat] = [:]
+    var enabled:Bool = true
+    var printDelay:Double = 10
+    var lastPrint:Double = 0
+    
+    public func measure(_ name:String, _ block:() throws ->()) rethrows {
+        if (enabled) {
+            let stat = stats.fetchOrInsert(name, {SingleStat()})
+            try stat.measure(block)
+        } else {
+            try block()
+        }
+    }
+    
+    public func insertSample(_ name:String, _ value:Double) {
+        if (enabled) {
+            let stat = stats.fetchOrInsert(name, {SingleStat()})
+            stat.insertSample(value)
+        }
+    }
+    
+    public func printStats() {
+        if (enabled == false) { return }
+        let currentTime = CFAbsoluteTimeGetCurrent()
+        let delta = currentTime - lastPrint
+        if (delta < printDelay) { return }
+        lastPrint = currentTime
+        print("Stats:")
+        for kvp in stats {
+            let average = String(format: "%.3f", kvp.value.average)
+            print("  \(average)s - \(kvp.key)")
+        }
+    }
+}
 
 public class StopWatch {
     var lastTime:Double
@@ -34,10 +108,12 @@ open class Application {
     var engine:SpaceInvaders = SpaceInvaders()
     //var delegate:LGAppDelegate
     var isRunning = true
+    var stats = Stats()
     
     public init() throws {
         //Note: automatically initializes the Event Handling, File I/O and Threading subsystems
         try SDL.initialize(subSystems: [.video])
+        try TTF.initialize()
         engine.start()
         let resources = Bundle.main.bundleURL.appendingPathComponent("Contents").appendingPathComponent("Resources")
         print("Mounting: \(resources)")
@@ -45,6 +121,7 @@ open class Application {
     }
     
     deinit {
+        TTF.quit()
         SDL.quit()
     }
     
@@ -76,38 +153,28 @@ open class Application {
         
         var allEvents = Arr<SDL_Event>.init()
         var allImmediateUseEvents:Arr<SDL_Event> = Arr<SDL_Event>.init()
-        //allEvents.reserveCapacity(10)
-        let stopWatch = StopWatch()
-        let stopWatchLogic = StopWatch()
-        var logicPhase:Double = 0
-        var drawPhase:Double = 0
-        var presentPhase:Double = 0
-        var windowCommand:Double = 0
-        var lastTime:UInt64 = 0
-        
-        let stopWatchLogic2 = StopWatch()
+
+
         while isRunning {
             try autoreleasepool {
                 while (SDL_PollEvent(&event) == 1) {
                     allImmediateUseEvents.append(event)
                     allEvents.append(event)
                 }
-                let newTime = SDL_GetTicks64()
-                let delta = newTime - lastTime
-                lastTime = newTime
-                //print("New round depositing \(delta)")
-                regulator.deposit(time: delta)
-                let count = regulator.withdrawAll()
-                let elapsedSinceStart = stopWatchLogic2.reset()
-                if (count > 0) {
-                    let elapsed = stopWatchLogic.reset()
-                    print("Time since last logic \(elapsed)s : \(count) - \(elapsedSinceStart)s")
-                    logic(allEvents, Int(count))
-                    allEvents.removeAll()
-                } else {
-                    print("Skip - \(elapsedSinceStart)s")
+                //TODO: Not great; ms precision will be 0 in a lot of cases without rendering
+                regulator.setCurrentTime(time: SDL_GetTicks64())
+                var count = regulator.withdrawAll()
+                if (count == 0) {
+                    //print("Skip - \(elapsedSinceStart)s")
                 }
-                logicPhase = stopWatch.reset()
+                while (count > 0) {
+                    stats.measure("logic") {
+                        logic(allEvents, Int(count))
+                    }
+                    allEvents.removeAll()
+                    count -= 1
+                }
+                
                 while (SDL_PollEvent(&event) == 1) {
                     allImmediateUseEvents.append(event)
                     allEvents.append(event)
@@ -123,19 +190,26 @@ open class Application {
                 
                 for eachWindow in listWindows {
                     guard let conv = eachWindow as? CustomWindow else { continue }
-                    eachWindow.handleEvents(allImmediateUseEvents)
                     
-                    windowCommand = stopWatch.reset()
+                    stats.measure("window - handle events") {
+                        eachWindow.handleEvents(allImmediateUseEvents)
+                    }
+                    
                     try eachWindow.drawStart()
-                    engine.onDraw(eachWindow.renderer, conv.imageManager) //TODO: I'm not sure how to tie the window to the engine.. lol
+                    stats.measure("engine - draw") {
+                        engine.onDraw(eachWindow.renderer, conv.imageManager) //TODO: I'm not sure how to tie the window to the engine.. lol
+                    }
                     //I think there should be a window view that gets tied to a camera in the engine..
-                    try eachWindow.draw(time: delta)
-                    drawPhase = stopWatch.reset()
-                    eachWindow.drawFinish() //TODO: Tied to vsync .. We should seperate to different threads or predict this somehow
-                    presentPhase = stopWatch.reset()
-                    print("logic: \(logicPhase)s, draw: \(drawPhase)s, present: \(presentPhase)s")
+                    try stats.measure("window - draw") {
+                        try eachWindow.draw(time: 0)
+                    }
+                    
+                    stats.measure("window - draw finish") {
+                        eachWindow.drawFinish() //TODO: Tied to vsync .. We should separate to different threads or predict this somehow
+                    }
                 }
                 allImmediateUseEvents.removeAll()
+                stats.printStats()
             }
         }
     }
