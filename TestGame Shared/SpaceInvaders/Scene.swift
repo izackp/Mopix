@@ -22,7 +22,7 @@ public class Scene {
         
     }
     
-    open func draw(_ renderer:SDLRenderer, _ imageManager:ImageManager) {
+    open func draw(_ renderer:SDLRenderer, _ imageManager:SimpleImageManager) {
         
     }
 }
@@ -70,7 +70,7 @@ public class SIScene : Scene {
         }
     }
     
-    public override func draw(_ renderer: SDLRenderer, _ imageManager: ImageManager) {
+    public override func draw(_ renderer: SDLRenderer, _ imageManager: SimpleImageManager) {
         let bullet = try! imageManager.sprite(named: "bullet.bmp")
         let playerSprite = try! imageManager.sprite(named: "oryx_16bit_scifi_vehicles_105.bmp")
         let enemySprite = try! imageManager.sprite(named: "oryx_16bit_scifi_vehicles_189.bmp")

@@ -13,7 +13,7 @@ public struct FontDesc : Hashable {
     public var weight:UInt16
     public var size:Float
     
-    public static let defaultFont = FontDesc(family: "default", weight: 100, size: 21)
+    public static let defaultFont = FontDesc(family: "Roboto", weight: 100, size: 21)
 }
 
 

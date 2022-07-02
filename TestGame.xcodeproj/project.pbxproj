@@ -28,6 +28,9 @@
 		DF2D82F32870DB6600D4A860 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82F22870DB6600D4A860 /* ImageManager.swift */; };
 		DF2D82F42870DB6600D4A860 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82F22870DB6600D4A860 /* ImageManager.swift */; };
 		DF2D82F52870DB6600D4A860 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82F22870DB6600D4A860 /* ImageManager.swift */; };
+		DF2D82FB2870E97A00D4A860 /* SimpleImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */; };
+		DF2D82FC2870E97A00D4A860 /* SimpleImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */; };
+		DF2D82FD2870E97A00D4A860 /* SimpleImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */; };
 		DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DD92851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DDA2851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
@@ -361,6 +364,8 @@
 		DF2D82EA2870DB1300D4A860 /* Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Image.swift; sourceTree = "<group>"; };
 		DF2D82EE2870DB2C00D4A860 /* Font.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Font.swift; sourceTree = "<group>"; };
 		DF2D82F22870DB6600D4A860 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
+		DF2D82F62870E8A700D4A860 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleImageManager.swift; sourceTree = "<group>"; };
 		DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Commands+SDL.swift"; sourceTree = "<group>"; };
 		DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRepeater.swift; sourceTree = "<group>"; };
 		DF81A1E728638CE50089E898 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
@@ -513,6 +518,7 @@
 				DF2D82EA2870DB1300D4A860 /* Image.swift */,
 				DFC585AC2810A6570097E39B /* ImageAtlas.swift */,
 				DF2D82F22870DB6600D4A860 /* ImageManager.swift */,
+				DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */,
 			);
 			path = ImageHandling;
 			sourceTree = "<group>";
@@ -679,6 +685,7 @@
 				DFCA77832818DBA40099BC21 /* MountedDir.swift */,
 				DFCA77E4281A44CB0099BC21 /* StringScanner.swift */,
 				DFCA7800281B37050099BC21 /* String+Util.swift */,
+				DF2D82F62870E8A700D4A860 /* README.md */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1067,6 +1074,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFC583E72807750B0097E39B /* TestGameApp.swift in Sources */,
+				DF2D82FB2870E97A00D4A860 /* SimpleImageManager.swift in Sources */,
 				DFC58371280641770097E39B /* TimeBank.swift in Sources */,
 				DFE172DA2805C6FE00C44AB0 /* Application.swift in Sources */,
 				DFC583E3280774CA0097E39B /* main.swift in Sources */,
@@ -1161,6 +1169,7 @@
 				DFC585AA2810A5070097E39B /* FontAtlas.swift in Sources */,
 				DFCA7802281B37050099BC21 /* String+Util.swift in Sources */,
 				DFCA77E6281A44CB0099BC21 /* StringScanner.swift in Sources */,
+				DF2D82FC2870E97A00D4A860 /* SimpleImageManager.swift in Sources */,
 				DFCA77FE281B30D00099BC21 /* OS.swift in Sources */,
 				DFC583DB280773DA0097E39B /* Window.swift in Sources */,
 				DFC583FD280792000097E39B /* MoPixUtil.swift in Sources */,
@@ -1211,6 +1220,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFC583E92807750B0097E39B /* TestGameApp.swift in Sources */,
+				DF2D82FD2870E97A00D4A860 /* SimpleImageManager.swift in Sources */,
 				DFC58373280641770097E39B /* TimeBank.swift in Sources */,
 				DFC5862C281265150097E39B /* main.swift in Sources */,
 				DFE17277280510B500C44AB0 /* Error.swift in Sources */,

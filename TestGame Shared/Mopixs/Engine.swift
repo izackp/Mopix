@@ -27,7 +27,7 @@ public class Engine {
         }
     }
     
-    open func onDraw(_ renderer:SDLRenderer, _ imageManager:ImageManager) {
+    open func onDraw(_ renderer:SDLRenderer, _ imageManager:SimpleImageManager) {
         for eachScene in scenes {
             eachScene.draw(renderer, imageManager)
         }

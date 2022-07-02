@@ -12,7 +12,7 @@ final class CustomWindow: Window {
     
     let rootView = View()
     let atlas:ImageAtlas
-    let imageManager:ImageManager
+    let imageManager:SimpleImageManager
     var randomImage:Image? = nil
     
     override init(parent: Application, title: String, frame: Frame<Int>, windowOptions: BitMaskOptionSet<SDLWindow.Option> = [.resizable, .shown], driver: SDLRenderer.Driver = .default, options: BitMaskOptionSet<SDLRenderer.Option> = []) throws {
@@ -23,11 +23,11 @@ final class CustomWindow: Window {
         
         let renderer = try SDLRenderer(window: sdlWindow, driver: driver, options: options)
         atlas = ImageAtlas(renderer)
-        imageManager = ImageManager(atlas: atlas, drive: parent.vd)
+        imageManager = SimpleImageManager(atlas: atlas, drive: parent.vd)
         imageManager.loadSystemFonts()
         let results = parent.vd.findByExt("ttf")
         for eachItem in results {
-            imageManager.loadFont(eachItem)
+            imageManager.loadVDFont(eachItem)
         }
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
