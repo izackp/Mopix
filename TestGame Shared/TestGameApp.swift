@@ -28,7 +28,7 @@ class TestGameApp : Application {
         //Mount Folders
         
 #if os(macOS)
-        let newWindow = try CustomWindow(parent: self, title: "My Test Game", frame: Frame(x: 0, y: 0, width: 320, height: 480))
+        let newWindow = try CustomWindow(parent: self, title: "My Test Game", frame: Frame(x: 0, y: 0, width: 1344, height: 1024))
         #else
         let newWindow = try CustomWindow(parent: self, title: "My Test Game", frame: Frame(x: 0, y: 0, width: 0, height: 0), windowOptions: [.fullscreen])
         #endif

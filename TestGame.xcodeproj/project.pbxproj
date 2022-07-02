@@ -13,6 +13,21 @@
 		DF2D82762866300C00D4A860 /* SDLFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82752866300C00D4A860 /* SDLFont.swift */; };
 		DF2D82772866300C00D4A860 /* SDLFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82752866300C00D4A860 /* SDLFont.swift */; };
 		DF2D82782866300C00D4A860 /* SDLFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82752866300C00D4A860 /* SDLFont.swift */; };
+		DF2D8280286BC48400D4A860 /* TTFInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827F286BC48400D4A860 /* TTFInterface.m */; };
+		DF2D8281286BC48400D4A860 /* TTFInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827F286BC48400D4A860 /* TTFInterface.m */; };
+		DF2D8282286BC48400D4A860 /* TTFInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827F286BC48400D4A860 /* TTFInterface.m */; };
+		DF2D82E6286EB18900D4A860 /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DF2D82E5286EB18900D4A860 /* Roboto-Medium.ttf */; };
+		DF2D82E7286EB18900D4A860 /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DF2D82E5286EB18900D4A860 /* Roboto-Medium.ttf */; };
+		DF2D82E8286EB18900D4A860 /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DF2D82E5286EB18900D4A860 /* Roboto-Medium.ttf */; };
+		DF2D82EB2870DB1400D4A860 /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82EA2870DB1300D4A860 /* Image.swift */; };
+		DF2D82EC2870DB1400D4A860 /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82EA2870DB1300D4A860 /* Image.swift */; };
+		DF2D82ED2870DB1400D4A860 /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82EA2870DB1300D4A860 /* Image.swift */; };
+		DF2D82EF2870DB2C00D4A860 /* Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82EE2870DB2C00D4A860 /* Font.swift */; };
+		DF2D82F02870DB2C00D4A860 /* Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82EE2870DB2C00D4A860 /* Font.swift */; };
+		DF2D82F12870DB2C00D4A860 /* Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82EE2870DB2C00D4A860 /* Font.swift */; };
+		DF2D82F32870DB6600D4A860 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82F22870DB6600D4A860 /* ImageManager.swift */; };
+		DF2D82F42870DB6600D4A860 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82F22870DB6600D4A860 /* ImageManager.swift */; };
+		DF2D82F52870DB6600D4A860 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82F22870DB6600D4A860 /* ImageManager.swift */; };
 		DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DD92851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DDA2851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
@@ -339,6 +354,13 @@
 /* Begin PBXFileReference section */
 		DF2D827128662EED00D4A860 /* TTF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTF.swift; sourceTree = "<group>"; };
 		DF2D82752866300C00D4A860 /* SDLFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDLFont.swift; sourceTree = "<group>"; };
+		DF2D827E286BB8E500D4A860 /* TTFInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TTFInterface.h; sourceTree = "<group>"; };
+		DF2D827F286BC48400D4A860 /* TTFInterface.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TTFInterface.m; sourceTree = "<group>"; };
+		DF2D82E0286E9FC900D4A860 /* TestGame-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TestGame-Bridging-Header.h"; sourceTree = "<group>"; };
+		DF2D82E5286EB18900D4A860 /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Medium.ttf"; sourceTree = "<group>"; };
+		DF2D82EA2870DB1300D4A860 /* Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Image.swift; sourceTree = "<group>"; };
+		DF2D82EE2870DB2C00D4A860 /* Font.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Font.swift; sourceTree = "<group>"; };
+		DF2D82F22870DB6600D4A860 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
 		DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Commands+SDL.swift"; sourceTree = "<group>"; };
 		DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRepeater.swift; sourceTree = "<group>"; };
 		DF81A1E728638CE50089E898 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
@@ -478,8 +500,21 @@
 			children = (
 				DF2D827128662EED00D4A860 /* TTF.swift */,
 				DF2D82752866300C00D4A860 /* SDLFont.swift */,
+				DF2D827E286BB8E500D4A860 /* TTFInterface.h */,
+				DF2D827F286BC48400D4A860 /* TTFInterface.m */,
 			);
 			path = SwiftSDLTTF;
+			sourceTree = "<group>";
+		};
+		DF2D82E92870DAFE00D4A860 /* ImageHandling */ = {
+			isa = PBXGroup;
+			children = (
+				DF2D82EE2870DB2C00D4A860 /* Font.swift */,
+				DF2D82EA2870DB1300D4A860 /* Image.swift */,
+				DFC585AC2810A6570097E39B /* ImageAtlas.swift */,
+				DF2D82F22870DB6600D4A860 /* ImageManager.swift */,
+			);
+			path = ImageHandling;
 			sourceTree = "<group>";
 		};
 		DF6D4DCF2851DF420046BF8D /* Extensions */ = {
@@ -493,6 +528,7 @@
 		DFA454E02804599500638A35 = {
 			isa = PBXGroup;
 			children = (
+				DF2D82E0286E9FC900D4A860 /* TestGame-Bridging-Header.h */,
 				DFA8ADEB285976C300DDC22B /* README.md */,
 				DFA454E52804599500638A35 /* TestGame Shared */,
 				DFA454F02804599600638A35 /* TestGame iOS */,
@@ -582,6 +618,7 @@
 		DFA8ADDB2858FB2100DDC22B /* ExternalFiles */ = {
 			isa = PBXGroup;
 			children = (
+				DF2D82E5286EB18900D4A860 /* Roboto-Medium.ttf */,
 				DFFF55EB28610F6700536EAD /* bullet.bmp */,
 				DFA8ADE3285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp */,
 				DFA8ADE4285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp */,
@@ -674,6 +711,7 @@
 		DFE1724F28050FA400C44AB0 /* Mopixs */ = {
 			isa = PBXGroup;
 			children = (
+				DF2D82E92870DAFE00D4A860 /* ImageHandling */,
 				DF6D4DCF2851DF420046BF8D /* Extensions */,
 				DFCA776C28189B6C0099BC21 /* Resources */,
 				DFC585C02811A80E0097E39B /* 2DPacker */,
@@ -688,7 +726,6 @@
 				DFCA777128189F1F0099BC21 /* GenericError.swift */,
 				DFE172DD2805C72E00C44AB0 /* Geometry.swift */,
 				DFC5860E28125B240097E39B /* Geometry+SDL.swift */,
-				DFC585AC2810A6570097E39B /* ImageAtlas.swift */,
 				DFC5837B280641AF0097E39B /* IntervalBank.swift */,
 				DFCA77FC281B30D00099BC21 /* OS.swift */,
 				DFC58370280641770097E39B /* TimeBank.swift */,
@@ -975,6 +1012,7 @@
 			files = (
 				DFA455222804599600638A35 /* Assets.xcassets in Resources */,
 				DFA454FA2804599600638A35 /* LaunchScreen.storyboard in Resources */,
+				DF2D82E6286EB18900D4A860 /* Roboto-Medium.ttf in Resources */,
 				DFFF55EC28610F6800536EAD /* bullet.bmp in Resources */,
 				DFA8ADE5285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp in Resources */,
 				DFA8ADE8285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */,
@@ -988,6 +1026,7 @@
 				DFA8ADE9285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */,
 				DFA455072804599600638A35 /* Main.storyboard in Resources */,
 				DFA8ADE6285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp in Resources */,
+				DF2D82E7286EB18900D4A860 /* Roboto-Medium.ttf in Resources */,
 				DFA455232804599600638A35 /* Assets.xcassets in Resources */,
 				DFA4550A2804599600638A35 /* LaunchScreen.storyboard in Resources */,
 				DFFF55ED28610F6800536EAD /* bullet.bmp in Resources */,
@@ -998,6 +1037,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF2D82E8286EB18900D4A860 /* Roboto-Medium.ttf in Resources */,
 				DFA455242804599600638A35 /* Assets.xcassets in Resources */,
 				DFA8ADE7285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp in Resources */,
 				DFA8ADEA285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */,
@@ -1037,6 +1077,7 @@
 				DFFABF36282C675200C9ABAA /* Commands.swift in Sources */,
 				DFCA78622821D4B10099BC21 /* FileManager.swift in Sources */,
 				DFE1726F280510B500C44AB0 /* BlendMode.swift in Sources */,
+				DF2D82F32870DB6600D4A860 /* ImageManager.swift in Sources */,
 				DFC585A92810A5060097E39B /* FontAtlas.swift in Sources */,
 				DFC58400280796100097E39B /* CustomWindow.swift in Sources */,
 				DFE1728A280510B500C44AB0 /* Renderer.swift in Sources */,
@@ -1049,6 +1090,7 @@
 				DFFF55D0285BB22C00536EAD /* Player.swift in Sources */,
 				DF2D82762866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFC5860A28125A900097E39B /* Common.swift in Sources */,
+				DF2D82EF2870DB2C00D4A860 /* Font.swift in Sources */,
 				DFC583FC280792000097E39B /* MoPixUtil.swift in Sources */,
 				DFCA77FD281B30D00099BC21 /* OS.swift in Sources */,
 				DFC585C22811A8430097E39B /* EtagerePacker.swift in Sources */,
@@ -1059,6 +1101,7 @@
 				DFE172DE2805C72E00C44AB0 /* Geometry.swift in Sources */,
 				DFC583F428077CD00097E39B /* View.swift in Sources */,
 				DFFF55E8285BB2C100536EAD /* Bullet.swift in Sources */,
+				DF2D82EB2870DB1400D4A860 /* Image.swift in Sources */,
 				DFC583DF280774380097E39B /* Window+Ext.swift in Sources */,
 				DFE1726C280510B500C44AB0 /* Surface.swift in Sources */,
 				DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */,
@@ -1071,6 +1114,7 @@
 				DFCA777228189F1F0099BC21 /* GenericError.swift in Sources */,
 				DFE17275280510B500C44AB0 /* Error.swift in Sources */,
 				DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */,
+				DF2D8280286BC48400D4A860 /* TTFInterface.m in Sources */,
 				DFC585D62811CAD70097E39B /* AtlasAllocator.swift in Sources */,
 				DFCA786A2821E9F80099BC21 /* SpaceInvaders.swift in Sources */,
 				DFC585AD2810A6570097E39B /* ImageAtlas.swift in Sources */,
@@ -1100,8 +1144,11 @@
 				DFA455802804804500638A35 /* common.c in Sources */,
 				DFFF55E1285BB28B00536EAD /* Scene.swift in Sources */,
 				DF81A1E928638CE50089E898 /* TextView.swift in Sources */,
+				DF2D82F02870DB2C00D4A860 /* Font.swift in Sources */,
 				DFC5861028125B240097E39B /* Geometry+SDL.swift in Sources */,
+				DF2D82F42870DB6600D4A860 /* ImageManager.swift in Sources */,
 				DFC585D72811CAD70097E39B /* AtlasAllocator.swift in Sources */,
+				DF2D82EC2870DB1400D4A860 /* Image.swift in Sources */,
 				DFCA786B2821E9F80099BC21 /* SpaceInvaders.swift in Sources */,
 				DFC58372280641770097E39B /* TimeBank.swift in Sources */,
 				DFE1727F280510B500C44AB0 /* CountableSet.swift in Sources */,
@@ -1140,6 +1187,7 @@
 				DFFF55D9285BB26400536EAD /* Util.swift in Sources */,
 				DFC58401280796100097E39B /* CustomWindow.swift in Sources */,
 				DFE17288280510B500C44AB0 /* SDL.swift in Sources */,
+				DF2D8281286BC48400D4A860 /* TTFInterface.m in Sources */,
 				DFCA777328189F1F0099BC21 /* GenericError.swift in Sources */,
 				DFCA77852818DBA40099BC21 /* MountedDir.swift in Sources */,
 				DFC583E4280774CA0097E39B /* main.swift in Sources */,
@@ -1173,6 +1221,7 @@
 				DFFABF38282C675200C9ABAA /* Commands.swift in Sources */,
 				DFCA78642821D4B10099BC21 /* FileManager.swift in Sources */,
 				DFE172DC2805C6FE00C44AB0 /* Application.swift in Sources */,
+				DF2D82F52870DB6600D4A860 /* ImageManager.swift in Sources */,
 				DFC585AB2810A5070097E39B /* FontAtlas.swift in Sources */,
 				DFC58402280796100097E39B /* CustomWindow.swift in Sources */,
 				DFE17283280510B500C44AB0 /* PixelFormat.swift in Sources */,
@@ -1185,6 +1234,7 @@
 				DFFF55D2285BB22C00536EAD /* Player.swift in Sources */,
 				DF2D82782866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFC5860C28125A900097E39B /* Common.swift in Sources */,
+				DF2D82F12870DB2C00D4A860 /* Font.swift in Sources */,
 				DFC583FE280792000097E39B /* MoPixUtil.swift in Sources */,
 				DFCA77FF281B30D00099BC21 /* OS.swift in Sources */,
 				DFC585C42811A8430097E39B /* EtagerePacker.swift in Sources */,
@@ -1195,6 +1245,7 @@
 				DFE17289280510B500C44AB0 /* SDL.swift in Sources */,
 				DFC583F628077CD00097E39B /* View.swift in Sources */,
 				DFFF55EA285BB2C100536EAD /* Bullet.swift in Sources */,
+				DF2D82ED2870DB1400D4A860 /* Image.swift in Sources */,
 				DFE1727D280510B500C44AB0 /* Palette.swift in Sources */,
 				DFC583E1280774380097E39B /* Window+Ext.swift in Sources */,
 				DF6D4DDA2851DF6E0046BF8D /* Commands+SDL.swift in Sources */,
@@ -1207,6 +1258,7 @@
 				DFCA777428189F1F0099BC21 /* GenericError.swift in Sources */,
 				DFE1728C280510B500C44AB0 /* Renderer.swift in Sources */,
 				DF6D4DDE28521DB80046BF8D /* CommandRepeater.swift in Sources */,
+				DF2D8282286BC48400D4A860 /* TTFInterface.m in Sources */,
 				DFC585D82811CAD70097E39B /* AtlasAllocator.swift in Sources */,
 				DFCA786C2821E9F80099BC21 /* SpaceInvaders.swift in Sources */,
 				DFC585AF2810A6570097E39B /* ImageAtlas.swift in Sources */,
@@ -1377,6 +1429,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "TestGame-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -1430,6 +1483,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = "TestGame-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Release;
@@ -1514,7 +1568,6 @@
 				PRODUCT_NAME = TestGame;
 				SDKROOT = appletvos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 15.2;
@@ -1542,7 +1595,6 @@
 				PRODUCT_NAME = TestGame;
 				SDKROOT = appletvos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 15.2;
@@ -1575,7 +1627,6 @@
 				PRODUCT_NAME = TestGame;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -1605,7 +1656,6 @@
 				PRODUCT_NAME = TestGame;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

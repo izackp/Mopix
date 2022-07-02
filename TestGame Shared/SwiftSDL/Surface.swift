@@ -26,11 +26,14 @@ public final class SDLSurface {
     // MARK: - Properties
     
     internal let internalPointer: UnsafeMutablePointer<SDL_Surface>
+    internal let _skipFree:Bool
     
     // MARK: - Initialization
     
     deinit {
-        SDL_FreeSurface(internalPointer)
+        if (!_skipFree) {
+            SDL_FreeSurface(internalPointer)
+        }
     }
     
     /// Create an RGB surface.
@@ -41,6 +44,7 @@ public final class SDLSurface {
         let internalPointer = SDL_CreateRGBSurface(0, CInt(size.width), CInt(size.height), CInt(depth), CUnsignedInt(mask.red), CUnsignedInt(mask.green), CUnsignedInt(mask.blue), CUnsignedInt(mask.alpha))
         
         self.internalPointer = try internalPointer.sdlThrow(type: type(of: self))
+        _skipFree = false
     }
     
     // Get the SDL surface associated with the window.
@@ -53,16 +57,19 @@ public final class SDLSurface {
         
         let internalPointer = SDL_GetWindowSurface(window.internalPointer)
         self.internalPointer = try internalPointer.sdlThrow(type: type(of: self))
+        _skipFree = false
     }
     
-    public init(ptr: UnsafeMutablePointer<SDL_Surface>) {
+    public init(ptr: UnsafeMutablePointer<SDL_Surface>, skipFree:Bool = false) {
         self.internalPointer = ptr
+        _skipFree = skipFree
     }
     
     public init(bmpDataPtr:UnsafeMutableRawBufferPointer) throws {
         let rwops = SDL_RWFromMem(bmpDataPtr.baseAddress, Int32(bmpDataPtr.count))
         let internalPointer = SDL_LoadBMP_RW(rwops, 0)
         self.internalPointer = try internalPointer.sdlThrow(type: type(of: self))
+        _skipFree = false
     }
     
     // MARK: - Accessors

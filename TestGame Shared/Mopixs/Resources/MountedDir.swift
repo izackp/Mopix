@@ -10,7 +10,7 @@ import Foundation
 let VersionChars = CharacterSet(charactersIn: ".").union(CharacterSet.decimalDigits)
 
 extension URL {
-    func vdPath(from base: URL) throws -> URL {
+    func vdPath(from base: URL, packageInfo:PackageMeta? = nil) throws -> URL {
 
         // Remove/replace "." and "..", make paths absolute:
         let destComponents = self.standardized.pathComponents
@@ -28,7 +28,13 @@ extension URL {
 
         // Build relative path:
         let path = destComponents[baseComponents.count...].joined(separator: "/")
-        guard let newUrl = URL(string: "vd:/\(path)") else {
+        let urlStr:String
+        if let packageInfo = packageInfo {
+            urlStr = "vd://\(packageInfo.toString())/\(path)"
+        } else {
+            urlStr = "vd:/\(path)" //TODO: Should never happen?
+        }
+        guard let newUrl = URL(string: urlStr) else {
             throw GenericError("Could not build url from path: \(path)")
         }
         return newUrl
@@ -58,24 +64,19 @@ public struct PackageMeta {
         self.version = version
     }
     
-    // Note: Foresee problems with /my/path/../
-    func buildMountedDir(path:URL, mountDir:String = String(OS.defaultPathSeparator)) throws -> MountedDir {
-        //TODO: Check if directory is writable/readable
-        let dirName = path.lastPathComponent
-        let meta = (try? PackageMeta.parseMetaFromName(dirName)) ?? PackageMeta(name: dirName, version: Version.zero)
-        
-        return MountedDir(meta:meta, path:path, virtualPath:mountDir, isReadOnly:false)
+    func toString() -> String {
+        return "name_\(version.toString())"
     }
-
 }
 
 public class MountedDir {
-    init(meta: PackageMeta, path: URL, virtualPath: String, isReadOnly: Bool, isIndexed:Bool = true) {
+    init(meta: PackageMeta, path: URL, virtualPath: String, isReadOnly: Bool, isDirectory:Bool, isIndexed:Bool = true) {
         self.meta = meta
         self.path = path
         self.virtualPath = virtualPath
         self.isReadOnly = isReadOnly
         self.isIndexed = isIndexed
+        self.isDirectory = isDirectory
     }
     
     let meta:PackageMeta
@@ -83,8 +84,10 @@ public class MountedDir {
     let virtualPath:String
     let isReadOnly:Bool
     let isIndexed:Bool // Allows being searched for resources
+    let isDirectory:Bool
     //var files:[URL] = []
     
+    // Note: Foresee problems with /my/path/../
     static func newMountedDir(path:URL, isDirectory:Bool, mountDir:String = String(OS.defaultPathSeparator)) throws -> MountedDir {
         // TODO: Check if file is writable/readable
         let lastPart = path.lastPathComponent
@@ -100,7 +103,7 @@ public class MountedDir {
             throw GenericError("last component in path is empty: \(path)")
         }
         let meta = (try? PackageMeta.parseMetaFromName(lastPart)) ?? PackageMeta(name: lastPart, version: Version.zero)
-        return MountedDir(meta:meta, path:fileORDirPath, virtualPath:mountDir, isReadOnly:false)
+        return MountedDir(meta:meta, path:fileORDirPath, virtualPath:mountDir, isReadOnly:false, isDirectory: isDirectory)
     }
     
     func filesInDirectory(_ dir:String) -> [URL] {
@@ -142,29 +145,24 @@ public class MountedDir {
     }
     
     //TODO: Make iterator...
+    //TODO: Somehow convey errors
     func itemsMatching(_ filter:((URL)->Bool)) -> [URL] {
         let fm = FileManager()
-        do {
-            let dirUrl = path
-            var filtered:[URL] = []
-            if let enumerator = fm.enumerator(at: dirUrl, includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants]) {
-                for case let fileURL as URL in enumerator {
-                    do {
-                        let fileAttributes = try fileURL.resourceValues(forKeys:[.isRegularFileKey])
-                        if fileAttributes.isRegularFile! && filter(fileURL) {
-                            let vdPath = try fileURL.vdPath(from: path)
-                            filtered.append(vdPath)
-                        }
-                    } catch { print(error, fileURL) }
-                }
+        let dirUrl = path
+        var filtered:[URL] = []
+        if let enumerator = fm.enumerator(at: dirUrl, includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants]) {
+            for case let fileURL as URL in enumerator {
+                do {
+                    let fileAttributes = try fileURL.resourceValues(forKeys:[.isRegularFileKey])
+                    if fileAttributes.isRegularFile! && filter(fileURL) {
+                        let vdPath = try fileURL.vdPath(from: path)
+                        filtered.append(vdPath)
+                    }
+                } catch { print(error, fileURL) }
             }
-            //let mapped = try filtered.map({try $0.vdPath(from: path)})
-            return filtered
         }
-        catch {
-            print(error.localizedDescription)
-            return []
-        }
+        //let mapped = try filtered.map({try $0.vdPath(from: path)})
+        return filtered
     }
     
     func urlForPath(_ filePath:String) -> URL? {
@@ -179,6 +177,22 @@ public class MountedDir {
     func urlForName(_ fileName:String) -> URL? {
         let result = itemsMatching({ $0.lastPathComponent == fileName })
         return result.first
+    }
+    
+    func resolveToDirectUrl(_ filePath:String) -> URL? {
+        if (isDirectory == false) { return nil }
+        let fileUrl = path.appendingPathComponent(filePath)
+        return fileUrl
+    }
+    
+    func resolveToVDUrl(_ filePath:String) -> VDUrl? {
+        if (isDirectory == false) { return nil }
+        let fileUrl = path.appendingPathComponent(filePath)
+        let fm = FileManager()
+        if (fm.fileExists(atPath: fileUrl.path)) {
+            return try? fileUrl.vdPath(from: path)
+        }
+        return nil
     }
     
     func readFile(_ filePath:String) throws -> Data? {

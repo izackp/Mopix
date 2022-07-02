@@ -82,6 +82,25 @@ public final class SDLRenderer {
         try SDL_RenderSetLogicalSize(internalPointer, width, height).sdlThrow(type: type(of: self))
     }
     
+    public func setClipRect(_ rect:SDL_Rect?) throws {
+        guard var copy = rect else {
+            let ptr:UnsafePointer<SDL_Rect>? = nil
+            try SDL_RenderSetClipRect(internalPointer, ptr).sdlThrow(type: type(of: self))
+            return
+        }
+        try SDL_RenderSetClipRect(internalPointer, &copy).sdlThrow(type: type(of: self))
+    }
+    
+    public func getClipRect() -> SDL_Rect {
+        var rect = SDL_Rect()
+        SDL_RenderGetClipRect(internalPointer, &rect)
+        return rect
+    }
+    
+    public func isClipEnabled() -> Bool {
+        return SDL_RenderIsClipEnabled(internalPointer) == SDL_TRUE
+    }
+    
     // MARK: - Methods
     
     /// Clear the current rendering target with the drawing color

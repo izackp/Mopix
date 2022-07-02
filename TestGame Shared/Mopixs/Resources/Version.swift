@@ -89,6 +89,10 @@ public struct Version: ExpressibleByIntegerLiteral, Equatable, CustomDebugString
     }
     
     public var debugDescription: String {
+        return toString()
+    }
+    
+    public func toString() -> String {
         return "\(getMajor()).\(getMinor()).\(getRevision())"
     }
 }

@@ -21,7 +21,9 @@ x = Done
 - [ ] Seperate into its own project / library
 [/] Atlas Generator / Dynamic Image Packer
 - [ ] Plugin style codecs; JPEGXL
-[ ] Loading and Drawing Fonts
+[/] Loading and Drawing Fonts
+- [/] Loading system fonts
+- [ ] Drawing text spans; several formats of text on one line
 [ ] Sprite sheets / pregenerated atlas
 [o] Tweening library
 [ ] Support windows / linux
@@ -34,7 +36,7 @@ x = Done
 - [ ] Plugin style codecs
 - [ ] Sequencer / Instruments (like pico-8)
 [o] UI
-- [ ] Views, Images, Shadows, Fonts, Layer Effects (clipping, masks, border, shadows), Tables, Zoom/Tiling for scrollview, video player
+- [ ] Views
 - [ ] Images
 - [ ] TextView
 - [ ] Effects (clipping, masks, border, shadows)
@@ -58,6 +60,7 @@ x = Done
 [ ] Networking API
 - [ ] Serialize entire game state
 [ ] Auto Sync Engine class
+[ ] Performance metrics
 ```
 
 I'm not sure how I want to design an ECS. I would always prefer to use an existing solution like flecs. Though I want to support hardcoded classes first. Flecs uses arch type entities because it makes sense to group components together by type. My question is why bother have pieces when you can just have a single class. You get the grouping automatically. Overall, I'm curious about a hybrid approach.
@@ -65,7 +68,7 @@ I'm not sure how I want to design an ECS. I would always prefer to use an existi
 I also have previously designed a way for dynamic behavior via components + json. It removed the need of state machines because state was just the makeup of the components the entity had. 
 
 ### Design Goals
-Why not Godot? I wanted something I could possibly port to the 3ds. I also wanted to make a deterministic engine for input only networking. Granted.. the 3ds might not be powerful enough to support 'rollback' but hopefully we will see.
+Why not Godot? I wanted something I could possibly port to the 3ds. I also wanted to make a deterministic engine for input only networking. Granted.. the 3ds might not be powerful enough to support 'rollback' but we will see.
 
 * Highly portable (built on SDL)
 * Deterministic

@@ -14,63 +14,14 @@ extension URL {
     }
 }
 
-/*
-    api example:
- 
-    virtualDrive.mount("gameDir/basegame_1.0.1/")
-    virtualDrive.mount("assets.zip")
- 
-    //ways to access files:
-    "assets://randomImage.png"
-    "basegame://ArtAssets/randomImage.png" //Via direct
-    "/ArtAssets/randomImage.png" //Via virtual drive (All mounted drives are merged into one file system)
-    "randomImage.png" //Via search
- 
-    
-
-    storage is the name of the package:
-    virtualDrive.writeStream("cache","/save.dat", stream)
-    virtualDrive.writeStream(<MountedDirInstance>,"/save.dat", stream)
-    virtualDrive.writeStream("vd://basegame.1.1.0/packagesave.dat", stream)
-    virtualDrive.writeStream("vd://basegame/packagesave.dat", stream)
-    ^ same for read
-    virtualDrive.listMountedDir()
-    virtualDrive.filesWithName("AnyName")
-    virtualDrive.filesInDirectory("storage", "/cache/")
-    virtualDrive.filesInDirectory(<MountedDir>,"/cache/")
-    virtualDrive.filesInDirectory("/cache/")
-    virtualDrive.directoriesInDirectory("storage", "/cache/")
-    virtualDrive.directoriesInDirectory(<MountedDir>,"/cache/")
-    virtualDrive.directoriesInDirectory("/cache/")
-           
-    The user directory will probably hold packages. Downloaded or created...
-    
-*/
-
-// Huge structs make array resizing and data passing slower
-public class MountedFile {
-    internal init(name: Substring, ext: Substring, dir: Substring, path: Substring, mountPoint: MountedDir) {
-        self.name = name
-        self.ext = ext
-        self.dir = dir
-        self.path = path
-        self.mountPoint = mountPoint
-    }
-    
-    let name: Substring
-    let ext: Substring
-    let dir: Substring
-    let path: Substring
-    let mountPoint: MountedDir
-}
-
+public typealias VDUrl = URL
 
 public class VirtualDrive {
-    internal init(_ listMountedDirectories: Arr<MountedDir> = Arr<MountedDir>()) {
+    public init(_ listMountedDirectories: Arr<MountedDir> = Arr<MountedDir>()) {
         self.listMountedDirectories = listMountedDirectories
     }
     
-    var listMountedDirectories: Arr<MountedDir> //Should be prioritized
+    var listMountedDirectories: Arr<MountedDir> //TODO: Should be prioritized
     func findMountedDir(_ name: String) -> MountedDir? {
         for eachDir in self.listMountedDirectories {
             if (eachDir.meta.name == name) {
@@ -78,6 +29,13 @@ public class VirtualDrive {
             }
         }
         return nil
+    }
+    
+    func mountedDir(_ mountName:String) throws -> MountedDir {
+        if let dir = listMountedDirectories.first(where: {$0.meta.name == mountName}) {
+            return dir
+        }
+        throw GenericError("Mounted directory with name \(mountName) not found")
     }
             
     func mountPath(path:URL, mountDir:Substring = "/") throws {
@@ -106,17 +64,17 @@ public class VirtualDrive {
         return itemsInDirectory(path)
     }
     
-    func itemsInDirectory(_ mountedDir:MountedDir, _ path: String) throws -> [URL] {
+    func itemsInDirectory(_ mountedDir:MountedDir, _ path: String) throws -> [VDUrl] {
         guard let dir = listMountedDirectories.first(where: {$0 === mountedDir}) else { throw GenericError("Mounted Dir does not belong to this virtual drive")}
         return dir.itemsInDirectory(path)
     }
     
-    func itemsInDirectory(_ mountName:String, _ path: String) throws -> [URL] {
-        guard let dir = listMountedDirectories.first(where: {$0.meta.name == mountName}) else { throw GenericError("Mounted directory with name \(mountName) not found")}
+    func itemsInDirectory(_ mountName:String, _ path: String) throws -> [VDUrl] {
+        let dir = try mountedDir(mountName)
         return dir.itemsInDirectory(path)
     }
     
-    func itemsInDirectory(_ path: String) -> [URL] {
+    func itemsInDirectory(_ path: String) -> [VDUrl] {
         var items:[URL] = []
         for eachMD in listMountedDirectories {
             items.append(contentsOf: eachMD.itemsInDirectory(path))
@@ -124,7 +82,7 @@ public class VirtualDrive {
         return items
     }
     
-    func urlForFileName(_ name:String) -> URL? {
+    func urlForFileName(_ name:String) -> VDUrl? {
         for eachMD in listMountedDirectories {
             if let result = eachMD.urlForName(name) {
                 return result
@@ -133,7 +91,7 @@ public class VirtualDrive {
         return nil
     }
     
-    func urlForPath(_ path:String) -> URL? {
+    func urlForPath(_ path:String) -> VDUrl? {
         for eachMD in listMountedDirectories {
             if let result = eachMD.urlForPath(path) {
                 return result
@@ -142,8 +100,61 @@ public class VirtualDrive {
         return nil
     }
     
+    func findByExt(_ ext:String) -> [VDUrl] {
+        var results:[URL] = []
+        for eachMD in listMountedDirectories {
+            let subResults = eachMD.itemsMatching({
+                let filename: NSString = $0.path as NSString
+                return filename.pathExtension == ext
+            })
+            results.append(contentsOf: subResults)
+        }
+        return results
+    }
+    
+    //Converts vd:// to a file:// url if possible
+    func resolveToDirectUrl(_ url:VDUrl) throws -> URL? {
+        if (url.scheme != "vd") { return nil }
+        let path = url.path
+        if let host = url.host {
+            return try resolveToDirectUrl(host, path)
+        }
+        return resolveToDirectUrl(path)
+    }
+    
+    func resolveToDirectUrl(_ path: String) -> URL? {
+        let fm = FileManager()
+        for eachMD in listMountedDirectories {
+            if let result = eachMD.resolveToDirectUrl(path) {
+                if (fm.fileExists(atPath: result.path)) {
+                    return result
+                }
+            }
+        }
+        return nil
+    }
+    
+    func resolveToDirectUrl(_ mountName:String, _ filePath:String) throws -> URL? {
+        let dir = try mountedDir(mountName)
+        return dir.resolveToDirectUrl(filePath)
+    }
+    
+    func resolveToVDUrl(_ url:URL) -> VDUrl? {
+        if url.scheme == "vd" { return url }
+        return resolveToVDUrl(url.path)
+    }
+    
+    func resolveToVDUrl(_ path: String) -> VDUrl? {
+        for eachMD in listMountedDirectories {
+            if let result = eachMD.resolveToVDUrl(path) {
+                return result
+            }
+        }
+        return nil
+    }
+    
     //Null if not found
-    func readFile(_ url:URL) throws -> Data? {
+    func readFile(_ url:VDUrl) throws -> Data? {
         let path = url.path
         if let host = url.host {
             return try readFile(host, path)
@@ -164,6 +175,7 @@ public class VirtualDrive {
         guard let dir = listMountedDirectories.first(where: {$0.meta.name == mountName}) else { throw GenericError("Mounted directory with name \(mountName) not found")}
         return try dir.readFile(filePath)
     }
+    
     
     func writeFile(_ url:URL) {
         

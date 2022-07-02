@@ -156,22 +156,16 @@ public final class SDLTexture {
     public func withUnsafeMutableBytes<Result>(for rect: SDL_Rect? = nil, _ body: (_ pointer: UnsafeMutableRawPointer, _ pitch: Int) throws -> Result) throws -> Result? {
         
         let rectPointer: UnsafeMutablePointer<SDL_Rect>?
-        
         if let rect = rect {
-            
             rectPointer = UnsafeMutablePointer.allocate(capacity: 1)
-            
             rectPointer?.pointee = rect
-            
         } else {
-            
             rectPointer = nil
         }
         
         defer { rectPointer?.deallocate() }
         
         var pitch: Int32 = 0
-        
         var pixels: UnsafeMutableRawPointer? = nil
         
         /// must be SDL_TEXTUREACCESS_STREAMING or throws
@@ -185,6 +179,30 @@ public final class SDLTexture {
         let result = try body(pointer, Int(pitch))
         
         return result
+    }
+    
+    //NOTE: Must write into entire rect or risk uninitialized memory
+    func lockAndEditSurface(rect: SDL_Rect? = nil, _ body: (SDLSurface) throws ->()) throws {
+        let rectPointer: UnsafeMutablePointer<SDL_Rect>?
+        if let rect = rect {
+            rectPointer = UnsafeMutablePointer.allocate(capacity: 1)
+            rectPointer?.pointee = rect
+        } else {
+            rectPointer = nil
+        }
+        
+        let surface = UnsafeMutablePointer<UnsafeMutablePointer<SDL_Surface>?>.allocate(capacity: 1)
+        
+        defer {
+            rectPointer?.deallocate()
+            surface.deallocate()
+        }
+        try SDL_LockTextureToSurface(internalPointer, rectPointer, surface).sdlThrow(type: type(of: self))
+        if let finalSurfacePtr = surface.pointee {
+            let wrapped = SDLSurface(ptr: finalSurfacePtr, skipFree: true)
+            try body(wrapped)
+        }
+        SDL_UnlockTexture(internalPointer)
     }
 }
 

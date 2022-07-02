@@ -24,9 +24,20 @@ final class CustomWindow: Window {
         let renderer = try SDLRenderer(window: sdlWindow, driver: driver, options: options)
         atlas = ImageAtlas(renderer)
         imageManager = ImageManager(atlas: atlas, drive: parent.vd)
+        imageManager.loadSystemFonts()
+        let results = parent.vd.findByExt("ttf")
+        for eachItem in results {
+            imageManager.loadFont(eachItem)
+        }
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
         rootView.frame = Frame(origin: Point(0, 0), size: Size(100, 100))
+        
+        let lbl = TextView(text: "Abcdefghijklmnopqrstuvwxyz.")//
+        lbl.frame = Frame(origin: Point(0, 0), size: Size(300, 40))
+        lbl.backgroundColor = SDLColor.pink
+        //lbl.textColor = SDLColor.white
+        rootView.children.append(lbl)
         
         Task { [weak self] in
             do {
@@ -42,21 +53,11 @@ final class CustomWindow: Window {
         }
     }
     
-    var _pixelTexture:SDLTexture? = nil
-    var pixelTexture:SDLTexture {
-        get {
-            if let texture = _pixelTexture {
-                return texture
-            }
-            let other = try! buildTexture()
-            _pixelTexture = other
-            return other
-        }
-    }
-    
     override func draw(time: UInt64) throws {
-        //try renderer.setDrawColor(red: 0x00, green: 0x00, blue: 0x00, alpha: 0xFF)
-        //try renderer.clear()
+        
+        let context = UIRenderContext(renderer: renderer, imageManger: imageManager)
+        try rootView.draw(context)
+        try context.drawAtlas(320, 0)
         /*
         let texture = pixelTexture
         
@@ -66,16 +67,6 @@ final class CustomWindow: Window {
             randomImage.draw(renderer, dest)
         }*/
         
-        // render to screen
-        //renderer.present()
     }
     
-    func buildTexture() throws -> SDLTexture {
-        let surface = try SDLSurface(rgb: (0, 0, 0, 0), size: (width: 1, height: 1), depth: 32)
-        let color = SDLColor.white
-        try surface.fill(color: color)
-        let surfaceTexture = try SDLTexture(renderer: renderer, surface: surface)
-        //try surfaceTexture.setBlendMode([.alpha])
-        return surfaceTexture
-    }
 }

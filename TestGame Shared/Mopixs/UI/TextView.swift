@@ -8,21 +8,21 @@
 import Foundation
 import SDL2
 
-public struct FontDesc {
+public struct FontDesc : Hashable {
     public var family:String
     public var weight:UInt16
     public var size:Float
     
-    public static let defaultFont = FontDesc(family: "default", weight: 100, size: 14)
+    public static let defaultFont = FontDesc(family: "default", weight: 100, size: 21)
 }
 
 
 public class TextView : View {
     
     public var text:String = ""
-    public var textColor:SDLColor = SDLColor.black
+    public var textColor:SDLColor = SDLColor.idk
     
-    public var font:FontDesc = FontDesc.defaultFont
+    public var fontDesc:FontDesc = FontDesc.defaultFont
 
     public var lineHeight:Float = 0
     public var characterSpacing:Int = 0
@@ -34,9 +34,21 @@ public class TextView : View {
     public var textAlignment:Int = 0
     public var maxLines:Int = 0
 
+    private var _cachedFont:Font! = nil
     
     public init(text:String) {
-        
+        self.text = text
+    }
+    
+    func fetchFont(_ context:UIRenderContext) throws -> Font  {
+        if let font = _cachedFont {
+            return font
+        }
+        guard let font = try context.imageManager.fetchFont(desc: fontDesc) else {
+            throw GenericError("No font for desc: \(fontDesc.family)")
+        }
+        _cachedFont = font
+        return font
     }
     
     open override func draw(_ context:UIRenderContext) throws {
@@ -44,7 +56,12 @@ public class TextView : View {
         try context.drawSquare(frame, backgroundColor)
         
         if (text.count > 0) {
-            try context.drawText(frame, textColor, text, font)
+            do {
+                let font = try fetchFont(context)
+                try context.drawText(frame, textColor, text, font)
+            } catch {
+                print("Error drawing text: \(error.localizedDescription)")
+            }
         }
         
         for eachChild in children {

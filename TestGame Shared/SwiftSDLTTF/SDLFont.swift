@@ -28,6 +28,11 @@ extension String {
     }
 }
 
+public struct MeasureResult {
+    let extent:Int // Calculated width
+    let count:Int //Num characters
+}
+
 extension Character {
     internal func toUInt32() throws -> UInt32 {
         let scaler = self.unicodeScalars.first?.value
@@ -188,7 +193,7 @@ public final class SDLFont {
         let result = TTF_GlyphIsProvided32(internalPointer, ch)
         return (result > 0)
     }
-    
+
     public struct GlyphMetrics {
         public let frame:Frame<Int> //TODO: remove? Strongly ties this to the game engine..
         public let advance:Int
@@ -204,7 +209,7 @@ public final class SDLFont {
         let result = TTF_GlyphMetrics32(internalPointer, ch, &minX, &maxX, &minY, &maxY, &advance)
         try result.sdlThrow(type: type(of: self))
         
-        let frame = Frame<Int>.init(x: Int(minX), y: Int(minY), width: Int(maxX - minX), height: Int(minY-maxY))
+        let frame = Frame<Int>.init(x: Int(minX), y: Int(minY), width: Int(maxX - minX), height: Int(maxY - minY))
         return GlyphMetrics(frame: frame, advance: Int(advance))
     }
     
@@ -224,17 +229,12 @@ public final class SDLFont {
         return (Int(w), Int(h))
     }
     
-    public struct MeasureResult {
-        let extent:Int
-        let count:Int
-    }
-    
-    public func measure(_ str:String, maxWidth:Int) throws -> MeasureResult {
+    public func measure(_ str:String, maxWidthPxs:Int) throws -> MeasureResult {
         var count:Int32 = 0
         var extent:Int32 = 0
         
         try str.withCString { (cStr:UnsafePointer<CChar>) in
-            let result = TTF_MeasureUTF8(internalPointer, cStr, Int32(maxWidth), &extent, &count)
+            let result = TTF_MeasureUTF8(internalPointer, cStr, Int32(maxWidthPxs), &extent, &count)
             try result.sdlThrow(type: type(of: self))
         }
         return MeasureResult(extent: Int(extent), count: Int(count))

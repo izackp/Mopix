@@ -13,7 +13,6 @@
 //I don't want to do yet.
 import Foundation
 
-
 public struct AllocatorOptions {
     
     /// Align item sizes to a multiple of this alignment.
