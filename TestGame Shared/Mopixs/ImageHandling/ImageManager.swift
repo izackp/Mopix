@@ -63,5 +63,24 @@ public class ImageManager {
         return Font(atlas: atlas, font: font)
     }
     
+    public func image(directUrl:URL) -> Image? {
+        let path = directUrl.absoluteString
+        if let image = _imageCache[path] {
+            return image
+        }
+        do {
+            var file = try Data(contentsOf: directUrl)
+            let preFormatSurface = try file.withUnsafeMutableBytes { (ptr:UnsafeMutableRawBufferPointer) in
+                return try SDLSurface.init(bmpDataPtr: ptr)
+            }
+            let subTexture = try atlas.save(preFormatSurface)
+            let image = Image(texture: subTexture, atlas: atlas)
+            _imageCache[path] = image
+            return image
+        } catch {
+            print("Couldn't load sprite: \(error.localizedDescription)")
+        }
+        return nil
+    }
     
 }

@@ -33,23 +33,16 @@ final class CustomWindow: Window {
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
         rootView.frame = Frame(origin: Point(0, 0), size: Size(100, 100))
         
-        let lbl = TextView(text: "Abcdefghijklmnopqrstuvwxyz.")//
+        let lbl = TextView(text: "Abcdefghijklmnopqrstuvwxyz.")
         lbl.frame = Frame(origin: Point(0, 0), size: Size(300, 40))
         lbl.backgroundColor = SDLColor.pink
-        //lbl.textColor = SDLColor.white
         rootView.children.append(lbl)
         
         Task { [weak self] in
-            do {
-
-                print("Loading Textures..")
-                let sprite = try imageManager.sprite(named:"oryx_16bit_scifi_vehicles_105.bmp")
-                print("idk: \(String(describing: sprite?.texture.sourceRect))")
-                self?.randomImage = sprite
-                
-            } catch {
-                print("Error: \(error.localizedDescription)")
-            }
+            print("Loading Textures..")
+            let sprite = imageManager.image(named:"oryx_16bit_scifi_vehicles_105.bmp")
+            print("idk: \(String(describing: sprite?.texture.sourceRect))")
+            self?.randomImage = sprite
         }
     }
     

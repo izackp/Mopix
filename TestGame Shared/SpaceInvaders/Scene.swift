@@ -71,9 +71,9 @@ public class SIScene : Scene {
     }
     
     public override func draw(_ renderer: SDLRenderer, _ imageManager: SimpleImageManager) {
-        let bullet = try! imageManager.sprite(named: "bullet.bmp")
-        let playerSprite = try! imageManager.sprite(named: "oryx_16bit_scifi_vehicles_105.bmp")
-        let enemySprite = try! imageManager.sprite(named: "oryx_16bit_scifi_vehicles_189.bmp")
+        let bullet = imageManager.image(named: "bullet.bmp")
+        let playerSprite = imageManager.image(named: "oryx_16bit_scifi_vehicles_105.bmp")
+        let enemySprite = imageManager.image(named: "oryx_16bit_scifi_vehicles_189.bmp")
         var bulletBox = Frame<Int>.init(origin: .zero, size: Size(24, 24))
         for eachBullet in bullets {
             if (eachBullet.isAlive) {

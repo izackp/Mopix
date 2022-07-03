@@ -45,12 +45,12 @@ public class SimpleImageManager : ImageManager {
         return try super.fetchFont(desc: desc)
     }
     
-    public func sprite(named:String) throws -> Image? {
+    public func image(named:String) -> Image? {
         guard let url = drive.urlForFileName(named) else { return nil }
-        return try sprite(url)
+        return image(url)
     }
     
-    public func sprite(_ url:VDUrl) throws -> Image? {
+    public func image(_ url:VDUrl) -> Image? {
         let path = url.absoluteString //TODO: probably doesn't include host
         if let image = _imageCache[path] {
             return image
