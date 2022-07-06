@@ -81,7 +81,8 @@ public struct LEAnchor : LayoutElement {
 
     //If I want to set the left edge to 50. I need to get the width of the parent
     public func updateFrame(_ view:View) {
-        let parentMag = perpendicularValueForEdge(view.frame.size)
+        guard let parent = view.superView else { return }
+        let parentMag = perpendicularValueForEdge(parent.frame.size)
         let newValue = roundf(Float(parentMag) * percent)
         view.frame.setValueForEdge(edge, Int16(newValue))
     }

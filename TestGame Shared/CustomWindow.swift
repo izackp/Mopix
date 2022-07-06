@@ -10,7 +10,8 @@ import SDL2
 
 final class CustomWindow: Window {
     
-    let rootView = View()
+    var rootViewController:ViewController? = nil
+    var rootView:View? = nil
     let atlas:ImageAtlas
     let imageManager:SimpleImageManager
     var randomImage:Image? = nil
@@ -31,12 +32,8 @@ final class CustomWindow: Window {
         }
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
-        rootView.frame = Frame(origin: Point(0, 0), size: Size(100, 100))
-        
-        let lbl = TextView(text: "Abcdefghijklmnopqrstuvwxyz.")
-        lbl.frame = Frame(origin: Point(0, 0), size: Size(300, 40))
-        lbl.backgroundColor = SDLColor.pink
-        rootView.children.append(lbl)
+        let vc = TestViewController()
+        setRootViewController(vc)
         
         Task { [weak self] in
             print("Loading Textures..")
@@ -46,10 +43,19 @@ final class CustomWindow: Window {
         }
     }
     
+    func setRootViewController(_ vc:ViewController) {
+        self.rootViewController = vc
+        let view = vc.loadView()
+        self.rootView = view
+        view.layout()
+        vc.viewWillAppear(false)
+        vc.viewDidAppear(false)
+    }
+    
     override func draw(time: UInt64) throws {
         
         let context = UIRenderContext(renderer: renderer, imageManger: imageManager)
-        try rootView.draw(context)
+        try rootView?.draw(context)
         try context.drawAtlas(320, 0)
         /*
         let texture = pixelTexture

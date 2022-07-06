@@ -16,8 +16,26 @@ open class View {
     public var frame:Frame<Int16> = Frame.zero
     public var listLayouts:Arr<LayoutElement> = Arr<LayoutElement>.init()
     public var children:Arr<View> = Arr<View>.init()
+    public var superView:View? = nil
     
     public var clipBounds:Bool = false
+    
+    open func insertView(_ view:View, at:Int) {
+        children.insert(view, at: at)
+        view.superView = self
+    }
+    
+    open func addSubview(_ view:View) {
+        children.append(view)
+        view.superView = self
+    }
+    
+    open func removeFromSuperview() {
+        if let parent = superView {
+            parent.children.removeAll(where: { $0 === self})
+        }
+        superView = nil
+    }
 
     open func layout() {
         //TODO: I'm not sure if a 'layout is dirty' check will improve performance

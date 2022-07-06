@@ -31,6 +31,12 @@
 		DF2D82FB2870E97A00D4A860 /* SimpleImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */; };
 		DF2D82FC2870E97A00D4A860 /* SimpleImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */; };
 		DF2D82FD2870E97A00D4A860 /* SimpleImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */; };
+		DF3830AC28714B560028B4E6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830AB28714B560028B4E6 /* ViewController.swift */; };
+		DF3830AD28714B560028B4E6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830AB28714B560028B4E6 /* ViewController.swift */; };
+		DF3830AE28714B560028B4E6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830AB28714B560028B4E6 /* ViewController.swift */; };
+		DF3830B728714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
+		DF3830B828714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
+		DF3830B928714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
 		DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DD92851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DDA2851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
@@ -366,6 +372,8 @@
 		DF2D82F22870DB6600D4A860 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
 		DF2D82F62870E8A700D4A860 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleImageManager.swift; sourceTree = "<group>"; };
+		DF3830AB28714B560028B4E6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		DF3830B628714EE30028B4E6 /* TestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
 		DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Commands+SDL.swift"; sourceTree = "<group>"; };
 		DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRepeater.swift; sourceTree = "<group>"; };
 		DF81A1E728638CE50089E898 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
@@ -556,6 +564,7 @@
 				DFE172592805104800C44AB0 /* SwiftSDL */,
 				DFE1724F28050FA400C44AB0 /* Mopixs */,
 				DFC583FF280796100097E39B /* CustomWindow.swift */,
+				DF3830B628714EE30028B4E6 /* TestViewController.swift */,
 				DFFF55CE285BB21D00536EAD /* SpaceInvaders */,
 				DFC583E62807750B0097E39B /* TestGameApp.swift */,
 				DFE172C728052D2B00C44AB0 /* main.old.swift.old */,
@@ -648,6 +657,7 @@
 				DFC583F328077CD00097E39B /* View.swift */,
 				DF81A1E728638CE50089E898 /* TextView.swift */,
 				DF81A1F228638D6D0089E898 /* UIRenderContext.swift */,
+				DF3830AB28714B560028B4E6 /* ViewController.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -1089,6 +1099,7 @@
 				DFC585A92810A5060097E39B /* FontAtlas.swift in Sources */,
 				DFC58400280796100097E39B /* CustomWindow.swift in Sources */,
 				DFE1728A280510B500C44AB0 /* Renderer.swift in Sources */,
+				DF3830B728714EE30028B4E6 /* TestViewController.swift in Sources */,
 				DFE17293280510B500C44AB0 /* Color.swift in Sources */,
 				DFFF55D4285BB23900536EAD /* EntityPool.swift in Sources */,
 				DFE17278280510B500C44AB0 /* BitMaskOption.swift in Sources */,
@@ -1121,6 +1132,7 @@
 				DFE17269280510B500C44AB0 /* VideoDisplay.swift in Sources */,
 				DFCA777228189F1F0099BC21 /* GenericError.swift in Sources */,
 				DFE17275280510B500C44AB0 /* Error.swift in Sources */,
+				DF3830AC28714B560028B4E6 /* ViewController.swift in Sources */,
 				DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */,
 				DF2D8280286BC48400D4A860 /* TTFInterface.m in Sources */,
 				DFC585D62811CAD70097E39B /* AtlasAllocator.swift in Sources */,
@@ -1170,7 +1182,9 @@
 				DFCA7802281B37050099BC21 /* String+Util.swift in Sources */,
 				DFCA77E6281A44CB0099BC21 /* StringScanner.swift in Sources */,
 				DF2D82FC2870E97A00D4A860 /* SimpleImageManager.swift in Sources */,
+				DF3830B828714EE30028B4E6 /* TestViewController.swift in Sources */,
 				DFCA77FE281B30D00099BC21 /* OS.swift in Sources */,
+				DF3830AD28714B560028B4E6 /* ViewController.swift in Sources */,
 				DFC583DB280773DA0097E39B /* Window.swift in Sources */,
 				DFC583FD280792000097E39B /* MoPixUtil.swift in Sources */,
 				DFE17282280510B500C44AB0 /* PixelFormat.swift in Sources */,
@@ -1235,6 +1249,7 @@
 				DFC585AB2810A5070097E39B /* FontAtlas.swift in Sources */,
 				DFC58402280796100097E39B /* CustomWindow.swift in Sources */,
 				DFE17283280510B500C44AB0 /* PixelFormat.swift in Sources */,
+				DF3830B928714EE30028B4E6 /* TestViewController.swift in Sources */,
 				DFE1727A280510B500C44AB0 /* BitMaskOption.swift in Sources */,
 				DFFF55D6285BB23900536EAD /* EntityPool.swift in Sources */,
 				DFE17274280510B500C44AB0 /* DisplayMode.swift in Sources */,
@@ -1267,6 +1282,7 @@
 				DFE1726E280510B500C44AB0 /* Surface.swift in Sources */,
 				DFCA777428189F1F0099BC21 /* GenericError.swift in Sources */,
 				DFE1728C280510B500C44AB0 /* Renderer.swift in Sources */,
+				DF3830AE28714B560028B4E6 /* ViewController.swift in Sources */,
 				DF6D4DDE28521DB80046BF8D /* CommandRepeater.swift in Sources */,
 				DF2D8282286BC48400D4A860 /* TTFInterface.m in Sources */,
 				DFC585D82811CAD70097E39B /* AtlasAllocator.swift in Sources */,
