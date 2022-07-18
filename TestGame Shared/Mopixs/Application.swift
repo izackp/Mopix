@@ -115,7 +115,8 @@ open class Application {
         try SDL.initialize(subSystems: [.video])
         try TTF.initialize()
         engine.start()
-        let resources = Bundle.main.bundleURL.appendingPathComponent("Contents").appendingPathComponent("Resources")
+        //let resources = Bundle.main.bundleURL.appendingPathComponent("Contents").appendingPathComponent("Resources")
+        let resources = URL(fileURLWithPath: Bundle.main.resourcePath!)
         print("Mounting: \(resources)")
         try vd.mountPath(path: resources)
     }

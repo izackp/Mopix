@@ -38,15 +38,21 @@ extension URL: ViewFactory {
     }
 }
 
-//I feel like this scan be done better.
+//I feel like this can be done better.
 //On almost any system we can expect to be able to just never unload view. In which case, it is fine how it is.
 // Though I don't feel like I want to get rid of that expectation.
 //Maybe I should just stop bikeshedding.
 //In case I do want to add that support: I believe we can structure this so we don't ever have to assume or ask if
 //view is null. A controller in a controller can be loaded with guaranteed view reference.
 //OR... we can just not have view did load.. and pass the view in directly
+
+//Ok here is the reasoning.. if ViewController exists then view needs to exist.
+//If we need more memory then we would not only want to remove the view but also the view controller.
+//If we can't remove the view (visible).. we can't remove the controller.
+//Hence, we tie them together.
 open class ViewController {
     
+    /*
     private var _viewFactory:ViewFactory?
     init(drive:VirtualDrive, path:String) { //TODO: drive should really be a singleton
         _viewFactory = VirtualDriveView(drive: drive, path: path)
@@ -66,18 +72,17 @@ open class ViewController {
             }
             let newView = loadView()
             _view = newView
-            viewDidLoad()
             return newView
         }
+    }*/
+    
+    public var view:View
+    init(_ view:View) {
+        self.view = view
     }
     
-    open func loadView() -> View {
-        return (try? _viewFactory?.loadView()) ?? View()
-    }
     open func viewWillLayout() { }
     open func viewDidLayout() { }
-    open func viewDidLoad() { }
-    open func viewDidUnload() { } //Discouraged... Apple depreciated this because they simply just unloaded bitmaps for more memory as views are incredibly small
     open func viewWillAppear(_ animated:Bool) { }
     open func viewDidAppear(_ animated:Bool) { }
     open func viewWillDisappear(_ animated:Bool) { }

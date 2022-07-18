@@ -28,7 +28,7 @@ public struct Controller {
  */
 
 public class Window {
-    private let sdlWindow:SDLWindow
+    public let sdlWindow:SDLWindow
     public let renderer:SDLRenderer
     private var _needsDisplay:Bool = false
     public let parentApp:Application

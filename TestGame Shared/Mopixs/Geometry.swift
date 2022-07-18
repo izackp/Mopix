@@ -7,14 +7,14 @@
 
 import Foundation
 
-public struct Inset<T: Numeric>: Equatable  {
+public struct Inset<T: Codable & Numeric>: Equatable, Codable   {
     var left:T
     var top:T
     var right:T
     var bottom:T
 }
 
-public enum Edge {
+public enum Edge: Codable {
     case Left
     case Top
     case Right
@@ -23,8 +23,7 @@ public enum Edge {
     case End
 }
 
-
-public struct Point<T: Numeric>: Equatable {
+public struct Point<T: Codable & Numeric>: Equatable, Codable {
     var x:T
     var y:T
     
@@ -60,7 +59,7 @@ public struct Point<T: Numeric>: Equatable {
     }
 }
 
-public struct Vector<T: Numeric>: Equatable {
+public struct Vector<T: Codable & Numeric>: Equatable {
     var x:T
     var y:T
     
@@ -84,7 +83,7 @@ public struct Vector<T: Numeric>: Equatable {
     }
 }
 
-public struct Size<T: Numeric>: Equatable {
+public struct Size<T: Codable & Numeric>: Equatable, Codable  {
     var width:T
     var height:T
     
@@ -111,7 +110,12 @@ public struct Size<T: Numeric>: Equatable {
 }
 
 
-public struct Frame<T: Numeric>: Equatable {
+//TODO: Change Name to Rect; What is the best way to name some of these properties?
+//Currently (left, right, Top, Bottom) only effects the specific edge (width and height changes)
+//We can make this more clear by using xMin, xMax, yMin, yMax..
+//However, It doesn't match UI verbage. Or inset verbage.
+public struct Frame<T: Codable & Numeric>: Equatable, Codable {
+    
     var origin:Point<T>
     var size:Size<T>
     
@@ -129,6 +133,31 @@ public struct Frame<T: Numeric>: Equatable {
         origin = min
         let newSize = max - min
         size = Size(newSize.x, newSize.y)
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case x
+        case y
+        case width
+        case height
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let x = try container.decode(T.self, forKey: .x)
+        let y = try container.decode(T.self, forKey: .y)
+        let width = try container.decode(T.self, forKey: .width)
+        let height = try container.decode(T.self, forKey: .height)
+        self.origin = Point(x, y)
+        self.size = Size(width, height)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(x, forKey: .x)
+        try container.encode(y, forKey: .y)
+        try container.encode(width, forKey: .width)
+        try container.encode(height, forKey: .height)
     }
     
     static var zero: Frame<T> {
@@ -150,7 +179,7 @@ public struct Frame<T: Numeric>: Equatable {
         get { return origin.x }
         set { origin.x = newValue }
     }
-
+    
     var width : T {
         get { return size.width }
         set { size.width = newValue }
@@ -161,10 +190,26 @@ public struct Frame<T: Numeric>: Equatable {
         set { size.height = newValue }
     }
     
+    var rightFixed : T {
+        get { right }
+        set {
+            let diff = (newValue - right)
+            origin.x += diff
+        }
+    }
+
+    var bottomFixed : T {
+        get { bottom }
+        set {
+            let diff = (newValue - bottom)
+            origin.y += diff
+        }
+    }
+
     var left : T {
         get { return origin.x }
         set {
-            let diff = (newValue - left)
+            let diff = (newValue - origin.x)
             x += diff
             width -= diff
         }
@@ -178,7 +223,7 @@ public struct Frame<T: Numeric>: Equatable {
             size.height -= diff
         }
     }
-
+    
     var right : T {
         get { return origin.x + size.width }
         set {
@@ -194,7 +239,7 @@ public struct Frame<T: Numeric>: Equatable {
             size.height += diff
         }
     }
-    
+
     public mutating func setValueForEdge(_ edge:Edge, _ value:T) {
         switch (edge) {
             case Edge.Top:
@@ -215,24 +260,79 @@ public struct Frame<T: Numeric>: Equatable {
                 break
         }
     }
-
+    
+    public mutating func setValueForEdgeFixed(_ edge:Edge, _ value:T) {
+        switch (edge) {
+            case Edge.Top:
+                y = value
+                break;
+            case Edge.Right:
+                rightFixed = value
+                break;
+            case Edge.Bottom:
+                bottomFixed = value
+                break;
+            case Edge.Left:
+                x = value
+                break;
+            case .Start:
+                break
+            case .End:
+                break
+        }
+    }
+    
     public func valueForEdge(_ edge:Edge) -> T
     {
         switch (edge)
         {
             case Edge.Top:
-                return top
+                return y
             case Edge.Right:
                 return right
             case Edge.Bottom:
                 return bottom
             case Edge.Left:
-                return left
+                return x
             //TODO: Start, End
             case .Start:
-                return left
+                return x
             case .End:
-                return left
+                return x
+        }
+    }
+    
+    public func marginForEdge(_ edge:Edge, containerSize:Size<T>) -> T {
+        switch (edge) {
+        case .Left:
+            return x
+        case .Top:
+            return y
+        case .Right:
+            return containerSize.width - right
+        case .Bottom:
+            return containerSize.height - bottom
+        case .Start:
+            return x
+        case .End:
+            return containerSize.width - right
+        }
+    }
+    
+    public mutating func setMarginForEdge(_ edge:Edge, value:T, container:Size<T>){
+        switch (edge) {
+        case .Left:
+            x = value
+        case .Top:
+            y = value
+        case .Right:
+            right = container.width - value
+        case .Bottom:
+            bottom = container.height - value
+        case .Start:
+            x = value
+        case .End:
+            right = container.width - value
         }
     }
     

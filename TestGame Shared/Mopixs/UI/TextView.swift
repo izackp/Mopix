@@ -17,7 +17,7 @@ public struct FontDesc : Hashable {
 }
 
 
-public class TextView : View {
+public class TextView : View, Initializable {
     
     public var text:String = ""
     public var textColor:SDLColor = SDLColor.idk
@@ -36,8 +36,17 @@ public class TextView : View {
 
     private var _cachedFont:Font! = nil
     
+    required public override init() {
+        super.init()
+    }
+    
     public init(text:String) {
         self.text = text
+        super.init()
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        fatalError("init(from:) has not been implemented")
     }
     
     func fetchFont(_ context:UIRenderContext) throws -> Font  {

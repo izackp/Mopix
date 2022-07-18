@@ -44,6 +44,10 @@ public final class SDLWindow {
         try SDL_GetWindowDisplayMode(internalPointer, &sdlDisplayMode).sdlThrow(type: type(of: self))
         return SDLDisplayMode(sdlDisplayMode)
     }
+    
+    public func getPtr() -> OpaquePointer {
+        return internalPointer
+    }
 
     
     /// Use this function to get the size of a window's client area (in points).

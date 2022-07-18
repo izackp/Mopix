@@ -32,7 +32,7 @@ final class CustomWindow: Window {
         }
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
-        let vc = TestViewController()
+        let vc = TestViewController.build()
         setRootViewController(vc)
         
         Task { [weak self] in
@@ -45,7 +45,7 @@ final class CustomWindow: Window {
     
     func setRootViewController(_ vc:ViewController) {
         self.rootViewController = vc
-        let view = vc.loadView()
+        let view = vc.view
         self.rootView = view
         view.layout()
         vc.viewWillAppear(false)

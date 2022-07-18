@@ -7,6 +7,7 @@
 
 import Foundation
 
+#if os(macOS)
 class AppDelegateTesting: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     print("Unit Testing Run")
@@ -17,7 +18,7 @@ class AppDelegateTesting: NSObject, NSApplicationDelegate {
     // Insert code here to tear down your application
   }
 }
-
+#endif
 func main() throws {
     let app = try TestGameApp()
     try app.runLoop()
@@ -48,9 +49,12 @@ import Cocoa
 let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 
 if isRunningTests {
+    
+#if os(macOS)
     let delegate = AppDelegateTesting()
     NSApplication.shared.delegate = delegate
     NSApplication.shared.run()
+    #endif
 } else {
     #if os(macOS)
     let _ = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)

@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DF288ADE288485BA005F7C1F /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFE1721B2804D98F00C44AB0 /* SDL2.framework */; };
+		DF288AE22884860D005F7C1F /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF288AE12884860D005F7C1F /* SDL2_ttf.framework */; };
+		DF288CA028849406005F7C1F /* VCTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DF288C9F28849406005F7C1F /* VCTest.m */; };
+		DF288CA32884947B005F7C1F /* VCTest.xib in Resources */ = {isa = PBXBuildFile; fileRef = DF288CA22884947B005F7C1F /* VCTest.xib */; };
+		DF288CA52884E903005F7C1F /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF288C9E288492EA005F7C1F /* SDL2.framework */; };
+		DF288CA62884E970005F7C1F /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF288AE12884860D005F7C1F /* SDL2_ttf.framework */; };
 		DF2D827228662EED00D4A860 /* TTF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827128662EED00D4A860 /* TTF.swift */; };
 		DF2D827328662EED00D4A860 /* TTF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827128662EED00D4A860 /* TTF.swift */; };
 		DF2D827428662EED00D4A860 /* TTF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827128662EED00D4A860 /* TTF.swift */; };
@@ -37,6 +43,15 @@
 		DF3830B728714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
 		DF3830B828714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
 		DF3830B928714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
+		DF5DA948287FAE4800BA44F6 /* Runtime in Frameworks */ = {isa = PBXBuildFile; productRef = DF5DA947287FAE4800BA44F6 /* Runtime */; };
+		DF5DA95128818C3300BA44F6 /* ReflectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */; };
+		DF5DA95228818C3300BA44F6 /* ReflectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */; };
+		DF5DA95328818C3300BA44F6 /* ReflectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */; };
+		DF5DA9552883084500BA44F6 /* TestAVC.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA9542883084500BA44F6 /* TestAVC.m */; };
+		DF5DA9562883084500BA44F6 /* TestAVC.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA9542883084500BA44F6 /* TestAVC.m */; };
+		DF5DA9572883084500BA44F6 /* TestAVC.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA9542883084500BA44F6 /* TestAVC.m */; };
+		DF5DA95A28830B1D00BA44F6 /* Runtime in Frameworks */ = {isa = PBXBuildFile; productRef = DF5DA95928830B1D00BA44F6 /* Runtime */; };
+		DF5DA95C28830B2400BA44F6 /* Runtime in Frameworks */ = {isa = PBXBuildFile; productRef = DF5DA95B28830B2400BA44F6 /* Runtime */; };
 		DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DD92851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DDA2851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
@@ -49,9 +64,10 @@
 		DF81A1F328638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
 		DF81A1F428638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
 		DF81A1F528638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
-		DF81A1F7286418B50089E898 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF81A1F6286418B50089E898 /* SDL2_ttf.framework */; };
 		DF81A1F9286418BB0089E898 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF81A1F8286418BB0089E898 /* SDL2_ttf.framework */; };
-		DF81A1FB286418BF0089E898 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF81A1FA286418BF0089E898 /* SDL2_ttf.framework */; };
+		DFA43E552877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
+		DFA43E562877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
+		DFA43E572877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
 		DFA454FA2804599600638A35 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DFA454F82804599600638A35 /* LaunchScreen.storyboard */; };
 		DFA455022804599600638A35 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA455012804599600638A35 /* AppDelegate.swift */; };
 		DFA455042804599600638A35 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA455032804599600638A35 /* GameViewController.swift */; };
@@ -169,7 +185,6 @@
 		DFCA786A2821E9F80099BC21 /* SpaceInvaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCA78692821E9F80099BC21 /* SpaceInvaders.swift */; };
 		DFCA786B2821E9F80099BC21 /* SpaceInvaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCA78692821E9F80099BC21 /* SpaceInvaders.swift */; };
 		DFCA786C2821E9F80099BC21 /* SpaceInvaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCA78692821E9F80099BC21 /* SpaceInvaders.swift */; };
-		DFE172322804DE8100C44AB0 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFE172192804D98F00C44AB0 /* SDL2.framework */; };
 		DFE17269280510B500C44AB0 /* VideoDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE1725A280510B400C44AB0 /* VideoDisplay.swift */; };
 		DFE1726A280510B500C44AB0 /* VideoDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE1725A280510B400C44AB0 /* VideoDisplay.swift */; };
 		DFE1726B280510B500C44AB0 /* VideoDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE1725A280510B400C44AB0 /* VideoDisplay.swift */; };
@@ -221,8 +236,7 @@
 		DFE172DE2805C72E00C44AB0 /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE172DD2805C72E00C44AB0 /* Geometry.swift */; };
 		DFE172DF2805C72E00C44AB0 /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE172DD2805C72E00C44AB0 /* Geometry.swift */; };
 		DFE172E02805C72E00C44AB0 /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE172DD2805C72E00C44AB0 /* Geometry.swift */; };
-		DFE173E0280621C300C44AB0 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFE172192804D98F00C44AB0 /* SDL2.framework */; };
-		DFE173E1280621C900C44AB0 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFE1721D2804D98F00C44AB0 /* SDL2.framework */; };
+		DFE173E1280621C900C44AB0 /* SDL2_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFE1721D2804D98F00C44AB0 /* SDL2_tvOS.framework */; };
 		DFFABF36282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
 		DFFABF37282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
 		DFFABF38282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
@@ -253,6 +267,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		DF288C9D288492EA005F7C1F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DF288C8D288487E0005F7C1F;
+			remoteInfo = Framework;
+		};
 		DFC5861228125EE30097E39B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DFA454E12804599500638A35 /* Project object */;
@@ -337,13 +358,6 @@
 			remoteGlobalIDString = BECDF6BE0761BA81005FE872;
 			remoteInfo = "Standard DMG";
 		};
-		DFE1722C2804D99300C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = A7D88A1423E2437C00DCD162;
-			remoteInfo = "Framework-iOS";
-		};
 		DFE173DC280621B400C44AB0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
@@ -361,6 +375,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DF288AE12884860D005F7C1F /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF288C9F28849406005F7C1F /* VCTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VCTest.m; sourceTree = "<group>"; };
+		DF288CA128849415005F7C1F /* VCTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VCTest.h; sourceTree = "<group>"; };
+		DF288CA22884947B005F7C1F /* VCTest.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VCTest.xib; sourceTree = "<group>"; };
 		DF2D827128662EED00D4A860 /* TTF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTF.swift; sourceTree = "<group>"; };
 		DF2D82752866300C00D4A860 /* SDLFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDLFont.swift; sourceTree = "<group>"; };
 		DF2D827E286BB8E500D4A860 /* TTFInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TTFInterface.h; sourceTree = "<group>"; };
@@ -374,13 +392,16 @@
 		DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleImageManager.swift; sourceTree = "<group>"; };
 		DF3830AB28714B560028B4E6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		DF3830B628714EE30028B4E6 /* TestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
+		DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionTest.swift; sourceTree = "<group>"; };
+		DF5DA9542883084500BA44F6 /* TestAVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestAVC.m; sourceTree = "<group>"; };
+		DF5DA9582883085E00BA44F6 /* TestAVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestAVC.h; sourceTree = "<group>"; };
+		DF5DA9E2288368B700BA44F6 /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Commands+SDL.swift"; sourceTree = "<group>"; };
 		DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRepeater.swift; sourceTree = "<group>"; };
 		DF81A1E728638CE50089E898 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		DF81A1F228638D6D0089E898 /* UIRenderContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRenderContext.swift; sourceTree = "<group>"; };
-		DF81A1F6286418B50089E898 /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF81A1F8286418BB0089E898 /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF81A1FA286418BF0089E898 /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFA43E542877754900D9D37E /* TestViewController.json5 */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestViewController.json5; sourceTree = "<group>"; };
 		DFA454E92804599600638A35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DFA454EE2804599600638A35 /* TestGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFA454F92804599600638A35 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -468,8 +489,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF81A1FB286418BF0089E898 /* SDL2_ttf.framework in Frameworks */,
-				DFE172322804DE8100C44AB0 /* SDL2.framework in Frameworks */,
+				DF288ADE288485BA005F7C1F /* SDL2.framework in Frameworks */,
+				DF288AE22884860D005F7C1F /* SDL2_ttf.framework in Frameworks */,
+				DF5DA95C28830B2400BA44F6 /* Runtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -477,8 +499,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF5DA95A28830B1D00BA44F6 /* Runtime in Frameworks */,
 				DF81A1F9286418BB0089E898 /* SDL2_ttf.framework in Frameworks */,
-				DFE173E1280621C900C44AB0 /* SDL2.framework in Frameworks */,
+				DFE173E1280621C900C44AB0 /* SDL2_tvOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -486,8 +509,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF81A1F7286418B50089E898 /* SDL2_ttf.framework in Frameworks */,
-				DFE173E0280621C300C44AB0 /* SDL2.framework in Frameworks */,
+				DF288CA62884E970005F7C1F /* SDL2_ttf.framework in Frameworks */,
+				DF288CA52884E903005F7C1F /* SDL2.framework in Frameworks */,
+				DF5DA948287FAE4800BA44F6 /* Runtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -567,11 +591,14 @@
 				DF3830B628714EE30028B4E6 /* TestViewController.swift */,
 				DFFF55CE285BB21D00536EAD /* SpaceInvaders */,
 				DFC583E62807750B0097E39B /* TestGameApp.swift */,
+				DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */,
 				DFE172C728052D2B00C44AB0 /* main.old.swift.old */,
 				DFC583E2280774CA0097E39B /* main.swift */,
 				DFA454E92804599600638A35 /* Assets.xcassets */,
 				DFA4557D2804804500638A35 /* common.h */,
 				DFA4557E2804804500638A35 /* common.c */,
+				DF5DA9542883084500BA44F6 /* TestAVC.m */,
+				DF5DA9582883085E00BA44F6 /* TestAVC.h */,
 			);
 			path = "TestGame Shared";
 			sourceTree = "<group>";
@@ -593,6 +620,9 @@
 			children = (
 				DFA454F82804599600638A35 /* LaunchScreen.storyboard */,
 				DFA4557B2804801C00638A35 /* notmain.m */,
+				DF288C9F28849406005F7C1F /* VCTest.m */,
+				DF288CA128849415005F7C1F /* VCTest.h */,
+				DF288CA22884947B005F7C1F /* VCTest.xib */,
 			);
 			path = "TestGame iOS";
 			sourceTree = "<group>";
@@ -622,9 +652,9 @@
 		DFA45582280480A100638A35 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				DF81A1FA286418BF0089E898 /* SDL2_ttf.framework */,
+				DF288AE12884860D005F7C1F /* SDL2_ttf.framework */,
+				DF5DA9E2288368B700BA44F6 /* SDL2_ttf.framework */,
 				DF81A1F8286418BB0089E898 /* SDL2_ttf.framework */,
-				DF81A1F6286418B50089E898 /* SDL2_ttf.framework */,
 				DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */,
 			);
 			name = Frameworks;
@@ -637,6 +667,7 @@
 				DFFF55EB28610F6700536EAD /* bullet.bmp */,
 				DFA8ADE3285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp */,
 				DFA8ADE4285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp */,
+				DFA43E542877754900D9D37E /* TestViewController.json5 */,
 			);
 			path = ExternalFiles;
 			sourceTree = "<group>";
@@ -713,7 +744,8 @@
 			children = (
 				DFE172192804D98F00C44AB0 /* SDL2.framework */,
 				DFE1721B2804D98F00C44AB0 /* SDL2.framework */,
-				DFE1721D2804D98F00C44AB0 /* SDL2.framework */,
+				DF288C9E288492EA005F7C1F /* SDL2.framework */,
+				DFE1721D2804D98F00C44AB0 /* SDL2_tvOS.framework */,
 				DFE1721F2804D98F00C44AB0 /* libSDL2.a */,
 				DFE172212804D98F00C44AB0 /* libSDL2.a */,
 				DFE172232804D98F00C44AB0 /* libSDL2.a */,
@@ -805,10 +837,10 @@
 			buildRules = (
 			);
 			dependencies = (
-				DFE1722D2804D99300C44AB0 /* PBXTargetDependency */,
 			);
 			name = "TestGame iOS";
 			packageProductDependencies = (
+				DF5DA95B28830B2400BA44F6 /* Runtime */,
 			);
 			productName = "TestGame iOS";
 			productReference = DFA454EE2804599600638A35 /* TestGame.app */;
@@ -829,6 +861,7 @@
 			);
 			name = "TestGame tvOS";
 			packageProductDependencies = (
+				DF5DA95928830B1D00BA44F6 /* Runtime */,
 			);
 			productName = "TestGame tvOS";
 			productReference = DFA454FF2804599600638A35 /* TestGame.app */;
@@ -849,6 +882,7 @@
 			);
 			name = "TestGame macOS";
 			packageProductDependencies = (
+				DF5DA947287FAE4800BA44F6 /* Runtime */,
 			);
 			productName = "TestGame macOS";
 			productReference = DFA4550F2804599600638A35 /* TestGame.app */;
@@ -929,6 +963,7 @@
 			);
 			mainGroup = DFA454E02804599500638A35;
 			packageReferences = (
+				DF5DA946287FAE4700BA44F6 /* XCRemoteSwiftPackageReference "Runtime" */,
 			);
 			productRefGroup = DFA454EF2804599600638A35 /* Products */;
 			projectDirPath = "";
@@ -950,6 +985,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		DF288C9E288492EA005F7C1F /* SDL2.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SDL2.framework;
+			remoteRef = DF288C9D288492EA005F7C1F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		DFE172192804D98F00C44AB0 /* SDL2.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -964,10 +1006,10 @@
 			remoteRef = DFE1721A2804D98F00C44AB0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		DFE1721D2804D98F00C44AB0 /* SDL2.framework */ = {
+		DFE1721D2804D98F00C44AB0 /* SDL2_tvOS.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
-			path = SDL2.framework;
+			path = SDL2_tvOS.framework;
 			remoteRef = DFE1721C2804D98F00C44AB0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -1031,7 +1073,9 @@
 				DFA454FA2804599600638A35 /* LaunchScreen.storyboard in Resources */,
 				DF2D82E6286EB18900D4A860 /* Roboto-Medium.ttf in Resources */,
 				DFFF55EC28610F6800536EAD /* bullet.bmp in Resources */,
+				DF288CA32884947B005F7C1F /* VCTest.xib in Resources */,
 				DFA8ADE5285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp in Resources */,
+				DFA43E552877754900D9D37E /* TestViewController.json5 in Resources */,
 				DFA8ADE8285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1041,6 +1085,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFA8ADE9285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */,
+				DFA43E562877754900D9D37E /* TestViewController.json5 in Resources */,
 				DFA455072804599600638A35 /* Main.storyboard in Resources */,
 				DFA8ADE6285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp in Resources */,
 				DF2D82E7286EB18900D4A860 /* Roboto-Medium.ttf in Resources */,
@@ -1055,6 +1100,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF2D82E8286EB18900D4A860 /* Roboto-Medium.ttf in Resources */,
+				DFA43E572877754900D9D37E /* TestViewController.json5 in Resources */,
 				DFA455242804599600638A35 /* Assets.xcassets in Resources */,
 				DFA8ADE7285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp in Resources */,
 				DFA8ADEA285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */,
@@ -1117,6 +1163,7 @@
 				DFFF55E0285BB28B00536EAD /* Scene.swift in Sources */,
 				DFE1727B280510B500C44AB0 /* Palette.swift in Sources */,
 				DFCA77E5281A44CB0099BC21 /* StringScanner.swift in Sources */,
+				DF5DA95128818C3300BA44F6 /* ReflectionTest.swift in Sources */,
 				DFE172DE2805C72E00C44AB0 /* Geometry.swift in Sources */,
 				DFC583F428077CD00097E39B /* View.swift in Sources */,
 				DFFF55E8285BB2C100536EAD /* Bullet.swift in Sources */,
@@ -1136,6 +1183,7 @@
 				DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */,
 				DF2D8280286BC48400D4A860 /* TTFInterface.m in Sources */,
 				DFC585D62811CAD70097E39B /* AtlasAllocator.swift in Sources */,
+				DF288CA028849406005F7C1F /* VCTest.m in Sources */,
 				DFCA786A2821E9F80099BC21 /* SpaceInvaders.swift in Sources */,
 				DFC585AD2810A6570097E39B /* ImageAtlas.swift in Sources */,
 				DFE17287280510B500C44AB0 /* SDL.swift in Sources */,
@@ -1145,6 +1193,7 @@
 				DFC584042807A8610097E39B /* SDLColor+Ext.swift in Sources */,
 				DF81A1F328638D6D0089E898 /* UIRenderContext.swift in Sources */,
 				DFC5860F28125B240097E39B /* Geometry+SDL.swift in Sources */,
+				DF5DA9552883084500BA44F6 /* TestAVC.m in Sources */,
 				DFE17290280510B500C44AB0 /* SDLWindow.swift in Sources */,
 				DFFF55DC285BB27700536EAD /* CollisionNode2D.swift in Sources */,
 				DFC583DA280773DA0097E39B /* Window.swift in Sources */,
@@ -1203,6 +1252,7 @@
 				DFA455042804599600638A35 /* GameViewController.swift in Sources */,
 				DFE1726A280510B500C44AB0 /* VideoDisplay.swift in Sources */,
 				DF2D82772866300C00D4A860 /* SDLFont.swift in Sources */,
+				DF5DA95228818C3300BA44F6 /* ReflectionTest.swift in Sources */,
 				DFE172DF2805C72E00C44AB0 /* Geometry.swift in Sources */,
 				DFA455022804599600638A35 /* AppDelegate.swift in Sources */,
 				DFE1728E280510B500C44AB0 /* Texture.swift in Sources */,
@@ -1221,6 +1271,7 @@
 				DFFF55D1285BB22C00536EAD /* Player.swift in Sources */,
 				DFC583F528077CD00097E39B /* View.swift in Sources */,
 				DFE17291280510B500C44AB0 /* SDLWindow.swift in Sources */,
+				DF5DA9562883084500BA44F6 /* TestAVC.m in Sources */,
 				DFE1726D280510B500C44AB0 /* Surface.swift in Sources */,
 				DFC5860B28125A900097E39B /* Common.swift in Sources */,
 				DFE1728B280510B500C44AB0 /* Renderer.swift in Sources */,
@@ -1267,6 +1318,7 @@
 				DFFF55E2285BB28B00536EAD /* Scene.swift in Sources */,
 				DFE1728F280510B500C44AB0 /* Texture.swift in Sources */,
 				DFCA77E7281A44CB0099BC21 /* StringScanner.swift in Sources */,
+				DF5DA95328818C3300BA44F6 /* ReflectionTest.swift in Sources */,
 				DFE17289280510B500C44AB0 /* SDL.swift in Sources */,
 				DFC583F628077CD00097E39B /* View.swift in Sources */,
 				DFFF55EA285BB2C100536EAD /* Bullet.swift in Sources */,
@@ -1295,6 +1347,7 @@
 				DFC584062807A8620097E39B /* SDLColor+Ext.swift in Sources */,
 				DF81A1F528638D6D0089E898 /* UIRenderContext.swift in Sources */,
 				DFC5861128125B240097E39B /* Geometry+SDL.swift in Sources */,
+				DF5DA9572883084500BA44F6 /* TestAVC.m in Sources */,
 				DFE17295280510B500C44AB0 /* Color.swift in Sources */,
 				DFFF55DE285BB27700536EAD /* CollisionNode2D.swift in Sources */,
 				DFC583DC280773DA0097E39B /* Window.swift in Sources */,
@@ -1345,11 +1398,6 @@
 			isa = PBXTargetDependency;
 			target = DFA4550E2804599600638A35 /* TestGame macOS */;
 			targetProxy = DFC5861D28125F7E0097E39B /* PBXContainerItemProxy */;
-		};
-		DFE1722D2804D99300C44AB0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "Framework-iOS";
-			targetProxy = DFE1722C2804D99300C44AB0 /* PBXContainerItemProxy */;
 		};
 		DFE173DD280621B400C44AB0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1496,6 +1544,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_POSTPROCESSING = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1528,7 +1577,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1557,7 +1606,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1823,6 +1872,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DF5DA946287FAE4700BA44F6 /* XCRemoteSwiftPackageReference "Runtime" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/wickwirew/Runtime.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DF5DA947287FAE4800BA44F6 /* Runtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DF5DA946287FAE4700BA44F6 /* XCRemoteSwiftPackageReference "Runtime" */;
+			productName = Runtime;
+		};
+		DF5DA95928830B1D00BA44F6 /* Runtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DF5DA946287FAE4700BA44F6 /* XCRemoteSwiftPackageReference "Runtime" */;
+			productName = Runtime;
+		};
+		DF5DA95B28830B2400BA44F6 /* Runtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DF5DA946287FAE4700BA44F6 /* XCRemoteSwiftPackageReference "Runtime" */;
+			productName = Runtime;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DFA454E12804599500638A35 /* Project object */;
 }

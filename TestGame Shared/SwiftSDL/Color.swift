@@ -8,7 +8,7 @@
 import SDL2
 
 /// SDL Color
-public struct SDLColor: RawRepresentable, Equatable, Hashable {
+public struct SDLColor: RawRepresentable, Equatable, Hashable, Codable {
     
     public let rawValue: UInt32
     
