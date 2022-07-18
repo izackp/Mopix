@@ -7,12 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DF288ADE288485BA005F7C1F /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFE1721B2804D98F00C44AB0 /* SDL2.framework */; };
-		DF288AE22884860D005F7C1F /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF288AE12884860D005F7C1F /* SDL2_ttf.framework */; };
 		DF288CA028849406005F7C1F /* VCTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DF288C9F28849406005F7C1F /* VCTest.m */; };
 		DF288CA32884947B005F7C1F /* VCTest.xib in Resources */ = {isa = PBXBuildFile; fileRef = DF288CA22884947B005F7C1F /* VCTest.xib */; };
-		DF288CA52884E903005F7C1F /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF288C9E288492EA005F7C1F /* SDL2.framework */; };
-		DF288CA62884E970005F7C1F /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF288AE12884860D005F7C1F /* SDL2_ttf.framework */; };
+		DF288CAB2884F40D005F7C1F /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF288CA92884F267005F7C1F /* SDL2_ttf.framework */; };
+		DF288CAD2884F4AC005F7C1F /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF288CAC2884F4AC005F7C1F /* SDL2.framework */; };
 		DF2D827228662EED00D4A860 /* TTF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827128662EED00D4A860 /* TTF.swift */; };
 		DF2D827328662EED00D4A860 /* TTF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827128662EED00D4A860 /* TTF.swift */; };
 		DF2D827428662EED00D4A860 /* TTF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2D827128662EED00D4A860 /* TTF.swift */; };
@@ -48,8 +46,6 @@
 		DF5DA95228818C3300BA44F6 /* ReflectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */; };
 		DF5DA95328818C3300BA44F6 /* ReflectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */; };
 		DF5DA9552883084500BA44F6 /* TestAVC.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA9542883084500BA44F6 /* TestAVC.m */; };
-		DF5DA9562883084500BA44F6 /* TestAVC.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA9542883084500BA44F6 /* TestAVC.m */; };
-		DF5DA9572883084500BA44F6 /* TestAVC.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA9542883084500BA44F6 /* TestAVC.m */; };
 		DF5DA95A28830B1D00BA44F6 /* Runtime in Frameworks */ = {isa = PBXBuildFile; productRef = DF5DA95928830B1D00BA44F6 /* Runtime */; };
 		DF5DA95C28830B2400BA44F6 /* Runtime in Frameworks */ = {isa = PBXBuildFile; productRef = DF5DA95B28830B2400BA44F6 /* Runtime */; };
 		DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
@@ -64,7 +60,6 @@
 		DF81A1F328638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
 		DF81A1F428638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
 		DF81A1F528638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
-		DF81A1F9286418BB0089E898 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF81A1F8286418BB0089E898 /* SDL2_ttf.framework */; };
 		DFA43E552877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
 		DFA43E562877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
 		DFA43E572877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
@@ -236,7 +231,6 @@
 		DFE172DE2805C72E00C44AB0 /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE172DD2805C72E00C44AB0 /* Geometry.swift */; };
 		DFE172DF2805C72E00C44AB0 /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE172DD2805C72E00C44AB0 /* Geometry.swift */; };
 		DFE172E02805C72E00C44AB0 /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE172DD2805C72E00C44AB0 /* Geometry.swift */; };
-		DFE173E1280621C900C44AB0 /* SDL2_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFE1721D2804D98F00C44AB0 /* SDL2_tvOS.framework */; };
 		DFFABF36282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
 		DFFABF37282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
 		DFFABF38282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
@@ -267,13 +261,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		DF288C9D288492EA005F7C1F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = DF288C8D288487E0005F7C1F;
-			remoteInfo = Framework;
-		};
 		DFC5861228125EE30097E39B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DFA454E12804599500638A35 /* Project object */;
@@ -288,97 +275,15 @@
 			remoteGlobalIDString = DFA4550E2804599600638A35;
 			remoteInfo = "TestGame macOS";
 		};
-		DFE172182804D98F00C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = BECDF66C0761BA81005FE872;
-			remoteInfo = Framework;
-		};
-		DFE1721A2804D98F00C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A7D88B5423E2437C00DCD162;
-			remoteInfo = "Framework-iOS";
-		};
-		DFE1721C2804D98F00C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A7D88D1523E24BED00DCD162;
-			remoteInfo = "Framework-tvOS";
-		};
-		DFE1721E2804D98F00C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = BECDF6B30761BA81005FE872;
-			remoteInfo = "Static Library";
-		};
-		DFE172202804D98F00C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A7D88E5423E24D3B00DCD162;
-			remoteInfo = "Static Library-iOS";
-		};
-		DFE172222804D98F00C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A769B23D23E259AE00872273;
-			remoteInfo = "Static Library-tvOS";
-		};
-		DFE172242804D98F00C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = DB31407717554B71006C0E22;
-			remoteInfo = "Shared Library";
-		};
-		DFE172262804D98F00C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A75FCEB323E25AB700529352;
-			remoteInfo = "Shared Library-iOS";
-		};
-		DFE172282804D98F00C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A75FD06C23E25AC700529352;
-			remoteInfo = "Shared Library-tvOS";
-		};
-		DFE1722A2804D98F00C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = BECDF6BE0761BA81005FE872;
-			remoteInfo = "Standard DMG";
-		};
-		DFE173DC280621B400C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = BECDF5FE0761BA81005FE872;
-			remoteInfo = Framework;
-		};
-		DFE173DE280621B700C44AB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = A7D88BC923E24BED00DCD162;
-			remoteInfo = "Framework-tvOS";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		DF288AE12884860D005F7C1F /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF288C9F28849406005F7C1F /* VCTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VCTest.m; sourceTree = "<group>"; };
 		DF288CA128849415005F7C1F /* VCTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VCTest.h; sourceTree = "<group>"; };
 		DF288CA22884947B005F7C1F /* VCTest.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VCTest.xib; sourceTree = "<group>"; };
+		DF288CA72884F264005F7C1F /* SDL2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF288CA92884F267005F7C1F /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF288CAC2884F4AC005F7C1F /* SDL2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF2D827128662EED00D4A860 /* TTF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTF.swift; sourceTree = "<group>"; };
 		DF2D82752866300C00D4A860 /* SDLFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDLFont.swift; sourceTree = "<group>"; };
 		DF2D827E286BB8E500D4A860 /* TTFInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TTFInterface.h; sourceTree = "<group>"; };
@@ -395,12 +300,10 @@
 		DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionTest.swift; sourceTree = "<group>"; };
 		DF5DA9542883084500BA44F6 /* TestAVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestAVC.m; sourceTree = "<group>"; };
 		DF5DA9582883085E00BA44F6 /* TestAVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestAVC.h; sourceTree = "<group>"; };
-		DF5DA9E2288368B700BA44F6 /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Commands+SDL.swift"; sourceTree = "<group>"; };
 		DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRepeater.swift; sourceTree = "<group>"; };
 		DF81A1E728638CE50089E898 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		DF81A1F228638D6D0089E898 /* UIRenderContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRenderContext.swift; sourceTree = "<group>"; };
-		DF81A1F8286418BB0089E898 /* SDL2_ttf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL2_ttf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFA43E542877754900D9D37E /* TestViewController.json5 */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestViewController.json5; sourceTree = "<group>"; };
 		DFA454E92804599600638A35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DFA454EE2804599600638A35 /* TestGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -453,7 +356,6 @@
 		DFCA78612821D4B10099BC21 /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		DFCA78652821E6560099BC21 /* Animator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animator.swift; sourceTree = "<group>"; };
 		DFCA78692821E9F80099BC21 /* SpaceInvaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceInvaders.swift; sourceTree = "<group>"; };
-		DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = ../SDL/SDL.xcodeproj; sourceTree = "<group>"; };
 		DFE1725A280510B400C44AB0 /* VideoDisplay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoDisplay.swift; sourceTree = "<group>"; };
 		DFE1725B280510B400C44AB0 /* Surface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Surface.swift; sourceTree = "<group>"; };
 		DFE1725C280510B400C44AB0 /* BlendMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlendMode.swift; sourceTree = "<group>"; };
@@ -489,8 +391,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF288ADE288485BA005F7C1F /* SDL2.framework in Frameworks */,
-				DF288AE22884860D005F7C1F /* SDL2_ttf.framework in Frameworks */,
 				DF5DA95C28830B2400BA44F6 /* Runtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -500,8 +400,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF5DA95A28830B1D00BA44F6 /* Runtime in Frameworks */,
-				DF81A1F9286418BB0089E898 /* SDL2_ttf.framework in Frameworks */,
-				DFE173E1280621C900C44AB0 /* SDL2_tvOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -509,8 +407,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF288CA62884E970005F7C1F /* SDL2_ttf.framework in Frameworks */,
-				DF288CA52884E903005F7C1F /* SDL2.framework in Frameworks */,
+				DF288CAD2884F4AC005F7C1F /* SDL2.framework in Frameworks */,
+				DF288CAB2884F40D005F7C1F /* SDL2_ttf.framework in Frameworks */,
 				DF5DA948287FAE4800BA44F6 /* Runtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -652,10 +550,9 @@
 		DFA45582280480A100638A35 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				DF288AE12884860D005F7C1F /* SDL2_ttf.framework */,
-				DF5DA9E2288368B700BA44F6 /* SDL2_ttf.framework */,
-				DF81A1F8286418BB0089E898 /* SDL2_ttf.framework */,
-				DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */,
+				DF288CAC2884F4AC005F7C1F /* SDL2.framework */,
+				DF288CA92884F267005F7C1F /* SDL2_ttf.framework */,
+				DF288CA72884F264005F7C1F /* SDL2.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -737,24 +634,6 @@
 				DFCA78612821D4B10099BC21 /* FileManager.swift */,
 			);
 			path = Extensions;
-			sourceTree = "<group>";
-		};
-		DFE1720C2804D98F00C44AB0 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				DFE172192804D98F00C44AB0 /* SDL2.framework */,
-				DFE1721B2804D98F00C44AB0 /* SDL2.framework */,
-				DF288C9E288492EA005F7C1F /* SDL2.framework */,
-				DFE1721D2804D98F00C44AB0 /* SDL2_tvOS.framework */,
-				DFE1721F2804D98F00C44AB0 /* libSDL2.a */,
-				DFE172212804D98F00C44AB0 /* libSDL2.a */,
-				DFE172232804D98F00C44AB0 /* libSDL2.a */,
-				DFE172252804D98F00C44AB0 /* libSDL2.dylib */,
-				DFE172272804D98F00C44AB0 /* libSDL2.dylib */,
-				DFE172292804D98F00C44AB0 /* libSDL2.dylib */,
-				DFE1722B2804D98F00C44AB0 /* SDL2 */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		DFE1724F28050FA400C44AB0 /* Mopixs */ = {
@@ -857,7 +736,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				DFE173DF280621B700C44AB0 /* PBXTargetDependency */,
 			);
 			name = "TestGame tvOS";
 			packageProductDependencies = (
@@ -878,7 +756,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				DFE173DD280621B400C44AB0 /* PBXTargetDependency */,
 			);
 			name = "TestGame macOS";
 			packageProductDependencies = (
@@ -967,12 +844,6 @@
 			);
 			productRefGroup = DFA454EF2804599600638A35 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = DFE1720C2804D98F00C44AB0 /* Products */;
-					ProjectRef = DFE1720B2804D98F00C44AB0 /* SDL.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				DFA454ED2804599600638A35 /* TestGame iOS */,
@@ -983,86 +854,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		DF288C9E288492EA005F7C1F /* SDL2.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = SDL2.framework;
-			remoteRef = DF288C9D288492EA005F7C1F /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DFE172192804D98F00C44AB0 /* SDL2.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = SDL2.framework;
-			remoteRef = DFE172182804D98F00C44AB0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DFE1721B2804D98F00C44AB0 /* SDL2.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = SDL2.framework;
-			remoteRef = DFE1721A2804D98F00C44AB0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DFE1721D2804D98F00C44AB0 /* SDL2_tvOS.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = SDL2_tvOS.framework;
-			remoteRef = DFE1721C2804D98F00C44AB0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DFE1721F2804D98F00C44AB0 /* libSDL2.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libSDL2.a;
-			remoteRef = DFE1721E2804D98F00C44AB0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DFE172212804D98F00C44AB0 /* libSDL2.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libSDL2.a;
-			remoteRef = DFE172202804D98F00C44AB0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DFE172232804D98F00C44AB0 /* libSDL2.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libSDL2.a;
-			remoteRef = DFE172222804D98F00C44AB0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DFE172252804D98F00C44AB0 /* libSDL2.dylib */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = libSDL2.dylib;
-			remoteRef = DFE172242804D98F00C44AB0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DFE172272804D98F00C44AB0 /* libSDL2.dylib */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = libSDL2.dylib;
-			remoteRef = DFE172262804D98F00C44AB0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DFE172292804D98F00C44AB0 /* libSDL2.dylib */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = libSDL2.dylib;
-			remoteRef = DFE172282804D98F00C44AB0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DFE1722B2804D98F00C44AB0 /* SDL2 */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = SDL2;
-			remoteRef = DFE1722A2804D98F00C44AB0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		DFA454EC2804599600638A35 /* Resources */ = {
@@ -1271,7 +1062,6 @@
 				DFFF55D1285BB22C00536EAD /* Player.swift in Sources */,
 				DFC583F528077CD00097E39B /* View.swift in Sources */,
 				DFE17291280510B500C44AB0 /* SDLWindow.swift in Sources */,
-				DF5DA9562883084500BA44F6 /* TestAVC.m in Sources */,
 				DFE1726D280510B500C44AB0 /* Surface.swift in Sources */,
 				DFC5860B28125A900097E39B /* Common.swift in Sources */,
 				DFE1728B280510B500C44AB0 /* Renderer.swift in Sources */,
@@ -1347,7 +1137,6 @@
 				DFC584062807A8620097E39B /* SDLColor+Ext.swift in Sources */,
 				DF81A1F528638D6D0089E898 /* UIRenderContext.swift in Sources */,
 				DFC5861128125B240097E39B /* Geometry+SDL.swift in Sources */,
-				DF5DA9572883084500BA44F6 /* TestAVC.m in Sources */,
 				DFE17295280510B500C44AB0 /* Color.swift in Sources */,
 				DFFF55DE285BB27700536EAD /* CollisionNode2D.swift in Sources */,
 				DFC583DC280773DA0097E39B /* Window.swift in Sources */,
@@ -1398,16 +1187,6 @@
 			isa = PBXTargetDependency;
 			target = DFA4550E2804599600638A35 /* TestGame macOS */;
 			targetProxy = DFC5861D28125F7E0097E39B /* PBXContainerItemProxy */;
-		};
-		DFE173DD280621B400C44AB0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = Framework;
-			targetProxy = DFE173DC280621B400C44AB0 /* PBXContainerItemProxy */;
-		};
-		DFE173DF280621B700C44AB0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "Framework-tvOS";
-			targetProxy = DFE173DE280621B700C44AB0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
