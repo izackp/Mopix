@@ -7,20 +7,30 @@
 
 import Foundation
 import Runtime
+import XCTest
 
-public func testSerialization() {
-    //let sample1:ContiguousArray<LEPosX> = [LEPosX(value: 1)]
-    //let sample2 = sample1 as ContiguousArray<Any>
-    var test = TextView(text: "Hello WOrld")
-    let idk:[LayoutElement] = [LEPosX(value: 0), LEPosY(value: 1)]
-    //let hmm = Arr<LayoutElement>.init(idk)
-    test.listLayouts = idk
-    let dic = try! serialize(test)
-    let jsonData = try! JSONSerialization.data(withJSONObject: dic, options: [.prettyPrinted])
-    let str = String.init(data: jsonData, encoding: .utf8)!
-    print(str)
-    let another = try? deserialize(dic)
+//The goal is to support cross platform and android/windows is not abi stable.
+//Hence, reflection is not a great option.
+
+class ReflectionTest: XCTestCase {
+
+    func testSerialization() {
+        //let sample1:ContiguousArray<LEPosX> = [LEPosX(value: 1)]
+        //let sample2 = sample1 as ContiguousArray<Any>
+        var test = TextView(text: "Hello World")
+        let idk:[LayoutElement] = [LEPosX(value: 0), LEPosY(value: 1)]
+        //let hmm = Arr<LayoutElement>.init(idk)
+        test.listLayouts = idk
+        let dic = try! serialize(test)
+        let jsonData = try! JSONSerialization.data(withJSONObject: dic, options: [.prettyPrinted])
+        let str = String.init(data: jsonData, encoding: .utf8)!
+        print(str)
+        let another = try? deserialize(dic)
+    }
+
 }
+
+
 
 public func serialize(_ item:Any) throws -> [String: Any?] {
     var dict:[String:Any?] = [:]
@@ -36,17 +46,6 @@ public func serialize(_ item:Any) throws -> [String: Any?] {
     }
     dict["_type"] = info.mangledName
     return dict
-}
-
-fileprivate let formatter = DateFormatter().apply {
-    $0.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-}
-
-extension DateFormatter {
-    func apply(toApply:(_ input:DateFormatter)->()) -> DateFormatter {
-        toApply(self)
-        return self
-    }
 }
 
 public func serializeItem(_ source:Any?) throws -> Any? {

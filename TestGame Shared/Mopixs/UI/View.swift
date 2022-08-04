@@ -12,9 +12,19 @@ public struct ViewLayoutBuilder {
     public var view:View
 }
 
+
 // https://paul-samuels.com/blog/2019/01/02/swift-heterogeneous-codable-array/
 
-open class View: Codable {
+open class View: Codable, DictionarySerialization {
+    
+    required public init(_ dictionary: [String : Any], _ cache: InstanceCache?) throws {
+        
+    }
+    
+    public func toDictionary() -> [String : Any] {
+        return [:]
+    }
+    
     
     public var frame:Frame<Int16> = Frame.zero
     public var listLayouts:[LayoutElement] = []
@@ -38,12 +48,16 @@ open class View: Codable {
     
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        //container.sup
         self.frame = try container.decode(Frame<Int16>.self, forKey: .frame)
-        self.children = try container.decode(Arr<View>.self, forKey: .children)
+        //self.children = try container.decodeArray(View.self, forKey: .children)
+        //if view was final and not expressible by str,int,float
+        //self.children = try container.decode(Arr<View.self>, forKey: .children)
         self.clipBounds = try container.decode(Bool.self, forKey: .clipBounds)
         self.backgroundColor = try container.decode(SDLColor.self, forKey: .backgroundColor)
-        let wrapped = try container.decode([LECodableWrapper].self, forKey: .listLayouts)
-        self.listLayouts = wrapped.map({$0.toLE()})//Arr<LayoutElement>()
+        
+        //let wrapped = try container.decode([LECodableWrapper].self, forKey: .listLayouts)
+        //self.listLayouts = wrapped.map({$0.toLE()})//Arr<LayoutElement>()
     }
     
     public func encode(to encoder: Encoder) throws {

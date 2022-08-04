@@ -220,6 +220,12 @@ public protocol LayoutElement : Any, Codable {
     func updateFrame(_ view:View)
 }
 
+extension LayoutElement {
+    static func idk(_ value:Int) -> LayoutElement {
+        return LEInset(edge: Edge.Top, value: 0)
+    }
+}
+
 public struct LEInset : LayoutElement, Codable {
     public var edge:Edge
     public var value:DValue

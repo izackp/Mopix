@@ -41,10 +41,11 @@
 		DF3830B728714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
 		DF3830B828714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
 		DF3830B928714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
+		DF5BE3F0289ABA0F00A0ED4E /* Codable+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* Codable+Features.swift */; };
+		DF5BE3F1289ABA0F00A0ED4E /* Codable+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* Codable+Features.swift */; };
+		DF5BE3F2289B263A00A0ED4E /* InstanceCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A92898577F002F3DF4 /* InstanceCache.swift */; };
+		DF5BE3F3289B263A00A0ED4E /* InstanceCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A92898577F002F3DF4 /* InstanceCache.swift */; };
 		DF5DA948287FAE4800BA44F6 /* Runtime in Frameworks */ = {isa = PBXBuildFile; productRef = DF5DA947287FAE4800BA44F6 /* Runtime */; };
-		DF5DA95128818C3300BA44F6 /* ReflectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */; };
-		DF5DA95228818C3300BA44F6 /* ReflectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */; };
-		DF5DA95328818C3300BA44F6 /* ReflectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */; };
 		DF5DA9552883084500BA44F6 /* TestAVC.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA9542883084500BA44F6 /* TestAVC.m */; };
 		DF5DA95A28830B1D00BA44F6 /* Runtime in Frameworks */ = {isa = PBXBuildFile; productRef = DF5DA95928830B1D00BA44F6 /* Runtime */; };
 		DF5DA95C28830B2400BA44F6 /* Runtime in Frameworks */ = {isa = PBXBuildFile; productRef = DF5DA95B28830B2400BA44F6 /* Runtime */; };
@@ -180,6 +181,15 @@
 		DFCA786A2821E9F80099BC21 /* SpaceInvaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCA78692821E9F80099BC21 /* SpaceInvaders.swift */; };
 		DFCA786B2821E9F80099BC21 /* SpaceInvaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCA78692821E9F80099BC21 /* SpaceInvaders.swift */; };
 		DFCA786C2821E9F80099BC21 /* SpaceInvaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCA78692821E9F80099BC21 /* SpaceInvaders.swift */; };
+		DFD050FC288B61C0008FA64E /* Date+Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD050FB288B61C0008FA64E /* Date+Shortcuts.swift */; };
+		DFD050FD288B61C0008FA64E /* Date+Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD050FB288B61C0008FA64E /* Date+Shortcuts.swift */; };
+		DFD050FE288B61C0008FA64E /* Date+Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD050FB288B61C0008FA64E /* Date+Shortcuts.swift */; };
+		DFD6514F2891ABBF002DFCCE /* Dictionary+Serialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD6514E2891ABBF002DFCCE /* Dictionary+Serialization.swift */; };
+		DFD651502891ABBF002DFCCE /* Dictionary+Serialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD6514E2891ABBF002DFCCE /* Dictionary+Serialization.swift */; };
+		DFD651512891ABBF002DFCCE /* Dictionary+Serialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD6514E2891ABBF002DFCCE /* Dictionary+Serialization.swift */; };
+		DFD6515428932576002DFCCE /* SmartColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD6515328932575002DFCCE /* SmartColor.swift */; };
+		DFD6515528932576002DFCCE /* SmartColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD6515328932575002DFCCE /* SmartColor.swift */; };
+		DFD6515628932576002DFCCE /* SmartColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD6515328932575002DFCCE /* SmartColor.swift */; };
 		DFE17269280510B500C44AB0 /* VideoDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE1725A280510B400C44AB0 /* VideoDisplay.swift */; };
 		DFE1726A280510B500C44AB0 /* VideoDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE1725A280510B400C44AB0 /* VideoDisplay.swift */; };
 		DFE1726B280510B500C44AB0 /* VideoDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE1725A280510B400C44AB0 /* VideoDisplay.swift */; };
@@ -231,6 +241,14 @@
 		DFE172DE2805C72E00C44AB0 /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE172DD2805C72E00C44AB0 /* Geometry.swift */; };
 		DFE172DF2805C72E00C44AB0 /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE172DD2805C72E00C44AB0 /* Geometry.swift */; };
 		DFE172E02805C72E00C44AB0 /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE172DD2805C72E00C44AB0 /* Geometry.swift */; };
+		DFF831A6289855E7002F3DF4 /* Codable+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* Codable+Features.swift */; };
+		DFF831A7289855E7002F3DF4 /* Codable+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* Codable+Features.swift */; };
+		DFF831A8289855E7002F3DF4 /* Codable+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* Codable+Features.swift */; };
+		DFF831AA2898577F002F3DF4 /* InstanceCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A92898577F002F3DF4 /* InstanceCache.swift */; };
+		DFF831AB2898577F002F3DF4 /* InstanceCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A92898577F002F3DF4 /* InstanceCache.swift */; };
+		DFF831AC2898577F002F3DF4 /* InstanceCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A92898577F002F3DF4 /* InstanceCache.swift */; };
+		DFF831AE2899E88A002F3DF4 /* SerializationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831AD2899E88A002F3DF4 /* SerializationTests.swift */; };
+		DFF831AF2899E895002F3DF4 /* SerializationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831AD2899E88A002F3DF4 /* SerializationTests.swift */; };
 		DFFABF36282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
 		DFFABF37282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
 		DFFABF38282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
@@ -356,6 +374,10 @@
 		DFCA78612821D4B10099BC21 /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		DFCA78652821E6560099BC21 /* Animator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animator.swift; sourceTree = "<group>"; };
 		DFCA78692821E9F80099BC21 /* SpaceInvaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceInvaders.swift; sourceTree = "<group>"; };
+		DFD050FB288B61C0008FA64E /* Date+Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Shortcuts.swift"; sourceTree = "<group>"; };
+		DFD0514C288F9681008FA64E /* TextView+Serializers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TextView+Serializers.swift"; sourceTree = "<group>"; };
+		DFD6514E2891ABBF002DFCCE /* Dictionary+Serialization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+Serialization.swift"; sourceTree = "<group>"; };
+		DFD6515328932575002DFCCE /* SmartColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartColor.swift; sourceTree = "<group>"; };
 		DFE1725A280510B400C44AB0 /* VideoDisplay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoDisplay.swift; sourceTree = "<group>"; };
 		DFE1725B280510B400C44AB0 /* Surface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Surface.swift; sourceTree = "<group>"; };
 		DFE1725C280510B400C44AB0 /* BlendMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlendMode.swift; sourceTree = "<group>"; };
@@ -375,6 +397,9 @@
 		DFE172C728052D2B00C44AB0 /* main.old.swift.old */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.old.swift.old; sourceTree = "<group>"; };
 		DFE172D92805C6FE00C44AB0 /* Application.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Application.swift; sourceTree = "<group>"; };
 		DFE172DD2805C72E00C44AB0 /* Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Geometry.swift; sourceTree = "<group>"; };
+		DFF831A5289855E7002F3DF4 /* Codable+Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Codable+Features.swift"; sourceTree = "<group>"; };
+		DFF831A92898577F002F3DF4 /* InstanceCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanceCache.swift; sourceTree = "<group>"; };
+		DFF831AD2899E88A002F3DF4 /* SerializationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SerializationTests.swift; sourceTree = "<group>"; };
 		DFFABF35282C675200C9ABAA /* Commands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commands.swift; sourceTree = "<group>"; };
 		DFFF55CF285BB22C00536EAD /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		DFFF55D3285BB23900536EAD /* EntityPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityPool.swift; sourceTree = "<group>"; };
@@ -457,6 +482,7 @@
 			isa = PBXGroup;
 			children = (
 				DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */,
+				DFD6514E2891ABBF002DFCCE /* Dictionary+Serialization.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -489,7 +515,6 @@
 				DF3830B628714EE30028B4E6 /* TestViewController.swift */,
 				DFFF55CE285BB21D00536EAD /* SpaceInvaders */,
 				DFC583E62807750B0097E39B /* TestGameApp.swift */,
-				DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */,
 				DFE172C728052D2B00C44AB0 /* main.old.swift.old */,
 				DFC583E2280774CA0097E39B /* main.swift */,
 				DFA454E92804599600638A35 /* Assets.xcassets */,
@@ -584,8 +609,10 @@
 				DFC583EF28077C9C0097E39B /* Layouts.swift */,
 				DFC583F328077CD00097E39B /* View.swift */,
 				DF81A1E728638CE50089E898 /* TextView.swift */,
+				DFD0514C288F9681008FA64E /* TextView+Serializers.swift */,
 				DF81A1F228638D6D0089E898 /* UIRenderContext.swift */,
 				DF3830AB28714B560028B4E6 /* ViewController.swift */,
+				DFD6515328932575002DFCCE /* SmartColor.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -602,8 +629,10 @@
 		DFC585FD28125A2E0097E39B /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */,
 				DFC585F4281256590097E39B /* EtagereTests.swift */,
 				DFCA777A2818AD0C0099BC21 /* VersionTests.swift */,
+				DFF831AD2899E88A002F3DF4 /* SerializationTests.swift */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -632,6 +661,7 @@
 			isa = PBXGroup;
 			children = (
 				DFCA78612821D4B10099BC21 /* FileManager.swift */,
+				DFD050FB288B61C0008FA64E /* Date+Shortcuts.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -639,6 +669,7 @@
 		DFE1724F28050FA400C44AB0 /* Mopixs */ = {
 			isa = PBXGroup;
 			children = (
+				DFF831A4289855CC002F3DF4 /* Serialization */,
 				DF2D82E92870DAFE00D4A860 /* ImageHandling */,
 				DF6D4DCF2851DF420046BF8D /* Extensions */,
 				DFCA776C28189B6C0099BC21 /* Resources */,
@@ -685,6 +716,15 @@
 				DFE172B42805252E00C44AB0 /* mainnot.swift */,
 			);
 			path = SwiftSDL;
+			sourceTree = "<group>";
+		};
+		DFF831A4289855CC002F3DF4 /* Serialization */ = {
+			isa = PBXGroup;
+			children = (
+				DFF831A5289855E7002F3DF4 /* Codable+Features.swift */,
+				DFF831A92898577F002F3DF4 /* InstanceCache.swift */,
+			);
+			path = Serialization;
 			sourceTree = "<group>";
 		};
 		DFFF55CE285BB21D00536EAD /* SpaceInvaders */ = {
@@ -923,6 +963,7 @@
 				DFC583E72807750B0097E39B /* TestGameApp.swift in Sources */,
 				DF2D82FB2870E97A00D4A860 /* SimpleImageManager.swift in Sources */,
 				DFC58371280641770097E39B /* TimeBank.swift in Sources */,
+				DFF831AA2898577F002F3DF4 /* InstanceCache.swift in Sources */,
 				DFE172DA2805C6FE00C44AB0 /* Application.swift in Sources */,
 				DFC583E3280774CA0097E39B /* main.swift in Sources */,
 				DFA4557F2804804500638A35 /* common.c in Sources */,
@@ -954,7 +995,6 @@
 				DFFF55E0285BB28B00536EAD /* Scene.swift in Sources */,
 				DFE1727B280510B500C44AB0 /* Palette.swift in Sources */,
 				DFCA77E5281A44CB0099BC21 /* StringScanner.swift in Sources */,
-				DF5DA95128818C3300BA44F6 /* ReflectionTest.swift in Sources */,
 				DFE172DE2805C72E00C44AB0 /* Geometry.swift in Sources */,
 				DFC583F428077CD00097E39B /* View.swift in Sources */,
 				DFFF55E8285BB2C100536EAD /* Bullet.swift in Sources */,
@@ -963,6 +1003,7 @@
 				DFE1726C280510B500C44AB0 /* Surface.swift in Sources */,
 				DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */,
 				DFE17272280510B500C44AB0 /* DisplayMode.swift in Sources */,
+				DFD050FC288B61C0008FA64E /* Date+Shortcuts.swift in Sources */,
 				DF81A1E828638CE50089E898 /* TextView.swift in Sources */,
 				DF2D827228662EED00D4A860 /* TTF.swift in Sources */,
 				DFE1727E280510B500C44AB0 /* CountableSet.swift in Sources */,
@@ -971,12 +1012,15 @@
 				DFCA777228189F1F0099BC21 /* GenericError.swift in Sources */,
 				DFE17275280510B500C44AB0 /* Error.swift in Sources */,
 				DF3830AC28714B560028B4E6 /* ViewController.swift in Sources */,
+				DFF831A6289855E7002F3DF4 /* Codable+Features.swift in Sources */,
 				DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */,
 				DF2D8280286BC48400D4A860 /* TTFInterface.m in Sources */,
+				DFD6515428932576002DFCCE /* SmartColor.swift in Sources */,
 				DFC585D62811CAD70097E39B /* AtlasAllocator.swift in Sources */,
 				DF288CA028849406005F7C1F /* VCTest.m in Sources */,
 				DFCA786A2821E9F80099BC21 /* SpaceInvaders.swift in Sources */,
 				DFC585AD2810A6570097E39B /* ImageAtlas.swift in Sources */,
+				DFD6514F2891ABBF002DFCCE /* Dictionary+Serialization.swift in Sources */,
 				DFE17287280510B500C44AB0 /* SDL.swift in Sources */,
 				DFCA77762818A2F50099BC21 /* Version.swift in Sources */,
 				DFCA7801281B37050099BC21 /* String+Util.swift in Sources */,
@@ -1000,6 +1044,7 @@
 				DFCA77812818AF020099BC21 /* VirtualDrive.swift in Sources */,
 				DFE17276280510B500C44AB0 /* Error.swift in Sources */,
 				DFC583F128077C9C0097E39B /* Layouts.swift in Sources */,
+				DFF831AB2898577F002F3DF4 /* InstanceCache.swift in Sources */,
 				DF81A1F428638D6D0089E898 /* UIRenderContext.swift in Sources */,
 				DFA455802804804500638A35 /* common.c in Sources */,
 				DFFF55E1285BB28B00536EAD /* Scene.swift in Sources */,
@@ -1040,20 +1085,23 @@
 				DFE17279280510B500C44AB0 /* BitMaskOption.swift in Sources */,
 				DFE17273280510B500C44AB0 /* DisplayMode.swift in Sources */,
 				DF6D4DD92851DF6E0046BF8D /* Commands+SDL.swift in Sources */,
+				DFD050FD288B61C0008FA64E /* Date+Shortcuts.swift in Sources */,
 				DFA455042804599600638A35 /* GameViewController.swift in Sources */,
 				DFE1726A280510B500C44AB0 /* VideoDisplay.swift in Sources */,
 				DF2D82772866300C00D4A860 /* SDLFont.swift in Sources */,
-				DF5DA95228818C3300BA44F6 /* ReflectionTest.swift in Sources */,
 				DFE172DF2805C72E00C44AB0 /* Geometry.swift in Sources */,
 				DFA455022804599600638A35 /* AppDelegate.swift in Sources */,
 				DFE1728E280510B500C44AB0 /* Texture.swift in Sources */,
 				DF6D4DDD28521DB80046BF8D /* CommandRepeater.swift in Sources */,
+				DFF831A7289855E7002F3DF4 /* Codable+Features.swift in Sources */,
 				DFFF55D9285BB26400536EAD /* Util.swift in Sources */,
 				DFC58401280796100097E39B /* CustomWindow.swift in Sources */,
+				DFD6515528932576002DFCCE /* SmartColor.swift in Sources */,
 				DFE17288280510B500C44AB0 /* SDL.swift in Sources */,
 				DF2D8281286BC48400D4A860 /* TTFInterface.m in Sources */,
 				DFCA777328189F1F0099BC21 /* GenericError.swift in Sources */,
 				DFCA77852818DBA40099BC21 /* MountedDir.swift in Sources */,
+				DFD651502891ABBF002DFCCE /* Dictionary+Serialization.swift in Sources */,
 				DFC583E4280774CA0097E39B /* main.swift in Sources */,
 				DFE1727C280510B500C44AB0 /* Palette.swift in Sources */,
 				DFE17270280510B500C44AB0 /* BlendMode.swift in Sources */,
@@ -1089,6 +1137,7 @@
 				DF2D82F52870DB6600D4A860 /* ImageManager.swift in Sources */,
 				DFC585AB2810A5070097E39B /* FontAtlas.swift in Sources */,
 				DFC58402280796100097E39B /* CustomWindow.swift in Sources */,
+				DFF831AC2898577F002F3DF4 /* InstanceCache.swift in Sources */,
 				DFE17283280510B500C44AB0 /* PixelFormat.swift in Sources */,
 				DF3830B928714EE30028B4E6 /* TestViewController.swift in Sources */,
 				DFE1727A280510B500C44AB0 /* BitMaskOption.swift in Sources */,
@@ -1096,6 +1145,8 @@
 				DFE17274280510B500C44AB0 /* DisplayMode.swift in Sources */,
 				DFCA77802818AF010099BC21 /* VirtualDrive.swift in Sources */,
 				DFCA78682821E6560099BC21 /* Animator.swift in Sources */,
+				DFD651512891ABBF002DFCCE /* Dictionary+Serialization.swift in Sources */,
+				DFD6515628932576002DFCCE /* SmartColor.swift in Sources */,
 				DFE1726B280510B500C44AB0 /* VideoDisplay.swift in Sources */,
 				DFFF55D2285BB22C00536EAD /* Player.swift in Sources */,
 				DF2D82782866300C00D4A860 /* SDLFont.swift in Sources */,
@@ -1107,8 +1158,8 @@
 				DFE172E02805C72E00C44AB0 /* Geometry.swift in Sources */,
 				DFFF55E2285BB28B00536EAD /* Scene.swift in Sources */,
 				DFE1728F280510B500C44AB0 /* Texture.swift in Sources */,
+				DFD050FE288B61C0008FA64E /* Date+Shortcuts.swift in Sources */,
 				DFCA77E7281A44CB0099BC21 /* StringScanner.swift in Sources */,
-				DF5DA95328818C3300BA44F6 /* ReflectionTest.swift in Sources */,
 				DFE17289280510B500C44AB0 /* SDL.swift in Sources */,
 				DFC583F628077CD00097E39B /* View.swift in Sources */,
 				DFFF55EA285BB2C100536EAD /* Bullet.swift in Sources */,
@@ -1118,6 +1169,7 @@
 				DF6D4DDA2851DF6E0046BF8D /* Commands+SDL.swift in Sources */,
 				DFE17271280510B500C44AB0 /* BlendMode.swift in Sources */,
 				DF81A1EA28638CE50089E898 /* TextView.swift in Sources */,
+				DFF831A8289855E7002F3DF4 /* Codable+Features.swift in Sources */,
 				DF2D827428662EED00D4A860 /* TTF.swift in Sources */,
 				DFE17292280510B500C44AB0 /* SDLWindow.swift in Sources */,
 				DFFF55E6285BB2A800536EAD /* Enemy.swift in Sources */,
@@ -1150,13 +1202,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFC5860628125A4F0097E39B /* EtagerePacker.swift in Sources */,
+				DFF831AE2899E88A002F3DF4 /* SerializationTests.swift in Sources */,
 				DFC5860528125A360097E39B /* EtagereTests.swift in Sources */,
 				DFCA777B2818AD0C0099BC21 /* VersionTests.swift in Sources */,
 				DFC5860728125A4F0097E39B /* AtlasAllocator.swift in Sources */,
 				DFCA777D2818AE1A0099BC21 /* GenericError.swift in Sources */,
 				DFCA777C2818ADBE0099BC21 /* Version.swift in Sources */,
 				DFC5860D28125A900097E39B /* Common.swift in Sources */,
+				DF5BE3F3289B263A00A0ED4E /* InstanceCache.swift in Sources */,
 				DFC5860828125A600097E39B /* Geometry.swift in Sources */,
+				DF5BE3F0289ABA0F00A0ED4E /* Codable+Features.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1165,13 +1220,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFC5862428125F8F0097E39B /* Geometry.swift in Sources */,
+				DFF831AF2899E895002F3DF4 /* SerializationTests.swift in Sources */,
 				DFC5862228125F890097E39B /* EtagereTests.swift in Sources */,
 				DFC5862A28125FFB0097E39B /* EtagerePacker.swift in Sources */,
 				DFC5862B28125FFD0097E39B /* AtlasAllocator.swift in Sources */,
 				DFCA77792818ACE80099BC21 /* Version.swift in Sources */,
 				DFC5862928125FC20097E39B /* Common.swift in Sources */,
 				DFCA777F2818AE3C0099BC21 /* VersionTests.swift in Sources */,
+				DF5BE3F2289B263A00A0ED4E /* InstanceCache.swift in Sources */,
 				DFCA777E2818AE1A0099BC21 /* GenericError.swift in Sources */,
+				DF5BE3F1289ABA0F00A0ED4E /* Codable+Features.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
