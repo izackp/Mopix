@@ -7,6 +7,17 @@
 
 import Foundation
 
+//TODO: Possible collisions based on type
+/*
+ Originally we were going to force all objects to use direct objects.
+ However, it would not be possible... hmm maybe we just should
+ color: "Blue"
+ myOtherObj: { "id": "Blue" }
+ 
+ with strings we can type encode but not ints
+ 
+ */
+
 public class InstanceCache {
     
     var _cache:[AnyObject] = []
@@ -18,6 +29,33 @@ public class InstanceCache {
         guard let index = _strIndex[id] else {
             //throw GenericError("Instance cache has no instance for str id: \(id).")
             return nil
+        }
+        return try instanceForIndex(index)
+    }
+    
+    func indexForId(_ objId:ObjectIdentifier) -> Int? {
+        if let existingIndex = _objIdIndex[objId] {
+            return existingIndex// _cache[existingIndex] as? T
+        }
+        return nil
+    }
+    
+    func instanceForId<T>(_ id:String, factory:() throws -> T) throws -> T where T: AnyObject {
+        guard let index = _strIndex[id] else {
+            let new = try factory()
+            let index = saveInstance(new)
+            _strIndex[id] = index
+            return new
+        }
+        return try instanceForIndex(index)
+    }
+    
+    func instanceForId<T>(_ id:Int64, factory:() throws -> T) throws -> T where T: AnyObject {
+        guard let index = _intIndex[id] else {
+            let new = try factory()
+            let index = saveInstance(new)
+            _intIndex[id] = index
+            return new
         }
         return try instanceForIndex(index)
     }

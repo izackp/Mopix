@@ -62,6 +62,11 @@ x = Done
 [ ] Auto Sync Engine class
 [ ] Performance metrics
 [ ] Serialization. Codable is missing necessary features. We need something similar to https://github.com/antofic/GraphCodable
+- [/] Decodable; Resolve Dynamic Type
+- [/] Decodable; Resolve Ids
+- [/] Encodable; Encode Dynamic Type
+- [/] Encodable; Encode Ids
+- [o] Serialization boiler plate code generation; Because writing out serialization code sucks.
 ```
 
 I'm not sure how I want to design an ECS. I would always prefer to use an existing solution like flecs. Though I want to support hardcoded classes first. Flecs uses arch type entities because it makes sense to group components together by type. My question is why bother have pieces when you can just have a single class. You get the grouping automatically. Overall, I'm curious about a hybrid approach.

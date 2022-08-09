@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DF0D7DF328A30E53008F53FB /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D7DF228A30E53008F53FB /* Resolver.swift */; };
+		DF0D7DF428A30E53008F53FB /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D7DF228A30E53008F53FB /* Resolver.swift */; };
+		DF0D7DF528A30E53008F53FB /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D7DF228A30E53008F53FB /* Resolver.swift */; };
+		DF0D7DF628A30E53008F53FB /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D7DF228A30E53008F53FB /* Resolver.swift */; };
+		DF0D7DF728A30E53008F53FB /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D7DF228A30E53008F53FB /* Resolver.swift */; };
 		DF288CA028849406005F7C1F /* VCTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DF288C9F28849406005F7C1F /* VCTest.m */; };
 		DF288CA32884947B005F7C1F /* VCTest.xib in Resources */ = {isa = PBXBuildFile; fileRef = DF288CA22884947B005F7C1F /* VCTest.xib */; };
 		DF288CAB2884F40D005F7C1F /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF288CA92884F267005F7C1F /* SDL2_ttf.framework */; };
@@ -55,6 +60,17 @@
 		DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */; };
 		DF6D4DDD28521DB80046BF8D /* CommandRepeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */; };
 		DF6D4DDE28521DB80046BF8D /* CommandRepeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */; };
+		DF767DD228A15F75005DAB38 /* Util.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF767DD128A15F75005DAB38 /* Util.framework */; };
+		DF767DD428A16E65005DAB38 /* Decoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DD328A16E65005DAB38 /* Decoder+Features.swift */; };
+		DF767DD528A16E65005DAB38 /* Decoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DD328A16E65005DAB38 /* Decoder+Features.swift */; };
+		DF767DD628A16E65005DAB38 /* Decoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DD328A16E65005DAB38 /* Decoder+Features.swift */; };
+		DF767DD728A16E65005DAB38 /* Decoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DD328A16E65005DAB38 /* Decoder+Features.swift */; };
+		DF767DD828A16E65005DAB38 /* Decoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DD328A16E65005DAB38 /* Decoder+Features.swift */; };
+		DF767DDB28A19E36005DAB38 /* Encoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DDA28A19E36005DAB38 /* Encoder+Features.swift */; };
+		DF767DDC28A19E36005DAB38 /* Encoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DDA28A19E36005DAB38 /* Encoder+Features.swift */; };
+		DF767DDD28A19E36005DAB38 /* Encoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DDA28A19E36005DAB38 /* Encoder+Features.swift */; };
+		DF767DDE28A19E36005DAB38 /* Encoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DDA28A19E36005DAB38 /* Encoder+Features.swift */; };
+		DF767DDF28A19E36005DAB38 /* Encoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DDA28A19E36005DAB38 /* Encoder+Features.swift */; };
 		DF81A1E828638CE50089E898 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1E728638CE50089E898 /* TextView.swift */; };
 		DF81A1E928638CE50089E898 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1E728638CE50089E898 /* TextView.swift */; };
 		DF81A1EA28638CE50089E898 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1E728638CE50089E898 /* TextView.swift */; };
@@ -296,6 +312,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DF0D7DF228A30E53008F53FB /* Resolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
 		DF288C9F28849406005F7C1F /* VCTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VCTest.m; sourceTree = "<group>"; };
 		DF288CA128849415005F7C1F /* VCTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VCTest.h; sourceTree = "<group>"; };
 		DF288CA22884947B005F7C1F /* VCTest.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VCTest.xib; sourceTree = "<group>"; };
@@ -320,6 +337,10 @@
 		DF5DA9582883085E00BA44F6 /* TestAVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestAVC.h; sourceTree = "<group>"; };
 		DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Commands+SDL.swift"; sourceTree = "<group>"; };
 		DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRepeater.swift; sourceTree = "<group>"; };
+		DF767DD128A15F75005DAB38 /* Util.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Util.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF767DD328A16E65005DAB38 /* Decoder+Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decoder+Features.swift"; sourceTree = "<group>"; };
+		DF767DD928A17EA1005DAB38 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		DF767DDA28A19E36005DAB38 /* Encoder+Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Encoder+Features.swift"; sourceTree = "<group>"; };
 		DF81A1E728638CE50089E898 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		DF81A1F228638D6D0089E898 /* UIRenderContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRenderContext.swift; sourceTree = "<group>"; };
 		DFA43E542877754900D9D37E /* TestViewController.json5 */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestViewController.json5; sourceTree = "<group>"; };
@@ -432,6 +453,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF767DD228A15F75005DAB38 /* Util.framework in Frameworks */,
 				DF288CAD2884F4AC005F7C1F /* SDL2.framework in Frameworks */,
 				DF288CAB2884F40D005F7C1F /* SDL2_ttf.framework in Frameworks */,
 				DF5DA948287FAE4800BA44F6 /* Runtime in Frameworks */,
@@ -575,6 +597,7 @@
 		DFA45582280480A100638A35 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DF767DD128A15F75005DAB38 /* Util.framework */,
 				DF288CAC2884F4AC005F7C1F /* SDL2.framework */,
 				DF288CA92884F267005F7C1F /* SDL2_ttf.framework */,
 				DF288CA72884F264005F7C1F /* SDL2.framework */,
@@ -723,6 +746,10 @@
 			children = (
 				DFF831A5289855E7002F3DF4 /* Codable+Features.swift */,
 				DFF831A92898577F002F3DF4 /* InstanceCache.swift */,
+				DF767DD328A16E65005DAB38 /* Decoder+Features.swift */,
+				DF767DD928A17EA1005DAB38 /* README.md */,
+				DF767DDA28A19E36005DAB38 /* Encoder+Features.swift */,
+				DF0D7DF228A30E53008F53FB /* Resolver.swift */,
 			);
 			path = Serialization;
 			sourceTree = "<group>";
@@ -981,6 +1008,7 @@
 				DFE17293280510B500C44AB0 /* Color.swift in Sources */,
 				DFFF55D4285BB23900536EAD /* EntityPool.swift in Sources */,
 				DFE17278280510B500C44AB0 /* BitMaskOption.swift in Sources */,
+				DF767DD428A16E65005DAB38 /* Decoder+Features.swift in Sources */,
 				DFCA77822818AF030099BC21 /* VirtualDrive.swift in Sources */,
 				DFCA78662821E6560099BC21 /* Animator.swift in Sources */,
 				DFE17281280510B500C44AB0 /* PixelFormat.swift in Sources */,
@@ -1006,6 +1034,7 @@
 				DFD050FC288B61C0008FA64E /* Date+Shortcuts.swift in Sources */,
 				DF81A1E828638CE50089E898 /* TextView.swift in Sources */,
 				DF2D827228662EED00D4A860 /* TTF.swift in Sources */,
+				DF0D7DF328A30E53008F53FB /* Resolver.swift in Sources */,
 				DFE1727E280510B500C44AB0 /* CountableSet.swift in Sources */,
 				DFFF55E4285BB2A800536EAD /* Enemy.swift in Sources */,
 				DFE17269280510B500C44AB0 /* VideoDisplay.swift in Sources */,
@@ -1030,6 +1059,7 @@
 				DFC5860F28125B240097E39B /* Geometry+SDL.swift in Sources */,
 				DF5DA9552883084500BA44F6 /* TestAVC.m in Sources */,
 				DFE17290280510B500C44AB0 /* SDLWindow.swift in Sources */,
+				DF767DDB28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
 				DFFF55DC285BB27700536EAD /* CollisionNode2D.swift in Sources */,
 				DFC583DA280773DA0097E39B /* Window.swift in Sources */,
 				DFC583EB2807762B0097E39B /* Engine.swift in Sources */,
@@ -1062,6 +1092,7 @@
 				DFCA78672821E6560099BC21 /* Animator.swift in Sources */,
 				DFFF55E9285BB2C100536EAD /* Bullet.swift in Sources */,
 				DFE172DB2805C6FE00C44AB0 /* Application.swift in Sources */,
+				DF767DD528A16E65005DAB38 /* Decoder+Features.swift in Sources */,
 				DFC585AE2810A6570097E39B /* ImageAtlas.swift in Sources */,
 				DFC585AA2810A5070097E39B /* FontAtlas.swift in Sources */,
 				DFCA7802281B37050099BC21 /* String+Util.swift in Sources */,
@@ -1087,6 +1118,7 @@
 				DF6D4DD92851DF6E0046BF8D /* Commands+SDL.swift in Sources */,
 				DFD050FD288B61C0008FA64E /* Date+Shortcuts.swift in Sources */,
 				DFA455042804599600638A35 /* GameViewController.swift in Sources */,
+				DF0D7DF428A30E53008F53FB /* Resolver.swift in Sources */,
 				DFE1726A280510B500C44AB0 /* VideoDisplay.swift in Sources */,
 				DF2D82772866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFE172DF2805C72E00C44AB0 /* Geometry.swift in Sources */,
@@ -1111,6 +1143,7 @@
 				DFC583F528077CD00097E39B /* View.swift in Sources */,
 				DFE17291280510B500C44AB0 /* SDLWindow.swift in Sources */,
 				DFE1726D280510B500C44AB0 /* Surface.swift in Sources */,
+				DF767DDC28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
 				DFC5860B28125A900097E39B /* Common.swift in Sources */,
 				DFE1728B280510B500C44AB0 /* Renderer.swift in Sources */,
 				DFE17285280510B500C44AB0 /* Event.swift in Sources */,
@@ -1123,6 +1156,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFC583E92807750B0097E39B /* TestGameApp.swift in Sources */,
+				DF767DD628A16E65005DAB38 /* Decoder+Features.swift in Sources */,
 				DF2D82FD2870E97A00D4A860 /* SimpleImageManager.swift in Sources */,
 				DFC58373280641770097E39B /* TimeBank.swift in Sources */,
 				DFC5862C281265150097E39B /* main.swift in Sources */,
@@ -1151,9 +1185,11 @@
 				DFFF55D2285BB22C00536EAD /* Player.swift in Sources */,
 				DF2D82782866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFC5860C28125A900097E39B /* Common.swift in Sources */,
+				DF0D7DF528A30E53008F53FB /* Resolver.swift in Sources */,
 				DF2D82F12870DB2C00D4A860 /* Font.swift in Sources */,
 				DFC583FE280792000097E39B /* MoPixUtil.swift in Sources */,
 				DFCA77FF281B30D00099BC21 /* OS.swift in Sources */,
+				DF767DDD28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
 				DFC585C42811A8430097E39B /* EtagerePacker.swift in Sources */,
 				DFE172E02805C72E00C44AB0 /* Geometry.swift in Sources */,
 				DFFF55E2285BB28B00536EAD /* Scene.swift in Sources */,
@@ -1204,7 +1240,9 @@
 				DFC5860628125A4F0097E39B /* EtagerePacker.swift in Sources */,
 				DFF831AE2899E88A002F3DF4 /* SerializationTests.swift in Sources */,
 				DFC5860528125A360097E39B /* EtagereTests.swift in Sources */,
+				DF767DDE28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
 				DFCA777B2818AD0C0099BC21 /* VersionTests.swift in Sources */,
+				DF0D7DF628A30E53008F53FB /* Resolver.swift in Sources */,
 				DFC5860728125A4F0097E39B /* AtlasAllocator.swift in Sources */,
 				DFCA777D2818AE1A0099BC21 /* GenericError.swift in Sources */,
 				DFCA777C2818ADBE0099BC21 /* Version.swift in Sources */,
@@ -1212,6 +1250,7 @@
 				DF5BE3F3289B263A00A0ED4E /* InstanceCache.swift in Sources */,
 				DFC5860828125A600097E39B /* Geometry.swift in Sources */,
 				DF5BE3F0289ABA0F00A0ED4E /* Codable+Features.swift in Sources */,
+				DF767DD728A16E65005DAB38 /* Decoder+Features.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1222,7 +1261,9 @@
 				DFC5862428125F8F0097E39B /* Geometry.swift in Sources */,
 				DFF831AF2899E895002F3DF4 /* SerializationTests.swift in Sources */,
 				DFC5862228125F890097E39B /* EtagereTests.swift in Sources */,
+				DF767DDF28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
 				DFC5862A28125FFB0097E39B /* EtagerePacker.swift in Sources */,
+				DF0D7DF728A30E53008F53FB /* Resolver.swift in Sources */,
 				DFC5862B28125FFD0097E39B /* AtlasAllocator.swift in Sources */,
 				DFCA77792818ACE80099BC21 /* Version.swift in Sources */,
 				DFC5862928125FC20097E39B /* Common.swift in Sources */,
@@ -1230,6 +1271,7 @@
 				DF5BE3F2289B263A00A0ED4E /* InstanceCache.swift in Sources */,
 				DFCA777E2818AE1A0099BC21 /* GenericError.swift in Sources */,
 				DF5BE3F1289ABA0F00A0ED4E /* Codable+Features.swift in Sources */,
+				DF767DD828A16E65005DAB38 /* Decoder+Features.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
