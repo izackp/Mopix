@@ -8,7 +8,7 @@
 import Foundation
 
 public class CodableTypeResolver {
-    static public var resolve:((_ type:String, _ decoder:Decoder) throws -> Any)? = nil
+    static public var resolve:((_ type:String) throws -> Decodable.Type)? = nil
 }
 
 private enum InternalCodingKeys: String, CodingKey {
@@ -18,7 +18,28 @@ private enum InternalCodingKeys: String, CodingKey {
 
 extension Decoder {
     
-    func decode<T>(_ type: T.Type) throws -> T where T : Decodable, T : AnyObject {
+    func decode<T>(_ type: T.Type) throws -> T {
+        if let container = try? self.container(keyedBy: InternalCodingKeys.self) {
+            let cache = self.getInstanceCache()
+            //TODO: Is this heap allocated? kinda gross
+            let factory:(() throws -> T) = {
+                let strType = try container.decode(String.self, forKey: ._type)
+                return try self.decodeExpectedType(strType)
+            }
+            if let result = try cache?.instanceForContainer(container, factory: factory) {
+                return result
+            }
+            
+            return try factory()
+        }
+
+        if let result = try decodeIfExpressible(type) {
+            return result
+        }
+        throw GenericError("Unable to decode type: \(type)  without embedded _type info")
+    }
+    
+    func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
         
         if let container = try? self.container(keyedBy: InternalCodingKeys.self) {
             let cache = self.getInstanceCache()
@@ -30,28 +51,35 @@ extension Decoder {
             return try factory()
         }
 
+        if let result = try decodeIfExpressible(type) {
+            return result
+        }
+
+        return try T.init(from: self)
+    }
+    
+    func decodeIfExpressible<T>(_ type: T.Type) throws -> T? {
         if
             let exType = T.self as? ExpressibleByString.Type,
             let value = try? String.init(from: self)
         {
-            return try exType.init(value) as! T
+            return Optional(try exType.init(value) as! T)
         }
         
         if
             let exType = T.self as? ExpressibleByInteger.Type,
             let value = try? Int64.init(from: self)
         {
-            return try exType.init(value) as! T
+            return Optional(try exType.init(value) as! T)
         }
         
         if
             let exType = T.self as? ExpressibleByFloat.Type,
             let value = try? Float.init(from: self)
         {
-            return try exType.init(value) as! T
+            return Optional(try exType.init(value) as! T)
         }
-
-        return try T.init(from: self)
+        return nil
     }
 
     func getInstanceCache() -> InstanceCache? {
@@ -60,20 +88,23 @@ extension Decoder {
         return cache
     }
     
-    fileprivate func decodeTypedObj<T>(_ type: T.Type, subObj:KeyedDecodingContainer<InternalCodingKeys>) throws -> T where T : Decodable {
+    fileprivate func decodeTypedObj<T>(_ type: T.Type, subObj:KeyedDecodingContainer<InternalCodingKeys>) throws -> T {
         if let type = try? subObj.decodeIfPresent(String.self, forKey: ._type) {
             return try self.decodeExpectedType(type)
-        } else {
-            return try T.init(from: self)
         }
+        if let decodable = T.self as? Decodable.Type {
+            return try decodable.init(from: self) as! T
+        }
+        throw GenericError("Unable to instantiate type: \(type)")
     }
     
     func decodeExpectedType<T>(_ type:String) throws -> T {
-        let any:Any
+        let any:Decodable
         if let block = CodableTypeResolver.resolve {
-            any = try block(type, self)
+            let type = try block(type)
+            any = try type.init(from: self)
         } else {
-            throw GenericError("Unkown type: \(type)")
+            throw GenericError("No type resolver function set.")
         }
         if let result = any as? T {
             return result
@@ -83,9 +114,8 @@ extension Decoder {
     }
 }
 
-
 extension InstanceCache {
-    fileprivate func instanceForContainer<T>(_ container:KeyedDecodingContainer<InternalCodingKeys>, factory:() throws -> T) throws -> T where T : AnyObject {
+    fileprivate func instanceForContainer<T>(_ container:KeyedDecodingContainer<InternalCodingKeys>, factory:() throws -> T) throws -> T {
         if let id = try? container.decodeIfPresent(Int64.self, forKey: InternalCodingKeys._id) {
             return try self.instanceForId(id, factory: factory)
         } else if let id = try? container.decodeIfPresent(String.self, forKey: InternalCodingKeys._id) {

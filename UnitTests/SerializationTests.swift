@@ -166,27 +166,86 @@ class SampleClass : Codable {
     }*/
 }
 
+protocol ISane {
+    func test() -> String
+}
+
+extension Int : ISane {
+    func test() -> String {
+        return "value"
+    }
+}
+
+class ObjTest : ISane {
+    func test() -> String {
+         return "obj"
+    }
+    
+    static func printTest<T>(_ value:T) -> String {
+        let m = Mirror(reflecting: value)
+        if m.displayStyle == .class {
+            return "obj"
+        }
+        return "value"
+    }
+    
+    static func printTest<T>(_ value:T) -> String where T : AnyObject {
+        return "obj"
+    }
+    
+    static func isAnyObj<T>(_ value:T) -> Bool {
+        return value is AnyObject
+    }
+    
+    static func isAnyObj<T>(_ value:T) -> Bool where T : AnyObject {
+        return value is AnyObject
+    }
+}
+
 class SerializationTests: XCTestCase {
     
-    static func customDecodeSwitch(_ type:String, _ decoder:Decoder) throws -> Any {
+    static func customDecodeSwitch(_ type:String) throws -> Decodable.Type {
         switch (type) {
         case "ClassStr":
-            return try ClassStr(from: decoder)
+            return ClassStr.self
         case "ClassInt":
-            return try ClassInt(from: decoder)
+            return ClassInt.self
         case "ClassFloat":
-            return try ClassFloat(from: decoder)
+            return ClassFloat.self
         case "ExpCombo":
-            return try ExpCombo(from: decoder)
+            return ExpCombo.self
         case "ExpComboChild":
-            return try ExpComboChild(from: decoder)
+            return ExpComboChild.self
         default:
             throw GenericError("Unknown Type: \(type)")
         }
     }
+    
+    
+    func testAnyObjectSanity() {
+        let valueType = 5
+        let objType = ObjTest()
+        let iValueType:ISane = valueType
+        let iObjType:ISane = objType
+        let anyValueType:Any = valueType
+        let anyObjType:Any = objType
+        XCTAssert(ObjTest.isAnyObj(valueType))
+        XCTAssert(ObjTest.isAnyObj(objType))
+        XCTAssert(ObjTest.isAnyObj(iValueType))
+        XCTAssert(ObjTest.isAnyObj(iObjType))
+        XCTAssert(ObjTest.isAnyObj(anyValueType))
+        XCTAssert(ObjTest.isAnyObj(anyObjType))
+        
+        XCTAssert(ObjTest.printTest(valueType) == "value")
+        XCTAssert(ObjTest.printTest(objType) == "obj")
+        XCTAssert(ObjTest.printTest(anyValueType) == "value")
+        XCTAssert(ObjTest.printTest(anyObjType) == "obj")
+        XCTAssert(ObjTest.printTest(iValueType) == "value")
+        XCTAssert(ObjTest.printTest(iObjType) == "obj")
+    }
 
     func testExample() throws {
-        CodableTypeResolver.resolve = { try SerializationTests.customDecodeSwitch($0, $1) }
+        CodableTypeResolver.resolve = { try SerializationTests.customDecodeSwitch($0) }
         let sampleJson = """
 {
     "normalStr": "I'm Normal",
@@ -271,7 +330,7 @@ class SerializationTests: XCTestCase {
     }
     
     func testArrayBase() {
-        CodableTypeResolver.resolve = { try SerializationTests.customDecodeSwitch($0, $1) }
+        CodableTypeResolver.resolve = { try SerializationTests.customDecodeSwitch($0) }
         let json = """
 [
     "ComboA",

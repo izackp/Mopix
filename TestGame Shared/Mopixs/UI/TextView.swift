@@ -8,37 +8,8 @@
 import Foundation
 import SDL2
 
-public struct FontDesc : Hashable {
-    
-    public var family:String
-    public var weight:UInt16
-    public var size:Float
-    
-    public static let defaultFont = FontDesc(family: "Roboto", weight: 100, size: 21)
-    
-    init(family: String, weight: UInt16, size: Float) {
-        self.family = family
-        self.weight = weight
-        self.size = size
-    }
-    
-    init(_ dictionary: [String : Any]) throws {
-        family = try dictionary.expect("family")
-        weight = try dictionary.expect("weight")
-        size = try dictionary.expect("size")
-    }
-    
-    func toDictionary() -> [String : Any] {
-        return [
-            "family":family,
-            "weight":weight,
-            "size":size
-        ]
-    }
-}
 
-
-public class TextView : View, Initializable {
+public class TextView : View {
     
     public var text:String = ""
     public var textColor:SmartColor = SmartColor.idk
@@ -72,6 +43,7 @@ public class TextView : View, Initializable {
     
     //MARK: - Serialization
     // Generated on : 2022-07-26 13:43:08 +0000
+    /*
     required init(_ dictionary: Dictionary<String, Any>, _ cache:InstanceCache? = nil) throws {
         try super.init(dictionary, cache)
         text = try dictionary.expect("text")
@@ -103,7 +75,7 @@ public class TextView : View, Initializable {
             "textAlignment":textAlignment,
             "maxLines":maxLines
         ]
-    }
+    }*/
     // Hash : abc
     
     func fetchFont(_ context:UIRenderContext) throws -> Font  {

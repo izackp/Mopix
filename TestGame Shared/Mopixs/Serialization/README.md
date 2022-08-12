@@ -50,3 +50,12 @@ To support encoding:
 * Make them also be IDs; Unless the instance has an id interface then force object serialization
 * Modify instance cache to have a cache for each instance to avoid collisions.
 * Update decoder and encoder to find and use expressible values as IDs
+
+
+##Ugly float encoding
+
+JSONEncoder seems to encode floats using large unrounded numbers. What's interesting is if we print a float value to console we get 5.2 but encoding into json we get 5.1999998092651367 . This is basically the same number.. but what we want is 5.2 because it's easier to read. I also noticed floats _change_ in xib builder constantly and by a significant amount. That's unacceptable for our implementation.
+
+https://stackoverflow.com/questions/56785594/swift-encodes-double-0-1-to-json-as-0-10000000000000001
+Seems like we can just change the type to decimal.. 
+
