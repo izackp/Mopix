@@ -14,7 +14,47 @@ protocol Initializable {
 
 class TypeMap {
     static let shared = TypeMap()
-    
+    static func customDecodeSwitch(_ type:String) throws -> Decodable.Type {
+        switch (type) {
+        case "LEInset":
+            return LEInset.self
+        case "LEInsetFixed":
+            return LEInsetFixed.self
+        case "LEWidth":
+            return LEWidth.self
+        case "LEHeight":
+            return LEHeight.self
+        case "LEPosX":
+            return LEPosX.self
+        case "LEPosY":
+            return LEPosY.self
+        case "LEMatch":
+            return LEMatch.self
+        case "LEMatchFixed":
+            return LEMatchFixed.self
+        case "LEAnchor":
+            return LEAnchor.self
+        case "LEAnchorFixed":
+            return LEAnchorFixed.self
+        case "LEWrapWidth":
+            return LEWrapWidth.self
+        case "LEWrapHeight":
+            return LEWrapHeight.self
+        case "LEMirrorMargin":
+            return LEMirrorMargin.self
+        case "LEMirrorMarginHorizontalMax":
+            return LEMirrorMarginHorizontalMax.self
+        case "View":
+            return View.self
+        case "TextView":
+            return TextView.self
+        case "SmartColor":
+            return SmartColor.self
+        default:
+            throw GenericError("Unknown Type: \(type)")
+        }
+    }
+    /*
     var typeList:[Initializable.Type] = []
     
     func register(_ type:Initializable.Type) {
@@ -30,5 +70,5 @@ class TypeMap {
         } else {
             typeList.append(type)
         }
-    }
+    }*/
 }

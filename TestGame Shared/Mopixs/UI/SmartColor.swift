@@ -41,12 +41,4 @@ public class SmartColor: ExpressibleByIntegerLiteral, ExpressibleByStringLiteral
         self.name = name
         rawValue = nil
     }
-    
-    func sdlColor() -> SDLColor {
-        return SDLColor(rawValue: rawValue!)
-    }
-    
-    func getRawColor(_ theme:Int) {
-        
-    }
 }

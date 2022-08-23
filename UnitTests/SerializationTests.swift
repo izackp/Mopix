@@ -182,6 +182,12 @@ class ObjTest : ISane {
     }
     
     static func printTest<T>(_ value:T) -> String {
+        //Method 1:
+        let anyTest:Any = value
+        if (type(of: anyTest) is AnyClass) {
+            return "obj"
+        }
+        //Method 2:
         let m = Mirror(reflecting: value)
         if m.displayStyle == .class {
             return "obj"
@@ -327,6 +333,23 @@ class SerializationTests: XCTestCase {
             XCTAssert(false)
             return
         }
+    }
+    
+    func testVC() {
+        let vc = TestViewController.build()
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        encoder.userInfo[CodingUserInfoKey(rawValue: "instanceCache")!] = InstanceCache()
+        let encodedData:Data
+        do {
+            let asAny = Resolver<Any>([vc.view])
+            encodedData = try encoder.encode(asAny)
+            print(String(data: encodedData, encoding: .utf8)!)
+        } catch {
+            XCTAssert(false)
+            return
+        }
+        
     }
     
     func testArrayBase() {

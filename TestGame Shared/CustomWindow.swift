@@ -41,6 +41,7 @@ final class CustomWindow: Window {
             print("idk: \(String(describing: sprite?.texture.sourceRect))")
             self?.randomImage = sprite
         }
+        
     }
     
     func setRootViewController(_ vc:ViewController) {

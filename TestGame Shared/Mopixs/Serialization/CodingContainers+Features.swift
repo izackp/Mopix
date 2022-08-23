@@ -50,13 +50,13 @@ public extension KeyedEncodingContainer where Key : CodingKey {
             try container.encodeElementInArray(eachItem)
         }
     }
-    
+    /*
     mutating func encode(_ value: Float, forKey key: KeyedDecodingContainer<Key>.Key) throws {
         let encoder = self.superEncoder(forKey: key)
         let dbl = Double(value)
         let dec = Decimal.init(dbl)
         try dec.encode(to: encoder)
-    }
+    }*/
 }
 
 public extension KeyedDecodingContainer where Key : CodingKey {

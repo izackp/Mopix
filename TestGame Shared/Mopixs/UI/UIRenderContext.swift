@@ -18,6 +18,22 @@ public class UIRenderContext {
     let imageManager:ImageManager
     let lastTexture:Int = 0
     
+    private func resolveSmartColor(_ color:SmartColor) -> SDLColor {
+        return SDLColor(rawValue: color.rawValue!)
+    }
+    
+    func drawSquare(_ frame:Frame<Int16>, _ color:SmartColor) throws {
+        try drawSquare(frame, resolveSmartColor(color))
+    }
+    
+    func drawImage(_ frame:Frame<Int16>, _ color:SmartColor, image:Image) throws {
+        try drawImage(frame, resolveSmartColor(color), image: image)
+    }
+    
+    func drawText(_ frame:Frame<Int16>, _ color:SmartColor, _ text:String, _ font:Font) throws {
+        font.draw(renderer, text, x: Int(frame.x), y: Int(frame.y), color: resolveSmartColor(color))
+    }
+    
     func drawSquare(_ frame:Frame<Int16>, _ color:SDLColor) throws {
         //TODO: we can probably just return sdl texture and source
         let blankSubTexture = try imageManager.atlas.blankSubtexture(lastTexture)

@@ -57,5 +57,19 @@ To support encoding:
 JSONEncoder seems to encode floats using large unrounded numbers. What's interesting is if we print a float value to console we get 5.2 but encoding into json we get 5.1999998092651367 . This is basically the same number.. but what we want is 5.2 because it's easier to read. I also noticed floats _change_ in xib builder constantly and by a significant amount. That's unacceptable for our implementation.
 
 https://stackoverflow.com/questions/56785594/swift-encodes-double-0-1-to-json-as-0-10000000000000001
-Seems like we can just change the type to decimal.. 
+Seems like we can just change the type to decimal.. Nope doesn't exactly work. 
 
+https://github.com/ulfjack/ryu - This is close to what we want to do. We have to somehow get JSONEncoder to use this. Or read the code and figure out how to convert the float to the Decimal value we want.
+
+```swift
+ private func serializeFloat<T: FloatingPoint & LosslessStringConvertible>(_ num: T) throws {
+        guard num.isFinite else {
+             throw NSError(domain: NSCocoaErrorDomain, code: CocoaError.propertyListReadCorrupt.rawValue, userInfo: [NSDebugDescriptionErrorKey : "Invalid number value (\(num)) in JSON write"])
+        }
+        var str = num.description
+        if str.hasSuffix(".0") {
+            str.removeLast(2)
+        }
+        writer(str)
+    }
+```

@@ -96,7 +96,7 @@ public class TextView : View {
         if (text.count > 0) {
             do {
                 let font = try fetchFont(context)
-                try context.drawText(frame, textColor.sdlColor(), text, font)
+                try context.drawText(frame, textColor, text, font)
             } catch {
                 print("Error drawing text: \(error.localizedDescription)")
             }

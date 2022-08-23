@@ -13,9 +13,12 @@ private enum InternalCodingKeys: String, CodingKey {
 }
 
 //Needed to work around array serialization as root object
-struct Resolver<T> : Decodable where T : Decodable , T : AnyObject {
-    let type:String?
+struct Resolver<T> : Codable {
     let result:[T]
+    
+    init(_ result:[T]) {
+        self.result = result
+    }
     
     init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
@@ -26,6 +29,12 @@ struct Resolver<T> : Decodable where T : Decodable , T : AnyObject {
         }
         
         self.result = elements
-        type = nil
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.unkeyedContainer()
+        for eachItem in result {
+            try container.encodeElementInArray(eachItem)
+        }
     }
 }

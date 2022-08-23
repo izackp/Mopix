@@ -31,11 +31,12 @@ extension Encoder {
     func encodeDynamicItem<T>(_ value: T) throws -> Bool {
         var container = self.container(keyedBy: InternalCodingKeys.self)
         let thisType = type(of: value)
-        if (thisType != T.self) {
+        let mirror = Mirror(reflecting: value)
+        print("Encoding: \(thisType) with T: \(T.self) - reality: \(mirror)")
+        if (thisType != T.self || (T.self is Encodable == false)) { //Fails if T is any
             let className = String(describing: thisType)
             try container.encode(className, forKey: ._type)
         }
-        let mirror = Mirror(reflecting: value)
         if
             mirror.displayStyle == .class,
             let cache = self.getInstanceCache() {
