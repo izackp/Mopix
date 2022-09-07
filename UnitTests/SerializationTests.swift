@@ -198,14 +198,14 @@ class ObjTest : ISane {
     static func printTest<T>(_ value:T) -> String where T : AnyObject {
         return "obj"
     }
-    
+    /*
     static func isAnyObj<T>(_ value:T) -> Bool {
         return value is AnyObject
     }
     
     static func isAnyObj<T>(_ value:T) -> Bool where T : AnyObject {
         return value is AnyObject
-    }
+    }*/
 }
 
 class SerializationTests: XCTestCase {
@@ -235,12 +235,13 @@ class SerializationTests: XCTestCase {
         let iObjType:ISane = objType
         let anyValueType:Any = valueType
         let anyObjType:Any = objType
+        /*
         XCTAssert(ObjTest.isAnyObj(valueType))
         XCTAssert(ObjTest.isAnyObj(objType))
         XCTAssert(ObjTest.isAnyObj(iValueType))
         XCTAssert(ObjTest.isAnyObj(iObjType))
         XCTAssert(ObjTest.isAnyObj(anyValueType))
-        XCTAssert(ObjTest.isAnyObj(anyObjType))
+        XCTAssert(ObjTest.isAnyObj(anyObjType))*/
         
         XCTAssert(ObjTest.printTest(valueType) == "value")
         XCTAssert(ObjTest.printTest(objType) == "obj")
@@ -342,8 +343,9 @@ class SerializationTests: XCTestCase {
         encoder.userInfo[CodingUserInfoKey(rawValue: "instanceCache")!] = InstanceCache()
         let encodedData:Data
         do {
-            let asAny = Resolver<Any>([vc.view])
-            encodedData = try encoder.encode(asAny)
+            //let list:[Encodable] = [vc.view]
+            let resolver = ResolverInterface([vc.view])
+            encodedData = try encoder.encode(resolver)
             print(String(data: encodedData, encoding: .utf8)!)
         } catch {
             XCTAssert(false)

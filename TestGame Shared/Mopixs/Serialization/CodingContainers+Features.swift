@@ -50,6 +50,12 @@ public extension KeyedEncodingContainer where Key : CodingKey {
             try container.encodeElementInArray(eachItem)
         }
     }
+    mutating func encodeArray<T>(_ value: Arr<T>, forKey key: KeyedDecodingContainer<Key>.Key) throws {
+        var container = self.nestedUnkeyedContainer(forKey: key)
+        for eachItem in value {
+            try container.encodeElementInArray(eachItem)
+        }
+    }
     /*
     mutating func encode(_ value: Float, forKey key: KeyedDecodingContainer<Key>.Key) throws {
         let encoder = self.superEncoder(forKey: key)

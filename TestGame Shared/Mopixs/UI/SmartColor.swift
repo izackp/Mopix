@@ -41,4 +41,15 @@ public class SmartColor: ExpressibleByIntegerLiteral, ExpressibleByStringLiteral
         self.name = name
         rawValue = nil
     }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        if let value = self.rawValue {
+            try container.encode(value)
+        } else if let name = self.name {
+            try container.encode(name)
+        } else {
+            throw GenericError("Invalid SmartColor; missing name or value")
+        }
+    }
 }

@@ -16,7 +16,7 @@ open class View: Codable {
     public var superView:View? = nil
     
     public var clipBounds:Bool = false
-    open var backgroundColor = SDLColor.white
+    open var backgroundColor = SmartColor.white
     
     init () {
         
@@ -32,19 +32,27 @@ open class View: Codable {
     
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.frame = try container.decode(Frame<Int16>.self, forKey: .frame)
+        self.frame = try container.decodeIfPresent(Frame<Int16>.self, forKey: .frame) ?? .zero
         self.listLayouts = try container.decodeArray(LayoutElement.self, forKey: .listLayouts)
         self.children = try container.decodeContiguousArray(View.self, forKey: .children)
-        self.clipBounds = try container.decode(Bool.self, forKey: .clipBounds)
-        self.backgroundColor = try container.decode(SDLColor.self, forKey: .backgroundColor)
+        self.clipBounds = try container.decodeIfPresent(Bool.self, forKey: .clipBounds) ?? false
+        self.backgroundColor = try container.decode(SmartColor.self, forKey: .backgroundColor)
     }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(frame, forKey: .frame)
-        try container.encodeArray(listLayouts, forKey: .listLayouts)
-        try container.encode(children, forKey: .children)
-        try container.encode(clipBounds, forKey: .clipBounds)
+        if (frame != .zero) {
+            try container.encode(frame, forKey: .frame)
+        }
+        if (listLayouts.count != 0) {
+            try container.encodeArray(listLayouts, forKey: .listLayouts)
+        }
+        if (children.count != 0) {
+            try container.encodeArray(children, forKey: .children)
+        }
+        if (clipBounds) {
+            try container.encode(clipBounds, forKey: .clipBounds)
+        }
         try container.encode(backgroundColor, forKey: .backgroundColor)
     }
     

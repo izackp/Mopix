@@ -15,12 +15,12 @@ private enum InternalCodingKeys: String, CodingKey {
 extension Encoder {
     
     func encode<T>(_ value: T) throws where T : Encodable {
-        if (try encodeDynamicItem(value)) { return }
+        try encodeMetaData(value)
         try value.encode(to: self)
     }
     
     func encode<T>(_ value: T) throws {
-        if (try encodeDynamicItem(value)) { return }
+        try encodeMetaData(value)
         if let encodable = value as? any Encodable {
             try encodable.encode(to: self)
         } else {
@@ -28,28 +28,29 @@ extension Encoder {
         }
     }
     
-    func encodeDynamicItem<T>(_ value: T) throws -> Bool {
+    func encodeMetaData<T>(_ value: T) throws {
         var container = self.container(keyedBy: InternalCodingKeys.self)
         let thisType = type(of: value)
         let mirror = Mirror(reflecting: value)
-        print("Encoding: \(thisType) with T: \(T.self) - reality: \(mirror)")
-        if (thisType != T.self || (T.self is Encodable == false)) { //Fails if T is any
-            let className = String(describing: thisType)
+        //print("Encoding: \(thisType) with T: \(T.self) - reality: \(mirror)")
+        if ((T.self is Encodable == false) || mirror.subjectType != thisType) {
+            let className = String(describing: mirror.subjectType)
             try container.encode(className, forKey: ._type)
         }
         if
             mirror.displayStyle == .class,
             let cache = self.getInstanceCache() {
+            
             let obj = value as AnyObject
             let id = ObjectIdentifier(obj)//TODO: We need an interface to support for custom ids
             if let index = cache.indexForId(id) {
                 try container.encode(index, forKey: ._id)
-                return true
+                return
             }
             let index = cache.saveInstance(obj)
             try container.encode(index, forKey: ._id)
+            return
         }
-        return false
     }
     
     func getInstanceCache() -> InstanceCache? {

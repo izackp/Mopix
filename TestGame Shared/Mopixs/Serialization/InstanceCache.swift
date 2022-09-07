@@ -91,7 +91,8 @@ public class InstanceCache {
         //You can save multiple instances under seperate ids and get them same one.. However, is this useful?
         //In decoding.. no they must have ids
         //In encoding.. yes.. if they don't have ids..
-        if let obj = instance as? AnyObject {
+        if type(of: instance) is AnyClass {
+            let obj = instance as AnyObject
             let objId = ObjectIdentifier(obj)
             if let existingIndex = _objIdIndex[objId] {
                 return existingIndex
@@ -130,10 +131,12 @@ public class InstanceCache {
     }
     
     func checkMismatch(_ index:Int, instance:Any, _ idForError:String) throws {
-        if let obj = instance as? AnyObject {
+        if type(of: instance) is AnyClass {
+            let obj = instance as AnyObject
+            let existing = _cache[index]
             if
-                let existing = _cache[index] as? AnyObject,
-                obj === existing {
+                type(of: existing) is AnyClass,
+                obj === (existing as AnyObject) {
                 return
             }
             throw GenericError("A different instance already exists for id: \(idForError)")

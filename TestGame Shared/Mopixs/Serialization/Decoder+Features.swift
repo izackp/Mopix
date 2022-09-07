@@ -23,8 +23,12 @@ extension Decoder {
             let cache = self.getInstanceCache()
             //TODO: Is this heap allocated? kinda gross
             let factory:(() throws -> T) = {
-                let strType = try container.decode(String.self, forKey: ._type)
-                return try self.decodeExpectedType(strType)
+                do {
+                    let strType = try container.decode(String.self, forKey: ._type)
+                    return try self.decodeExpectedType(strType)
+                } catch {
+                    throw error
+                }
             }
             if let result = try cache?.instanceForContainer(container, factory: factory) {
                 return result
