@@ -34,7 +34,7 @@
                     _type: "TextView",
                     frame: { x: 50, y: 0, width: 220, height: 44 },
                     listLayouts: [
-                        { _type: "LEMatch", source: "btnOptions", edgeSource: "Left", edgeDestination: "Right" },
+                        { _type: "LEMatch", source: { _id: "btnOptions" }, edgeSource: "Left", edgeDestination: "Right" },
                         { _type: "LEAnchor", edge: "Left", percent: 0.0 },
                         { _type: "LEMirrorMarginHorizontalMax" },
                     ],
