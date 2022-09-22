@@ -9,9 +9,12 @@ import Foundation
 
 public extension SmartColor {
     static var white:SmartColor = 0xFFFFFFFF
-    static var idk:SmartColor = 0x9999FFFF
-    static var pink:SmartColor = 0xFF3B69FF
-    static var black:SmartColor = 0x000000FF
+    static var green:SmartColor = 0xFF00FF00
+    static var red:SmartColor = 0xFFFF0000
+    static var blue:SmartColor = 0xFF0000FF
+    static var idk:SmartColor = 0xFF9999FF
+    static var pink:SmartColor = 0xFFFF3B69
+    static var black:SmartColor = 0xFF000000
 }
 
 public class SmartColor: ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, ExpressibleByInteger, ExpressibleByString, Codable {

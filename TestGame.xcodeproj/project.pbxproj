@@ -372,6 +372,7 @@
 		DFE422E928A6E425009D5A47 /* Enemy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFF55E3285BB2A800536EAD /* Enemy.swift */; };
 		DFE422EA28A6E431009D5A47 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC583EA2807762B0097E39B /* Engine.swift */; };
 		DFE422EB28A6E432009D5A47 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC583EA2807762B0097E39B /* Engine.swift */; };
+		DFEB98A628CACD7B000A5E31 /* EonilFSEvents in Frameworks */ = {isa = PBXBuildFile; productRef = DFEB98A528CACD7B000A5E31 /* EonilFSEvents */; };
 		DFF831A6289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* CodingContainers+Features.swift */; };
 		DFF831A7289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* CodingContainers+Features.swift */; };
 		DFF831A8289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* CodingContainers+Features.swift */; };
@@ -569,6 +570,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFEB98A628CACD7B000A5E31 /* EonilFSEvents in Frameworks */,
 				DF767DD228A15F75005DAB38 /* Util.framework in Frameworks */,
 				DF288CAD2884F4AC005F7C1F /* SDL2.framework in Frameworks */,
 				DF288CAB2884F40D005F7C1F /* SDL2_ttf.framework in Frameworks */,
@@ -944,6 +946,7 @@
 			name = "TestGame macOS";
 			packageProductDependencies = (
 				DF5DA947287FAE4800BA44F6 /* Runtime */,
+				DFEB98A528CACD7B000A5E31 /* EonilFSEvents */,
 			);
 			productName = "TestGame macOS";
 			productReference = DFA4550F2804599600638A35 /* TestGame.app */;
@@ -1025,6 +1028,7 @@
 			mainGroup = DFA454E02804599500638A35;
 			packageReferences = (
 				DF5DA946287FAE4700BA44F6 /* XCRemoteSwiftPackageReference "Runtime" */,
+				DFEB98A428CACD7B000A5E31 /* XCRemoteSwiftPackageReference "FSEvents" */,
 			);
 			productRefGroup = DFA454EF2804599600638A35 /* Products */;
 			projectDirPath = "";
@@ -1993,6 +1997,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		DFEB98A428CACD7B000A5E31 /* XCRemoteSwiftPackageReference "FSEvents" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/eonil/FSEvents";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.7;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -2010,6 +2022,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DF5DA946287FAE4700BA44F6 /* XCRemoteSwiftPackageReference "Runtime" */;
 			productName = Runtime;
+		};
+		DFEB98A528CACD7B000A5E31 /* EonilFSEvents */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DFEB98A428CACD7B000A5E31 /* XCRemoteSwiftPackageReference "FSEvents" */;
+			productName = EonilFSEvents;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

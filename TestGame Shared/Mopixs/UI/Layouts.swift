@@ -65,21 +65,59 @@ public struct LEPosY : LayoutElement, Codable {
 
 public struct LEMatch : LayoutElement, Codable {
     public var edgeSource:Edge
-    public var source:View
+    public var source:String
     public var edgeDestination:Edge
 
     public func updateFrame(_ view:View) {
-        view.frame.setValueForEdge(edgeDestination, source.frame.valueForEdge(edgeSource))
+        guard let parent = view.superView else { return }
+        var srcView:View? = nil
+        while (true) {
+            if (parent._id == source) {
+                srcView = parent
+                break
+            }
+            for eachView in parent.children {
+                if (eachView._id == source) {
+                    srcView = eachView
+                    break
+                }
+            }
+            break
+        }
+        //TODO: Remove search and resolve in instance cache
+        if let srcView = srcView {
+            view.frame.setValueForEdge(edgeDestination, srcView.frame.valueForEdge(edgeSource))
+        }
+        
+        
     }
 }
 
 public struct LEMatchFixed : LayoutElement, Codable {
     public var edgeSource:Edge
-    public var source:View
+    public var source:String
     public var edgeDestination:Edge
 
     public func updateFrame(_ view:View) {
-        view.frame.setValueForEdgeFixed(edgeDestination, source.frame.valueForEdge(edgeSource))
+        guard let parent = view.superView else { return }
+        var srcView:View? = nil
+        while (true) {
+            if (parent._id == source) {
+                srcView = parent
+                break
+            }
+            for eachView in parent.children {
+                if (eachView._id == source) {
+                    srcView = eachView
+                    break
+                }
+            }
+            break
+        }
+        //TODO: Remove search and resolve in instance cache
+        if let srcView = srcView {
+            view.frame.setValueForEdgeFixed(edgeDestination, srcView.frame.valueForEdge(edgeSource))
+        }
     }
 }
 
@@ -197,6 +235,7 @@ public struct LEMirrorMargin: LayoutElement, Codable {
     }
 }
 
+//Match the side that has the biggest margin..
 public struct LEMirrorMarginHorizontalMax: LayoutElement, Codable {
     
     public func updateFrame(_ view:View) {

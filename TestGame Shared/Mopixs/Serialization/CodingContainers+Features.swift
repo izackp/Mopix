@@ -7,6 +7,12 @@
 
 import Foundation
 
+extension DecodingError.Context {
+    func prettyPath(separatedBy separator: String = ".") -> String {
+        codingPath.map { $0.stringValue }.joined(separator: ".")
+    }
+}
+
 public extension UnkeyedEncodingContainer {
     mutating func encodeElementInArray<T>(_ value:T) throws where T : Encodable {
         let encoder = self.superEncoder()
@@ -68,7 +74,7 @@ public extension KeyedEncodingContainer where Key : CodingKey {
 public extension KeyedDecodingContainer where Key : CodingKey {
     
     func decodeArray<T>(_ type: T.Type, forKey key: KeyedDecodingContainer<Key>.Key) throws -> [T] {
-        var container = try self.nestedUnkeyedContainer(forKey: key)
+        guard var container = try? self.nestedUnkeyedContainer(forKey: key) else { return [] }
         var elements:[T] = []
         while (container.isAtEnd == false) {
             let idk = try container.decodeElementInArray(type)
@@ -78,7 +84,8 @@ public extension KeyedDecodingContainer where Key : CodingKey {
     }
     
     func decodeArray<T>(_ type: T.Type, forKey key: KeyedDecodingContainer<Key>.Key) throws -> [T] where T : Decodable {
-        var container = try self.nestedUnkeyedContainer(forKey: key)
+        //TODO: Should this be in an ifPresent func?
+        guard var container = try? self.nestedUnkeyedContainer(forKey: key) else { return [] }
         var elements:[T] = []
         while (container.isAtEnd == false) {
             let idk = try container.decodeElementInArray(type)
@@ -97,7 +104,13 @@ public extension KeyedDecodingContainer where Key : CodingKey {
     
     func decodeDynamicItemIfPresent<T>(_ type: T.Type, forKey key: KeyedDecodingContainer<Key>.Key) throws -> T? where T : Decodable {
         if let decoder = try? self.superDecoder(forKey: key) {
-            return try decoder.decode(type)
+            do {
+                return try decoder.decode(type)
+            } catch let DecodingError.valueNotFound(errKey, context) {
+                print("Key: \(String(describing: errKey)) - Key: \(String(describing: key)) ")
+                print("Value not found. -> \(context.prettyPath()) <- \(context.debugDescription)") //TODO: We could get the last path key and compare to key
+                return nil
+            }
         } else {
             return nil
         }

@@ -98,3 +98,18 @@ I tried out these languages:
 I also spent a chunk of time wrapping The-Forge api to nim. One of the reasons I decided on SDL was so I don't have to do that again lol. 
 
 
+
+
+--==-=--=-=-= Notes
+
+SDL_RENDER_TARGETS_RESET = 0x2000, /**< The render targets have been reset and their contents need to be updated */
+    SDL_RENDER_DEVICE_RESET, /**< The device has been reset and all textures need to be recreated */
+Those events are sent when Direct3D loses your stuff
+These are meant to be something that happens when some other app goes exclusive fullscreen and steals all the GPU resources, but this is not the first time I've heard about resizing the window causing it.
+Which is atrocious, but if the GPU driver is doing it, it's beyond our control.
+(But it might also just be an SDL bug, I won't rule it out.)
+
+
+// Resizing windows freezes main loop:
+The idea of using sdl is to avoid dealing with this stuff. For osx [super sendEvent:event]; on the window freezes up the main thread. Seems like something I can ignore for a while.
+https://github.com/libsdl-org/SDL/issues/1059

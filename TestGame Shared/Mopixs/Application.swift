@@ -158,9 +158,11 @@ open class Application {
 
         while isRunning {
             try autoreleasepool {
-                while (SDL_PollEvent(&event) == 1) {
-                    allImmediateUseEvents.append(event)
-                    allEvents.append(event)
+                stats.measure("poll 1") {
+                    while (SDL_PollEvent(&event) == 1) {
+                        allImmediateUseEvents.append(event)
+                        allEvents.append(event)
+                    }
                 }
                 //TODO: Not great; ms precision will be 0 in a lot of cases without rendering
                 regulator.setCurrentTime(time: SDL_GetTicks64())
@@ -176,9 +178,11 @@ open class Application {
                     count -= 1
                 }
                 
-                while (SDL_PollEvent(&event) == 1) {
-                    allImmediateUseEvents.append(event)
-                    allEvents.append(event)
+                stats.measure("poll 2") {
+                    while (SDL_PollEvent(&event) == 1) {
+                        allImmediateUseEvents.append(event)
+                        allEvents.append(event)
+                    }
                 }
                 
                 listWindows.append(contentsOf: _listWindowsPendingAdd)
@@ -190,7 +194,7 @@ open class Application {
                 _listWindowsPendingRemove.removeAll(keepingCapacity: true)
                 
                 for eachWindow in listWindows {
-                    guard let conv = eachWindow as? CustomWindow else { continue }
+                    //guard let conv = eachWindow as? CustomWindow else { continue }
                     
                     stats.measure("window - handle events") {
                         eachWindow.handleEvents(allImmediateUseEvents)
@@ -198,7 +202,7 @@ open class Application {
                     
                     try eachWindow.drawStart()
                     stats.measure("engine - draw") {
-                        engine.onDraw(eachWindow.renderer, conv.imageManager) //TODO: I'm not sure how to tie the window to the engine.. lol
+                        //engine.onDraw(eachWindow.renderer, conv.imageManager) //TODO: I'm not sure how to tie the window to the engine.. lol
                     }
                     //I think there should be a window view that gets tied to a camera in the engine..
                     try stats.measure("window - draw") {

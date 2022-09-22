@@ -7,7 +7,8 @@
 
 import Foundation
 
-public struct Version: ExpressibleByIntegerLiteral, Equatable, CustomDebugStringConvertible {
+public struct Version: ExpressibleByIntegerLiteral, Equatable, LosslessStringConvertible {
+    
     var _rawValue: UInt32
     public typealias IntegerLiteralType = UInt32
     public init(integerLiteral value: UInt32) {
@@ -35,6 +36,26 @@ public struct Version: ExpressibleByIntegerLiteral, Equatable, CustomDebugString
         setMajor_(major)
         setMinor_(minor)
         setRevision_(revision)
+    }
+    
+    public init?(_ description: String) {
+        let subStr = description.substring(from: 0)
+        var scanner = StringScanner(span: subStr, pos: 0, dir: 1)
+        self._rawValue = 0
+        do {
+            let major = Int(try scanner.readInt32())
+            setMajor_(major)
+        } catch {
+            return nil
+        }
+        do {
+            try scanner.expect(c: ".")
+            let minor = Int(try scanner.readInt32())
+            setMinor_(minor)
+            try scanner.expect(c: ".")
+            let revision = Int(try scanner.readInt32())
+            setRevision_(revision)
+        } catch { }
     }
     
     // Major
@@ -88,7 +109,7 @@ public struct Version: ExpressibleByIntegerLiteral, Equatable, CustomDebugString
         _rawValue = UInt32(value) | (_rawValue & 0xFFFFF000)
     }
     
-    public var debugDescription: String {
+    public var description: String {
         return toString()
     }
     

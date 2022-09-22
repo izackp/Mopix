@@ -65,6 +65,16 @@ public final class SDLWindow {
         set { SDL_SetWindowSize(internalPointer, Int32(newValue.width), Int32(newValue.height)) }
     }
     
+    public var position: (x: Int, y: Int) {
+        get {
+            var x: Int32 = 0
+            var y: Int32 = 0
+            SDL_GetWindowPosition(internalPointer, &x, &y)
+            return (Int(x), Int(y))
+        }
+        set { SDL_SetWindowPosition(internalPointer, Int32(newValue.x), Int32(newValue.y)) }
+    }
+    
     /// Size of a window's underlying drawable in pixels (for use with glViewport).
     ///
     /// This may differ from `size` if we're rendering to a high-DPI drawable,

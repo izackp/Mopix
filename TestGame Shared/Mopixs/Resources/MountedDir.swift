@@ -207,11 +207,3 @@ public class MountedDir {
 
 typealias DirectoryPath = Substring
 typealias FilePath = Substring
-
-/*
-when isMainModule:
-  without meta =? parseMetaFromName("MyPackage_1_23_0"), error:
-    echo error.msg
-  echo meta.version
-  echo meta.name
-*/

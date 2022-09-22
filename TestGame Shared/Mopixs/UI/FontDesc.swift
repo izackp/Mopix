@@ -20,6 +20,20 @@ public struct FontDesc : Codable, Hashable {
         self.weight = weight
         self.size = size
     }
+    
+    enum CodingKeys: CodingKey {
+        case family
+        case weight
+        case size
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.family = try container.decodeIfPresent(String.self, forKey: .family) ?? "Roboto"
+        self.weight = try container.decodeIfPresent(UInt16.self, forKey: .weight) ?? 100
+        self.size = try container.decodeIfPresent(Float.self, forKey: .size) ?? 21
+    }
+    
     /*
     init(_ dictionary: [String : Any]) throws {
         family = try dictionary.expect("family")

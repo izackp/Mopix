@@ -10,6 +10,7 @@ import SDL2
 
 open class View: Codable {
 
+    public var _id:String? = nil
     public var frame:Frame<Int16> = Frame.zero
     public var listLayouts:[LayoutElement] = []
     public var children:Arr<View> = Arr<View>.init()
@@ -23,6 +24,7 @@ open class View: Codable {
     }
     
     private enum CodingKeys: String, CodingKey {
+        case _id
         case frame
         case listLayouts
         case children
@@ -32,15 +34,22 @@ open class View: Codable {
     
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        self._id = try container.decodeIfPresent(String.self, forKey: ._id)
         self.frame = try container.decodeIfPresent(Frame<Int16>.self, forKey: .frame) ?? .zero
         self.listLayouts = try container.decodeArray(LayoutElement.self, forKey: .listLayouts)
         self.children = try container.decodeContiguousArray(View.self, forKey: .children)
         self.clipBounds = try container.decodeIfPresent(Bool.self, forKey: .clipBounds) ?? false
-        self.backgroundColor = try container.decode(SmartColor.self, forKey: .backgroundColor)
+        self.backgroundColor = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .backgroundColor) ?? SmartColor.white
+        for eachChild in self.children {
+            eachChild.superView = self
+        }
     }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        if (_id != nil) {
+            try container.encode(_id, forKey: ._id)
+        }
         if (frame != .zero) {
             try container.encode(frame, forKey: .frame)
         }
@@ -53,7 +62,9 @@ open class View: Codable {
         if (clipBounds) {
             try container.encode(clipBounds, forKey: .clipBounds)
         }
-        try container.encode(backgroundColor, forKey: .backgroundColor)
+        if (backgroundColor !== SmartColor.white) {
+            try container.encode(backgroundColor, forKey: .backgroundColor)
+        }
     }
     
     open func insertView(_ view:View, at:Int) {

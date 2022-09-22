@@ -19,6 +19,16 @@ public class UIRenderContext {
     let lastTexture:Int = 0
     
     private func resolveSmartColor(_ color:SmartColor) -> SDLColor {
+        if let name = color.name {
+            switch name {
+                case "green":
+                    return SDLColor(rawValue: SmartColor.green.rawValue!)
+                case "red":
+                    return SDLColor(rawValue: SmartColor.red.rawValue!)
+                default:
+                    return SDLColor(rawValue: SmartColor.black.rawValue!)
+            }
+        }
         return SDLColor(rawValue: color.rawValue!)
     }
     

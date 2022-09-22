@@ -1,50 +1,49 @@
-{
-    id: "viewRoot",
-    type: "View",
+[{
+    _id: "viewRoot",
+    _type: "View",
     frame: { x: 0, y: 0, width: 320, height: 512 },
-    layout: [
+    backgroundColor: 0x101030,
+    listLayouts: [
         {
-            type: "LEAnchor",
-            edge: 2, //Right
+            _type: "LEAnchor",
+            edge: "Right",
             percent: 1.0
         }, {
-            type: "LEAnchor",
-            edge: 3, //Bottom
+            _type: "LEAnchor",
+            edge: "Bottom",
             percent: 1.0
         }
     ],
     children: [
         {
-            id: "viewNavigationBar",
-            type: "View",
+            _id: "viewNavigationBar",
+            _type: "View",
             frame: { x: 0, y: 0, width: 320, height: 44 },
-            layout: [ { type: "LEAnchor", edge: 2, percent: 1.0 } ],
+            listLayouts: [ { _type: "LEAnchor", edge: "Right", percent: 1.0 } ],
             backgroundColor: 0xFFFFFFFF, //TODO: label based colors //CSS style etc
             children: [
                 {
-                    id: "btnOptions",
-                    type: "Button",
+                    _id: "btnOptions",
+                    _type: "TextView",
                     frame: { x: 270, y: 0, width: 50, height: 44 },
-                    layout: [ { type: "LEAnchorFixed", edge: 2, percent: 1.0 } ],
-                    children: [
-                        {
-
-                        }
-                    ]
+                    listLayouts: [ { _type: "LEAnchorFixed", edge: "Right", percent: 1.0 } ],
+                    backgroundColor: "green"
                 },
                 {
-                    id: "lblTitle",
-                    type: "View",
+                    _id: "lblTitle",
+                    _type: "TextView",
                     frame: { x: 50, y: 0, width: 220, height: 44 },
-                    layout: [ 
-                        { type: "LEMatchFixed", source: "btnOptions", edgeSource: 0, edgeDestination: 2 },
-                        { type: "LEMirrorMarginHorizontalMax" },
+                    listLayouts: [
+                        { _type: "LEMatch", source: "btnOptions", edgeSource: "Left", edgeDestination: "Right" },
+                        { _type: "LEAnchor", edge: "Left", percent: 0.0 },
+                        { _type: "LEMirrorMarginHorizontalMax" },
                     ],
                     text: "Sample Title",
                     alignment: "center",
-                    
+                    backgroundColor: "red"
                 }
             ]
         }
     ]
 }
+]

@@ -31,7 +31,7 @@ public func wrapperMain(argc:Int32, argv:UnsafeMutablePointer<UnsafeMutablePoint
         exit(EXIT_FAILURE)
     }
     catch {
-        print("Error: \(error)")
+        print("Error: \(error.localizedDescription)")
         exit(EXIT_FAILURE)
     }
     return 0

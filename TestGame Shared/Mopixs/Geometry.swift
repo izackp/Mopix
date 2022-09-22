@@ -382,15 +382,15 @@ public struct Frame<T: Codable & Numeric>: Equatable, Codable {
     public mutating func setMarginForEdge(_ edge:Edge, value:T, container:Size<T>){
         switch (edge) {
         case .Left:
-            x = value
+            left = value
         case .Top:
-            y = value
+            top = value
         case .Right:
             right = container.width - value
         case .Bottom:
             bottom = container.height - value
         case .Start:
-            x = value
+            left = value
         case .End:
             right = container.width - value
         }

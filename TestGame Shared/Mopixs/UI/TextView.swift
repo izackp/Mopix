@@ -16,8 +16,8 @@ public class TextView : View {
     
     public var fontDesc:FontDesc = FontDesc.defaultFont
 
-    public var lineHeight = 0.0
-    public var characterSpacing = 0
+    public var lineHeight:Float = 0.0
+    public var characterSpacing:Int = 0
     public var lineStackingStrategy:Int = 0
     
     public var textWrapping:Int = 0
@@ -37,8 +37,60 @@ public class TextView : View {
         super.init()
     }
     
+    private enum CodingKeys: String, CodingKey {
+        case text
+        case textColor
+        case fontDesc
+        case lineHeight
+        case characterSpacing
+        case lineStackingStrategy
+        case textWrapping
+        case textTrimming
+        case textAlignment
+        case maxLines
+    }
+    
     public required init(from decoder: Decoder) throws {
-        fatalError("init(from:) has not been implemented")
+        try super.init(from: decoder)
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.text = try container.decodeIfPresent(String.self, forKey: .text) ?? ""
+        self.textColor = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .textColor) ?? SmartColor.idk
+        self.fontDesc = try container.decodeIfPresent(FontDesc.self, forKey: .fontDesc) ?? FontDesc.defaultFont
+        self.lineHeight = try container.decodeIfPresent(Float.self, forKey: .lineHeight) ?? 0.0
+        self.characterSpacing = try container.decodeIfPresent(Int.self, forKey: .characterSpacing) ?? 0 //TODO: Int changes based on platform
+        self.textWrapping = try container.decodeIfPresent(Int.self, forKey: .textWrapping) ?? 0
+        self.textTrimming = try container.decodeIfPresent(Int.self, forKey: .textTrimming) ?? 0
+        self.textAlignment = try container.decodeIfPresent(Int.self, forKey: .textAlignment) ?? 0
+    }
+    
+    public override func encode(to encoder: Encoder) throws {
+        try super.encode(to: encoder)
+        
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if (text.count > 0) {
+            try container.encode(text, forKey: .text)
+        }
+        if (textColor !== SmartColor.idk) {
+            try container.encode(textColor, forKey: .textColor)
+        }
+        if (fontDesc != FontDesc.defaultFont) {
+            try container.encode(fontDesc, forKey: .fontDesc)
+        }
+        if (self.lineHeight != 0.0) {
+            try container.encode(lineHeight, forKey: .lineHeight)
+        }
+        if (self.characterSpacing != 0) {
+            try container.encode(characterSpacing, forKey: .characterSpacing)
+        }
+        if (self.textWrapping != 0) {
+            try container.encode(textWrapping, forKey: .textWrapping)
+        }
+        if (self.textTrimming != 0) {
+            try container.encode(textTrimming, forKey: .textTrimming)
+        }
+        if (self.textAlignment != 0) {
+            try container.encode(textAlignment, forKey: .textAlignment)
+        }
     }
     
     //MARK: - Serialization

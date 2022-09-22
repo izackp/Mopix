@@ -27,6 +27,7 @@ extension Decoder {
                     let strType = try container.decode(String.self, forKey: ._type)
                     return try self.decodeExpectedType(strType)
                 } catch {
+                    print("Cant decode type: \(error) \(error.localizedDescription)")
                     throw error
                 }
             }
