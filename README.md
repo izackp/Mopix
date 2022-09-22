@@ -36,14 +36,15 @@ x = Done
 - [ ] Plugin style codecs
 - [ ] Sequencer / Instruments (like pico-8)
 [o] UI
-- [ ] Views
+- [/] Views
 - [ ] Images
-- [ ] TextView
+- [o] TextView
 - [ ] Effects (clipping, masks, border, shadows)
 - [ ] Gestures, User interaction
 - [ ] ScrollView
 - [ ] Tables
 - [ ] Video player
+- [o] Live reload editor
 [o] Input API
 - [ ] Gamepad / Joystick Support
 - [ ] Keyboard Support
@@ -67,6 +68,9 @@ x = Done
 - [/] Encodable; Encode Dynamic Type
 - [/] Encodable; Encode Ids
 - [o] Serialization boiler plate code generation; Because writing out serialization code sucks.
+- [ ] Serialize floats with a 'best match' number. Instead of just some random number.
+[ ] Works entirely from SPM without xcode
+- [ ] Leave SDL or port so it supports clang modules
 ```
 
 I'm not sure how I want to design an ECS. I would always prefer to use an existing solution like flecs. Though I want to support hardcoded classes first. Flecs uses arch type entities because it makes sense to group components together by type. My question is why bother have pieces when you can just have a single class. You get the grouping automatically. Overall, I'm curious about a hybrid approach.
@@ -93,7 +97,7 @@ I tried out these languages:
 * Swift : Got pissed at how difficult it was to compile the toolchain on a mac. Did a lot of research on swift embedded/android as I will probably have to port swift to the 3ds. Decided to try nim since it compiles to c and can be very performant.
 * Nim : Like it a lot, source code is understandable. However, I spent way too much learning macros because I wanted optionals, results, and early exits. Lack of _consistent_ support for indirection (interfaces, traits) made me look towards rust. Even the standard library uses different strategies for indirection. Look at file streams. Rust had all of the safety features I wanted (results and traits) that _everyone_ used.
 * Rust : Looks sexy from the outside. Though, once you start working with it you realize that you realllyyyy need shared mutability in order to provide decent abstractions and decoupling. I feel like swift is the most productive language I've ever used so I moved back to that. Swift is also in the works for implementing a sort of borrow checker, and I feel performance will soon be up to par.
-* Zig : I took a peak it at. Seems cool. Takes like 8 gbs of ram to compile .. I got scared away once I saw the code to manipulate strings. Though it seems like you can hide the mess by providing your own string class. I have hope for this language. If I like it enough I might just port this over after I'm done.
+* Zig : I took a peak it at. Seems cool. ~~Takes like 8 gbs of ram to compile~~ .. I got scared away once I saw the code to manipulate strings. Though it seems like you can hide the mess by providing your own string class. I have hope for this language. If I like it enough I might just port this over after I'm done.
 
 I also spent a chunk of time wrapping The-Forge api to nim. One of the reasons I decided on SDL was so I don't have to do that again lol. 
 
