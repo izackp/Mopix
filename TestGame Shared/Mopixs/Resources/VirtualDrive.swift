@@ -134,6 +134,21 @@ public class VirtualDrive {
         return nil
     }
     
+    func mountedDirFor(_ url:VDUrl) throws -> MountedDir? {
+        if (url.scheme != "vd") { return nil }
+        let path = url.path
+        if let host = url.host {
+            let dir = try mountedDir(host)
+            return dir
+        }
+        for eachMD in listMountedDirectories {
+            if let _ = eachMD.resolveToVDUrl(path) {
+                return eachMD
+            }
+        }
+        return nil
+    }
+    
     func resolveToDirectUrl(_ mountName:String, _ filePath:String) throws -> URL? {
         let dir = try mountedDir(mountName)
         return dir.resolveToDirectUrl(filePath)
@@ -179,6 +194,12 @@ public class VirtualDrive {
     
     func writeFile(_ url:URL) {
         
+    }
+    
+    func removeWatcher(_ listener:PackageChangeListener) {
+        for eachMD in listMountedDirectories {
+            eachMD.stopWatching(listener)
+        }
     }
     
     public static let shared = VirtualDrive()

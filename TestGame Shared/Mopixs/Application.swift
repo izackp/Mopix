@@ -48,7 +48,7 @@ public class SingleStat {
 public class Stats {
     
     var stats:[String: SingleStat] = [:]
-    var enabled:Bool = true
+    var enabled:Bool = false
     var printDelay:Double = 10
     var lastPrint:Double = 0
     
@@ -110,6 +110,11 @@ open class Application {
     var isRunning = true
     var stats = Stats()
     
+    static weak var _shared:Application!
+    static func shared() -> Application {
+        return _shared!
+    }
+    
     public init() throws {
         //Note: automatically initializes the Event Handling, File I/O and Threading subsystems
         try SDL.initialize(subSystems: [.video])
@@ -119,6 +124,7 @@ open class Application {
         let resources = URL(fileURLWithPath: Bundle.main.resourcePath!)
         print("Mounting: \(resources)")
         try vd.mountPath(path: resources)
+        Application._shared = self
     }
     
     deinit {

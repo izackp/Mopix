@@ -14,7 +14,8 @@ open class View: Codable {
     public var frame:Frame<Int16> = Frame.zero
     public var listLayouts:[LayoutElement] = []
     public var children:Arr<View> = Arr<View>.init()
-    public var superView:View? = nil
+    public weak var superView:View? = nil
+    public weak var window:Window? = nil
     
     public var clipBounds:Bool = false
     open var backgroundColor = SmartColor.white
@@ -65,6 +66,10 @@ open class View: Codable {
         if (backgroundColor !== SmartColor.white) {
             try container.encode(backgroundColor, forKey: .backgroundColor)
         }
+    }
+    
+    func containerSize() -> Size<DValue>? {
+        return superView?.frame.size ?? window?.frame.size
     }
     
     open func insertView(_ view:View, at:Int) {

@@ -7,22 +7,59 @@
 
 import Foundation
 
-public class TestViewController : ViewController {
+extension View {
+    func findWindow() -> Window? {
+        var view:View? = self
+        while let viewToCheck = view {
+            if let parentWindow = self.window {
+                return parentWindow
+            }
+            view = viewToCheck.superView
+        }
+        return nil
+    }
+}
+
+public class TestViewController : ViewController, PackageChangeListener {
     
-    static public func build(app:Application) throws -> TestViewController {
-        let idk = app.vd //TODO: So do we make application shared?
-        guard let vcUrl = idk.urlForFileName("TestViewController.json5") else { throw GenericError("No file") }
-        guard let data = try idk.readFile(vcUrl) else { throw GenericError("No Data") }
+    let _source:VDUrl
+
+    static public func build() throws -> TestViewController {
+        let vd = Application.shared().vd //TODO: So do we make application shared?
+        guard let vcUrl = vd.urlForFileName("TestViewController.json5") else { throw GenericError("No file") }
+        guard let data = try vd.readFile(vcUrl) else { throw GenericError("No Data") }
         let decoder = JSONDecoder()
         decoder.allowsJSON5 = true
         decoder.userInfo[CodingUserInfoKey(rawValue: "instanceCache")!] = InstanceCache()
         let content = try decoder.decode(ResolverInterface<Any>.self, from: data)
         guard let myView = content.result.first as? View else { throw GenericError("Unexpected type")}
-        return TestViewController(myView)
+        let mountedDir = try vd.mountedDirFor(vcUrl)
+        let result = TestViewController(myView, vcUrl)
+        try mountedDir?.startWatching(result)
+        return result
     }
     
-    override init(_ view: View) {
+    init(_ view: View, _ source:VDUrl) {
+        _source = source
         super.init(view)
+    }
+    
+    deinit {
+        let vd = Application.shared().vd
+        vd.removeWatcher(self)
+    }
+    
+    public func fileChanges(_ files: [VDUrl]) {
+        do {
+            if let _ = files.first(where: {$0 == _source}),
+               let window = view.findWindow() as? CustomWindow {
+                
+                let newVC = try TestViewController.build()
+                window.setRootViewController(newVC)
+            }
+        } catch {
+            
+        }
     }
 }
 

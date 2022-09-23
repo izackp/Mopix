@@ -100,8 +100,8 @@ public struct LEAnchor : LayoutElement, Codable {
 
     //If I want to set the left edge to 50. I need to get the width of the parent
     public func updateFrame(_ view:View) {
-        guard let parent = view.superView else { return }
-        let parentMag = perpendicularValueForEdge(parent.frame.size)
+        guard let container = view.containerSize() else { return }
+        let parentMag = perpendicularValueForEdge(container)
         let newValue = roundf(Float(parentMag) * percent)
         view.frame.setValueForEdge(edge, Int16(newValue))
     }
@@ -124,8 +124,8 @@ public struct LEAnchorFixed : LayoutElement, Codable {
 
     //If I want to set the left edge to 50. I need to get the width of the parent
     public func updateFrame(_ view:View) {
-        guard let parent = view.superView else { return }
-        let parentMag = perpendicularValueForEdge(parent.frame.size)
+        guard let container = view.containerSize() else { return }
+        let parentMag = perpendicularValueForEdge(container)
         let newValue = roundf(Float(parentMag) * percent)
         view.frame.setValueForEdgeFixed(edge, Int16(newValue))
     }
@@ -190,8 +190,7 @@ public struct LEMirrorMargin: LayoutElement, Codable {
     public var destination:Edge
     
     public func updateFrame(_ view:View) {
-        guard let parent = view.superView else { return }
-        let container = parent.frame.size
+        guard let container = view.containerSize() else { return }
         let sourceValue = view.frame.marginForEdge(source, containerSize: container)
         view.frame.setMarginForEdge(destination, value: sourceValue, container: container)
     }
@@ -201,8 +200,7 @@ public struct LEMirrorMargin: LayoutElement, Codable {
 public struct LEMirrorMarginHorizontalMax: LayoutElement, Codable {
     
     public func updateFrame(_ view:View) {
-        guard let parent = view.superView else { return }
-        let container = parent.frame.size
+        guard let container = view.containerSize() else { return }
         let leftValue = view.frame.marginForEdge(.Left, containerSize: container)
         let rightValue = view.frame.marginForEdge(.Right, containerSize: container)
         if (leftValue > rightValue) {

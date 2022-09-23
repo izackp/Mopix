@@ -15,7 +15,6 @@ final class CustomWindow: Window {
     let atlas:ImageAtlas
     let imageManager:SimpleImageManager
     var randomImage:Image? = nil
-    var pseudoView = View() //TODO: Not sure if I should make window a view or not
     
     override init(parent: Application, title: String, frame: Frame<Int>, windowOptions: BitMaskOptionSet<SDLWindow.Option> = [.resizable, .shown], driver: SDLRenderer.Driver = .default, options: BitMaskOptionSet<SDLRenderer.Option> = []) throws {
         
@@ -24,7 +23,6 @@ final class CustomWindow: Window {
                                    options: windowOptions)
         
         let renderer = try SDLRenderer(window: sdlWindow, driver: driver, options: options)
-        self.pseudoView.frame = Frame(x: Int16(frame.x), y: Int16(frame.y), width: Int16(frame.width), height: Int16(frame.height))
         atlas = ImageAtlas(renderer)
         imageManager = SimpleImageManager(atlas: atlas, drive: parent.vd)
         imageManager.loadSystemFonts()
@@ -34,7 +32,7 @@ final class CustomWindow: Window {
         }
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
-        let vc = try TestViewController.build(app: parent)
+        let vc = try TestViewController.build()
         setRootViewController(vc)
         
         Task { [weak self] in
@@ -50,7 +48,7 @@ final class CustomWindow: Window {
         self.rootViewController = vc
         let view = vc.view
         self.rootView = view
-        view.superView = pseudoView
+        view.window = self
         view.layout()
         vc.viewWillAppear(false)
         vc.viewDidAppear(false)
@@ -74,12 +72,10 @@ final class CustomWindow: Window {
                 break
             case .resized(width: let width, height: let height):
                 frame.size = Size(Int16(width), Int16(height))
-                pseudoView.frame = frame
                 self.rootView?.layout()
                 break
             case .sizeChanged(width: let width, height: let height):
                 frame.size = Size(Int16(width), Int16(height))
-                pseudoView.frame = frame
                 self.rootView?.layout()
                 break
             case .minimized:

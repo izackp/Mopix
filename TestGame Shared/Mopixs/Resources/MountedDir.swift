@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import EonilFSEvents
 
 let VersionChars = CharacterSet(charactersIn: ".").union(CharacterSet.decimalDigits)
 
@@ -69,6 +70,10 @@ public struct PackageMeta {
     }
 }
 
+public protocol PackageChangeListener : AnyObject {
+    func fileChanges(_ files:[VDUrl])
+}
+
 public class MountedDir {
     init(meta: PackageMeta, path: URL, virtualPath: String, isReadOnly: Bool, isDirectory:Bool, isIndexed:Bool = true) {
         self.meta = meta
@@ -85,9 +90,16 @@ public class MountedDir {
     let isReadOnly:Bool
     let isIndexed:Bool // Allows being searched for resources
     let isDirectory:Bool
+    private var _fileWatchers = WeakArray<PackageChangeListener>([])
+    var fileWatchers:WeakArray<PackageChangeListener> {
+        get {
+            return _fileWatchers
+        }
+    }
+    private var _eventStream:EonilFSEventStream? = nil
     //var files:[URL] = []
     
-    // Note: Foresee problems with /my/path/../
+    //NOTE: Foresee problems with /my/path/../
     static func newMountedDir(path:URL, isDirectory:Bool, mountDir:String = String(OS.defaultPathSeparator)) throws -> MountedDir {
         // TODO: Check if file is writable/readable
         let lastPart = path.lastPathComponent
@@ -195,6 +207,16 @@ public class MountedDir {
         return nil
     }
     
+    func resolveFullPathToVDUrl(_ fullFilePath:String) -> VDUrl? {
+        if (isDirectory == false) { return nil }
+        guard let fileUrl = URL(string: fullFilePath) else { return nil}
+        let fm = FileManager()
+        if (fm.fileExists(atPath: fileUrl.path)) {
+            return try? fileUrl.vdPath(from: path)
+        }
+        return nil
+    }
+    
     func readFile(_ filePath:String) throws -> Data? {
         let fileUrl = path.appendingPathComponent(filePath)
         return try Data(contentsOf: fileUrl)
@@ -202,6 +224,54 @@ public class MountedDir {
     
     func writeFile(_ data:Data, _ filePath:String) {
         
+    }
+    
+    //TODO: Not thread safe
+    func startWatching(_ listener:PackageChangeListener) throws {
+        if _fileWatchers.contains(where: { $0 === listener }) {
+            return
+        }
+        _fileWatchers.append(listener)
+        if (_eventStream == nil) {
+            let finalPath = path.path
+            print("Watching: \(finalPath)")
+            let s = try EonilFSEventStream(pathsToWatch: [finalPath], sinceWhen: .now, latency: 0, flags: [EonilFSEventsCreateFlags.fileEvents], handler: { [weak self] in
+                self?.eventHandler($0)
+            })
+            s.setDispatchQueue(DispatchQueue.main)
+            try s.start()
+            _eventStream = s
+        }
+    }
+    
+    func stopWatching(_ listener:PackageChangeListener) {
+        _fileWatchers.clean()
+        if let index = _fileWatchers.firstIndex(where: { $0 === listener }) {
+            _fileWatchers.remove(at: index)
+        }
+        if let stream = _eventStream, (_fileWatchers.isEmpty) {
+            stream.stop()
+            stream.invalidate()
+            _eventStream = nil
+        }
+    }
+    
+    func eventHandler(_ event:EonilFSEventsEvent) {
+        let idStr:String
+        if let id = event.ID?.rawValue {
+            idStr = "\(id)"
+        } else {
+            idStr = "nil"
+        }
+        print("FS Event Received:\n\tpath: \(event.path)\n\tID: \(idStr)\n\tflags: \(event.flag?.debugDescription ?? "nil")")
+        if let flags = event.flag {
+            if (flags.contains(.itemModified)) {
+                guard let url = resolveFullPathToVDUrl(event.path) else { return }
+                for eachListener in _fileWatchers {
+                    eachListener?.fileChanges([url])
+                }
+            }
+        }
     }
 }
 

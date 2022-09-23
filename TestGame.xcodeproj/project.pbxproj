@@ -172,6 +172,10 @@
 		DFC5862A28125FFB0097E39B /* EtagerePacker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC585C12811A8430097E39B /* EtagerePacker.swift */; };
 		DFC5862B28125FFD0097E39B /* AtlasAllocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC585D52811CAD70097E39B /* AtlasAllocator.swift */; };
 		DFC5862C281265150097E39B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC583E2280774CA0097E39B /* main.swift */; };
+		DFC6FC0928DD019700D02B5F /* Weak.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC6FC0828DD019700D02B5F /* Weak.swift */; };
+		DFC6FC0A28DD019700D02B5F /* Weak.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC6FC0828DD019700D02B5F /* Weak.swift */; };
+		DFC6FC0B28DD019700D02B5F /* Weak.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC6FC0828DD019700D02B5F /* Weak.swift */; };
+		DFC6FC0C28DD019700D02B5F /* Weak.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC6FC0828DD019700D02B5F /* Weak.swift */; };
 		DFCA777228189F1F0099BC21 /* GenericError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCA777128189F1F0099BC21 /* GenericError.swift */; };
 		DFCA777328189F1F0099BC21 /* GenericError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCA777128189F1F0099BC21 /* GenericError.swift */; };
 		DFCA777428189F1F0099BC21 /* GenericError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCA777128189F1F0099BC21 /* GenericError.swift */; };
@@ -503,6 +507,7 @@
 		DFC5860928125A900097E39B /* Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
 		DFC5860E28125B240097E39B /* Geometry+SDL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Geometry+SDL.swift"; sourceTree = "<group>"; };
 		DFC5861928125F7E0097E39B /* MacUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFC6FC0828DD019700D02B5F /* Weak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weak.swift; sourceTree = "<group>"; };
 		DFCA776D28189BA00099BC21 /* VirtualDrive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualDrive.swift; sourceTree = "<group>"; };
 		DFCA777128189F1F0099BC21 /* GenericError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericError.swift; sourceTree = "<group>"; };
 		DFCA77752818A2F50099BC21 /* Version.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Version.swift; sourceTree = "<group>"; };
@@ -831,6 +836,7 @@
 				DFC58370280641770097E39B /* TimeBank.swift */,
 				DFC583FB280792000097E39B /* MoPixUtil.swift */,
 				DFC583D9280773DA0097E39B /* Window.swift */,
+				DFC6FC0828DD019700D02B5F /* Weak.swift */,
 			);
 			path = Mopixs;
 			sourceTree = "<group>";
@@ -1185,6 +1191,7 @@
 				DF767DDB28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
 				DFFF55DC285BB27700536EAD /* CollisionNode2D.swift in Sources */,
 				DFC583DA280773DA0097E39B /* Window.swift in Sources */,
+				DFC6FC0928DD019700D02B5F /* Weak.swift in Sources */,
 				DFC583EB2807762B0097E39B /* Engine.swift in Sources */,
 				DFC583F028077C9C0097E39B /* Layouts.swift in Sources */,
 			);
@@ -1271,6 +1278,7 @@
 				DF767DDC28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
 				DFC5860B28125A900097E39B /* Common.swift in Sources */,
 				DFE1728B280510B500C44AB0 /* Renderer.swift in Sources */,
+				DFC6FC0A28DD019700D02B5F /* Weak.swift in Sources */,
 				DFE17285280510B500C44AB0 /* Event.swift in Sources */,
 				DFE17294280510B500C44AB0 /* Color.swift in Sources */,
 			);
@@ -1309,6 +1317,7 @@
 				DFFF55D2285BB22C00536EAD /* Player.swift in Sources */,
 				DF2D82782866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFC5860C28125A900097E39B /* Common.swift in Sources */,
+				DFC6FC0B28DD019700D02B5F /* Weak.swift in Sources */,
 				DF0D7DF528A30E53008F53FB /* Resolver.swift in Sources */,
 				DF2D82F12870DB2C00D4A860 /* Font.swift in Sources */,
 				DFC583FE280792000097E39B /* MoPixUtil.swift in Sources */,
@@ -1454,6 +1463,7 @@
 				DFC5862228125F890097E39B /* EtagereTests.swift in Sources */,
 				DFE422AB28A6E372009D5A47 /* Font.swift in Sources */,
 				DFE422DF28A6E424009D5A47 /* Util.swift in Sources */,
+				DFC6FC0C28DD019700D02B5F /* Weak.swift in Sources */,
 				DF767DDF28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
 				DFE422C828A6E392009D5A47 /* BitMaskOption.swift in Sources */,
 				DFE422D128A6E3E4009D5A47 /* TTF.swift in Sources */,
