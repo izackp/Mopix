@@ -46,7 +46,7 @@ public class SimpleImageManager : ImageManager {
     }
     
     public func image(named:String) -> Image? {
-        guard let url = drive.urlForFileName(named) else { return nil }
+        guard let url = drive.searchByName(named)?.url else { return nil }
         return image(url)
     }
     

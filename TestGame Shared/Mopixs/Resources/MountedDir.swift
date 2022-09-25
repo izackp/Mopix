@@ -8,73 +8,24 @@
 import Foundation
 import EonilFSEvents
 
-let VersionChars = CharacterSet(charactersIn: ".").union(CharacterSet.decimalDigits)
-
-extension URL {
-    func vdPath(from base: URL, packageInfo:PackageMeta? = nil) throws -> URL {
-
-        // Remove/replace "." and "..", make paths absolute:
-        let destComponents = self.standardized.pathComponents
-        let baseComponents = base.standardized.pathComponents
-        
-        if (destComponents.count < baseComponents.count) {
-            throw GenericError("Current path is not relative to provided path: \(self) -> \(base)")
-        }
-
-        for i in 0..<baseComponents.count {
-            if (destComponents[i] != baseComponents[i]) {
-                throw GenericError("Current path is not relative to provided path: \(self) -> \(base)")
-            }
-        }
-
-        // Build relative path:
-        let path = destComponents[baseComponents.count...].joined(separator: "/")
-        let urlStr:String
-        if let packageInfo = packageInfo {
-            urlStr = "vd://\(packageInfo.toString())/\(path)"
-        } else {
-            urlStr = "vd:/\(path)" //TODO: Should never happen?
-        }
-        guard let newUrl = URL(string: urlStr) else {
-            throw GenericError("Could not build url from path: \(path)")
-        }
-        return newUrl
-    }
-}
-
-public struct PackageMeta {
-    let name:String
-    let version:Version
-    
-    static func parseMetaFromName(_ name:String) throws -> PackageMeta {
-        let subStr = name.substring(from: 0)
-        var scanner = StringScanner(span: subStr, pos: name.count - 1, dir: -1)
-        let revision = Int(try scanner.readInt32())
-        try scanner.expect(c: ".")
-        let minor = Int(try scanner.readInt32())
-        try scanner.expect(c: ".")
-        let major = Int(try scanner.readInt32())
-        try scanner.expect(c: "_")
-        let finalName = String(name[0...scanner.pos])
-        let version = try Version(major, minor, revision)
-        return PackageMeta(name: finalName, version: version)
-    }
-    
-    init(name:String, version:Version) {
-        self.name = name
-        self.version = version
-    }
-    
-    func toString() -> String {
-        return "name_\(version.toString())"
-    }
-}
 
 public protocol PackageChangeListener : AnyObject {
-    func fileChanges(_ files:[VDUrl])
+    func fileChanges(_ files:[VDItem])
 }
 
-public class MountedDir {
+public class MountedDir : IFileSystem {
+    
+    let meta:PackageMeta
+    let path:URL
+    let virtualPath:String
+    let isReadOnly:Bool
+    let isIndexed:Bool // Allows being searched for resources
+    let isDirectory:Bool
+    
+    private var _fileWatchers = WeakArray<PackageChangeListener>([])
+    var fileWatchers:WeakArray<PackageChangeListener> { get { return _fileWatchers } }
+    private var _eventStream:EonilFSEventStream? = nil
+    
     init(meta: PackageMeta, path: URL, virtualPath: String, isReadOnly: Bool, isDirectory:Bool, isIndexed:Bool = true) {
         self.meta = meta
         self.path = path
@@ -83,21 +34,6 @@ public class MountedDir {
         self.isIndexed = isIndexed
         self.isDirectory = isDirectory
     }
-    
-    let meta:PackageMeta
-    let path:URL
-    let virtualPath:String
-    let isReadOnly:Bool
-    let isIndexed:Bool // Allows being searched for resources
-    let isDirectory:Bool
-    private var _fileWatchers = WeakArray<PackageChangeListener>([])
-    var fileWatchers:WeakArray<PackageChangeListener> {
-        get {
-            return _fileWatchers
-        }
-    }
-    private var _eventStream:EonilFSEventStream? = nil
-    //var files:[URL] = []
     
     //NOTE: Foresee problems with /my/path/../
     static func newMountedDir(path:URL, isDirectory:Bool, mountDir:String = String(OS.defaultPathSeparator)) throws -> MountedDir {
@@ -110,7 +46,6 @@ public class MountedDir {
             let parent = path.deletingLastPathComponent()
             fileORDirPath = parent
         }
-
         if lastPart.count == 0 {
             throw GenericError("last component in path is empty: \(path)")
         }
@@ -118,77 +53,47 @@ public class MountedDir {
         return MountedDir(meta:meta, path:fileORDirPath, virtualPath:mountDir, isReadOnly:false, isDirectory: isDirectory)
     }
     
-    func filesInDirectory(_ dir:String) -> [URL] {
-        return itemsInDirectory(dir, filter: {
-            guard let isDir = try? $0.isDirectory() else {
-                return false
-            }
-            return isDir == false
-        })
-    }
     
-    func foldersInDirectory(_ dir:String) -> [URL] {
-        return itemsInDirectory(dir, filter: {
-            guard let isDir = try? $0.isDirectory() else {
-                return false
-            }
-            return isDir
-        })
-    }
-    
-    func itemsInDirectory(_ dir:String, filter:((URL)->Bool)? = nil) -> [URL] {
+    func allItems(_ relPath:String = "", _ recursive:Bool) -> AnyIterator<VDItem> {
         let fm = FileManager()
-        do {
-            let dirUrl = path.appendingPathComponent(dir)
-            let directoryContents = try fm.contentsOfDirectory(at: dirUrl, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsSubdirectoryDescendants])
-            let filtered:[URL]
-            if let filter = filter {
-                filtered = directoryContents.filter(filter)
-            } else {
-                filtered = directoryContents
-            }
-            let mapped = try filtered.map({try $0.vdPath(from: path)})
-            return mapped
+        let dirUrl = path.appendingPathComponent(relPath)
+        let options:FileManager.DirectoryEnumerationOptions
+        if (recursive) {
+            options = [.skipsHiddenFiles, .skipsPackageDescendants]
+        } else {
+            options = [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
         }
-        catch {
-            print(error.localizedDescription)
-            return []
-        }
-    }
-    
-    //TODO: Make iterator...
-    //TODO: Somehow convey errors
-    func itemsMatching(_ filter:((URL)->Bool)) -> [URL] {
-        let fm = FileManager()
-        let dirUrl = path
-        var filtered:[URL] = []
-        if let enumerator = fm.enumerator(at: dirUrl, includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants]) {
-            for case let fileURL as URL in enumerator {
-                do {
-                    let fileAttributes = try fileURL.resourceValues(forKeys:[.isRegularFileKey])
-                    if fileAttributes.isRegularFile! && filter(fileURL) {
-                        let vdPath = try fileURL.vdPath(from: path)
-                        filtered.append(vdPath)
+        
+        let pathCopy = path
+        
+        if let enumerator = fm.enumerator(at: dirUrl, includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey], options: options) {
+            let otherResult = AnyIterator {
+                let p1 = enumerator.nextObject() as? URL
+                if let p1 = p1 {
+                    do {
+                        let fileAttributes = try p1.resourceValues(forKeys:[.isRegularFileKey, .isDirectoryKey])
+                        let vdUrl = try p1.vdPath(from: pathCopy)
+                        return VDItem(url: vdUrl, isFile: fileAttributes.isRegularFile!, isDir: fileAttributes.isDirectory!)
+                    } catch {
+                        print(error, p1)
                     }
-                } catch { print(error, fileURL) }
+                }
+                return nil //TODO: In what cases does this fail? if it does it prevents the enumeration of all the files
             }
+            return otherResult
         }
-        //let mapped = try filtered.map({try $0.vdPath(from: path)})
-        return filtered
+        let empty = AnyIterator {
+            let url:VDItem? = nil
+            return url
+        }
+        return empty
     }
     
-    func urlForPath(_ filePath:String) -> URL? {
-        let fileUrl = path.appendingPathComponent(filePath)
-        let fm = FileManager()
-        if (fm.fileExists(atPath: fileUrl.path)) {
-            return try? fileUrl.vdPath(from: path)
-        }
-        return nil
-    }
-    
-    func urlForName(_ fileName:String) -> URL? {
-        let result = itemsMatching({ $0.lastPathComponent == fileName })
-        return result.first
+    func searchByName(_ fileName:String) -> VDItem? {
+        let result = allItems("", true).lazy.first(where: {
+            $0.url.lastPathComponent == fileName
+        })
+        return result
     }
     
     func resolveToDirectUrl(_ filePath:String) -> URL? {
@@ -197,33 +102,72 @@ public class MountedDir {
         return fileUrl
     }
     
-    func resolveToVDUrl(_ filePath:String) -> VDUrl? {
+    func itemAt(_ relPath: String) -> VDItem? {
         if (isDirectory == false) { return nil }
-        let fileUrl = path.appendingPathComponent(filePath)
+        let fileUrl = path.appendingPathComponent(relPath)
         let fm = FileManager()
-        if (fm.fileExists(atPath: fileUrl.path)) {
-            return try? fileUrl.vdPath(from: path)
+        var isDir : ObjCBool = false
+        if
+          (fm.fileExists(atPath: fileUrl.path, isDirectory: &isDir)),
+          let vdUrl = try? fileUrl.vdPath(from: path) { //TODO: Should throw
+            
+            let isDirBl = isDir.boolValue
+            return VDItem(url: vdUrl, isFile: !isDirBl, isDir: isDirBl) //TODO: odd behavior; we know if its not a directory but we don't know if its a file; could alias or something else
         }
         return nil
     }
     
-    func resolveFullPathToVDUrl(_ fullFilePath:String) -> VDUrl? {
+    func itemAt(_ fileUrl:URL) -> VDItem? {
         if (isDirectory == false) { return nil }
-        guard let fileUrl = URL(string: fullFilePath) else { return nil}
         let fm = FileManager()
-        if (fm.fileExists(atPath: fileUrl.path)) {
-            return try? fileUrl.vdPath(from: path)
+        var isDir : ObjCBool = false
+        if
+          (fm.fileExists(atPath: fileUrl.path, isDirectory: &isDir)),
+          let vdUrl = try? fileUrl.vdPath(from: path) {
+            let isDirBl = isDir.boolValue
+            return VDItem(url: vdUrl, isFile: !isDirBl, isDir: isDirBl)
         }
         return nil
     }
     
-    func readFile(_ filePath:String) throws -> Data? {
-        let fileUrl = path.appendingPathComponent(filePath)
+    //
+    func readFile(_ relPath:String) throws -> Data {
+        let fileUrl = path.appendingPathComponent(relPath)
         return try Data(contentsOf: fileUrl)
     }
     
-    func writeFile(_ data:Data, _ filePath:String) {
+    func writeFile(_ data:Data, _ relPath:String) throws {
+        guard let url = resolveToDirectUrl(relPath) else { throw GenericError("Cannot resolve \(relPath) to url")}
+        try data.write(to: url, options: [.atomic])
+        guard let url = itemAt(url.path) else { return }
+        for eachListener in _fileWatchers {
+            eachListener?.fileChanges([url])
+        }
+    }
+    
+    func readFile(_ item:VDItem) throws -> Data {
+        let url = item.url
+        let itemPath = url.path
+        if let host = url.host {
+            if (host != meta.name) {
+                throw GenericError("Current package \(meta.name) doesnt match expected package: \(host)")
+            }
+        }
         
+        let fileUrl = path.appendingPathComponent(itemPath)
+        return try Data(contentsOf: fileUrl)
+    }
+    
+    func writeFile(_ data:Data, _ item:VDItem) throws {
+        let url = item.url
+        let relPath = url.path
+        if let host = url.host {
+            if (host != meta.name) {
+                throw GenericError("Current package \(meta.name) doesnt match expected package: \(host)")
+            }
+        }
+        
+        try writeFile(data, relPath)
     }
     
     //TODO: Not thread safe
@@ -256,7 +200,7 @@ public class MountedDir {
         }
     }
     
-    func eventHandler(_ event:EonilFSEventsEvent) {
+    private func eventHandler(_ event:EonilFSEventsEvent) {
         let idStr:String
         if let id = event.ID?.rawValue {
             idStr = "\(id)"
@@ -266,9 +210,11 @@ public class MountedDir {
         print("FS Event Received:\n\tpath: \(event.path)\n\tID: \(idStr)\n\tflags: \(event.flag?.debugDescription ?? "nil")")
         if let flags = event.flag {
             if (flags.contains(.itemModified)) {
-                guard let url = resolveFullPathToVDUrl(event.path) else { return }
+                guard
+                    let fileUrl = URL(string: event.path),
+                    let vdItem = itemAt(fileUrl) else { return }
                 for eachListener in _fileWatchers {
-                    eachListener?.fileChanges([url])
+                    eachListener?.fileChanges([vdItem])
                 }
             }
         }

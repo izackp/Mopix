@@ -388,6 +388,14 @@
 		DFFABF36282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
 		DFFABF37282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
 		DFFABF38282C675200C9ABAA /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFABF35282C675200C9ABAA /* Commands.swift */; };
+		DFFDA4A228DE3B1000805000 /* URL+VD.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFDA4A128DE3B1000805000 /* URL+VD.swift */; };
+		DFFDA4A328DE3B1000805000 /* URL+VD.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFDA4A128DE3B1000805000 /* URL+VD.swift */; };
+		DFFDA4A428DE3B1000805000 /* URL+VD.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFDA4A128DE3B1000805000 /* URL+VD.swift */; };
+		DFFDA4A528DE3B1000805000 /* URL+VD.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFDA4A128DE3B1000805000 /* URL+VD.swift */; };
+		DFFDA4A728DE3BA600805000 /* PackageMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFDA4A628DE3BA600805000 /* PackageMeta.swift */; };
+		DFFDA4A828DE3BA600805000 /* PackageMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFDA4A628DE3BA600805000 /* PackageMeta.swift */; };
+		DFFDA4A928DE3BA600805000 /* PackageMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFDA4A628DE3BA600805000 /* PackageMeta.swift */; };
+		DFFDA4AA28DE3BA600805000 /* PackageMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFDA4A628DE3BA600805000 /* PackageMeta.swift */; };
 		DFFF55D0285BB22C00536EAD /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFF55CF285BB22C00536EAD /* Player.swift */; };
 		DFFF55D1285BB22C00536EAD /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFF55CF285BB22C00536EAD /* Player.swift */; };
 		DFFF55D2285BB22C00536EAD /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFF55CF285BB22C00536EAD /* Player.swift */; };
@@ -544,6 +552,8 @@
 		DFF831A92898577F002F3DF4 /* InstanceCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanceCache.swift; sourceTree = "<group>"; };
 		DFF831AD2899E88A002F3DF4 /* SerializationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SerializationTests.swift; sourceTree = "<group>"; };
 		DFFABF35282C675200C9ABAA /* Commands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commands.swift; sourceTree = "<group>"; };
+		DFFDA4A128DE3B1000805000 /* URL+VD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+VD.swift"; sourceTree = "<group>"; };
+		DFFDA4A628DE3BA600805000 /* PackageMeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageMeta.swift; sourceTree = "<group>"; };
 		DFFF55CF285BB22C00536EAD /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		DFFF55D3285BB23900536EAD /* EntityPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityPool.swift; sourceTree = "<group>"; };
 		DFFF55D7285BB26400536EAD /* Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
@@ -799,6 +809,8 @@
 				DFCA77E4281A44CB0099BC21 /* StringScanner.swift */,
 				DFCA7800281B37050099BC21 /* String+Util.swift */,
 				DF2D82F62870E8A700D4A860 /* README.md */,
+				DFFDA4A128DE3B1000805000 /* URL+VD.swift */,
+				DFFDA4A628DE3BA600805000 /* PackageMeta.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1170,6 +1182,7 @@
 				DFCA777228189F1F0099BC21 /* GenericError.swift in Sources */,
 				DFE17275280510B500C44AB0 /* Error.swift in Sources */,
 				DF3830AC28714B560028B4E6 /* ViewController.swift in Sources */,
+				DFFDA4A228DE3B1000805000 /* URL+VD.swift in Sources */,
 				DFF831A6289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */,
 				DF0D7E4628A3EE7D008F53FB /* TypeMap.swift in Sources */,
 				DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */,
@@ -1186,6 +1199,7 @@
 				DFC584042807A8610097E39B /* SDLColor+Ext.swift in Sources */,
 				DF81A1F328638D6D0089E898 /* UIRenderContext.swift in Sources */,
 				DFC5860F28125B240097E39B /* Geometry+SDL.swift in Sources */,
+				DFFDA4A728DE3BA600805000 /* PackageMeta.swift in Sources */,
 				DF5DA9552883084500BA44F6 /* TestAVC.m in Sources */,
 				DFE17290280510B500C44AB0 /* SDLWindow.swift in Sources */,
 				DF767DDB28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
@@ -1257,6 +1271,7 @@
 				DFA455022804599600638A35 /* AppDelegate.swift in Sources */,
 				DFE1728E280510B500C44AB0 /* Texture.swift in Sources */,
 				DF6D4DDD28521DB80046BF8D /* CommandRepeater.swift in Sources */,
+				DFFDA4A328DE3B1000805000 /* URL+VD.swift in Sources */,
 				DFF831A7289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */,
 				DF0D7E4728A3EE7D008F53FB /* TypeMap.swift in Sources */,
 				DFFF55D9285BB26400536EAD /* Util.swift in Sources */,
@@ -1273,6 +1288,7 @@
 				DFC5837D280641AF0097E39B /* IntervalBank.swift in Sources */,
 				DFFF55D1285BB22C00536EAD /* Player.swift in Sources */,
 				DFC583F528077CD00097E39B /* View.swift in Sources */,
+				DFFDA4A828DE3BA600805000 /* PackageMeta.swift in Sources */,
 				DFE17291280510B500C44AB0 /* SDLWindow.swift in Sources */,
 				DFE1726D280510B500C44AB0 /* Surface.swift in Sources */,
 				DF767DDC28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
@@ -1308,6 +1324,7 @@
 				DFE17283280510B500C44AB0 /* PixelFormat.swift in Sources */,
 				DF3830B928714EE30028B4E6 /* TestViewController.swift in Sources */,
 				DFE1727A280510B500C44AB0 /* BitMaskOption.swift in Sources */,
+				DFFDA4A428DE3B1000805000 /* URL+VD.swift in Sources */,
 				DFFF55D6285BB23900536EAD /* EntityPool.swift in Sources */,
 				DFE17274280510B500C44AB0 /* DisplayMode.swift in Sources */,
 				DFCA77802818AF010099BC21 /* VirtualDrive.swift in Sources */,
@@ -1318,6 +1335,7 @@
 				DF2D82782866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFC5860C28125A900097E39B /* Common.swift in Sources */,
 				DFC6FC0B28DD019700D02B5F /* Weak.swift in Sources */,
+				DFFDA4A928DE3BA600805000 /* PackageMeta.swift in Sources */,
 				DF0D7DF528A30E53008F53FB /* Resolver.swift in Sources */,
 				DF2D82F12870DB2C00D4A860 /* Font.swift in Sources */,
 				DFC583FE280792000097E39B /* MoPixUtil.swift in Sources */,
@@ -1455,6 +1473,7 @@
 				DFE4226D28A6E08D009D5A47 /* UIRenderContext.swift in Sources */,
 				DFE4228328A6E347009D5A47 /* Geometry.swift in Sources */,
 				DFF831AF2899E895002F3DF4 /* SerializationTests.swift in Sources */,
+				DFFDA4AA28DE3BA600805000 /* PackageMeta.swift in Sources */,
 				DFE422AA28A6E372009D5A47 /* ImageAtlas.swift in Sources */,
 				DFE422C328A6E392009D5A47 /* PixelFormat.swift in Sources */,
 				DFE4228428A6E347009D5A47 /* Geometry+SDL.swift in Sources */,
@@ -1485,6 +1504,7 @@
 				DFE422BF28A6E392009D5A47 /* Color.swift in Sources */,
 				DFE4226B28A6E082009D5A47 /* SmartColor.swift in Sources */,
 				DFE422C128A6E392009D5A47 /* Event.swift in Sources */,
+				DFFDA4A528DE3B1000805000 /* URL+VD.swift in Sources */,
 				DFCA77792818ACE80099BC21 /* Version.swift in Sources */,
 				DFE422C628A6E392009D5A47 /* SDLWindow.swift in Sources */,
 				DF0D7E4A28A3EE7D008F53FB /* TypeMap.swift in Sources */,

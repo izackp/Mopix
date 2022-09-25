@@ -26,9 +26,9 @@ final class CustomWindow: Window {
         atlas = ImageAtlas(renderer)
         imageManager = SimpleImageManager(atlas: atlas, drive: parent.vd)
         imageManager.loadSystemFonts()
-        let results = parent.vd.findByExt("ttf")
+        let results = parent.vd.allItemsWithExt("ttf")
         for eachItem in results {
-            imageManager.loadVDFont(eachItem)
+            imageManager.loadVDFont(eachItem.url)
         }
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
