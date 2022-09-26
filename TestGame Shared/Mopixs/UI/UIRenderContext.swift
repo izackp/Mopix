@@ -17,6 +17,7 @@ public class UIRenderContext {
     let renderer:SDLRenderer
     let imageManager:ImageManager
     let lastTexture:Int = 0
+    var lastOffset:Point<Int16> = .zero
     
     private func resolveSmartColor(_ color:SmartColor) -> SDLColor {
         if let name = color.name {
@@ -32,34 +33,47 @@ public class UIRenderContext {
         return SDLColor(rawValue: color.rawValue!)
     }
     
+    func pushOffset(_ point:Point<Int16>) {
+        lastOffset = Point(lastOffset.x + point.x, lastOffset.y + point.y)
+    }
+    
+    func popOffset(_ point:Point<Int16>) {
+        lastOffset = Point(lastOffset.x - point.x, lastOffset.y - point.y)
+    }
+    
     func drawSquare(_ frame:Frame<Int16>, _ color:SmartColor) throws {
         try drawSquare(frame, resolveSmartColor(color))
     }
     
     func drawImage(_ frame:Frame<Int16>, _ color:SmartColor, image:Image) throws {
-        try drawImage(frame, resolveSmartColor(color), image: image)
+        let newFrame = frame.offset(lastOffset)
+        try drawImage(newFrame, resolveSmartColor(color), image: image)
     }
     
-    func drawText(_ frame:Frame<Int16>, _ color:SmartColor, _ text:String, _ font:Font) throws {
-        font.draw(renderer, text, x: Int(frame.x), y: Int(frame.y), color: resolveSmartColor(color))
+    func drawText(_ pos:Point<Int16>, _ color:SmartColor, _ text:Substring, _ font:Font, spacing:Int = 0) throws {
+        let newPos = pos + lastOffset
+        font.draw(renderer, text, x: Int(newPos.x), y: Int(newPos.y), color: resolveSmartColor(color), spacing: spacing)
     }
     
     func drawSquare(_ frame:Frame<Int16>, _ color:SDLColor) throws {
+        let newFrame = frame.offset(lastOffset)
         //TODO: we can probably just return sdl texture and source
         let blankSubTexture = try imageManager.atlas.blankSubtexture(lastTexture)
         let sdlTexture = imageManager.atlas.listPages[blankSubTexture.texturePageIndex]
         let source = blankSubTexture.sourceRect.sdlRect()
         let texture = sdlTexture.texture
         try texture.setColorModulation(color)
-        try renderer.copy(sdlTexture.texture, source: source, destination: frame.sdlRect())
+        try renderer.copy(sdlTexture.texture, source: source, destination: newFrame.sdlRect())
     }
     
     func drawImage(_ frame:Frame<Int16>, _ color:SDLColor, image:Image) throws {
-        image.draw(renderer, frame.sdlRect(), color)
+        let newFrame = frame.offset(lastOffset)
+        image.draw(renderer, newFrame.sdlRect(), color)
     }
     
-    func drawText(_ frame:Frame<Int16>, _ color:SDLColor, _ text:String, _ font:Font) throws {
-        font.draw(renderer, text, x: Int(frame.x), y: Int(frame.y), color: color)
+    func drawText(_ frame:Frame<Int16>, _ color:SDLColor, _ text:Substring, _ font:Font) throws {
+        let newFrame = frame.offset(lastOffset)
+        font.draw(renderer, text, x: Int(newFrame.x), y: Int(newFrame.y), color: color)
     }
     
     func drawAtlas(_ x:Int, _ y:Int, index:Int = 0) throws {

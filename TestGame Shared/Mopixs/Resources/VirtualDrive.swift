@@ -7,6 +7,16 @@
 
 import Foundation
 
+/*
+ 
+ Theres a few ways to do this api; Each operation can:
+ * Return a URL -> vd:/MyPackage.1.0.1/testFile.txt
+ * Return a String -> "testFile.txt"
+ * Return a Struct -> { url, isFile, isDirectory }
+ * Return a Enum -> { file(url), directory(url) }
+ 
+ */
+
 public typealias VDUrl = URL
 
 public struct VDItem  {

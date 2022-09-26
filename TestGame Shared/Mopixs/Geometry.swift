@@ -230,6 +230,10 @@ public struct Frame<T: Codable & Numeric>: Equatable, Codable {
         return (origin.x, origin.y, size.width, size.height)
     }
     
+    public func offset(_ offset: Point<T>) -> Frame<T> {
+        return Frame(x: x + offset.x, y: y + offset.y, width: width, height: height)
+    }
+    
     var y : T {
         get { return origin.y }
         set { origin.y = newValue }

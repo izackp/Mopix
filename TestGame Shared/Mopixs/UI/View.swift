@@ -107,9 +107,11 @@ open class View: Codable {
     open func draw(_ context:UIRenderContext) throws {
         try context.drawSquare(frame, backgroundColor)
         
+        context.pushOffset(frame.origin)
         for eachChild in children {
             try eachChild.draw(context)
         }
+        context.popOffset(frame.origin)
     }
 }
 

@@ -229,12 +229,12 @@ public final class SDLFont {
         return (Int(w), Int(h))
     }
     
-    public func measure(_ str:String, maxWidthPxs:Int) throws -> MeasureResult {
+    public func measure(_ str:String, inWidth:Int) throws -> MeasureResult {
         var count:Int32 = 0
         var extent:Int32 = 0
         
         try str.withCString { (cStr:UnsafePointer<CChar>) in
-            let result = TTF_MeasureUTF8(internalPointer, cStr, Int32(maxWidthPxs), &extent, &count)
+            let result = TTF_MeasureUTF8(internalPointer, cStr, Int32(inWidth), &extent, &count)
             try result.sdlThrow(type: type(of: self))
         }
         return MeasureResult(extent: Int(extent), count: Int(count))

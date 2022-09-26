@@ -8,6 +8,25 @@
 import Foundation
 import SDL2
 
+public enum TextWrapping : Int, Codable {
+    case none
+    case character
+    case word
+}
+
+public enum TextAlignment : Int, Codable {
+    case center
+    case start
+    case end
+    case left
+    case right
+}
+
+struct TextLine {
+    let str:Substring
+    let width:Int
+    let height:Int
+}
 
 public class TextView : View {
     
@@ -18,12 +37,11 @@ public class TextView : View {
 
     public var lineHeight:Float = 0.0
     public var characterSpacing:Int = 0
-    public var lineStackingStrategy:Int = 0
     
-    public var textWrapping:Int = 0
+    public var textWrapping:TextWrapping = .word
     public var textTrimming:Int = 0
     //isTextTrimmed
-    public var textAlignment:Int = 0
+    public var textAlignment:TextAlignment = .center
     public var maxLines:Int = 0
 
     private var _cachedFont:Font! = nil
@@ -43,7 +61,6 @@ public class TextView : View {
         case fontDesc
         case lineHeight
         case characterSpacing
-        case lineStackingStrategy
         case textWrapping
         case textTrimming
         case textAlignment
@@ -58,9 +75,9 @@ public class TextView : View {
         self.fontDesc = try container.decodeIfPresent(FontDesc.self, forKey: .fontDesc) ?? FontDesc.defaultFont
         self.lineHeight = try container.decodeIfPresent(Float.self, forKey: .lineHeight) ?? 0.0
         self.characterSpacing = try container.decodeIfPresent(Int.self, forKey: .characterSpacing) ?? 0 //TODO: Int changes based on platform
-        self.textWrapping = try container.decodeIfPresent(Int.self, forKey: .textWrapping) ?? 0
+        self.textWrapping = try container.decodeIfPresent(TextWrapping.self, forKey: .textWrapping) ?? .word
         self.textTrimming = try container.decodeIfPresent(Int.self, forKey: .textTrimming) ?? 0
-        self.textAlignment = try container.decodeIfPresent(Int.self, forKey: .textAlignment) ?? 0
+        self.textAlignment = try container.decodeIfPresent(TextAlignment.self, forKey: .textAlignment) ?? .right
     }
     
     public override func encode(to encoder: Encoder) throws {
@@ -82,13 +99,13 @@ public class TextView : View {
         if (self.characterSpacing != 0) {
             try container.encode(characterSpacing, forKey: .characterSpacing)
         }
-        if (self.textWrapping != 0) {
+        if (self.textWrapping != .word) {
             try container.encode(textWrapping, forKey: .textWrapping)
         }
         if (self.textTrimming != 0) {
             try container.encode(textTrimming, forKey: .textTrimming)
         }
-        if (self.textAlignment != 0) {
+        if (self.textAlignment != .center) {
             try container.encode(textAlignment, forKey: .textAlignment)
         }
     }
@@ -141,21 +158,83 @@ public class TextView : View {
         return font
     }
     
-    open override func draw(_ context:UIRenderContext) throws {
+    func drawText(_ context:UIRenderContext) throws {
+        let font = try fetchFont(context)
         
+        
+        let lines:[TextLine]
+        switch textWrapping {
+            case .word:
+                lines = try font.splitIntoLinesWordWrapped(text, maxWidthPxs: Int(frame.width), characterSpacing: characterSpacing)
+                break
+            case .character:
+                lines = try font.splitIntoLines(text, maxWidthPxs: Int(frame.width), characterSpacing: characterSpacing)
+            case .none:
+                lines = [TextLine(str: text.substring(from: 0), width: try font.widthOfText(text, maxWidthPxs: Int(Int32.max)).extent, height: font._font.height())]
+        }
+            
+        guard let height = lines.first(where: { $0.height > 0 })?.height else { print("error no height"); return }
+        let totalHeight = Int16(height * lines.count)
+        var y:Int16 = (frame.height - totalHeight) / 2
+        for eachLine in lines {
+            if eachLine.width == 0 {
+                y += Int16(height)
+                continue
+            }
+            let x:Int16
+            switch textAlignment {
+                case .center:
+                    x = (frame.width - Int16(eachLine.width)) / 2
+                    break
+                case .left:
+                    fallthrough
+                case .start:
+                    x = 0
+                    break
+                case .right:
+                    fallthrough
+                case .end:
+                    x = frame.width - Int16(eachLine.width)
+            }
+            //try context.drawSquare(Frame(x: x, y: y, width: Int16(eachLine.width), height: Int16(height)), SmartColor.white)
+            try context.drawText(Point(x, y), textColor, eachLine.str, font, spacing: characterSpacing)
+            y += Int16(height)
+        }
+        
+        /*
+        if (self.characterSpacing != 0) {
+            try container.encode(characterSpacing, forKey: .characterSpacing)
+        }
+        if (self.textWrapping != 0) {
+            try container.encode(textWrapping, forKey: .textWrapping)
+        }
+        if (self.textTrimming != 0) {
+            try container.encode(textTrimming, forKey: .textTrimming)
+        }
+        if (self.textAlignment != 0) {
+            try container.encode(textAlignment, forKey: .textAlignment)
+        }*/
+    }
+    
+    open override func draw(_ context:UIRenderContext) throws {
         try context.drawSquare(frame, backgroundColor)
+        
+        
+        context.pushOffset(frame.origin)
         
         if (text.count > 0) {
             do {
-                let font = try fetchFont(context)
-                try context.drawText(frame, textColor, text, font)
+                try drawText(context)
+                //try context.drawText(frame, textColor, text, font)
             } catch {
                 print("Error drawing text: \(error.localizedDescription)")
             }
         }
         
+        
         for eachChild in children {
             try eachChild.draw(context)
         }
+        context.popOffset(frame.origin)
     }
 }
