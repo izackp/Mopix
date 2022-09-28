@@ -68,7 +68,7 @@ public class TextView : View {
     }
     
     public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
+        try super.init(from: decoder, clipBoundsDefault: true)
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.text = try container.decodeIfPresent(String.self, forKey: .text) ?? ""
         self.textColor = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .textColor) ?? SmartColor.idk
@@ -218,8 +218,13 @@ public class TextView : View {
     
     open override func draw(_ context:UIRenderContext) throws {
         try context.drawSquare(frame, backgroundColor)
+        let clip = clipBounds
         
-        
+        var lastClipRect:Frame<DValue>? = nil
+        if (clip) {
+            lastClipRect = context.currentClipRect
+            try context.setClipRectRelative(frame)
+        }
         context.pushOffset(frame.origin)
         
         if (text.count > 0) {
@@ -231,10 +236,12 @@ public class TextView : View {
             }
         }
         
-        
         for eachChild in children {
             try eachChild.draw(context)
         }
         context.popOffset(frame.origin)
+        if (clip) {
+            try context.setClipRect(lastClipRect)
+        }
     }
 }

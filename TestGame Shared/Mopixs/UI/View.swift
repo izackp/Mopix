@@ -33,13 +33,22 @@ open class View: Codable {
         case backgroundColor
     }
     
+    //TODO: Obviously weird..
+    public init(from decoder: Decoder, clipBoundsDefault:Bool) throws {
+        try someInit(from: decoder, clipBoundsDefault: clipBoundsDefault)
+    }
+    
     public required init(from decoder: Decoder) throws {
+        try someInit(from: decoder, clipBoundsDefault: false)
+    }
+    
+    func someInit(from decoder: Decoder, clipBoundsDefault:Bool) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self._id = try container.decodeIfPresent(String.self, forKey: ._id)
         self.frame = try container.decodeIfPresent(Frame<Int16>.self, forKey: .frame) ?? .zero
         self.listLayouts = try container.decodeArray(LayoutElement.self, forKey: .listLayouts)
         self.children = try container.decodeContiguousArray(View.self, forKey: .children)
-        self.clipBounds = try container.decodeIfPresent(Bool.self, forKey: .clipBounds) ?? false
+        self.clipBounds = try container.decodeIfPresent(Bool.self, forKey: .clipBounds) ?? clipBoundsDefault
         self.backgroundColor = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .backgroundColor) ?? SmartColor.white
         for eachChild in self.children {
             eachChild.superView = self
@@ -106,12 +115,20 @@ open class View: Codable {
     
     open func draw(_ context:UIRenderContext) throws {
         try context.drawSquare(frame, backgroundColor)
-        
+        let clip = clipBounds
+        var lastClipRect:Frame<DValue>? = nil
+        if (clip) {
+            lastClipRect = context.currentClipRect
+            try context.setClipRectRelative(frame)
+        }
         context.pushOffset(frame.origin)
         for eachChild in children {
             try eachChild.draw(context)
         }
         context.popOffset(frame.origin)
+        if (clip) {
+            try context.setClipRect(lastClipRect)
+        }
     }
 }
 

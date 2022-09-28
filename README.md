@@ -39,6 +39,7 @@ x = Done
 - [/] Views
 - [ ] Images
 - [o] TextView
+    - [o] Type setting (text layout / word wrapping) - ENG
 - [ ] Effects (clipping, masks, border, shadows)
 - [ ] Gestures, User interaction
 - [ ] ScrollView

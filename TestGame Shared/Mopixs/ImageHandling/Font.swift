@@ -126,6 +126,8 @@ public class Font {
     //Also does not include any whitespace at the end of the line
     //Lines are broken up by word to fit inside maxWidthPxs
     //They broken up even further by character if they still do not fit
+    //Line breaking is much more complex then I though: https://www.unicode.org/reports/tr14/
+    //
     func splitIntoLinesWordWrapped(_ text:String, maxWidthPxs:Int, characterSpacing:Int) throws -> [TextLine] {
         var lines:[TextLine] = []
         var width:Int = 0

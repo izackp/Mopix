@@ -17,7 +17,8 @@ public class UIRenderContext {
     let renderer:SDLRenderer
     let imageManager:ImageManager
     let lastTexture:Int = 0
-    var lastOffset:Point<Int16> = .zero
+    var lastOffset:Point<Int16> = .zero //TODO: This feels hacky
+    var currentClipRect:Frame<DValue>? = nil
     
     private func resolveSmartColor(_ color:SmartColor) -> SDLColor {
         if let name = color.name {
@@ -39,6 +40,15 @@ public class UIRenderContext {
     
     func popOffset(_ point:Point<Int16>) {
         lastOffset = Point(lastOffset.x - point.x, lastOffset.y - point.y)
+    }
+    
+    func setClipRectRelative(_ frame:Frame<DValue>) throws {
+        let newFrame = frame.offset(lastOffset)
+        try renderer.setClipRect(newFrame.sdlRect())
+    }
+    
+    func setClipRect(_ frame:Frame<DValue>?) throws {
+        try renderer.setClipRect(frame?.sdlRect())
     }
     
     func drawSquare(_ frame:Frame<Int16>, _ color:SmartColor) throws {
