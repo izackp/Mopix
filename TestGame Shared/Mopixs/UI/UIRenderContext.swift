@@ -56,8 +56,7 @@ public class UIRenderContext {
     }
     
     func drawImage(_ frame:Frame<Int16>, _ color:SmartColor, image:Image) throws {
-        let newFrame = frame.offset(lastOffset)
-        try drawImage(newFrame, resolveSmartColor(color), image: image)
+        try drawImage(frame, resolveSmartColor(color), image: image)
     }
     
     func drawText(_ pos:Point<Int16>, _ color:SmartColor, _ text:Substring, _ font:Font, spacing:Int = 0) throws {

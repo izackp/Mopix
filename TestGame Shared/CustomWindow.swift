@@ -32,7 +32,7 @@ final class CustomWindow: Window {
         }
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
-        let vc = try TestViewController.build()
+        let vc = try TestViewController.build(imageManager)
         setRootViewController(vc)
         
         Task { [weak self] in

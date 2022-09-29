@@ -69,6 +69,11 @@
 		DF5DA9552883084500BA44F6 /* TestAVC.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5DA9542883084500BA44F6 /* TestAVC.m */; };
 		DF5DA95A28830B1D00BA44F6 /* Runtime in Frameworks */ = {isa = PBXBuildFile; productRef = DF5DA95928830B1D00BA44F6 /* Runtime */; };
 		DF5DA95C28830B2400BA44F6 /* Runtime in Frameworks */ = {isa = PBXBuildFile; productRef = DF5DA95B28830B2400BA44F6 /* Runtime */; };
+		DF6A812328E53DDF00AFEAA3 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A812228E53DDF00AFEAA3 /* ImageView.swift */; };
+		DF6A812428E53DDF00AFEAA3 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A812228E53DDF00AFEAA3 /* ImageView.swift */; };
+		DF6A812528E53DDF00AFEAA3 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A812228E53DDF00AFEAA3 /* ImageView.swift */; };
+		DF6A812628E53DDF00AFEAA3 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A812228E53DDF00AFEAA3 /* ImageView.swift */; };
+		DF6A812728E53DDF00AFEAA3 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A812228E53DDF00AFEAA3 /* ImageView.swift */; };
 		DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DD92851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DDA2851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
@@ -466,6 +471,7 @@
 		DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionTest.swift; sourceTree = "<group>"; };
 		DF5DA9542883084500BA44F6 /* TestAVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestAVC.m; sourceTree = "<group>"; };
 		DF5DA9582883085E00BA44F6 /* TestAVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestAVC.h; sourceTree = "<group>"; };
+		DF6A812228E53DDF00AFEAA3 /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
 		DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Commands+SDL.swift"; sourceTree = "<group>"; };
 		DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRepeater.swift; sourceTree = "<group>"; };
 		DF767DD128A15F75005DAB38 /* Util.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Util.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -761,6 +767,7 @@
 		DFC583EE2807767B0097E39B /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				DF6A812228E53DDF00AFEAA3 /* ImageView.swift */,
 				DF0D7DF828A31866008F53FB /* FontDesc.swift */,
 				DFC583EF28077C9C0097E39B /* Layouts.swift */,
 				DFD6515328932575002DFCCE /* SmartColor.swift */,
@@ -1184,6 +1191,7 @@
 				DF3830AC28714B560028B4E6 /* ViewController.swift in Sources */,
 				DFFDA4A228DE3B1000805000 /* URL+VD.swift in Sources */,
 				DFF831A6289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */,
+				DF6A812328E53DDF00AFEAA3 /* ImageView.swift in Sources */,
 				DF0D7E4628A3EE7D008F53FB /* TypeMap.swift in Sources */,
 				DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */,
 				DF2D8280286BC48400D4A860 /* TTFInterface.m in Sources */,
@@ -1273,6 +1281,7 @@
 				DF6D4DDD28521DB80046BF8D /* CommandRepeater.swift in Sources */,
 				DFFDA4A328DE3B1000805000 /* URL+VD.swift in Sources */,
 				DFF831A7289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */,
+				DF6A812428E53DDF00AFEAA3 /* ImageView.swift in Sources */,
 				DF0D7E4728A3EE7D008F53FB /* TypeMap.swift in Sources */,
 				DFFF55D9285BB26400536EAD /* Util.swift in Sources */,
 				DFC58401280796100097E39B /* CustomWindow.swift in Sources */,
@@ -1382,6 +1391,7 @@
 				DF0D7E4828A3EE7D008F53FB /* TypeMap.swift in Sources */,
 				DF0D7E4E28A3F4CE008F53FB /* Expressible.swift in Sources */,
 				DFC583DC280773DA0097E39B /* Window.swift in Sources */,
+				DF6A812528E53DDF00AFEAA3 /* ImageView.swift in Sources */,
 				DFC583ED2807762B0097E39B /* Engine.swift in Sources */,
 				DFC583F228077C9C0097E39B /* Layouts.swift in Sources */,
 			);
@@ -1424,6 +1434,7 @@
 				DFE422B728A6E391009D5A47 /* SDLWindow.swift in Sources */,
 				DFE422D728A6E410009D5A47 /* Application.swift in Sources */,
 				DFE422BA28A6E391009D5A47 /* Palette.swift in Sources */,
+				DF6A812628E53DDF00AFEAA3 /* ImageView.swift in Sources */,
 				DFE422CC28A6E396009D5A47 /* Window+Ext.swift in Sources */,
 				DF0D7DF628A30E53008F53FB /* Resolver.swift in Sources */,
 				DFE422AE28A6E391009D5A47 /* Surface.swift in Sources */,
@@ -1468,6 +1479,7 @@
 				DFE4226928A6E07A009D5A47 /* TextView.swift in Sources */,
 				DFE4226328A6E04F009D5A47 /* ViewController.swift in Sources */,
 				DFE4227E28A6E347009D5A47 /* MoPixUtil.swift in Sources */,
+				DF6A812728E53DDF00AFEAA3 /* ImageView.swift in Sources */,
 				DFE422D528A6E3EA009D5A47 /* TTFInterface.m in Sources */,
 				DFE422A328A6E368009D5A47 /* String+Util.swift in Sources */,
 				DFE4226D28A6E08D009D5A47 /* UIRenderContext.swift in Sources */,

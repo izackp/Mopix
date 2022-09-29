@@ -17,6 +17,7 @@ public class Image {
     let texture:SubTexture
     let atlas:ImageAtlas
     
+    
     deinit {
         atlas.returnTexture(texture)
     }
