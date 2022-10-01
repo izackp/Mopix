@@ -245,6 +245,20 @@ extension Frame where T: BinaryInteger {
         }
     }
     
+    var centerX : T {
+        get { return origin.x + size.width / 2 }
+        set {
+            origin.x = newValue - size.width / 2
+        }
+    }
+    
+    var centerY : T {
+        get { return origin.y + size.height / 2 }
+        set {
+            origin.y = newValue - size.height / 2
+        }
+    }
+    
     public mutating func clip(_ other:Frame<T>) {
         if (top < other.top) {
             self.top = other.y
@@ -258,6 +272,10 @@ extension Frame where T: BinaryInteger {
         if (self.right > other.right) {
             self.right = other.right
         }
+    }
+    
+    public func to<A: Codable & Numeric & Equatable>(_ type:A.Type) -> Frame<A> {
+        return Frame<A>(x: A(exactly: x)!, y: A(exactly: y)!, width: A(exactly: width)!, height: A(exactly: height)!)
     }
 }
 

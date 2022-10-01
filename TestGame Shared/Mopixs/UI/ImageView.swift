@@ -27,7 +27,7 @@ public class ImageView : View {
     public var image:Image? = nil
     private var _imageSrc:String? = nil //Temporary.. We're going to need to tie image to a file anyways for hotreloading
     public var tint:SmartColor = SmartColor.idk
-    public var contentMode:ContentMode = ContentMode.aspectFit
+    public var contentMode:ContentMode = ContentMode.right
     public var isOpaque:Bool = false //Treats all images as opaque if on
     
     required public override init() {
@@ -96,7 +96,6 @@ public class ImageView : View {
                 case .stretch:
                     destFrame = frame
                 case .aspectFit:
-                    //TODO: We need more info on the image
                     let imgSize = image.texture.sourceRect.size
                     let imgSize16 = Size<DValue>(Int16(imgSize.width), Int16(imgSize.height))
                     let newSize = imgSize16.aspectFitInto(frame.size)
@@ -111,23 +110,49 @@ public class ImageView : View {
                     newFrame.center = frame.center
                     destFrame = newFrame
                 case .center:
-                    destFrame = frame
+                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    nativeFrame.center = frame.center
+                    destFrame = nativeFrame
+                    //Added these because they're in UIKit, but I don't think anyone uses them?
                 case .top:
-                    destFrame = frame
+                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    nativeFrame.centerX = frame.centerX
+                    nativeFrame.y = frame.y
+                    destFrame = nativeFrame
                 case .right:
-                    destFrame = frame
+                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    nativeFrame.centerY = frame.centerY
+                    nativeFrame.rightFixed = frame.right
+                    destFrame = nativeFrame
                 case .bottom:
-                    destFrame = frame
+                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    nativeFrame.centerX = frame.centerX
+                    nativeFrame.bottomFixed = frame.bottom
+                    destFrame = nativeFrame
                 case .left:
-                    destFrame = frame
+                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    nativeFrame.centerY = frame.centerY
+                    nativeFrame.x = frame.x
+                    destFrame = nativeFrame
                 case .topRight:
-                    destFrame = frame
+                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    nativeFrame.y = frame.y
+                    nativeFrame.rightFixed = frame.right
+                    destFrame = nativeFrame
                 case .topLeft:
-                    destFrame = frame
+                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    nativeFrame.origin = frame.origin
+                    destFrame = nativeFrame
                 case .bottomRight:
-                    destFrame = frame
+                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    nativeFrame.bottomFixed = frame.bottom
+                    nativeFrame.rightFixed = frame.right
+                    destFrame = nativeFrame
                 case .bottomLeft:
-                    destFrame = frame
+                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    nativeFrame.bottomFixed = frame.bottom
+                    nativeFrame.x = frame.x
+                    destFrame = nativeFrame
             }
             do {
                 try context.drawSquare(destFrame, SmartColor.blue)
