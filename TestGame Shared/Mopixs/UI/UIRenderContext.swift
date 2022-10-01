@@ -19,6 +19,7 @@ public class UIRenderContext {
     let lastTexture:Int = 0
     var lastOffset:Point<Int16> = .zero //TODO: This feels hacky
     var currentClipRect:Frame<DValue>? = nil
+    var currentWindowFrame:Frame<DValue> = .zero
     
     private func resolveSmartColor(_ color:SmartColor) -> SDLColor {
         if let name = color.name {
@@ -43,19 +44,24 @@ public class UIRenderContext {
     }
     
     func setClipRectRelative(_ frame:Frame<DValue>) throws {
-        let newFrame = frame.offset(lastOffset)
+        var newFrame = frame.offset(lastOffset)
+        newFrame.clip(currentWindowFrame) //Metal crashes when clipping area exceeds window size
         try renderer.setClipRect(newFrame.sdlRect())
     }
     
     func setClipRect(_ frame:Frame<DValue>?) throws {
+        var newFrame = frame
+        newFrame?.clip(currentWindowFrame)
         try renderer.setClipRect(frame?.sdlRect())
     }
     
     func drawSquare(_ frame:Frame<Int16>, _ color:SmartColor) throws {
+        //if (frame.height < 0) { return }
         try drawSquare(frame, resolveSmartColor(color))
     }
     
     func drawImage(_ frame:Frame<Int16>, _ color:SmartColor, image:Image) throws {
+        if (frame.height < 0) { return }
         try drawImage(frame, resolveSmartColor(color), image: image)
     }
     

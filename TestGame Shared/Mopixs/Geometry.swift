@@ -178,8 +178,21 @@ extension Size<DValue> {
         return finalScale
     }
     
+    func aspectFillScale(_ toSize:Size<DValue>) -> Float {
+        let scaleByWidth = Float(toSize.width) / Float(width)
+        let scaleByHeight = Float(toSize.height) / Float(height)
+        
+        let finalScale = Float.maximum(scaleByWidth, scaleByHeight)
+        return finalScale
+    }
+    
     func aspectFitInto(_ other:Size<DValue>) -> Size<DValue> {
         let scale = aspectFitScale(other)
+        return Size(Int16(Float(width)*scale), Int16(Float(height)*scale))
+    }
+    
+    func aspectFillInto(_ other:Size<DValue>) -> Size<DValue> {
+        let scale = aspectFillScale(other)
         return Size(Int16(Float(width)*scale), Int16(Float(height)*scale))
     }
     
@@ -223,6 +236,30 @@ extension Size<DValue> {
     }
 }
 
+extension Frame where T: BinaryInteger {
+    var center : Point<T> {
+        get { return Point(origin.x + size.width / 2, origin.y + size.height / 2) }
+        set {
+            origin.x = newValue.x - size.width / 2
+            origin.y = newValue.y - size.height / 2
+        }
+    }
+    
+    public mutating func clip(_ other:Frame<T>) {
+        if (top < other.top) {
+            self.top = other.y
+        }
+        if (self.left < other.left) {
+            self.left = other.left
+        }
+        if (bottom > other.bottom) {
+            self.bottom = other.bottom
+        }
+        if (self.right > other.right) {
+            self.right = other.right
+        }
+    }
+}
 
 //TODO: Change Name to Rect; What is the best way to name some of these properties?
 //Currently (left, right, Top, Bottom) only effects the specific edge (width and height changes)

@@ -27,7 +27,7 @@ public class ImageView : View {
     public var image:Image? = nil
     private var _imageSrc:String? = nil //Temporary.. We're going to need to tie image to a file anyways for hotreloading
     public var tint:SmartColor = SmartColor.idk
-    public var contentMode:ContentMode = ContentMode.stretch
+    public var contentMode:ContentMode = ContentMode.aspectFit
     public var isOpaque:Bool = false //Treats all images as opaque if on
     
     required public override init() {
@@ -96,11 +96,20 @@ public class ImageView : View {
                 case .stretch:
                     destFrame = frame
                 case .aspectFit:
-                    destFrame = frame
                     //TODO: We need more info on the image
-                    //destFrame = frame.size.aspectFitInto(<#T##Size<DValue>#>)
+                    let imgSize = image.texture.sourceRect.size
+                    let imgSize16 = Size<DValue>(Int16(imgSize.width), Int16(imgSize.height))
+                    let newSize = imgSize16.aspectFitInto(frame.size)
+                    var newFrame = Frame(origin: Point.zero, size: newSize)
+                    newFrame.center = frame.center
+                    destFrame = newFrame
                 case .aspectFill:
-                    destFrame = frame
+                    let imgSize = image.texture.sourceRect.size
+                    let imgSize16 = Size<DValue>(Int16(imgSize.width), Int16(imgSize.height))
+                    let newSize = imgSize16.aspectFillInto(frame.size)
+                    var newFrame = Frame(origin: Point.zero, size: newSize)
+                    newFrame.center = frame.center
+                    destFrame = newFrame
                 case .center:
                     destFrame = frame
                 case .top:
@@ -121,6 +130,7 @@ public class ImageView : View {
                     destFrame = frame
             }
             do {
+                try context.drawSquare(destFrame, SmartColor.blue)
                 try context.drawImage(destFrame, tint, image: image)
             } catch {
                 print("Error drawing text: \(error.localizedDescription)")

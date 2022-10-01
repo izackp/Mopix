@@ -109,6 +109,7 @@ final class CustomWindow: Window {
     override func draw(time: UInt64) throws {
         
         let context = UIRenderContext(renderer: renderer, imageManger: imageManager)
+        context.currentWindowFrame = frame.bounds()
         try rootView?.draw(context)
         //try context.drawAtlas(320, 0)
         /*
