@@ -155,6 +155,22 @@ public class Window {
         
     }
     
+    open func onMouseEnter() {
+        
+    }
+    
+    open func onMouseLeave() {
+        
+    }
+    
+    open func onMousePress() {
+        
+    }
+    
+    open func onMouseRelease() {
+        
+    }
+    
     open func onWindowEvent(_ events:[WindowEvent]) {
         
     }

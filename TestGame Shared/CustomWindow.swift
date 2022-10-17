@@ -8,6 +8,18 @@
 import Foundation
 import SDL2
 
+extension SDL_MouseMotionEvent {
+    func pos() -> Point<DValue> {
+        return Point<DValue>(DValue(x), DValue(y))
+    }
+    
+    func previousPos() -> Point<DValue> {
+        let pX = x - xrel
+        let pY = y - yrel
+        return Point(DValue(pX), DValue(pY))
+    }
+}
+
 final class CustomWindow: Window {
     
     var rootViewController:ViewController? = nil
@@ -52,6 +64,53 @@ final class CustomWindow: Window {
         view.layout()
         vc.viewWillAppear(false)
         vc.viewDidAppear(false)
+    }
+    
+    public override func handleEvents(_ events:Arr<SDL_Event>) {
+        super.handleEvents(events)
+        for eachEvent in events {
+            if (eachEvent.type == SDL_MOUSEMOTION.rawValue) {
+                let mouseEvent = eachEvent.motion
+                let touchingView = viewForPoint(mouseEvent.pos())
+                let previousView = viewForPoint(mouseEvent.previousPos())
+                if (touchingView === previousView) { continue }
+                touchingView?.onMouseEnter()
+                previousView?.onMouseLeave()
+                continue
+            }
+            
+            if (eachEvent.type == SDL_MOUSEBUTTONUP.rawValue) {
+                let mouseEvent = eachEvent.button
+                let point = Point<DValue>(DValue(mouseEvent.x), DValue(mouseEvent.y))
+                let touchingView = viewForPoint(point)
+                touchingView?.onMouseRelease()
+                continue
+            }
+            
+            if (eachEvent.type == SDL_MOUSEBUTTONDOWN.rawValue) {
+                let mouseEvent = eachEvent.button
+                let point = Point<DValue>(DValue(mouseEvent.x), DValue(mouseEvent.y))
+                let touchingView = viewForPoint(point)
+                touchingView?.onMousePress()
+                continue
+            }
+            
+            if (eachEvent.type == SDL_MOUSEWHEEL.rawValue) {
+                continue
+            }
+        }
+        //delegate?.handleEvents(events)
+        //Swap All controllers
+        /*
+        for key in _devices.keys {
+            _devices[key]?.pushState()
+        }*/
+        
+    }
+    
+    func viewForPoint(_ point:Point<DValue>) -> View? {
+        let result = rootView?.viewForPoint(point)
+        return result
     }
     
     override func onWindowEvent(_ events: [WindowEvent]) {
@@ -109,18 +168,9 @@ final class CustomWindow: Window {
     override func draw(time: UInt64) throws {
         
         let context = UIRenderContext(renderer: renderer, imageManger: imageManager)
-        context.currentWindowFrame = frame.bounds()
-        try rootView?.draw(context)
-        //try context.drawAtlas(320, 0)
-        /*
-        let texture = pixelTexture
-        
-        try rootView.draw(renderer, texture: texture)
-        if let randomImage = randomImage {
-            let dest = randomImage.texture.sourceRect.sdlRect()
-            randomImage.draw(renderer, dest)
-        }*/
-        
+        context.currentWindowFrame[context.currentWindowFrame.count - 1] = frame.bounds()
+        if let view = rootView {
+            try view.draw(context, view.frame)
+        }
     }
-    
 }

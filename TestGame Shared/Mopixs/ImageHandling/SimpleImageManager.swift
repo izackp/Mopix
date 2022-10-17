@@ -33,13 +33,19 @@ public class SimpleImageManager : ImageManager {
         }
     }
     
+    //TODO: API Should extend functionality
     override public func fetchFont(desc: FontDesc) throws -> Font? {
+        if let cached = _fontCache[desc] {
+            return cached
+        }
         let name = desc.family
         
         if let url = _vdFontList[name] {
             guard let file = try drive.readFile(url) else { return nil }
             let font = try SDLFont(data: file, ptSize: Int(desc.size))
-            return Font(atlas: atlas, font: font)
+            let result = Font(atlas: atlas, font: font)
+            _fontCache[desc] = result
+            return result
         }
         
         return try super.fetchFont(desc: desc)

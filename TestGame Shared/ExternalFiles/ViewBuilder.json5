@@ -1,0 +1,48 @@
+[{
+    _id: "viewRoot",
+    _type: "View",
+    frame: { x: 0, y: 0, width: 320, height: 512 },
+    backgroundColor: 0x101030,
+    listLayouts: [
+        {
+            _type: "LEAnchor",
+            edge: "Right",
+            percent: 1.0
+        }, {
+            _type: "LEAnchor",
+            edge: "Bottom",
+            percent: 1.0
+        }
+    ],
+    children: [
+        {
+            _id: "viewLeftHeirachy",
+            _type: "View",
+            frame: { x: 0, y: 0, width: 120, height: 120 },
+            listLayouts: [ { _type: "LEAnchor", edge: "Bottom", percent: 1.0 } ],
+            backgroundColor: 0xFFFFFFFF,
+            children: [
+            ]
+        },
+        {
+            _id: "viewContent",
+            _type: "View",
+            frame: { x: 0, y: 0, width: 120, height: 120 },
+            listLayouts: [ { _type: "LEAnchor", edge: "Bottom", percent: 1.0 } ],
+            backgroundColor: 0xFFFFFFFF,
+            children: [
+            ]
+        },
+        {
+            _id: "viewRightInfo",
+            _type: "View",
+            frame: { x: 0, y: 0, width: 120, height: 120 },
+            listLayouts: [  { _type: "LEAnchor", edge: "Bottom", percent: 1.0 },
+            { _type: "LEAnchor", edge: "Right", percent: 1.0 } ],
+            backgroundColor: 0xFFFFFFFF,
+            children: [
+            ]
+        }
+    ]
+}
+]

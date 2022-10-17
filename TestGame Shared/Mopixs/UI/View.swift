@@ -8,6 +8,22 @@
 import Foundation
 import SDL2
 
+/*
+//I want to reimplement CALayer so I'm not sure about the name 'View'
+Features to support:
+ rasterization
+ masking
+ shadows
+ corner radius
+ beizer path clipping
+ border
+ alpha
+ anchor point & rotation // since sdl2 doesnt support transformations
+Feature to support after removeing sdl2:
+ 3d and affine transformations
+ 
+One problem I have is that content can be drawn outside the layer..
+*/
 open class View: Codable {
 
     public var _id:String? = nil
@@ -16,9 +32,15 @@ open class View: Codable {
     public var children:Arr<View> = Arr<View>.init()
     public weak var superView:View? = nil
     public weak var window:Window? = nil
+    public var onTap:(()->())? = nil
+    public var userInteractable:Bool = true //Not sure how this is going to work yet
     
     public var clipBounds:Bool = false
     open var backgroundColor = SmartColor.white
+    public var alpha:Float = 1
+    public var shouldRasterize:Bool = false
+    public var shouldRedraw:Bool = false
+    public var cachedImage:Image? = nil
     
     init () {
         
@@ -31,6 +53,8 @@ open class View: Codable {
         case children
         case clipBounds
         case backgroundColor
+        case alpha
+        case shouldRasterize
     }
     
     //TODO: Obviously weird..
@@ -50,6 +74,8 @@ open class View: Codable {
         self.children = try container.decodeContiguousArray(View.self, forKey: .children)
         self.clipBounds = try container.decodeIfPresent(Bool.self, forKey: .clipBounds) ?? clipBoundsDefault
         self.backgroundColor = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .backgroundColor) ?? SmartColor.white
+        self.alpha = try container.decodeIfPresent(Float.self, forKey: .alpha) ?? 1
+        self.shouldRasterize = try container.decodeIfPresent(Bool.self, forKey: .shouldRasterize) ?? false
         for eachChild in self.children {
             eachChild.superView = self
         }
@@ -75,10 +101,35 @@ open class View: Codable {
         if (backgroundColor !== SmartColor.white) {
             try container.encode(backgroundColor, forKey: .backgroundColor)
         }
+        if (alpha != 1) {
+            try container.encode(alpha, forKey: .alpha)
+        }
+        if (shouldRasterize) {
+            try container.encode(shouldRasterize, forKey: .shouldRasterize)
+        }
     }
     
     func containerSize() -> Size<DValue>? {
         return superView?.frame.size ?? window?.frame.size
+    }
+    /*
+    func isUserInteractable() -> Bool {
+        if (userInteractable == false) {
+            return false
+        }
+        return superView?.isUserInteractable() ?? true
+    }*/
+    
+    func viewForPoint(_ point:Point<DValue>) -> View? {
+        if (self.frame.containsPoint(point) == false) { return nil }
+        
+        let offsetPoint = point.offset(frame.x, frame.y)
+        for eachSubview in children.reversed() {
+            if let containingSubview = eachSubview.viewForPoint(offsetPoint) {
+                return containingSubview
+            }
+        }
+        return self
     }
     
     open func insertView(_ view:View, at:Int) {
@@ -97,6 +148,40 @@ open class View: Codable {
         }
         superView = nil
     }
+    
+    open func onMouseEnter() {
+        
+    }
+    
+    open func onMouseLeave() {
+        
+    }
+    
+    open func onMousePress() {
+        
+    }
+    
+    open func onMouseRelease() {
+        onTap?()
+        /*
+        print("Tapped View \(_id ?? ""): \(frame)")
+        if (backgroundColor == SmartColor.white) {
+            backgroundColor = SmartColor.red
+            return
+        }
+        if (backgroundColor == SmartColor.red) {
+            backgroundColor = SmartColor.blue
+            return
+        }
+        if (backgroundColor == SmartColor.blue) {
+            backgroundColor = SmartColor.green
+            return
+        }
+        if (backgroundColor == SmartColor.green) {
+            backgroundColor = SmartColor.white
+            return
+        }*/
+    }
 
     open func layout() {
         //TODO: I'm not sure if a 'layout is dirty' check will improve performance
@@ -113,19 +198,49 @@ open class View: Codable {
         }
     }
     
-    open func draw(_ context:UIRenderContext) throws {
-        try context.drawSquare(frame, backgroundColor)
+    open func drawContent(_ context:UIRenderContext, _ rect:Frame<DValue>) throws {
+        
+    }
+    
+    func drawOrRaster(_ context:UIRenderContext, _ rect:Frame<DValue>) throws {
+        if (alpha == 0) { return }
+        if (shouldRasterize || alpha != 1) {
+            let originalFrame = frame
+            let image = try context.createAndDrawToTexture({ context, frame in
+                
+                let offsetFrame = frame.offset(Point(originalFrame.origin.x * -1, originalFrame.origin.y * -1)) //2am brain hurts haxfix
+                try draw(context, offsetFrame)
+            }, size: originalFrame.size)
+            
+            let offsetFrame = frame.offset(rect.origin)
+            try context.drawImage(image, offsetFrame, SmartColor.white.withAlpha(alpha))
+            cachedImage = image
+            shouldRedraw = false
+            return
+        } else {
+            try draw(context, rect)
+        }
+    }
+    
+    open func draw(_ context:UIRenderContext, _ rect:Frame<DValue>) throws {
+        if (alpha == 0) { return }
+        let offsetFrame = frame.offset(rect.origin)
+        if let image = cachedImage, shouldRedraw == false {
+            try context.drawImage(image, offsetFrame)
+            return
+        }
+        
+        try context.drawSquare(offsetFrame, backgroundColor)
         let clip = clipBounds
         var lastClipRect:Frame<DValue>? = nil
         if (clip) {
             lastClipRect = context.currentClipRect
-            try context.setClipRectRelative(frame)
+            try context.setClipRect(offsetFrame)
         }
-        context.pushOffset(frame.origin)
+        try drawContent(context, offsetFrame)
         for eachChild in children {
-            try eachChild.draw(context)
+            try eachChild.drawOrRaster(context, offsetFrame)
         }
-        context.popOffset(frame.origin)
         if (clip) {
             try context.setClipRect(lastClipRect)
         }

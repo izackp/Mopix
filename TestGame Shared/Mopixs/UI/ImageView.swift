@@ -80,96 +80,78 @@ public class ImageView : View {
         }
     }
     
-    open override func draw(_ context:UIRenderContext) throws {
-        try context.drawSquare(frame, backgroundColor)
-        let clip = clipBounds
-        
-        var lastClipRect:Frame<DValue>? = nil
-        if (clip) {
-            lastClipRect = context.currentClipRect
-            try context.setClipRectRelative(frame)
-        }
+    open override func drawContent(_ context: UIRenderContext, _ rect: Frame<DValue>) throws {
         
         if let image = image {
             let destFrame:Frame<DValue>
             switch contentMode {
                 case .stretch:
-                    destFrame = frame
+                    destFrame = rect
                 case .aspectFit:
                     let imgSize = image.texture.sourceRect.size
                     let imgSize16 = Size<DValue>(Int16(imgSize.width), Int16(imgSize.height))
                     let newSize = imgSize16.aspectFitInto(frame.size)
                     var newFrame = Frame(origin: Point.zero, size: newSize)
-                    newFrame.center = frame.center
+                    newFrame.center = rect.center
                     destFrame = newFrame
                 case .aspectFill:
                     let imgSize = image.texture.sourceRect.size
                     let imgSize16 = Size<DValue>(Int16(imgSize.width), Int16(imgSize.height))
                     let newSize = imgSize16.aspectFillInto(frame.size)
                     var newFrame = Frame(origin: Point.zero, size: newSize)
-                    newFrame.center = frame.center
+                    newFrame.center = rect.center
                     destFrame = newFrame
                 case .center:
                     var nativeFrame = image.texture.sourceRect.to(DValue.self)
-                    nativeFrame.center = frame.center
+                    nativeFrame.center = rect.center
                     destFrame = nativeFrame
                     //Added these because they're in UIKit, but I don't think anyone uses them?
                 case .top:
                     var nativeFrame = image.texture.sourceRect.to(DValue.self)
-                    nativeFrame.centerX = frame.centerX
-                    nativeFrame.y = frame.y
+                    nativeFrame.centerX = rect.centerX
+                    nativeFrame.y = rect.y
                     destFrame = nativeFrame
                 case .right:
                     var nativeFrame = image.texture.sourceRect.to(DValue.self)
-                    nativeFrame.centerY = frame.centerY
-                    nativeFrame.rightFixed = frame.right
+                    nativeFrame.centerY = rect.centerY
+                    nativeFrame.rightFixed = rect.right
                     destFrame = nativeFrame
                 case .bottom:
                     var nativeFrame = image.texture.sourceRect.to(DValue.self)
-                    nativeFrame.centerX = frame.centerX
-                    nativeFrame.bottomFixed = frame.bottom
+                    nativeFrame.centerX = rect.centerX
+                    nativeFrame.bottomFixed = rect.bottom
                     destFrame = nativeFrame
                 case .left:
                     var nativeFrame = image.texture.sourceRect.to(DValue.self)
-                    nativeFrame.centerY = frame.centerY
-                    nativeFrame.x = frame.x
+                    nativeFrame.centerY = rect.centerY
+                    nativeFrame.x = rect.x
                     destFrame = nativeFrame
                 case .topRight:
                     var nativeFrame = image.texture.sourceRect.to(DValue.self)
-                    nativeFrame.y = frame.y
-                    nativeFrame.rightFixed = frame.right
+                    nativeFrame.y = rect.y
+                    nativeFrame.rightFixed = rect.right
                     destFrame = nativeFrame
                 case .topLeft:
                     var nativeFrame = image.texture.sourceRect.to(DValue.self)
-                    nativeFrame.origin = frame.origin
+                    nativeFrame.origin = rect.origin
                     destFrame = nativeFrame
                 case .bottomRight:
                     var nativeFrame = image.texture.sourceRect.to(DValue.self)
-                    nativeFrame.bottomFixed = frame.bottom
-                    nativeFrame.rightFixed = frame.right
+                    nativeFrame.bottomFixed = rect.bottom
+                    nativeFrame.rightFixed = rect.right
                     destFrame = nativeFrame
                 case .bottomLeft:
                     var nativeFrame = image.texture.sourceRect.to(DValue.self)
-                    nativeFrame.bottomFixed = frame.bottom
-                    nativeFrame.x = frame.x
+                    nativeFrame.bottomFixed = rect.bottom
+                    nativeFrame.x = rect.x
                     destFrame = nativeFrame
             }
             do {
-                try context.drawSquare(destFrame, SmartColor.blue)
-                try context.drawImage(destFrame, tint, image: image)
+                //try context.drawSquare(frame, SmartColor.blue)
+                try context.drawImage(image, destFrame, tint)
             } catch {
-                print("Error drawing text: \(error.localizedDescription)")
+                print("Error drawing image: \(error.localizedDescription)")
             }
-        }
-        
-        context.pushOffset(frame.origin)
-        
-        for eachChild in children {
-            try eachChild.draw(context)
-        }
-        context.popOffset(frame.origin)
-        if (clip) {
-            try context.setClipRect(lastClipRect)
         }
     }
 }

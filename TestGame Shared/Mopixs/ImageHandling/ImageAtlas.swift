@@ -9,8 +9,25 @@ import Foundation
 import SDL2
 import SDL2_ttf
 
+/*
+ So there is an issue. We're going to have rolling texture pages, because there are cases when we need to be able to write to the texture page
+ using the same texture page!
+ When this occurs we create a new page by copying the old then writing one part of the change. After this the old page is 'old' but it isn't yet discard.
+ We keep it around because what if the next thing we're drawing also needs to do the same thing since we're still drawing to the same allocation
+ we don't want to keep creating new textures. We can start x amount of images and still use the old. Once an image is complete this all changes.
+ The next op that makes use use the same texture on itself again will need to make a new texture.
+ 
+ What do we do with old textures? We push / Pop them into a stack simple, easy, no need to create / destroy textures.
+ 
+ I'm not sure if this should be done in the texture page structure...
+ */
+
 public struct TexturePage {
-    public let texture:SDLTexture
+    //Incomplete meaning that there are no additional images completed that differ from the previous texture.
+    //
+    //Once any image has completed drawing we shift it down into texture. So it can resume normal behavior.
+    //public let inCompleteTexture:SDLTexture? //Needed for drawing the texture onto iteself
+    public let texture:SDLTexture //Always used for drawing and can be drawn to _unless_ there is an incomplete texture whish should also be used
     public let allocator:AtlasAllocator
 }
 
@@ -78,12 +95,14 @@ public class ImageAtlas {
     var listPages = Arr<TexturePage>.init() //Note assuming relatively small array
     var textureSize = Size<Int32>(1024, 1024)
     
+    //Each texture has a blank pixel so we don't need to worry about switching textures.
     var _blankImageCache:[SubTexture] = [] //index matches page
+    var textureCache:[SDLTexture] = [] //Object pool to avoid creating/deleting
     
     init(_ renderer:SDLRenderer) {
         self.renderer = renderer
     }
-    
+
     func blankSubtexture(_ pageIdx:Int) throws -> SubTexture {
         if _blankImageCache.count == 0 {
             let _ = try addPage()
@@ -109,17 +128,25 @@ public class ImageAtlas {
         return -1
     }
     
+    func createTexture() throws -> SDLTexture {
+        if let existing = textureCache.popLast() {
+            return existing
+        }
+        //TODO: Why does this have to be streaming to call lockAndEdit, but it can be static for updateTexture?
+        let newTexture = try SDLTexture(renderer: renderer, format: .argb8888, access: .target, width: Int(textureSize.width), height: Int(textureSize.height))
+        try newTexture.setBlendMode([SDLBlendMode.alpha])
+        return newTexture
+    }
+    
     private func addPage() throws -> Int {
         
-        //TODO: Why does this have to be streaming to call lockAndEdit, but it can be static for updateTexture?
-        let newTexture = try SDLTexture(renderer: renderer, format: .argb8888, access: .streaming, width: Int(textureSize.width), height: Int(textureSize.height))
-        try newTexture.setBlendMode([SDLBlendMode.alpha])
-        
+        let newTexture = try createTexture()
         //TODO: Not really needed; only used to visualize uninitied memory
+        /*
         try newTexture.lockAndEditSurface(rect: nil) { (surface:SDLSurface) in
             let color = SDLColor.pink
             try surface.fill(color: color)
-        }
+        }*/
         
         let allocator = AtlasAllocator(size: textureSize)
         var texturePage = TexturePage(texture: newTexture, allocator: allocator)
@@ -180,6 +207,17 @@ public class ImageAtlas {
         return texture
     }
     
+    public func saveBlankImage(_ size:Size<DValue>) throws -> SubTexture {
+        if (size.width > textureSize.width || size.height > textureSize.height) {
+            throw GenericError("Blank Image cannot exceed atlas texture size.")
+        }
+        let surface = try SDLSurface(rgb: (0, 0, 0, 0), size: (width: Int(size.width), height: Int(size.height)), depth: 32)
+        let color = SDLColor.clear
+        try surface.fill(color: color)
+        let subTexture = try self.save(surface)
+        return subTexture
+    }
+    
     private func saveIntoPage(_ page: inout TexturePage, _ index:Int, _ pixelData:PixelData) throws -> SubTexture? {
         guard let alloc = try saveIntoPageLow(&page, pixelData) else {
             return nil
@@ -203,7 +241,11 @@ public class ImageAtlas {
         return alloc
     }
     
-    func returnTexture(_ subTexture:SubTexture) {
+    func returnTexture(_ texture:SDLTexture) {
+        textureCache.append(texture)
+    }
+    
+    func returnSubtexture(_ subTexture:SubTexture) {
         //TODO: There is no mechanism to remove a texture page once created..
         let page = listPages[subTexture.texturePageIndex]
         page.allocator.deallocate(subTexture.allocationId)

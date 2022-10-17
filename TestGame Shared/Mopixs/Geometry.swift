@@ -277,13 +277,27 @@ extension Frame where T: BinaryInteger {
     public func to<A: Codable & Numeric & Equatable>(_ type:A.Type) -> Frame<A> {
         return Frame<A>(x: A(exactly: x)!, y: A(exactly: y)!, width: A(exactly: width)!, height: A(exactly: height)!)
     }
+    
+    public func containsPoint(_ point:Point<T>) -> Bool {
+        if (point.x < origin.x) { return false }
+        if (point.y < origin.y) { return false }
+        if (point.x > right) { return false }
+        if (point.y > bottom) { return false }
+        return true
+    }
 }
 
 //TODO: Change Name to Rect; What is the best way to name some of these properties?
 //Currently (left, right, Top, Bottom) only effects the specific edge (width and height changes)
 //We can make this more clear by using xMin, xMax, yMin, yMax..
 //However, It doesn't match UI verbage. Or inset verbage.
-public struct Frame<T: Codable & Numeric>: Equatable, Codable {
+public struct Frame<T: Codable & Numeric>: Equatable, Codable, CustomDebugStringConvertible {
+    public var debugDescription: String {
+        get {
+            return "\(x), \(y) - \(width), \(height)"
+        }
+    }
+    
     
     var origin:Point<T>
     var size:Size<T>

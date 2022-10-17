@@ -38,46 +38,22 @@
                         { _type: "LEAnchor", edge: "Left", percent: 0.0 },
                         { _type: "LEMirrorMarginHorizontalMax" },
                     ],
-                    text: "Sample $( 1.0000) 日中韓統合漢字拡張G 「ユニコード」",
+                    text: "Sample Title",
                     alignment: "center",
                     backgroundColor: "red"
                 }
             ]
         },
         {
-            _id: "viewRast",
-            _type: "View",
+            _id: "viewImage",
+            _type: "ImageView",
             frame: { x: 0, y: 44, width: 320, height: 300 },
-            listLayouts: [ { _type: "LEMatch", source: { _id: "viewNavigationBar" }, edgeSource: "Bottom", edgeDestination: "Top" } ],
+            listLayouts: [
+                                    { _type: "LEMatch", source: { _id: "viewNavigationBar" }, edgeSource: "Bottom", edgeDestination: "Top" },
+                                    { _type: "LEAnchor", edge: "Right", percent: 1.0 },
+                                    { _type: "LEAnchor", edge: "Bottom", percent: 1.0 } ],
+            image: "oryx_16bit_scifi_vehicles_105.bmp",
             backgroundColor: "blue",
-            alpha: 0.60,
-            children: [
-                {
-                    _id: "viewImage",
-                    _type: "ImageView",
-                    frame: { x: 0, y: 0, width: 320, height: 300 },
-                    listLayouts: [
-                        { _type: "LEAnchorFixed", edge: "Right", percent: 1.0 }],
-                    image: "oryx_16bit_scifi_vehicles_105.bmp",
-                    backgroundColor: "blue",
-                },
-                {
-                    _id: "viewSubA",
-                    _type: "View",
-                    frame: { x: 0, y: 0, width: 200, height: 200 },
-                    listLayouts: [],
-                    backgroundColor: "green",
-                    children: [
-                        {
-                            _id: "viewSubB",
-                            _type: "View",
-                            frame: { x: 0, y: 0, width: 100, height: 100 },
-                            listLayouts: [],
-                            backgroundColor: "red"
-                        }
-                    ]
-                }
-            ]
         }
     ]
 }

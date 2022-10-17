@@ -74,6 +74,9 @@
 		DF6A812528E53DDF00AFEAA3 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A812228E53DDF00AFEAA3 /* ImageView.swift */; };
 		DF6A812628E53DDF00AFEAA3 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A812228E53DDF00AFEAA3 /* ImageView.swift */; };
 		DF6A812728E53DDF00AFEAA3 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A812228E53DDF00AFEAA3 /* ImageView.swift */; };
+		DF6A813128EB81D600AFEAA3 /* ViewBuilder.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DF6A813028EB81D600AFEAA3 /* ViewBuilder.json5 */; };
+		DF6A813228EB81D600AFEAA3 /* ViewBuilder.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DF6A813028EB81D600AFEAA3 /* ViewBuilder.json5 */; };
+		DF6A813328EB81D600AFEAA3 /* ViewBuilder.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DF6A813028EB81D600AFEAA3 /* ViewBuilder.json5 */; };
 		DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DD92851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
 		DF6D4DDA2851DF6E0046BF8D /* Commands+SDL.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */; };
@@ -97,6 +100,13 @@
 		DF81A1F328638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
 		DF81A1F428638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
 		DF81A1F528638D6D0089E898 /* UIRenderContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF81A1F228638D6D0089E898 /* UIRenderContext.swift */; };
+		DF89275A28F23C0B0047250F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DF89275928F23C0B0047250F /* README.md */; };
+		DF89275B28F23C0B0047250F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DF89275928F23C0B0047250F /* README.md */; };
+		DF89275C28F23C0B0047250F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DF89275928F23C0B0047250F /* README.md */; };
+		DF89275D28F23C0B0047250F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DF89275928F23C0B0047250F /* README.md */; };
+		DF89275E28F23C0B0047250F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DF89275928F23C0B0047250F /* README.md */; };
+		DF89276128F35A870047250F /* ICU in Frameworks */ = {isa = PBXBuildFile; productRef = DF89276028F35A870047250F /* ICU */; };
+		DF89276328F517810047250F /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DF89276228F517800047250F /* libicucore.tbd */; };
 		DFA43E552877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
 		DFA43E562877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
 		DFA43E572877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
@@ -382,6 +392,16 @@
 		DFE422EA28A6E431009D5A47 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC583EA2807762B0097E39B /* Engine.swift */; };
 		DFE422EB28A6E432009D5A47 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC583EA2807762B0097E39B /* Engine.swift */; };
 		DFEB98A628CACD7B000A5E31 /* EonilFSEvents in Frameworks */ = {isa = PBXBuildFile; productRef = DFEB98A528CACD7B000A5E31 /* EonilFSEvents */; };
+		DFF7310928ECF1660036E52E /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF7310828ECF1660036E52E /* TextField.swift */; };
+		DFF7310A28ECF1660036E52E /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF7310828ECF1660036E52E /* TextField.swift */; };
+		DFF7310B28ECF1660036E52E /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF7310828ECF1660036E52E /* TextField.swift */; };
+		DFF7310C28ECF1660036E52E /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF7310828ECF1660036E52E /* TextField.swift */; };
+		DFF7310D28ECF1660036E52E /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF7310828ECF1660036E52E /* TextField.swift */; };
+		DFF7310F28EE28780036E52E /* TestFolder in Resources */ = {isa = PBXBuildFile; fileRef = DFF7310E28EE28780036E52E /* TestFolder */; };
+		DFF7311028EE28780036E52E /* TestFolder in Resources */ = {isa = PBXBuildFile; fileRef = DFF7310E28EE28780036E52E /* TestFolder */; };
+		DFF7311128EE28780036E52E /* TestFolder in Resources */ = {isa = PBXBuildFile; fileRef = DFF7310E28EE28780036E52E /* TestFolder */; };
+		DFF7311228EE28780036E52E /* TestFolder in Resources */ = {isa = PBXBuildFile; fileRef = DFF7310E28EE28780036E52E /* TestFolder */; };
+		DFF7311328EE28780036E52E /* TestFolder in Resources */ = {isa = PBXBuildFile; fileRef = DFF7310E28EE28780036E52E /* TestFolder */; };
 		DFF831A6289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* CodingContainers+Features.swift */; };
 		DFF831A7289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* CodingContainers+Features.swift */; };
 		DFF831A8289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* CodingContainers+Features.swift */; };
@@ -472,6 +492,7 @@
 		DF5DA9542883084500BA44F6 /* TestAVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestAVC.m; sourceTree = "<group>"; };
 		DF5DA9582883085E00BA44F6 /* TestAVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestAVC.h; sourceTree = "<group>"; };
 		DF6A812228E53DDF00AFEAA3 /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
+		DF6A813028EB81D600AFEAA3 /* ViewBuilder.json5 */ = {isa = PBXFileReference; lastKnownFileType = text; path = ViewBuilder.json5; sourceTree = "<group>"; };
 		DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Commands+SDL.swift"; sourceTree = "<group>"; };
 		DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRepeater.swift; sourceTree = "<group>"; };
 		DF767DD128A15F75005DAB38 /* Util.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Util.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -480,6 +501,8 @@
 		DF767DDA28A19E36005DAB38 /* Encoder+Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Encoder+Features.swift"; sourceTree = "<group>"; };
 		DF81A1E728638CE50089E898 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		DF81A1F228638D6D0089E898 /* UIRenderContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIRenderContext.swift; sourceTree = "<group>"; };
+		DF89275928F23C0B0047250F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		DF89276228F517800047250F /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
 		DFA43E542877754900D9D37E /* TestViewController.json5 */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestViewController.json5; sourceTree = "<group>"; };
 		DFA454E92804599600638A35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DFA454EE2804599600638A35 /* TestGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -554,6 +577,8 @@
 		DFE172C728052D2B00C44AB0 /* main.old.swift.old */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.old.swift.old; sourceTree = "<group>"; };
 		DFE172D92805C6FE00C44AB0 /* Application.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Application.swift; sourceTree = "<group>"; };
 		DFE172DD2805C72E00C44AB0 /* Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Geometry.swift; sourceTree = "<group>"; };
+		DFF7310828ECF1660036E52E /* TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
+		DFF7310E28EE28780036E52E /* TestFolder */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestFolder; sourceTree = "<group>"; };
 		DFF831A5289855E7002F3DF4 /* CodingContainers+Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodingContainers+Features.swift"; sourceTree = "<group>"; };
 		DFF831A92898577F002F3DF4 /* InstanceCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanceCache.swift; sourceTree = "<group>"; };
 		DFF831AD2899E88A002F3DF4 /* SerializationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SerializationTests.swift; sourceTree = "<group>"; };
@@ -591,6 +616,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF89276328F517810047250F /* libicucore.tbd in Frameworks */,
+				DF89276128F35A870047250F /* ICU in Frameworks */,
 				DFEB98A628CACD7B000A5E31 /* EonilFSEvents in Frameworks */,
 				DF767DD228A15F75005DAB38 /* Util.framework in Frameworks */,
 				DF288CAD2884F4AC005F7C1F /* SDL2.framework in Frameworks */,
@@ -645,6 +672,14 @@
 				DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		DF89275128F23B9F0047250F /* TypeSetting */ = {
+			isa = PBXGroup;
+			children = (
+				DF89275928F23C0B0047250F /* README.md */,
+			);
+			path = TypeSetting;
 			sourceTree = "<group>";
 		};
 		DFA454E02804599500638A35 = {
@@ -735,6 +770,7 @@
 		DFA45582280480A100638A35 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DF89276228F517800047250F /* libicucore.tbd */,
 				DF767DD128A15F75005DAB38 /* Util.framework */,
 				DF288CAC2884F4AC005F7C1F /* SDL2.framework */,
 				DF288CA92884F267005F7C1F /* SDL2_ttf.framework */,
@@ -746,11 +782,13 @@
 		DFA8ADDB2858FB2100DDC22B /* ExternalFiles */ = {
 			isa = PBXGroup;
 			children = (
+				DFF7310E28EE28780036E52E /* TestFolder */,
 				DF2D82E5286EB18900D4A860 /* Roboto-Medium.ttf */,
 				DFFF55EB28610F6700536EAD /* bullet.bmp */,
 				DFA8ADE3285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp */,
 				DFA8ADE4285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp */,
 				DFA43E542877754900D9D37E /* TestViewController.json5 */,
+				DF6A813028EB81D600AFEAA3 /* ViewBuilder.json5 */,
 			);
 			path = ExternalFiles;
 			sourceTree = "<group>";
@@ -767,6 +805,7 @@
 		DFC583EE2807767B0097E39B /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				DF89275128F23B9F0047250F /* TypeSetting */,
 				DF6A812228E53DDF00AFEAA3 /* ImageView.swift */,
 				DF0D7DF828A31866008F53FB /* FontDesc.swift */,
 				DFC583EF28077C9C0097E39B /* Layouts.swift */,
@@ -776,6 +815,7 @@
 				DF81A1F228638D6D0089E898 /* UIRenderContext.swift */,
 				DFC583F328077CD00097E39B /* View.swift */,
 				DF3830AB28714B560028B4E6 /* ViewController.swift */,
+				DFF7310828ECF1660036E52E /* TextField.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -972,6 +1012,7 @@
 			packageProductDependencies = (
 				DF5DA947287FAE4800BA44F6 /* Runtime */,
 				DFEB98A528CACD7B000A5E31 /* EonilFSEvents */,
+				DF89276028F35A870047250F /* ICU */,
 			);
 			productName = "TestGame macOS";
 			productReference = DFA4550F2804599600638A35 /* TestGame.app */;
@@ -1054,6 +1095,7 @@
 			packageReferences = (
 				DF5DA946287FAE4700BA44F6 /* XCRemoteSwiftPackageReference "Runtime" */,
 				DFEB98A428CACD7B000A5E31 /* XCRemoteSwiftPackageReference "FSEvents" */,
+				DF89275F28F35A870047250F /* XCRemoteSwiftPackageReference "icu-swift" */,
 			);
 			productRefGroup = DFA454EF2804599600638A35 /* Products */;
 			projectDirPath = "";
@@ -1074,12 +1116,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFA455222804599600638A35 /* Assets.xcassets in Resources */,
+				DF6A813128EB81D600AFEAA3 /* ViewBuilder.json5 in Resources */,
+				DFF7310F28EE28780036E52E /* TestFolder in Resources */,
 				DFA454FA2804599600638A35 /* LaunchScreen.storyboard in Resources */,
 				DF2D82E6286EB18900D4A860 /* Roboto-Medium.ttf in Resources */,
 				DFFF55EC28610F6800536EAD /* bullet.bmp in Resources */,
 				DF288CA32884947B005F7C1F /* VCTest.xib in Resources */,
 				DFA8ADE5285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp in Resources */,
 				DFA43E552877754900D9D37E /* TestViewController.json5 in Resources */,
+				DF89275A28F23C0B0047250F /* README.md in Resources */,
 				DFA8ADE8285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1089,12 +1134,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFA8ADE9285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */,
+				DF6A813228EB81D600AFEAA3 /* ViewBuilder.json5 in Resources */,
+				DFF7311028EE28780036E52E /* TestFolder in Resources */,
 				DFA43E562877754900D9D37E /* TestViewController.json5 in Resources */,
 				DFA455072804599600638A35 /* Main.storyboard in Resources */,
 				DFA8ADE6285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp in Resources */,
 				DF2D82E7286EB18900D4A860 /* Roboto-Medium.ttf in Resources */,
 				DFA455232804599600638A35 /* Assets.xcassets in Resources */,
 				DFA4550A2804599600638A35 /* LaunchScreen.storyboard in Resources */,
+				DF89275B28F23C0B0047250F /* README.md in Resources */,
 				DFFF55ED28610F6800536EAD /* bullet.bmp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1106,8 +1154,11 @@
 				DF2D82E8286EB18900D4A860 /* Roboto-Medium.ttf in Resources */,
 				DFA43E572877754900D9D37E /* TestViewController.json5 in Resources */,
 				DFA455242804599600638A35 /* Assets.xcassets in Resources */,
+				DF6A813328EB81D600AFEAA3 /* ViewBuilder.json5 in Resources */,
 				DFA8ADE7285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp in Resources */,
 				DFA8ADEA285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */,
+				DF89275C28F23C0B0047250F /* README.md in Resources */,
+				DFF7311128EE28780036E52E /* TestFolder in Resources */,
 				DFFF55EE28610F6800536EAD /* bullet.bmp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1116,6 +1167,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF89275D28F23C0B0047250F /* README.md in Resources */,
+				DFF7311228EE28780036E52E /* TestFolder in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1123,6 +1176,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF89275E28F23C0B0047250F /* README.md in Resources */,
+				DFF7311328EE28780036E52E /* TestFolder in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1136,6 +1191,7 @@
 				DFC583E72807750B0097E39B /* TestGameApp.swift in Sources */,
 				DF2D82FB2870E97A00D4A860 /* SimpleImageManager.swift in Sources */,
 				DFC58371280641770097E39B /* TimeBank.swift in Sources */,
+				DFF7310928ECF1660036E52E /* TextField.swift in Sources */,
 				DFF831AA2898577F002F3DF4 /* InstanceCache.swift in Sources */,
 				DFE172DA2805C6FE00C44AB0 /* Application.swift in Sources */,
 				DFC583E3280774CA0097E39B /* main.swift in Sources */,
@@ -1226,6 +1282,7 @@
 				DFCA77812818AF020099BC21 /* VirtualDrive.swift in Sources */,
 				DFE17276280510B500C44AB0 /* Error.swift in Sources */,
 				DFC583F128077C9C0097E39B /* Layouts.swift in Sources */,
+				DFF7310A28ECF1660036E52E /* TextField.swift in Sources */,
 				DFF831AB2898577F002F3DF4 /* InstanceCache.swift in Sources */,
 				DF81A1F428638D6D0089E898 /* UIRenderContext.swift in Sources */,
 				DFA455802804804500638A35 /* common.c in Sources */,
@@ -1334,6 +1391,7 @@
 				DF3830B928714EE30028B4E6 /* TestViewController.swift in Sources */,
 				DFE1727A280510B500C44AB0 /* BitMaskOption.swift in Sources */,
 				DFFDA4A428DE3B1000805000 /* URL+VD.swift in Sources */,
+				DFF7310B28ECF1660036E52E /* TextField.swift in Sources */,
 				DFFF55D6285BB23900536EAD /* EntityPool.swift in Sources */,
 				DFE17274280510B500C44AB0 /* DisplayMode.swift in Sources */,
 				DFCA77802818AF010099BC21 /* VirtualDrive.swift in Sources */,
@@ -1452,6 +1510,7 @@
 				DFE422EB28A6E432009D5A47 /* Engine.swift in Sources */,
 				DF0D7E4F28A3F4CE008F53FB /* Expressible.swift in Sources */,
 				DFE422B228A6E391009D5A47 /* Event.swift in Sources */,
+				DFF7310C28ECF1660036E52E /* TextField.swift in Sources */,
 				DFE4226428A6E06E009D5A47 /* View.swift in Sources */,
 				DFE4226628A6E075009D5A47 /* Layouts.swift in Sources */,
 				DF5BE3F3289B263A00A0ED4E /* InstanceCache.swift in Sources */,
@@ -1474,6 +1533,7 @@
 				DFE422E128A6E424009D5A47 /* Enemy.swift in Sources */,
 				DFE422DE28A6E424009D5A47 /* Scene.swift in Sources */,
 				DF0D7DFD28A31866008F53FB /* FontDesc.swift in Sources */,
+				DFF7310D28ECF1660036E52E /* TextField.swift in Sources */,
 				DFE422D028A6E3E4009D5A47 /* SDLFont.swift in Sources */,
 				DFE422C728A6E392009D5A47 /* Texture.swift in Sources */,
 				DFE4226928A6E07A009D5A47 /* TextView.swift in Sources */,
@@ -2039,6 +2099,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		DF89275F28F35A870047250F /* XCRemoteSwiftPackageReference "icu-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kphrx/icu-swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		DFEB98A428CACD7B000A5E31 /* XCRemoteSwiftPackageReference "FSEvents" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/eonil/FSEvents";
@@ -2064,6 +2132,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DF5DA946287FAE4700BA44F6 /* XCRemoteSwiftPackageReference "Runtime" */;
 			productName = Runtime;
+		};
+		DF89276028F35A870047250F /* ICU */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DF89275F28F35A870047250F /* XCRemoteSwiftPackageReference "icu-swift" */;
+			productName = ICU;
 		};
 		DFEB98A528CACD7B000A5E31 /* EonilFSEvents */ = {
 			isa = XCSwiftPackageProductDependency;

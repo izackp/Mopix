@@ -26,7 +26,43 @@ struct TextLine {
     let str:Substring
     let width:Int
     let height:Int
+    let startSpaceCount:Int
+    let startSpaceWidth:Int
+    let endSpaceCount:Int
+    let endSpaceWidth:Int
+    
+    init(str: Substring, width: Int, height: Int, startSpaceCount: Int = 0, startSpaceWidth: Int = 0, endSpaceCount: Int = 0, endSpaceWidth: Int = 0) {
+        self.str = str
+        self.width = width
+        self.height = height
+        self.startSpaceCount = startSpaceCount
+        self.startSpaceWidth = startSpaceWidth
+        self.endSpaceCount = endSpaceCount
+        self.endSpaceWidth = endSpaceWidth
+    }
+    
+    func strTrimmingEndSpace() -> Substring {
+        let offset = str.index(str.endIndex, offsetBy: -endSpaceCount)
+        let newStr = str[str.startIndex..<offset]
+        return newStr
+    }
+    
+    func widthTrimmingEndSpace() -> Int {
+        return width - endSpaceWidth
+    }
+    
+    func strTrimmingSpace() -> Substring {
+        let startOffset = str.index(str.startIndex, offsetBy: startSpaceCount)
+        let offset = str.index(str.endIndex, offsetBy: -endSpaceCount)
+        let newStr = str[startOffset..<offset]
+        return newStr
+    }
+    
+    func widthTrimmingSpace() -> Int {
+        return width - startSpaceWidth - endSpaceWidth
+    }
 }
+
 
 public class TextView : View {
     
@@ -77,7 +113,7 @@ public class TextView : View {
         self.characterSpacing = try container.decodeIfPresent(Int.self, forKey: .characterSpacing) ?? 0 //TODO: Int changes based on platform
         self.textWrapping = try container.decodeIfPresent(TextWrapping.self, forKey: .textWrapping) ?? .word
         self.textTrimming = try container.decodeIfPresent(Int.self, forKey: .textTrimming) ?? 0
-        self.textAlignment = try container.decodeIfPresent(TextAlignment.self, forKey: .textAlignment) ?? .right
+        self.textAlignment = try container.decodeIfPresent(TextAlignment.self, forKey: .textAlignment) ?? .center
     }
     
     public override func encode(to encoder: Encoder) throws {
@@ -110,43 +146,6 @@ public class TextView : View {
         }
     }
     
-    //MARK: - Serialization
-    // Generated on : 2022-07-26 13:43:08 +0000
-    /*
-    required init(_ dictionary: Dictionary<String, Any>, _ cache:InstanceCache? = nil) throws {
-        try super.init(dictionary, cache)
-        text = try dictionary.expect("text")
-        //We also want the ability to set colors via labels
-        //So a color _cant_ just be an int.. but
-        let test:UInt32 = try dictionary.expect("text")
-        textColor = SmartColor(integerLiteral: test)
-        //textColor = SDLColor(rawValue: try dictionary.expect("textColor"), cache)
-        //fontDesc = FontDesc(try dictionary.expectDictionary("fontDesc"), cache)
-        lineHeight = try dictionary.expect("lineHeight")
-        characterSpacing = try dictionary.expect("characterSpacing")
-        lineStackingStrategy = try dictionary.expect("lineStackingStrategy")
-        textWrapping = try dictionary.expect("textWrapping")
-        textTrimming = try dictionary.expect("textTrimming")
-        textAlignment = try dictionary.expect("textAlignment")
-        maxLines = try dictionary.expect("maxLines")
-    }
-    
-    override public func toDictionary() -> [String : Any] {
-        return [
-            "text":text,
-            //"textColor":textColor.toDictionary(),
-            "fontDesc":fontDesc.toDictionary(),
-            "lineHeight":lineHeight,
-            "characterSpacing":characterSpacing,
-            "lineStackingStrategy":lineStackingStrategy,
-            "textWrapping":textWrapping,
-            "textTrimming":textTrimming,
-            "textAlignment":textAlignment,
-            "maxLines":maxLines
-        ]
-    }*/
-    // Hash : abc
-    
     func fetchFont(_ context:UIRenderContext) throws -> Font  {
         if let font = _cachedFont {
             return font
@@ -158,33 +157,44 @@ public class TextView : View {
         return font
     }
     
-    func drawText(_ context:UIRenderContext) throws {
+    open override func drawContent(_ context:UIRenderContext, _ rect:Frame<DValue>) throws {
+        if (text.count == 0) { return }
         let font = try fetchFont(context)
-        
         
         let lines:[TextLine]
         switch textWrapping {
             case .word:
-                lines = try font.splitIntoLinesWordWrapped(text, maxWidthPxs: Int(frame.width), characterSpacing: characterSpacing)
+                lines = try font.splitIntoLinesWordWrapped2(text, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
                 break
             case .character:
-                lines = try font.splitIntoLines(text, maxWidthPxs: Int(frame.width), characterSpacing: characterSpacing)
+                lines = try font.splitIntoLines(text, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
             case .none:
-                lines = [TextLine(str: text.substring(from: 0), width: try font.widthOfText(text, maxWidthPxs: Int(Int32.max)).extent, height: font._font.height())]
+                lines = [TextLine(str: text.substring(from: 0), width: try font.widthOfText(text, maxWidthPxs: Int(Int32.max)).extent, height: font._font.height(), startSpaceCount: 0, startSpaceWidth: 0, endSpaceCount: 0, endSpaceWidth: 0)]
         }
             
         guard let height = lines.first(where: { $0.height > 0 })?.height else { print("error no height"); return }
         let totalHeight = Int16(height * lines.count)
-        var y:Int16 = (frame.height - totalHeight) / 2
+        var y:Int16 = (rect.height - totalHeight) / 2 + rect.y
+        var firstLine = true
         for eachLine in lines {
-            if eachLine.width == 0 {
+            let lineWidth:Int
+            let subStr:Substring
+            if (firstLine) {
+                lineWidth = eachLine.widthTrimmingEndSpace()
+                subStr = eachLine.strTrimmingEndSpace()
+            } else {
+                lineWidth = eachLine.widthTrimmingSpace()
+                subStr = eachLine.strTrimmingSpace()
+            }
+            firstLine = false
+            if lineWidth == 0 {
                 y += Int16(height)
                 continue
             }
             let x:Int16
             switch textAlignment {
                 case .center:
-                    x = (frame.width - Int16(eachLine.width)) / 2
+                    x = (rect.width - Int16(lineWidth)) / 2 + rect.x
                     break
                 case .left:
                     fallthrough
@@ -194,54 +204,10 @@ public class TextView : View {
                 case .right:
                     fallthrough
                 case .end:
-                    x = frame.width - Int16(eachLine.width)
+                    x = rect.right - Int16(lineWidth)
             }
-            //try context.drawSquare(Frame(x: x, y: y, width: Int16(eachLine.width), height: Int16(height)), SmartColor.white)
-            try context.drawText(Point(x, y), textColor, eachLine.str, font, spacing: characterSpacing)
+            try context.drawText(Point(x, y), textColor, subStr, font, spacing: characterSpacing)
             y += Int16(height)
-        }
-        
-        /*
-        if (self.characterSpacing != 0) {
-            try container.encode(characterSpacing, forKey: .characterSpacing)
-        }
-        if (self.textWrapping != 0) {
-            try container.encode(textWrapping, forKey: .textWrapping)
-        }
-        if (self.textTrimming != 0) {
-            try container.encode(textTrimming, forKey: .textTrimming)
-        }
-        if (self.textAlignment != 0) {
-            try container.encode(textAlignment, forKey: .textAlignment)
-        }*/
-    }
-    
-    open override func draw(_ context:UIRenderContext) throws {
-        try context.drawSquare(frame, backgroundColor)
-        let clip = clipBounds
-        
-        var lastClipRect:Frame<DValue>? = nil
-        if (clip) {
-            lastClipRect = context.currentClipRect
-            try context.setClipRectRelative(frame)
-        }
-        context.pushOffset(frame.origin)
-        
-        if (text.count > 0) {
-            do {
-                try drawText(context)
-                //try context.drawText(frame, textColor, text, font)
-            } catch {
-                print("Error drawing text: \(error.localizedDescription)")
-            }
-        }
-        
-        for eachChild in children {
-            try eachChild.draw(context)
-        }
-        context.popOffset(frame.origin)
-        if (clip) {
-            try context.setClipRect(lastClipRect)
         }
     }
 }

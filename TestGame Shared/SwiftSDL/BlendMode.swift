@@ -10,6 +10,9 @@ import SDL2
 // An enumeration of blend modes used in `Renderer.copy()` and drawing operations.
 public enum SDLBlendMode: UInt32, BitMaskOption {
     
+    /// No blending
+    case none = 0x0
+    
     /// Alpha blending
     case alpha = 0x00000001
     

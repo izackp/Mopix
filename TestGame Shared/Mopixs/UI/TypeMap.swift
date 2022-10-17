@@ -48,6 +48,8 @@ class TypeMap {
             return View.self
         case "TextView":
             return TextView.self
+        case "TextField":
+            return TextField.self
         case "ImageView":
             return ImageView.self
         case "SmartColor":

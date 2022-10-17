@@ -52,12 +52,14 @@ public final class SDLRenderer {
     public private(set) var target: SDLTexture?
     
     /// Set a texture as the current rendering target.
-    public func setTarget(_ newValue: SDLTexture?) throws {
+    public func setTarget(_ newValue: SDLTexture?) throws -> SDLTexture? {
         
-        try SDL_SetRenderTarget(internalPointer, target?.internalPointer).sdlThrow(type: type(of: self))
+        try SDL_SetRenderTarget(internalPointer, newValue?.internalPointer).sdlThrow(type: type(of: self))
         
         // hold reference
+        let result = self.target
         self.target = newValue
+        return result
     }
     
     /// The blend mode used for drawing operations (Fill and Line).

@@ -78,6 +78,15 @@ I'm not sure how I want to design an ECS. I would always prefer to use an existi
 
 I also have previously designed a way for dynamic behavior via components + json. It removed the need of state machines because state was just the makeup of the components the entity had. 
 
+### Requirements to build:
+* Code sign libicuuc or disable library validation
+* * security find-identity
+* * codesign --remove-signature /path/to/theirlib.dylib
+* * codesign -s "Apple Development: Your Name (10-char-ID)"  /path/to/theirlib.dylib
+* * Possible Path: /opt/homebrew/Cellar/icu4c/70.1/lib/libicuuc.70.1.dylib
+or
+* * Project Settings > Signing & Capabilities > Hardened Runtime > Runtime Exceptions > Diable Library Validation
+
 ### Design Goals
 Why not Godot? I wanted something I could possibly port to the 3ds. I also wanted to make a deterministic engine for input only networking. Granted.. the 3ds might not be powerful enough to support 'rollback' but we will see.
 

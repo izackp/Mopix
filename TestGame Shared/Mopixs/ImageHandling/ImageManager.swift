@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import SDL2
 
 public class ImageManager {
     let atlas:ImageAtlas
@@ -16,7 +16,7 @@ public class ImageManager {
     
     var _imageCache:[String:Image] = [:]
     var _fontList:[String:URL] = [:]
-    var _fontCache:[FontDesc:Font] = [:]
+    var _fontCache:[FontDesc:Font] = [:] //TODO: Fonts should unload when no longer used
     
     var _systemFonts:[String] = [] //TODO: Is it needed?
     
@@ -41,19 +41,19 @@ public class ImageManager {
     }
     
     public func fetchFont(desc:FontDesc) throws -> Font? {
+        if let cached = _fontCache[desc] {
+            return cached
+        }
         let name = desc.family
-        /*
-        if name == "default" {
-            name = "Roboto"
-            //return try fromCGFont("Helvetica", desc: desc)
-        }*/
         
         if let url = _fontList[name] {
             let font = try SDLFont(file: url.path, ptSize: Int(desc.size))
-            return Font(atlas: atlas, font: font)
+            let result = Font(atlas: atlas, font: font)
+            return result
         }
         
-        return try fromCGFont(name, desc: desc)
+        let result = try fromCGFont(name, desc: desc)
+        return result
     }
     
     func fromCGFont(_ name:String, desc:FontDesc) throws -> Font? {
@@ -82,5 +82,4 @@ public class ImageManager {
         }
         return nil
     }
-    
 }
