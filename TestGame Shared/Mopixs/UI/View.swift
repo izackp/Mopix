@@ -213,7 +213,7 @@ open class View: Codable {
             }, size: originalFrame.size)
             
             let offsetFrame = frame.offset(rect.origin)
-            try context.drawImage(image, offsetFrame, SmartColor.white.withAlpha(alpha))
+            try context.drawImage(image, offsetFrame, SmartColor.white, alpha)
             cachedImage = image
             shouldRedraw = false
             return

@@ -114,7 +114,7 @@ public class TextField : TextView {
                     x = rect.right - Int16(lineWidth)
             }
             print("Drawing ph \(Point(x, y))")
-            try context.drawText(Point(x, y), placeHolderColor, subStr, font, spacing: characterSpacing)
+            try context.drawText(subStr, font, Point(x, y), placeHolderColor, spacing: characterSpacing)
             y += Int16(height)
         }
     }

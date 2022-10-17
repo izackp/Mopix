@@ -127,3 +127,5 @@ Which is atrocious, but if the GPU driver is doing it, it's beyond our control.
 // Resizing windows freezes main loop:
 The idea of using sdl is to avoid dealing with this stuff. For osx [super sendEvent:event]; on the window freezes up the main thread. Seems like something I can ignore for a while.
 https://github.com/libsdl-org/SDL/issues/1059
+
+

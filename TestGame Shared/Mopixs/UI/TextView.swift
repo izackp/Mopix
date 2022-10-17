@@ -206,7 +206,7 @@ public class TextView : View {
                 case .end:
                     x = rect.right - Int16(lineWidth)
             }
-            try context.drawText(Point(x, y), textColor, subStr, font, spacing: characterSpacing)
+            try context.drawText(subStr, font, Point(x, y), textColor, spacing: characterSpacing)
             y += Int16(height)
         }
     }

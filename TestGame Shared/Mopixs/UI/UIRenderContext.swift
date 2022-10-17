@@ -116,17 +116,17 @@ public class UIRenderContext {
         currentClipRect = newFrame
     }
     
-    func drawSquare(_ frame:Frame<Int16>, _ color:SmartColor) throws {
+    func drawSquare(_ frame:Frame<Int16>, _ color:SmartColor, _ alpha:Float = 1) throws {
         //if (frame.height < 0) { return }
-        try drawSquare(frame, resolveSmartColor(color))
+        try drawSquare(frame, resolveSmartColor(color), alpha)
     }
     
-    func drawImage(_ image:Image, _ frame:Frame<Int16>, _ color:SmartColor, alpha:Float = 1) throws {
-        try drawImage(image, frame, resolveSmartColor(color))
+    func drawImage(_ image:Image, _ frame:Frame<Int16>, _ color:SmartColor, _ alpha:Float = 1) throws {
+        try drawImage(image, frame, resolveSmartColor(color), alpha)
     }
     
-    func drawText(_ pos:Point<Int16>, _ color:SmartColor, _ text:Substring, _ font:Font, spacing:Int = 0) throws {
-        let bounds = currentWindowFrame.last!
+    func drawText( _ text:Substring, _ font:Font, _ pos:Point<Int16>, _ color:SmartColor, _ alpha:Float = 1, spacing:Int = 0) throws {
+        //let bounds = currentWindowFrame.last!
         var dest = Frame<Int16>(x: pos.x, y: pos.y, width: 0, height: 0)
         let finalColor = resolveSmartColor(color)
         for c in text {
@@ -143,7 +143,7 @@ public class UIRenderContext {
         }
     }
     
-    func drawSquare(_ dest:Frame<Int16>, _ color:SDLColor) throws {
+    func drawSquare(_ dest:Frame<Int16>, _ color:SDLColor, _ alpha:Float = 1) throws {
         //let newFrame = frame.offset(lastOffset)
         //TODO: we can probably just return sdl texture and source
         //var newFrame = frame
@@ -181,7 +181,7 @@ public class UIRenderContext {
         }*/
     }
     
-    func drawImage(_ image:Image, _ dest:Frame<Int16>, _ color:SDLColor = SDLColor.white, alpha:Float = 1) throws {
+    func drawImage(_ image:Image, _ dest:Frame<Int16>, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1) throws {
         let src = image.getSource()
         try drawImage2(dest, color, alpha, imgSrc: src, texturePageIndex: image.texture.texturePageIndex)
     }

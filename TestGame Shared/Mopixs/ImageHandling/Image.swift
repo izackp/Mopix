@@ -56,22 +56,22 @@ public class Image {
 }
 
 extension SDLRenderer {
-    func draw(_ image:Image, _ x:Int32, _ y:Int32, _ color:SDLColor = SDLColor.white) {
+    func draw(_ image:Image, _ x:Int32, _ y:Int32, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
         let source = image.getSource()
-        draw(source, SDL_Rect(x: x, y: y, w: source.rect.w, h: source.rect.h), color)
+        draw(source, SDL_Rect(x: x, y: y, w: source.rect.w, h: source.rect.h), color, alpha)
     }
     
-    func draw(_ image:Image, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white) {
+    func draw(_ image:Image, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
         let source = image.getSource()
-        draw(source, dest, color)
+        draw(source, dest, color, alpha)
     }
     
-    func draw(_ imageSrc:ImageSource, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
+    func draw(_ imageSrc:ImageSource, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1) {
         let texture = imageSrc.texture
         let src = imageSrc.rect
         do {
             try texture.setColorModulation(color)
-            try texture.setAlphaModulation(color.alpha())
+            try texture.setAlphaModulation(UInt8(255*alpha))
             try copy(texture, source: src, destination: dest)
             //try renderer.copy(sdlTexture.texture, source: test, destination: test)
         } catch {
