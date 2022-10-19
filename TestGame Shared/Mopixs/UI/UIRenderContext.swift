@@ -120,7 +120,7 @@ public class UIRenderContext {
         //if (frame.height < 0) { return }
         try drawSquare(frame, resolveSmartColor(color), alpha)
     }
-    
+
     func drawImage(_ image:Image, _ frame:Frame<Int16>, _ color:SmartColor, _ alpha:Float = 1) throws {
         try drawImage(image, frame, resolveSmartColor(color), alpha)
     }
@@ -194,7 +194,7 @@ public class UIRenderContext {
         if (try imgSrc.texture.blendMode().contains(blendMode) == false) {
             try imgSrc.texture.setBlendMode([blendMode])//TODO: wth why optionset
         }
-        renderer.draw(imgSrc, dest.sdlRect(), color)
+        renderer.draw(imgSrc, dest.sdlRect(), color, alpha)
     }
         
     func drawAtlas(_ x:Int, _ y:Int, index:Int = 0) throws {

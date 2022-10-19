@@ -184,7 +184,6 @@ open class View: Codable {
     }
 
     open func layout() {
-        //TODO: I'm not sure if a 'layout is dirty' check will improve performance
         for eachItem in listLayouts {
             eachItem.updateFrame(self)
         }
@@ -204,19 +203,23 @@ open class View: Codable {
     
     func drawOrRaster(_ context:UIRenderContext, _ rect:Frame<DValue>) throws {
         if (alpha == 0) { return }
-        if (shouldRasterize || alpha != 1) {
+        let requiresComposition = (alpha != 1 && (children.count > 0 || !backgroundColor.isClear()))
+        let requireRaster = (shouldRasterize || requiresComposition)
+        if (requireRaster && cachedImage == nil || shouldRedraw) {
             let originalFrame = frame
             let image = try context.createAndDrawToTexture({ context, frame in
-                
+                //TODO: I don't like below.. Also we could do some optimizations by avoiding rendering underspecific conditions
+                //Currently we always need to redraw because we don't know anything about the the children
+                //If any of the children changed 
                 let offsetFrame = frame.offset(Point(originalFrame.origin.x * -1, originalFrame.origin.y * -1)) //2am brain hurts haxfix
                 try draw(context, offsetFrame)
             }, size: originalFrame.size)
-            
-            let offsetFrame = frame.offset(rect.origin)
-            try context.drawImage(image, offsetFrame, SmartColor.white, alpha)
             cachedImage = image
             shouldRedraw = false
-            return
+        }
+        if let image = cachedImage {
+            let offsetFrame = frame.offset(rect.origin)
+            try context.drawImage(image, offsetFrame, SmartColor.white, alpha)
         } else {
             try draw(context, rect)
         }

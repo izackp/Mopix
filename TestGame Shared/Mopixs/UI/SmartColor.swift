@@ -15,6 +15,7 @@ public extension SmartColor {
     static var idk = SmartColor(0xFF9999FF, name: "idk")
     static var pink = SmartColor(0xFFFF3B69, name: "pink")
     static var black = SmartColor(0xFF000000, name: "black")
+    static var clear = SmartColor(0x00000000, name: "clear")
 }
 
 public class SmartColor: ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, ExpressibleByInteger, ExpressibleByString, Codable, Equatable, CustomDebugStringConvertible {
@@ -89,5 +90,13 @@ public class SmartColor: ExpressibleByIntegerLiteral, ExpressibleByStringLiteral
             return SmartColor(integerLiteral: asInt)
         }
         return self
+    }
+    
+    public func isClear() -> Bool {
+        if let value = self.rawValue {
+            let onlyAlpha = 0xFF000000 & value
+            return onlyAlpha == 0
+        }
+        return name == "clear"
     }
 }
