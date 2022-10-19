@@ -41,6 +41,8 @@ open class View: Codable {
     public var shouldRasterize:Bool = false
     public var shouldRedraw:Bool = false
     public var cachedImage:Image? = nil
+    public var borderColor:SmartColor = SmartColor.clear
+    public var borderWidth:DValue = 0
     
     init () {
         
@@ -55,6 +57,8 @@ open class View: Codable {
         case backgroundColor
         case alpha
         case shouldRasterize
+        case borderColor
+        case borderWidth
     }
     
     //TODO: Obviously weird..
@@ -76,6 +80,8 @@ open class View: Codable {
         self.backgroundColor = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .backgroundColor) ?? SmartColor.white
         self.alpha = try container.decodeIfPresent(Float.self, forKey: .alpha) ?? 1
         self.shouldRasterize = try container.decodeIfPresent(Bool.self, forKey: .shouldRasterize) ?? false
+        self.borderColor = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .borderColor) ?? SmartColor.clear
+        self.borderWidth = try container.decodeIfPresent(DValue.self, forKey: .borderWidth) ?? 0
         for eachChild in self.children {
             eachChild.superView = self
         }
@@ -106,6 +112,12 @@ open class View: Codable {
         }
         if (shouldRasterize) {
             try container.encode(shouldRasterize, forKey: .shouldRasterize)
+        }
+        if (borderColor.isClear() == false) {
+            try container.encode(borderColor, forKey: .borderColor)
+        }
+        if (borderWidth != 0) {
+            try container.encode(borderWidth, forKey: .borderWidth)
         }
     }
     
@@ -244,6 +256,21 @@ open class View: Codable {
         for eachChild in children {
             try eachChild.drawOrRaster(context, offsetFrame)
         }
+        
+        if (borderWidth > 0 && borderColor.isClear() == false) {
+            var line:Frame<DValue> = offsetFrame
+            line.height = borderWidth
+            try context.drawSquare(line, borderColor)
+            line.y = offsetFrame.bottom - borderWidth
+            try context.drawSquare(line, borderColor)
+            line.y = offsetFrame.y + borderWidth
+            line.width = borderWidth
+            line.height = offsetFrame.height - (borderWidth * 2)
+            try context.drawSquare(line, borderColor)
+            line.x = offsetFrame.right - borderWidth
+            try context.drawSquare(line, borderColor)
+        }
+        
         if (clip) {
             try context.setClipRect(lastClipRect)
         }

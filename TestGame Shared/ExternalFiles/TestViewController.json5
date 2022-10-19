@@ -51,6 +51,8 @@
             listLayouts: [ { _type: "LEMatch", source: { _id: "viewNavigationBar" }, edgeSource: "Bottom", edgeDestination: "Top" } ],
             backgroundColor: "blue",
             alpha: 0.60,
+            borderColor: "green",
+            borderWidth: 4,
             children: [
                 {
                     _id: "viewImage",
