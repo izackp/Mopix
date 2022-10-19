@@ -14,7 +14,24 @@ public enum TextWrapping : Int, Codable {
     case word
 }
 
-public enum TextAlignment : Int, Codable {
+public enum TextAlignment : Int, Codable, ExpressibleByString {
+    public init(_ value: String) throws {
+        switch (value) {
+            case "center":
+                self = .center
+            case "start":
+                self = .start
+            case "end":
+                self = .end
+            case "left":
+                self = .left
+            case "right":
+                self = .right
+            default:
+                self = .center
+        }
+    }
+    
     case center
     case start
     case end
@@ -113,7 +130,7 @@ public class TextView : View {
         self.characterSpacing = try container.decodeIfPresent(Int.self, forKey: .characterSpacing) ?? 0 //TODO: Int changes based on platform
         self.textWrapping = try container.decodeIfPresent(TextWrapping.self, forKey: .textWrapping) ?? .word
         self.textTrimming = try container.decodeIfPresent(Int.self, forKey: .textTrimming) ?? 0
-        self.textAlignment = try container.decodeIfPresent(TextAlignment.self, forKey: .textAlignment) ?? .center
+        self.textAlignment = try container.decodeDynamicItemIfPresent(TextAlignment.self, forKey: .textAlignment) ?? .center
     }
     
     public override func encode(to encoder: Encoder) throws {
@@ -199,7 +216,7 @@ public class TextView : View {
                 case .left:
                     fallthrough
                 case .start:
-                    x = 0
+                    x = rect.x
                     break
                 case .right:
                     fallthrough

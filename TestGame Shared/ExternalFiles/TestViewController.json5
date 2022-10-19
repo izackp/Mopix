@@ -39,7 +39,7 @@
                         { _type: "LEMirrorMarginHorizontalMax" },
                     ],
                     text: "Sample $( 1.0000) 日中韓統合漢字拡張G 「ユニコード」",
-                    alignment: "center",
+                    textAlignment: "center",
                     backgroundColor: "red"
                 }
             ]
@@ -80,6 +80,20 @@
                     ]
                 }
             ]
+        },
+        {
+            _id: "testField",
+            _type: "TextField",
+            frame: { x: 50, y:52, width: 220, height: 44 },
+            listLayouts: [
+                { _type: "LEMatch", source: { _id: "viewRast" }, edgeSource: "Right", edgeDestination: "Left" },
+                { _type: "LEInset", edge: "Left", value: 8 },
+                { _type: "LEAnchor", edge: "Right", percent: 1.0 },
+            ],
+            text: "",
+            placeHolder: "Enter Text Here",
+            textAlignment: "left",
+            backgroundColor: "red"
         }
     ]
 }

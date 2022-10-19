@@ -18,7 +18,7 @@ public struct LEInset : LayoutElement, Codable {
     public var value:DValue
     
     public func updateFrame(_ view:View) {
-        view.frame.setValueForEdge(edge, value)
+        view.frame.offsetValueForEdge(edge, value)
     }
 }
 

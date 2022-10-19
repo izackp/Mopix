@@ -448,6 +448,27 @@ public struct Frame<T: Codable & Numeric>: Equatable, Codable, CustomDebugString
         }
     }
     
+    public mutating func offsetValueForEdge(_ edge:Edge, _ value:T) {
+        switch (edge) {
+            case Edge.Top:
+                top += value
+                break;
+            case Edge.Right:
+                right += value
+                break;
+            case Edge.Bottom:
+                bottom += value
+                break;
+            case Edge.Left:
+                left += value
+                break;
+            case .Start:
+                break
+            case .End:
+                break
+        }
+    }
+    
     public mutating func setValueForEdgeFixed(_ edge:Edge, _ value:T) {
         switch (edge) {
             case Edge.Top:

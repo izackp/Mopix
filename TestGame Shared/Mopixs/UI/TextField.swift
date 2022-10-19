@@ -106,14 +106,13 @@ public class TextField : TextView {
                 case .left:
                     fallthrough
                 case .start:
-                    x = 0
+                    x = rect.x
                     break
                 case .right:
                     fallthrough
                 case .end:
                     x = rect.right - Int16(lineWidth)
             }
-            print("Drawing ph \(Point(x, y))")
             try context.drawText(subStr, font, Point(x, y), placeHolderColor, spacing: characterSpacing)
             y += Int16(height)
         }
