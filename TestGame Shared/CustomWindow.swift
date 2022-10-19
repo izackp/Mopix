@@ -20,6 +20,12 @@ extension SDL_MouseMotionEvent {
     }
 }
 
+public struct MouseButtonEvent {
+    var x:Int32
+    var y:Int32
+    var button:UInt8
+}
+
 final class CustomWindow: Window {
     
     var rootViewController:ViewController? = nil
@@ -83,7 +89,7 @@ final class CustomWindow: Window {
                 let mouseEvent = eachEvent.button
                 let point = Point<DValue>(DValue(mouseEvent.x), DValue(mouseEvent.y))
                 let touchingView = viewForPoint(point)
-                touchingView?.onMouseRelease()
+                touchingView?.onMouseRelease(MouseButtonEvent(x: mouseEvent.x, y: mouseEvent.y, button: mouseEvent.button))
                 continue
             }
             
@@ -91,7 +97,7 @@ final class CustomWindow: Window {
                 let mouseEvent = eachEvent.button
                 let point = Point<DValue>(DValue(mouseEvent.x), DValue(mouseEvent.y))
                 let touchingView = viewForPoint(point)
-                touchingView?.onMousePress()
+                touchingView?.onMousePress(MouseButtonEvent(x: mouseEvent.x, y: mouseEvent.y, button: mouseEvent.button))
                 continue
             }
             

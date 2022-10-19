@@ -169,11 +169,11 @@ open class View: Codable {
         
     }
     
-    open func onMousePress() {
+    open func onMousePress(_ event:MouseButtonEvent) {
         
     }
     
-    open func onMouseRelease() {
+    open func onMouseRelease(_ event:MouseButtonEvent) {
         onTap?()
         /*
         print("Tapped View \(_id ?? ""): \(frame)")

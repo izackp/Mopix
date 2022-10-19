@@ -6,8 +6,10 @@
 //
 
 import Foundation
-import EonilFSEvents
 
+#if os(macOS)
+import EonilFSEvents
+#endif
 
 public protocol PackageChangeListener : AnyObject {
     func fileChanges(_ files:[VDItem])
@@ -24,7 +26,10 @@ public class MountedDir : IFileSystem {
     
     private var _fileWatchers = WeakArray<PackageChangeListener>([])
     var fileWatchers:WeakArray<PackageChangeListener> { get { return _fileWatchers } }
+    
+    #if os(macOS)
     private var _eventStream:EonilFSEventStream? = nil
+    #endif
     
     init(meta: PackageMeta, path: URL, virtualPath: String, isReadOnly: Bool, isDirectory:Bool, isIndexed:Bool = true) {
         self.meta = meta
@@ -171,6 +176,7 @@ public class MountedDir : IFileSystem {
     }
     
     //TODO: Not thread safe
+    #if os(macOS)
     func startWatching(_ listener:PackageChangeListener) throws {
         if _fileWatchers.contains(where: { $0 === listener }) {
             return
@@ -219,6 +225,23 @@ public class MountedDir : IFileSystem {
             }
         }
     }
+    #endif
+    
+#if os(iOS)
+    func startWatching(_ listener:PackageChangeListener) throws {
+        if _fileWatchers.contains(where: { $0 === listener }) {
+            return
+        }
+        _fileWatchers.append(listener)
+    }
+    
+    func stopWatching(_ listener:PackageChangeListener) {
+        _fileWatchers.clean()
+        if let index = _fileWatchers.firstIndex(where: { $0 === listener }) {
+            _fileWatchers.remove(at: index)
+        }
+    }
+    #endif
 }
 
 typealias DirectoryPath = Substring

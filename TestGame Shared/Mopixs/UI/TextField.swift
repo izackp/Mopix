@@ -16,6 +16,10 @@ public class TextField : TextView {
 
     private var _placeHolderFont:Font? = nil
     
+    private var _hasFocus:Bool = false
+    private var _selectionStart:Int? = nil
+    private var _cursor:Int = 0
+    
     required public init() {
         super.init()
     }
@@ -60,10 +64,16 @@ public class TextField : TextView {
         return font
     }
     
+    open override func onMousePress(_ event: MouseButtonEvent) {
+        super.onMousePress(event)
+        //
+    }
+    
     open override func drawContent(_ context:UIRenderContext, _ rect:Frame<DValue>) throws {
         try super.drawContent(context, rect)
         //return
         if (text.count != 0 || placeHolder.count == 0) { return }
+        if (_hasFocus) { return }
         
         let font = try fetchPlaceHolderFont(context)
         

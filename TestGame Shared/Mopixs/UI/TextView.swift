@@ -98,6 +98,7 @@ public class TextView : View {
     public var maxLines:Int = 0
 
     private var _cachedFont:Font! = nil
+    private var _selectable:Bool = false
     
     required public override init() {
         super.init()
