@@ -29,6 +29,9 @@ func approxRollingAverage(avg: Double, input: Double, numSamples:Double) -> Doub
 
 public class SingleStat {
     var average:Double = 0
+    var highest:Double = 0
+    var lowest:Double = 999
+    var last:Double = 0
     /*public init(average: Double) {
         self.average = average
     }*/
@@ -40,15 +43,38 @@ public class SingleStat {
         insertSample(elapsed)
     }
     
+    public func measure<T>(_ block:() throws ->(T)) rethrows -> T {
+        let time = CFAbsoluteTimeGetCurrent()
+        let result = try block()
+        let elapsed = CFAbsoluteTimeGetCurrent() - time
+        insertSample(elapsed)
+        return result
+    }
+    
+    public func measureOptional<T>(_ block:() throws ->(T?)) rethrows -> T? {
+        let time = CFAbsoluteTimeGetCurrent()
+        let result = try block()
+        let elapsed = CFAbsoluteTimeGetCurrent() - time
+        insertSample(elapsed)
+        return result
+    }
+    
     public func insertSample(_ value:Double) {
         average = approxRollingAverage(avg: average, input: value, numSamples: 60)
+        if (highest < value) {
+            highest = value
+        }
+        if (lowest > value) {
+            lowest = value
+        }
+        last = value
     }
 }
 
 public class Stats {
     
     var stats:[String: SingleStat] = [:]
-    var enabled:Bool = false
+    var enabled:Bool = true
     var printDelay:Double = 10
     var lastPrint:Double = 0
     
@@ -58,6 +84,46 @@ public class Stats {
             try stat.measure(block)
         } else {
             try block()
+        }
+    }
+    
+    public func measure<T>(_ name:String, _ block:() throws -> (T)) rethrows -> T {
+        if (enabled) {
+            let stat = stats.fetchOrInsert(name, {SingleStat()})
+            return try stat.measure(block)
+        } else {
+            return try block()
+        }
+    }
+    
+    public func measuredIt<T>(_ name:String, _ block:@escaping () throws -> (T?)) -> AnyIterator<Result<T, Error>> {
+        return AnyIterator {
+            do {
+                let result:T?
+                if (self.enabled == false) {
+                    result = try block()
+                } else {
+                    let stat = self.stats.fetchOrInsert(name, {SingleStat()})
+                    result = try stat.measureOptional() {
+                        return try block()
+                    }
+                }
+                if let result = result {
+                    return .success(result)
+                }
+            } catch {
+                return .failure(error)
+            }
+            return nil
+        }
+    }
+    
+    public func measureOptional<T>(_ name:String, _ block:() throws -> (T?)) rethrows -> T? {
+        if (enabled) {
+            let stat = stats.fetchOrInsert(name, {SingleStat()})
+            return try stat.measure(block)
+        } else {
+            return try block()
         }
     }
     
@@ -75,11 +141,27 @@ public class Stats {
         if (delta < printDelay) { return }
         lastPrint = currentTime
         print("Stats:")
-        for kvp in stats {
-            let average = String(format: "%.3f", kvp.value.average)
-            print("  \(average)s - \(kvp.key)")
+        var kvpList = stats.map({$0})
+        kvpList.sort(by: {
+            return $0.key.compare($1.key) == .orderedAscending
+        })
+        for kvp in kvpList {
+            let values = kvp.value
+            let average = toStrSmart(values.average)
+            let highest = toStrSmart(values.highest)
+            let lowest = toStrSmart(values.lowest)
+            let last = toStrSmart(values.last)
+            print("  \(average) \(highest) \(lowest) \(last) - \(kvp.key)")
         }
+        stats.removeAll(keepingCapacity: true)
     }
+}
+
+func toStrSmart(_ value:Double) -> String {
+    if (value > 0.01) {
+        return String(format: "%.3fs ", value)
+    }
+    return String(format: "%.3fms", value * 1000)
 }
 
 public class StopWatch {
@@ -94,7 +176,6 @@ public class StopWatch {
         return lastTime - time
     }
 }
-
 
 public protocol LGAppDelegate {
     

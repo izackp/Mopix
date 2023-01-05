@@ -129,3 +129,4 @@ The idea of using sdl is to avoid dealing with this stuff. For osx [super sendEv
 https://github.com/libsdl-org/SDL/issues/1059
 
 
+I want to eventually target the web / wasm . This means we're going to have to drop foundation. We can replace somethings with the numerics library, but it should also be possible to just cherry pick what we need.

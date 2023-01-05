@@ -36,12 +36,12 @@ open class View: Codable {
     public var userInteractable:Bool = true //Not sure how this is going to work yet
     
     public var clipBounds:Bool = false
-    open var backgroundColor = SmartColor.white
+    open var backgroundColor = LabeledColor.white
     public var alpha:Float = 1
     public var shouldRasterize:Bool = false
     public var shouldRedraw:Bool = false
     public var cachedImage:Image? = nil
-    public var borderColor:SmartColor = SmartColor.clear
+    public var borderColor:LabeledColor = LabeledColor.clear
     public var borderWidth:DValue = 0
     
     init () {
@@ -77,10 +77,10 @@ open class View: Codable {
         self.listLayouts = try container.decodeArray(LayoutElement.self, forKey: .listLayouts)
         self.children = try container.decodeContiguousArray(View.self, forKey: .children)
         self.clipBounds = try container.decodeIfPresent(Bool.self, forKey: .clipBounds) ?? clipBoundsDefault
-        self.backgroundColor = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .backgroundColor) ?? SmartColor.white
+        self.backgroundColor = try container.decodeDynamicItemIfPresent(LabeledColor.self, forKey: .backgroundColor) ?? LabeledColor.white
         self.alpha = try container.decodeIfPresent(Float.self, forKey: .alpha) ?? 1
         self.shouldRasterize = try container.decodeIfPresent(Bool.self, forKey: .shouldRasterize) ?? false
-        self.borderColor = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .borderColor) ?? SmartColor.clear
+        self.borderColor = try container.decodeDynamicItemIfPresent(LabeledColor.self, forKey: .borderColor) ?? LabeledColor.clear
         self.borderWidth = try container.decodeIfPresent(DValue.self, forKey: .borderWidth) ?? 0
         for eachChild in self.children {
             eachChild.superView = self
@@ -104,7 +104,7 @@ open class View: Codable {
         if (clipBounds) {
             try container.encode(clipBounds, forKey: .clipBounds)
         }
-        if (backgroundColor !== SmartColor.white) {
+        if (backgroundColor !== LabeledColor.white) {
             try container.encode(backgroundColor, forKey: .backgroundColor)
         }
         if (alpha != 1) {
@@ -177,20 +177,20 @@ open class View: Codable {
         onTap?()
         /*
         print("Tapped View \(_id ?? ""): \(frame)")
-        if (backgroundColor == SmartColor.white) {
-            backgroundColor = SmartColor.red
+        if (backgroundColor == LabeledColor.white) {
+            backgroundColor = LabeledColor.red
             return
         }
-        if (backgroundColor == SmartColor.red) {
-            backgroundColor = SmartColor.blue
+        if (backgroundColor == LabeledColor.red) {
+            backgroundColor = LabeledColor.blue
             return
         }
-        if (backgroundColor == SmartColor.blue) {
-            backgroundColor = SmartColor.green
+        if (backgroundColor == LabeledColor.blue) {
+            backgroundColor = LabeledColor.green
             return
         }
-        if (backgroundColor == SmartColor.green) {
-            backgroundColor = SmartColor.white
+        if (backgroundColor == LabeledColor.green) {
+            backgroundColor = LabeledColor.white
             return
         }*/
     }
@@ -231,7 +231,7 @@ open class View: Codable {
         }
         if let image = cachedImage {
             let offsetFrame = frame.offset(rect.origin)
-            try context.drawImage(image, offsetFrame, SmartColor.white, alpha)
+            try context.drawImage(image, offsetFrame, LabeledColor.white.sdlColor(), alpha)
         } else {
             try draw(context, rect)
         }
@@ -245,7 +245,7 @@ open class View: Codable {
             return
         }
         
-        try context.drawSquare(offsetFrame, backgroundColor)
+        try context.drawSquare(offsetFrame, backgroundColor.sdlColor())
         let clip = clipBounds
         var lastClipRect:Frame<DValue>? = nil
         if (clip) {
@@ -260,15 +260,16 @@ open class View: Codable {
         if (borderWidth > 0 && borderColor.isClear() == false) {
             var line:Frame<DValue> = offsetFrame
             line.height = borderWidth
-            try context.drawSquare(line, borderColor)
+            let borderColorSdl = borderColor.sdlColor()
+            try context.drawSquare(line, borderColorSdl)
             line.y = offsetFrame.bottom - borderWidth
-            try context.drawSquare(line, borderColor)
+            try context.drawSquare(line, borderColorSdl)
             line.y = offsetFrame.y + borderWidth
             line.width = borderWidth
             line.height = offsetFrame.height - (borderWidth * 2)
-            try context.drawSquare(line, borderColor)
+            try context.drawSquare(line, borderColorSdl)
             line.x = offsetFrame.right - borderWidth
-            try context.drawSquare(line, borderColor)
+            try context.drawSquare(line, borderColorSdl)
         }
         
         if (clip) {

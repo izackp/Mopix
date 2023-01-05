@@ -8,83 +8,27 @@
 import Foundation
 import SDL2
 
-public enum TextWrapping : Int, Codable {
-    case none
-    case character
-    case word
-}
 
-public enum TextAlignment : Int, Codable, ExpressibleByString {
-    public init(_ value: String) throws {
-        switch (value) {
-            case "center":
-                self = .center
-            case "start":
-                self = .start
-            case "end":
-                self = .end
-            case "left":
-                self = .left
-            case "right":
-                self = .right
-            default:
-                self = .center
-        }
-    }
-    
-    case center
-    case start
-    case end
-    case left
-    case right
-}
-
-struct TextLine {
-    let str:Substring
-    let width:Int
-    let height:Int
-    let startSpaceCount:Int
-    let startSpaceWidth:Int
-    let endSpaceCount:Int
-    let endSpaceWidth:Int
-    
-    init(str: Substring, width: Int, height: Int, startSpaceCount: Int = 0, startSpaceWidth: Int = 0, endSpaceCount: Int = 0, endSpaceWidth: Int = 0) {
-        self.str = str
-        self.width = width
-        self.height = height
-        self.startSpaceCount = startSpaceCount
-        self.startSpaceWidth = startSpaceWidth
-        self.endSpaceCount = endSpaceCount
-        self.endSpaceWidth = endSpaceWidth
-    }
-    
-    func strTrimmingEndSpace() -> Substring {
-        let offset = str.index(str.endIndex, offsetBy: -endSpaceCount)
-        let newStr = str[str.startIndex..<offset]
-        return newStr
-    }
-    
-    func widthTrimmingEndSpace() -> Int {
-        return width - endSpaceWidth
-    }
-    
-    func strTrimmingSpace() -> Substring {
-        let startOffset = str.index(str.startIndex, offsetBy: startSpaceCount)
-        let offset = str.index(str.endIndex, offsetBy: -endSpaceCount)
-        let newStr = str[startOffset..<offset]
-        return newStr
-    }
-    
-    func widthTrimmingSpace() -> Int {
-        return width - startSpaceWidth - endSpaceWidth
-    }
-}
-
-
+//TODO: limit amount of possible lines
 public class TextView : View {
     
     public var text:String = ""
-    public var textColor:SmartColor = SmartColor.idk
+    private var _attrText:AttributedString? = nil
+    public var attributedText:AttributedString {
+        get {
+            if let result = _attrText {
+                return result
+            }
+            let other = AttributedString(text)
+            _attrText = other
+            return other
+        }
+        set {
+            _attrText = newValue
+            text = ""
+        }
+    }
+    public var textColor:LabeledColor = LabeledColor.idk
     
     public var fontDesc:FontDesc = FontDesc.defaultFont
 
@@ -99,6 +43,8 @@ public class TextView : View {
 
     private var _cachedFont:Font! = nil
     private var _selectable:Bool = false
+    
+    var stats = Stats()
     
     required public override init() {
         super.init()
@@ -125,7 +71,7 @@ public class TextView : View {
         try super.init(from: decoder, clipBoundsDefault: true)
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.text = try container.decodeIfPresent(String.self, forKey: .text) ?? ""
-        self.textColor = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .textColor) ?? SmartColor.idk
+        self.textColor = try container.decodeDynamicItemIfPresent(LabeledColor.self, forKey: .textColor) ?? LabeledColor.idk
         self.fontDesc = try container.decodeIfPresent(FontDesc.self, forKey: .fontDesc) ?? FontDesc.defaultFont
         self.lineHeight = try container.decodeIfPresent(Float.self, forKey: .lineHeight) ?? 0.0
         self.characterSpacing = try container.decodeIfPresent(Int.self, forKey: .characterSpacing) ?? 0 //TODO: Int changes based on platform
@@ -141,7 +87,7 @@ public class TextView : View {
         if (text.count > 0) {
             try container.encode(text, forKey: .text)
         }
-        if (textColor !== SmartColor.idk) {
+        if (textColor !== LabeledColor.idk) {
             try container.encode(textColor, forKey: .textColor)
         }
         if (fontDesc != FontDesc.defaultFont) {
@@ -176,27 +122,37 @@ public class TextView : View {
     }
     
     open override func drawContent(_ context:UIRenderContext, _ rect:Frame<DValue>) throws {
+        //stats.printStats()
         if (text.count == 0) { return }
-        let font = try fetchFont(context)
+        //let font = try fetchFont(context)
+        let textContext = TextContext(font: fontDesc, foregroundColor: self.textColor, backgroundColor: LabeledColor.white, kern: 0, tracking: 0, image: nil)
         
-        let lines:[TextLine]
-        switch textWrapping {
-            case .word:
-                lines = try font.splitIntoLinesWordWrapped2(text, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
-                break
-            case .character:
-                lines = try font.splitIntoLines(text, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
-            case .none:
-                lines = [TextLine(str: text.substring(from: 0), width: try font.widthOfText(text, maxWidthPxs: Int(Int32.max)).extent, height: font._font.height(), startSpaceCount: 0, startSpaceWidth: 0, endSpaceCount: 0, endSpaceWidth: 0)]
+        
+        var lines:[TextLine2] = []
+        try Application._shared.stats.measure("build draw thing") {
+            switch textWrapping {
+                case .character:
+                    //lines = try font.splitIntoLines(text, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
+                    fallthrough
+                case .word:
+                    lines = try TextLine2.buildFrom(attributedText, renderContext: context, context: textContext, maxWidthPxs: Int(rect.width))//try font.splitIntoLinesWordWrapped2(text, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
+                    break
+                case .none:
+                    lines = try TextLine2.buildFrom(attributedText, renderContext: context, context: textContext, maxWidthPxs: nil)
+            }
         }
-            
-        guard let height = lines.first(where: { $0.height > 0 })?.height else { print("error no height"); return }
-        let totalHeight = Int16(height * lines.count)
-        var y:Int16 = (rect.height - totalHeight) / 2 + rect.y
+
+        
+        
+        var totalHeight = 0
+        for eachLine in lines {
+            totalHeight += eachLine.maxHeight
+        }
+        var y:Int16 = (rect.height - Int16(totalHeight)) / 2 + rect.y
         var firstLine = true
         for eachLine in lines {
             let lineWidth:Int
-            let subStr:Substring
+            let subStr:ArraySlice<RenderableCharacter>
             if (firstLine) {
                 lineWidth = eachLine.widthTrimmingEndSpace()
                 subStr = eachLine.strTrimmingEndSpace()
@@ -206,7 +162,7 @@ public class TextView : View {
             }
             firstLine = false
             if lineWidth == 0 {
-                y += Int16(height)
+                y += Int16(eachLine.maxHeight)
                 continue
             }
             let x:Int16
@@ -224,8 +180,8 @@ public class TextView : View {
                 case .end:
                     x = rect.right - Int16(lineWidth)
             }
-            try context.drawText(subStr, font, Point(x, y), textColor, spacing: characterSpacing)
-            y += Int16(height)
+            try context.drawTextLine(subStr, Point(x, y))
+            y += Int16(eachLine.maxHeight)
         }
     }
 }

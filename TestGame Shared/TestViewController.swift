@@ -32,6 +32,8 @@ public class TestViewController : ViewController, PackageChangeListener {
         decoder.allowsJSON5 = true
         decoder.userInfo[CodingUserInfoKey(rawValue: "instanceCache")!] = InstanceCache()
         decoder.userInfo[CodingUserInfoKey(rawValue: "imageManager")!] = imageManager
+        decoder.userInfo[CodingUserInfoKey(rawValue: "labeledColors")!] = LabeledColorMap.standard
+        //context[CodingUserInfoKey(rawValue: "labeledColors")!] as? LabeledColorMa
         let content = try decoder.decode(ResolverInterface<Any>.self, from: data)
         guard let myView = content.result.first as? View else { throw GenericError("Unexpected type")}
         let mountedDir = vd.packages.contains(vcUrl)
@@ -69,7 +71,7 @@ public class UIBuilderVC : ViewController {
     static public func build() -> UIBuilderVC {
         let myView = View()
         myView.listLayouts = [LEAnchor(edge: .Right, percent: 1), LEAnchor(edge: .Bottom, percent: 1)]
-        myView.backgroundColor = SmartColor.white
+        myView.backgroundColor = LabeledColor.white
         let lblHelloWorld = TextView(text: "Hello World2")
         lblHelloWorld.listLayouts = [LEAnchor(edge: .Right, percent: 1), LEAnchor(edge: .Bottom, percent: 1), LEInset(edge: .Right, value: 16), LEInset(edge: .Left, value: 16)]
         myView.children.append(lblHelloWorld)

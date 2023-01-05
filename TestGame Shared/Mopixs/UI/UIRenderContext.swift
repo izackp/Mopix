@@ -26,25 +26,11 @@ public class UIRenderContext {
     var rollingTextureForPage:[Int:SDLTexture] = [:]
     var blendMode:SDLBlendMode = .alpha
     
-    private func resolveSmartColor(_ color:SmartColor) -> SDLColor {
-        if let raw = color.rawValue {
-            return SDLColor(rawValue: raw)
+    func fetchFont(_ fontDesc:FontDesc) throws -> Font {
+        guard let font = try imageManager.fetchFont(desc: fontDesc) else {
+            throw GenericError("No font for desc: \(fontDesc.family)")
         }
-        if let name = color.name {
-            switch name {
-                case "white":
-                    return SDLColor(rawValue: SmartColor.white.rawValue!)
-                case "green":
-                    return SDLColor(rawValue: SmartColor.green.rawValue!)
-                case "red":
-                    return SDLColor(rawValue: SmartColor.red.rawValue!)
-                case "blue":
-                    return SDLColor(rawValue: SmartColor.blue.rawValue!)
-                default:
-                    return SDLColor(rawValue: SmartColor.black.rawValue!)
-            }
-        }
-        return SDLColor(rawValue: color.rawValue!)
+        return font
     }
     
     func createAndDrawToTexture(_ block:(_ context:UIRenderContext, _ frame:Frame<DValue>) throws -> (), size:Size<DValue>) throws -> Image {
@@ -116,30 +102,39 @@ public class UIRenderContext {
         currentClipRect = newFrame
     }
     
-    func drawSquare(_ frame:Frame<Int16>, _ color:SmartColor, _ alpha:Float = 1) throws {
-        //if (frame.height < 0) { return }
-        try drawSquare(frame, resolveSmartColor(color), alpha)
-    }
-
-    func drawImage(_ image:Image, _ frame:Frame<Int16>, _ color:SmartColor, _ alpha:Float = 1) throws {
-        try drawImage(image, frame, resolveSmartColor(color), alpha)
-    }
-    
-    func drawText( _ text:Substring, _ font:Font, _ pos:Point<Int16>, _ color:SmartColor, _ alpha:Float = 1, spacing:Int = 0) throws {
+    func drawText( _ text:Substring, _ font:Font, _ pos:Point<Int16>, _ color:SDLColor, _ alpha:Float = 1, spacing:Int = 0) throws {
         //let bounds = currentWindowFrame.last!
         var dest = Frame<Int16>(x: pos.x, y: pos.y, width: 0, height: 0)
-        let finalColor = resolveSmartColor(color)
         for c in text {
             do {
                 let metrics = try font._font.glyphMetrics(c: c)
                 let image = try font.glyph(c)
                 dest.width = Int16(image.texture.sourceRect.width)
                 dest.height = Int16(image.texture.sourceRect.height)
-                renderer.draw(image, dest.sdlRect(), finalColor)
+                renderer.draw(image, dest.sdlRect(), color)
                 dest.x += Int16(metrics.advance) + Int16(spacing)
             } catch {
                 print("Error couldn't draw character '\(c)': \(error.localizedDescription)")
             }
+        }
+    }
+    
+    func drawTextLine( _ text:ArraySlice<RenderableCharacter>, _ pos:Point<Int16>, _ alpha:Float = 1) throws {
+        //let bounds = currentWindowFrame.last!
+        var dest = Frame<Int16>(x: pos.x, y: pos.y, width: 0, height: 0)
+        for c in text {
+            dest.width = Int16(c.size.width)
+            dest.height = Int16(c.size.height)
+            
+            if let bgColor = c.background {
+                try drawSquare(dest, bgColor.sdlColor())
+            }
+            if let image = c.img {
+                dest.height = Int16(image.texture.sourceRect.size.height)
+                //assert(c.size.asInt32() == image.texture.sourceRect.size)
+                renderer.draw(image, dest.sdlRect(), c.foreground.sdlColor())
+            }
+            dest.x += Int16(c.size.width)
         }
     }
     
@@ -173,12 +168,6 @@ public class UIRenderContext {
         usingNewPage = true
         rollingTextureForPage[index] = newTexture
         try newTexture.setBlendMode(previousBlendMode)
-        /*
-        for i in 0..<destinationPage.count {
-            if (destinationPage[i] == index) {
-                destinationPage[i] = -1
-            }
-        }*/
     }
     
     func drawImage(_ image:Image, _ dest:Frame<Int16>, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1) throws {

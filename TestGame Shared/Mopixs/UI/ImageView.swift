@@ -26,7 +26,7 @@ public class ImageView : View {
     
     public var image:Image? = nil
     private var _imageSrc:String? = nil //Temporary.. We're going to need to tie image to a file anyways for hotreloading
-    public var tint:SmartColor = SmartColor.idk
+    public var tint:LabeledColor = LabeledColor.white
     public var contentMode:ContentMode = ContentMode.right
     public var isOpaque:Bool = false //Treats all images as opaque if on
     
@@ -61,7 +61,7 @@ public class ImageView : View {
             }
         }
         
-        self.tint = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .tint) ?? SmartColor.idk
+        self.tint = try container.decodeDynamicItemIfPresent(LabeledColor.self, forKey: .tint) ?? LabeledColor.idk
         self.isOpaque = try container.decodeIfPresent(Bool.self, forKey: .isOpaque) ?? false
     }
     
@@ -72,7 +72,7 @@ public class ImageView : View {
         if let imageSrc = _imageSrc {
             try container.encode(imageSrc, forKey: .image)
         }
-        if (tint !== SmartColor.idk) {
+        if (tint !== LabeledColor.idk) {
             try container.encode(tint, forKey: .tint)
         }
         if (isOpaque != false) {
@@ -147,8 +147,8 @@ public class ImageView : View {
                     destFrame = nativeFrame
             }
             do {
-                //try context.drawSquare(frame, SmartColor.blue)
-                try context.drawImage(image, destFrame, tint)
+                //try context.drawSquare(frame, LabeledColor.blue)
+                try context.drawImage(image, destFrame, tint.sdlColor())
             } catch {
                 print("Error drawing image: \(error.localizedDescription)")
             }

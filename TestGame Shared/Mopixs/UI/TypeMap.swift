@@ -52,8 +52,8 @@ class TypeMap {
             return TextField.self
         case "ImageView":
             return ImageView.self
-        case "SmartColor":
-            return SmartColor.self
+        case "LabeledColor":
+            return LabeledColor.self
         default:
             throw GenericError("Unknown Type: \(type)")
         }

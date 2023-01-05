@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SDL2
 
 public struct Inset<T: Codable & Numeric>: Equatable, Codable   {
     var left:T
@@ -83,7 +84,7 @@ public enum Edge: String, Codable, ExpressibleByString {
     }*/
 }
 
-public struct Point<T: Codable & Numeric>: Equatable, Codable {
+public struct Point<T: Codable & Numeric & Hashable>: Equatable, Codable, Hashable {
     var x:T
     var y:T
     
@@ -169,6 +170,12 @@ public struct Size<T: Codable & Numeric>: Equatable, Codable  {
     }
 }
 
+extension Size<Int> {
+    func asInt32() -> Size<Int32> {
+        return Size<Int32>(Int32(width), Int32(height))
+    }
+}
+
 extension Size<DValue> {
     func aspectFitScale(_ toSize:Size<DValue>) -> Float {
         let scaleByWidth = Float(toSize.width) / Float(width)
@@ -236,6 +243,24 @@ extension Size<DValue> {
     }
 }
 
+extension SDL_Rect {
+    
+    public mutating func clip(_ other:Frame<DValue>) {
+        if (top < other.top) {
+            self.top = Int32(other.y)
+        }
+        if (self.left < other.left) {
+            self.left = Int32(other.left)
+        }
+        if (bottom > other.bottom) {
+            self.bottom = Int32(other.bottom)
+        }
+        if (self.right > other.right) {
+            self.right = Int32(other.right)
+        }
+    }
+}
+
 extension Frame where T: BinaryInteger {
     var center : Point<T> {
         get { return Point(origin.x + size.width / 2, origin.y + size.height / 2) }
@@ -291,7 +316,11 @@ extension Frame where T: BinaryInteger {
 //Currently (left, right, Top, Bottom) only effects the specific edge (width and height changes)
 //We can make this more clear by using xMin, xMax, yMin, yMax..
 //However, It doesn't match UI verbage. Or inset verbage.
-public struct Frame<T: Codable & Numeric>: Equatable, Codable, CustomDebugStringConvertible {
+public struct Frame<T: Codable & Numeric & Hashable>: Equatable, Codable, CustomDebugStringConvertible {
+    public static func == (lhs: Frame<T>, rhs: Frame<T>) -> Bool {
+        return lhs.x == rhs.x && lhs.y == rhs.y && lhs.width == rhs.width && lhs.height == rhs.height
+    }
+    
     public var debugDescription: String {
         get {
             return "\(x), \(y) - \(width), \(height)"

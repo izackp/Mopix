@@ -21,3 +21,6 @@ https://github.com/darlinghq/darling-icu - Apple's version of icu
 https://github.com/adah1972/libunibreak
 
 https://util.unicode.org/UnicodeJsps/breaks.jsp - Online break reference
+
+
+We currently depend on foundation.. we should remove this dependency

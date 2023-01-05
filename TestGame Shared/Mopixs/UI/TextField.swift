@@ -11,7 +11,7 @@ import SDL2
 public class TextField : TextView {
     
     public var placeHolder:String = ""
-    public var placeHolderColor:SmartColor = SmartColor.black
+    public var placeHolderColor:LabeledColor = LabeledColor.black
     public var placeHolderFont:FontDesc = FontDesc.defaultFont
 
     private var _placeHolderFont:Font? = nil
@@ -34,7 +34,7 @@ public class TextField : TextView {
         try super.init(from: decoder)
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.placeHolder = try container.decodeIfPresent(String.self, forKey: .placeHolder) ?? ""
-        self.placeHolderColor = try container.decodeDynamicItemIfPresent(SmartColor.self, forKey: .placeHolderColor) ?? SmartColor.idk
+        self.placeHolderColor = try container.decodeDynamicItemIfPresent(LabeledColor.self, forKey: .placeHolderColor) ?? LabeledColor.idk
         self.placeHolderFont = try container.decodeIfPresent(FontDesc.self, forKey: .placeHolderFont) ?? FontDesc.defaultFont
     }
     
@@ -45,7 +45,7 @@ public class TextField : TextView {
         if (placeHolder.count > 0) {
             try container.encode(placeHolder, forKey: .placeHolder)
         }
-        if (placeHolderColor !== SmartColor.idk) {
+        if (placeHolderColor !== LabeledColor.idk) {
             try container.encode(placeHolderColor, forKey: .placeHolderColor)
         }
         if (placeHolderFont != FontDesc.defaultFont) {
@@ -75,27 +75,32 @@ public class TextField : TextView {
         if (text.count != 0 || placeHolder.count == 0) { return }
         if (_hasFocus) { return }
         
-        let font = try fetchPlaceHolderFont(context)
+        //let font = try fetchPlaceHolderFont(context)
         
         //TODO: Copied in parent
-        let lines:[TextLine]
+        let textContext = TextContext(font: fontDesc, foregroundColor: self.placeHolderColor, backgroundColor: nil, kern: 0, tracking: 0, image: nil)
+        
+        let lines:[TextLine2]
         switch textWrapping {
-            case .word:
-                lines = try font.splitIntoLinesWordWrapped2(placeHolder, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
-                break
             case .character:
-                lines = try font.splitIntoLines(placeHolder, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
+                //lines = try font.splitIntoLines(text, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
+                fallthrough
+            case .word:
+                lines = try TextLine2.buildFrom(attributedText, renderContext: context, context: textContext, maxWidthPxs: Int(rect.width))//try font.splitIntoLinesWordWrapped2(text, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
+                break
             case .none:
-                lines = [TextLine(str: placeHolder.substring(from: 0), width: try font.widthOfText(placeHolder, maxWidthPxs: Int(Int32.max)).extent, height: font._font.height())]
+                lines = try TextLine2.buildFrom(attributedText, renderContext: context, context: textContext, maxWidthPxs: nil)
         }
             
-        guard let height = lines.first(where: { $0.height > 0 })?.height else { print("error no height"); return }
-        let totalHeight = Int16(height * lines.count)
-        var y:Int16 = (rect.height - totalHeight) / 2 + rect.y
+        var totalHeight = 0
+        for eachLine in lines {
+            totalHeight += eachLine.maxHeight
+        }
+        var y:Int16 = (rect.height - Int16(totalHeight)) / 2 + rect.y
         var firstLine = true
         for eachLine in lines {
             let lineWidth:Int
-            let subStr:Substring
+            let subStr:ArraySlice<RenderableCharacter>
             if (firstLine) {
                 lineWidth = eachLine.widthTrimmingEndSpace()
                 subStr = eachLine.strTrimmingEndSpace()
@@ -105,7 +110,7 @@ public class TextField : TextView {
             }
             firstLine = false
             if lineWidth == 0 {
-                y += Int16(height)
+                y += Int16(eachLine.maxHeight)
                 continue
             }
             let x:Int16
@@ -123,8 +128,8 @@ public class TextField : TextView {
                 case .end:
                     x = rect.right - Int16(lineWidth)
             }
-            try context.drawText(subStr, font, Point(x, y), placeHolderColor, spacing: characterSpacing)
-            y += Int16(height)
+            try context.drawTextLine(subStr, Point(x, y))
+            y += Int16(eachLine.maxHeight)
         }
     }
 }

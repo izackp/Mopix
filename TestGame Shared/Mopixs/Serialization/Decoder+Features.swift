@@ -84,6 +84,26 @@ extension Decoder {
         {
             return Optional(try exType.init(value) as! T)
         }
+        if
+            let exType = T.self as? ExpressibleByStringWithContext.Type,
+            let value = try? String.init(from: self)
+        {
+            return Optional(try exType.init(value, self.userInfo) as! T)
+        }
+        
+        if
+            let exType = T.self as? ExpressibleByIntegerWithContext.Type,
+            let value = try? Int64.init(from: self)
+        {
+            return Optional(try exType.init(value, self.userInfo) as! T)
+        }
+        
+        if
+            let exType = T.self as? ExpressibleByFloatWithContext.Type,
+            let value = try? Float.init(from: self)
+        {
+            return Optional(try exType.init(value, self.userInfo) as! T)
+        }
         return nil
     }
 

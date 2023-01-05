@@ -49,10 +49,12 @@ public class ImageManager {
         if let url = _fontList[name] {
             let font = try SDLFont(file: url.path, ptSize: Int(desc.size))
             let result = Font(atlas: atlas, font: font)
+            _fontCache[desc] = result
             return result
         }
         
         let result = try fromCGFont(name, desc: desc)
+        _fontCache[desc] = result
         return result
     }
     

@@ -5,7 +5,6 @@
 //  Created by Isaac Paul on 6/24/22.
 //
 
-import Foundation
 import SDL2_ttf
 import SDL2
 
