@@ -96,9 +96,38 @@ public struct TweenStruct<T> : SomeTween where T : IReusable {
             actionHandler.itemIndex = itemIndex
             actionHandler.elapsedRatio = elapsedRatio
             if let chunk = pool.data[chunkIndex] {
+                
                 chunk.data.withUnsafeMutableBufferPointer { (ptr:inout UnsafeMutableBufferPointer<T>) in
                     onIteration(ptr: &ptr)
                 }
+                /*
+                if let action = action {
+                    chunk.data.withUnsafeMutableBufferPointer { (ptrBuff:inout UnsafeMutableBufferPointer<T>) in
+                        guard let buffer = ptrBuff.baseAddress else { return }
+                        let ptr:UnsafeMutablePointer<T> = buffer.advanced(by: actionHandler.itemIndex)
+                        action(&ptr.pointee, elapsedRatio)
+                    }
+                }*/
+                
+                //about 3-5 ms slower
+                /*
+                if let action = action {
+                    chunk.with(UInt16(itemIndex)) { item in
+                        action(&item, elapsedRatio)
+                    }
+                }*/
+                /*
+                if let action = action {
+                    chunk.withPtr(UInt16(itemIndex)) { item in
+                        onIteration2(ptr: item)
+                    }
+                }*/
+                /*
+                if let action = action {
+                    chunk.with(UInt16(itemIndex)) { item in
+                        onIteration3(ptr: &item)
+                    }
+                }*/
             }
         }
 
@@ -113,6 +142,12 @@ public struct TweenStruct<T> : SomeTween where T : IReusable {
         guard let buffer = ptr.baseAddress else { return }
         let ptr:UnsafeMutablePointer<T> = buffer.advanced(by: actionHandler.itemIndex)
         action?(&ptr.pointee, actionHandler.elapsedRatio)
+    }
+    func onIteration2(ptr:UnsafeMutablePointer<T>) {
+        action?(&ptr.pointee, actionHandler.elapsedRatio)
+    }
+    func onIteration3(ptr:inout T) {
+        action?(&ptr, actionHandler.elapsedRatio)
     }
 /*
     public ref T Target() {

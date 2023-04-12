@@ -36,7 +36,7 @@ public struct Particle : IReusable {
         completed = false
     }
     
-    public mutating func cleanOnComplete() -> Bool {
+    @inline(__always) public mutating func cleanOnComplete() -> Bool {
         if (isAlive && completed) {
             clean()
             isAlive = false

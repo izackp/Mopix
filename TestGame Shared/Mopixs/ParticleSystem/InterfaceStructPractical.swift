@@ -19,12 +19,11 @@ public class InterfaceStructPractical : IParticleBacking {
         pthread_rwlock_init(&_lockParticle, nil)
         pthread_rwlock_init(&_lockTweener, nil)
     }
-    //let _particleList = sharedPool
-    //ObjectPool<Particle> _particlePool = new ObjectPool<Particle>(Helper.NUM_VIEWS)
 
     public func createParticle(startColor:ARGB32, colorDiff:ARGB32Diff, gravity:Float, ms:Int, vector:Vector<Float>, pos:Vector<Float>) {
         
         //pthread_rwlock_wrlock(&_lockParticle)
+        //A more practical example probably wouldn't use a ChunkedPool. However, this is for testing performance, and any other solution will slow to a crawl
         guard let newParticleId = InterfaceStructPractical.sharedPool.rentRef( { newParticle in
             newParticle.color = startColor
             newParticle.pos = pos
@@ -47,8 +46,6 @@ public class InterfaceStructPractical : IParticleBacking {
                 let ratio = Float(elapsedRatio)
                 let x = endVector.x * ratio
                 let y = endVector.y * ratio
-                //let variance = (abs(Float(colorDiff.diffB))/255)
-                //let idk = (endGravity) * variance
                 let otherY = endGravity * ratio * ratio
                 var end = y + otherY
                 var endx = x
@@ -75,45 +72,7 @@ public class InterfaceStructPractical : IParticleBacking {
     public func createParticleBulk(_ data:ContiguousArray<ParticleData>) {
         //var len = data.count
         for eachItem in data {
-            guard let newParticleId = InterfaceStructPractical.sharedPool.rentRef( { newParticle in
-                newParticle.color = eachItem.startColor
-                newParticle.pos = eachItem.pos
-            }) else { return }
-            
-            let msF = Float(eachItem.ms)
-            let msD = Double(eachItem.ms)
-            let endGravity = eachItem.gravity * msF * msF
-            let endVector = Vector<Float>(eachItem.vector.x * msF, eachItem.vector.y * msF)
-            let pos = eachItem.pos
-            let colorDiff = eachItem.colorDiff
-
-            _ = _tweener.popTween { tween in
-                tween.targetPtr = newParticleId
-                tween.setDuration(msD)
-                tween.action = { (target:inout Particle, elapsedRatio:Double) in
-                    let ratio = Float(elapsedRatio)
-                    let x = endVector.x * ratio
-                    let y = endVector.y * ratio
-                    //let variance = (abs(Float(colorDiff.diffB))/255)
-                    //let idk = (endGravity) * variance
-                    let otherY = endGravity * ratio * ratio
-                    var end = y + otherY
-                    var endx = x
-                    if (end > 300) {
-                        let thing = ((end - 300) * 0.2)
-                        end = 300 - thing
-                        endx -= thing
-                        target.pos = Vector<Float>(endx, end) + pos
-                        target.color = ARGB32.darkRed
-                    } else {
-                        target.pos = Vector<Float>(endx, end) + pos
-                        target.color = colorDiff.colorForElapsedRatio(elapsedRatio)
-                    }
-                    if (elapsedRatio == 1.0) {
-                        target.completed = true
-                    }
-                }
-            }
+            createParticle(startColor: eachItem.startColor, colorDiff: eachItem.colorDiff, gravity: eachItem.gravity, ms: eachItem.ms, vector: eachItem.vector, pos: eachItem.pos)
         }
     }
 
@@ -161,6 +120,20 @@ public class InterfaceStructPractical : IParticleBacking {
         var alive = 0
         for w in 0 ..< chunks {
             guard let eachChunk = pool.data[w] else { continue }
+            //~0.75ms
+            /*
+            eachChunk.data.iterateUnchecked { ptr, t in
+                if (!ptr.pointee.isAlive) { return }
+                
+                if (ptr.pointee.cleanOnComplete()) {
+                    deleted += 1
+                    pool.returnCleanedItem(eachChunk, UInt16(w), UInt16(t))
+                } else {
+                    alive += 1
+                }
+            }*/
+            // ~0.75ms
+            /*
             eachChunk.data.withUnsafeMutableBufferPointer { (ptr:inout UnsafeMutableBufferPointer<Particle>) in
                 guard let buffer = ptr.baseAddress else { return }
                 let len = ptr.count
@@ -175,11 +148,64 @@ public class InterfaceStructPractical : IParticleBacking {
                         alive += 1
                     }
                 }
+            }*/
+            
+            //~0.75ms
+            eachChunk.data.forEachUnchecked { eachParticle, t in
+                if (!eachParticle.isAlive) { return }
+                
+                if (eachParticle.cleanOnComplete()) {
+                    deleted += 1
+                    pool.returnCleanedItem(eachChunk, UInt16(w), UInt16(t))
+                } else {
+                    alive += 1
+                }
             }
+            
+            
+            //~1.9ms
+            /*
+            let len = UInt16(eachChunk.count())
+            for t in 0..<len {
+                let didDeleted = eachChunk.withPtr(t) { eachParticle in
+                    return eachParticle.pointee.cleanOnComplete()
+                }
+                if didDeleted {
+                    deleted += 1
+                    //swift doesn't like me accessing memory that I'm modifying
+                    pool.returnCleanedItem(eachChunk, UInt16(w), t)
+                }
+            }*/
+            //~1.9ms
+            /*
+            let len = UInt16(eachChunk.count())
+            for t in 0..<len {
+                let didDeleted = eachChunk.with(t) { eachParticle in
+                    return eachParticle.cleanOnComplete()
+                }
+                if didDeleted {
+                    deleted += 1
+                    //swift doesn't like me accessing memory that I'm modifying
+                    pool.returnCleanedItem(eachChunk, UInt16(w), t)
+                }
+            }
+            */
+            //~2.0ms
+            /*
+            eachChunk.data.forEachItem { eachParticle, i in
+                if (!eachParticle.isAlive) { return }
+                
+                if (eachParticle.cleanOnComplete()) {
+                    deleted += 1
+                    pool.returnCleanedItem(eachChunk, UInt16(w), UInt16(i))
+                } else {
+                    alive += 1
+                }
+            }*/
         }
         let deletionTime = CFAbsoluteTimeGetCurrent() - time
         //let other = InterfaceStruct.sharedPool.countLive()
-        //print("deletionTime Particles: \(toStrSmart(deletionTime)) deleted:\(deleted) alive:\(alive)")
+        print("deletionTime Particles: \(toStrSmart(deletionTime)) deleted:\(deleted) alive:\(alive)")
         
     }
 

@@ -56,27 +56,22 @@ public class Chunk<T> where T : IReusable {
         unusedIndex += 1
         return result
     }
-    /*
-    public func with(_ index:UInt16, _ block: ( _ item:inout T)->()) {
-        data.withUnsafeMutableBufferPointer {
-            block(&$0[Int(index)])
-        }
+    
+    @inline(__always) public func with(_ index:UInt16, _ block: ( _ item:inout T)->()) {
+        data.withUnsafeMutableBufferPointer { block(&$0[Int(index)]) }
         //block(&data[Int(index)])
     }
     
-    public func with<S>(_ index:UInt16, _ block: ( _ item:inout T)->(S)) -> S {
-        return data.withUnsafeMutableBufferPointer {
-            return block(&$0[Int(index)])
-        }
+    @inline(__always) public func with<S>(_ index:UInt16, _ block: ( _ item:inout T)->(S)) -> S {
+        return data.withUnsafeMutableBufferPointer { return block(&$0[Int(index)]) } //Significantly faster in high iterations
         //return block(&data[Int(index)])
     }
-    
+
     public func withPtr(_ index:UInt16, _ block: ( _ ptr:UnsafeMutablePointer<T>)->()) {
         data.withUnsafeMutableBufferPointer {
             guard let addr = $0.baseAddress else { return }
             block(addr.advanced(by: Int(index)))
         }
-        //block(&data[Int(index)])
     }
     
     public func withPtr<R>(_ index:UInt16, _ block: ( _ ptr:UnsafeMutablePointer<T>)->(R)) -> R {
@@ -86,11 +81,9 @@ public class Chunk<T> where T : IReusable {
             result = block(addr.advanced(by: Int(index)))
         }
         return result
-        //return block(&data[Int(index)])
-    }*/
-    
+    }
 
-    subscript(index:UInt16) -> T {
+    @inline(__always) subscript(index:UInt16) -> T {
         get {
             return data[Int(index)]
         }

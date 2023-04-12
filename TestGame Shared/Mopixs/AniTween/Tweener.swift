@@ -81,6 +81,12 @@ public class Tweener<T> where T : SomeTween {
         for i in begin ..< end {
             guard let eachChunk = pool.data[i] else { continue }
             //var chunkData = eachChunk.data
+            eachChunk.data.forEachUnchecked { (eachItem:inout T, i) in
+                if (eachItem.isAlive) {
+                    var _ = eachItem.processFrame(deltaTime)
+                }
+            }
+            /*
             eachChunk.data.withUnsafeMutableBufferPointer { (ptr:inout UnsafeMutableBufferPointer<T>) in
                 guard let buffer = ptr.baseAddress else { return }
                 let len = ptr.count
@@ -90,7 +96,7 @@ public class Tweener<T> where T : SomeTween {
                         var _ = ptr.pointee.processFrame(deltaTime)
                     }
                 }
-            }
+            }*/
         }
     }
 
@@ -100,14 +106,9 @@ public class Tweener<T> where T : SomeTween {
         for i in 0 ..< chunks {
             //guard var eachChunk = data[i] else { continue }
             //var chunkData = eachChunk.data
-            _pool.data[i]?.data.withUnsafeMutableBufferPointer { (ptr:inout UnsafeMutableBufferPointer<T>) in
-                guard let buffer = ptr.baseAddress else { return }
-                let len = ptr.count
-                for t in 0 ..< len {
-                    let ptr:UnsafeMutablePointer<T> = buffer.advanced(by: t)
-                    if (ptr.pointee.isAlive) {
-                        var _ = ptr.pointee.processFrame(deltaTime)
-                    }
+            _pool.data[i]?.data.forEachUnchecked { (eachItem:inout T, i) in
+                if (eachItem.isAlive) {
+                    var _ = eachItem.processFrame(deltaTime)
                 }
             }
         }
@@ -125,6 +126,12 @@ public class Tweener<T> where T : SomeTween {
         for w in 0 ..< chunks {
             guard let eachChunk = _pool.data[w] else { continue }
             //var chunkData = eachChunk.data
+            eachChunk.data.forEachUnchecked { (eachItem:inout T, t) in
+                if (eachItem.cleanOnComplete()) {
+                    _pool.returnCleanedItem(eachChunk, UInt16(w), UInt16(t))
+                }
+            }
+            /*
             eachChunk.data.withUnsafeMutableBufferPointer { (ptr:inout UnsafeMutableBufferPointer<T>) in
                 guard let buffer = ptr.baseAddress else { return }
                 let len = ptr.count
@@ -134,7 +141,7 @@ public class Tweener<T> where T : SomeTween {
                         _pool.returnCleanedItem(eachChunk, UInt16(w), UInt16(t))
                     }
                 }
-            }
+            }*/
             /*
             let chunkData = eachChunk.data
             let len = UInt16(chunkData.count)
@@ -160,6 +167,13 @@ public class Tweener<T> where T : SomeTween {
     public func cleanChunk(_ chunk:Chunk<T>) -> Int {
         
         var countAdjust = 0
+        chunk.data.forEachUnchecked { (eachItem:inout T, t) in
+            if (eachItem.cleanOnComplete()) {
+                countAdjust -= 1
+                chunk.returnCleaned(UInt16(t))
+            }
+        }
+        /*
         chunk.data.withUnsafeMutableBufferPointer { (ptr:inout UnsafeMutableBufferPointer<T>) in
             guard let buffer = ptr.baseAddress else { return }
             let len = ptr.count
@@ -170,7 +184,7 @@ public class Tweener<T> where T : SomeTween {
                     chunk.returnCleaned(UInt16(t)) //asdf
                 }
             }
-        }
+        }*/
         /*
         let len = UInt16(chunkData.count)
         for t in 0..<len {
@@ -188,7 +202,7 @@ public class Tweener<T> where T : SomeTween {
     //We can make an interface that will resolve the chunk each time or do it by chunks like now
     public func processFrameParallelFor(deltaTime:Double ) {
         let pool:ChunkedPool<T> = _pool
-        let info = ProcessInfo.processInfo
+        //let info = ProcessInfo.processInfo
         let threads = 4//info.activeProcessorCount * 3
         DispatchQueue.concurrentPerform(iterations: threads) { (index) in
             Tweener.processFrame2(pool, deltaTime, threads, index)

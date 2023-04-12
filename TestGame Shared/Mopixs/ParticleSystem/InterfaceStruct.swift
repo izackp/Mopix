@@ -64,6 +64,8 @@ public class InterfaceStruct : IParticleBacking {
             let chunkIndex = Int(particleId.chunkIndex())
             let itemIndex = Int(particleId.subIndex())
             if let chunk = InterfaceStruct.sharedPool.data[chunkIndex] {
+                
+                //TODO: Replace with with()
                 chunk.data.withUnsafeMutableBufferPointer { (ptr:inout UnsafeMutableBufferPointer<Particle>) in
                     guard let buffer = ptr.baseAddress else { return }
                     let ptr:UnsafeMutablePointer<Particle> = buffer.advanced(by: itemIndex)
@@ -233,6 +235,18 @@ public class InterfaceStruct : IParticleBacking {
         var alive = 0
         for w in 0 ..< chunks {
             guard let eachChunk = pool.data[w] else { continue }
+            
+            eachChunk.data.forEachUnchecked { (eachItem:inout Particle, t) in
+                if (!eachItem.isAlive) { return }
+                
+                if (eachItem.cleanOnComplete()) {
+                    deleted += 1
+                    pool.returnCleanedItem(eachChunk, UInt16(w), UInt16(t))
+                } else {
+                    alive += 1
+                }
+            }
+            /*
             eachChunk.data.withUnsafeMutableBufferPointer { (ptr:inout UnsafeMutableBufferPointer<Particle>) in
                 guard let buffer = ptr.baseAddress else { return }
                 let len = ptr.count
@@ -247,7 +261,7 @@ public class InterfaceStruct : IParticleBacking {
                         alive += 1
                     }
                 }
-            }
+            }*/
         }
         let deletionTime = CFAbsoluteTimeGetCurrent() - time
         //let other = InterfaceStruct.sharedPool.countLive()
