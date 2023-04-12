@@ -541,8 +541,8 @@ struct LineBreakChecker {
     
     mutating func lineBreakForPos(_ currentPos:Int) -> LineBreak? {
         guard
-            let position = position,
-            let positionIndex = positionIndex else {
+            var position = position,
+            var positionIndex = positionIndex else {
             return nil
         }
         while (position < currentPos) {
@@ -551,9 +551,11 @@ struct LineBreakChecker {
                 self.positionIndex = nil
                 return nil
             }
-            self.position = position + source.distance(from: positionIndex, to: nextLineBreak)
-            self.positionIndex = nextLineBreak
+            position = position + source.distance(from: positionIndex, to: nextLineBreak)
+            positionIndex = nextLineBreak
         }
+        self.position = position
+        self.positionIndex = positionIndex
         let isLineBreak = position == currentPos
         if (isLineBreak == false) { return nil }
         let lineBreak:LineBreak = lineCursor.isHardBreak() ? .hard : .soft
@@ -666,12 +668,12 @@ struct RenderableCharacterIterator : ThrowingIteratorProtocol {
         let internalFont = font._font
         let cSize = Size<Int>(thisWidth, internalFont.height()) //TODO: Characters are rendered into textures the size of the font height.. we could optimize this?
         if (c.isWhitespace) {
-            return RenderableCharacter(img: nil, size: cSize, baseLine: 0, foreground: context.foregroundColor, background: context.backgroundColor, lineBreak: nil)
+            return RenderableCharacter(img: nil, size: cSize, baseLine: 0, foreground: context.foregroundColor, background: context.backgroundColor, lineBreak: step2Item.lineBreak)
         }
         
         let image:Image = try font.glyph(c)
         //assert(cSize.height == image.texture.sourceRect.height, "\(cSize.height) == \(image.texture.sourceRect.height)")
-        return RenderableCharacter(img: image, size: cSize, baseLine: font._font.descent(), foreground: context.foregroundColor, background: context.backgroundColor, lineBreak: nil)
+        return RenderableCharacter(img: image, size: cSize, baseLine: font._font.descent(), foreground: context.foregroundColor, background: context.backgroundColor, lineBreak: step2Item.lineBreak)
     }
     
     typealias Element = Result<RenderableCharacter, Error>
@@ -769,13 +771,16 @@ struct LineIterator : ThrowingIteratorProtocol {
             return TextLine2(str: copy, height: height, widthInfo: strWidth)
         }
         
-        let line:TextLine2
+        var line:TextLine2
         
         if let lastLine = lastLine {
             line = lastLine
         } else {
             if let segment = try step4.next()?.get() {
                 line = TextLine2(segment: segment)
+                if (segment.hardbreak) {
+                    return line
+                }
             } else {
                 return nil
             }
@@ -793,9 +798,9 @@ struct LineIterator : ThrowingIteratorProtocol {
                 let combinedLine = line.appending(segment: nextLine)
                 if (nextLine.hardbreak) {
                     lastLine = nil
-                    return lastLine
+                    return combinedLine
                 }
-                lastLine = combinedLine
+                line = combinedLine
             }
         }
         let finalLine = line
@@ -851,7 +856,7 @@ extension TextLine2 {
         var lines = slines
         lines.removeAll(keepingCapacity: true)
         
-        try Application._shared.stats.measure("stepLast - build lines"){
+        //try Application._shared.stats.measure("stepLast - build lines"){
             while let eachLineResult = lineIterator.next() {
                 let eachLine = try eachLineResult.get()
                 lines.append(eachLine)
@@ -860,7 +865,7 @@ extension TextLine2 {
                     break
                 }
             }
-        }
+        //}
         
         let linesCopy = lines
         lines.removeAll(keepingCapacity: true)
@@ -874,8 +879,8 @@ extension TextLine2 {
         let allCharacters = String(str.characters[...]) //https://forums.swift.org/t/attributedstring-to-string/61667
         
         //var currentPos = 0
-        var lineBreakChecker = LineBreakChecker(allCharacters) //TODO: Relatively heavy
-        var runIterator:IndexingIterator<AttributedString.Runs> = str.runs.makeIterator()
+        let lineBreakChecker = LineBreakChecker(allCharacters) //TODO: Relatively heavy
+        let runIterator:IndexingIterator<AttributedString.Runs> = str.runs.makeIterator()
         
         var list:[RenderableCharacter] = slist
         var listStep4:[RenderableCharacter] = slistStep4
@@ -886,17 +891,17 @@ extension TextLine2 {
         //lines.removeAll(keepingCapacity: true)
 
         var elapsed = CFAbsoluteTimeGetCurrent() - time
-        stats.insertSample("step0 - 0 - initialize vars", elapsed)
+        //stats.insertSample("step0 - 0 - initialize vars", elapsed)
         time = CFAbsoluteTimeGetCurrent()
         
-        var step1 = RunIterator(str: str, runIterator: runIterator, renderContext: renderContext, textContext: context)
-        var step2 = Step2ContextIterator(lineBreakChecker: lineBreakChecker, step1: step1)
-        var step3 = RenderableCharacterIterator(step2: step2)
+        let step1 = RunIterator(str: str, runIterator: runIterator, renderContext: renderContext, textContext: context)
+        let step2 = Step2ContextIterator(lineBreakChecker: lineBreakChecker, step1: step1)
+        let step3 = RenderableCharacterIterator(step2: step2)
         let step4 = SegmentIterator(step3: step3, listStep4: listStep4)
         let step5 = LineIterator(step3: step3, step4: step4, list: list, maxWidthPxs: maxWidthPxs)
         
         elapsed = CFAbsoluteTimeGetCurrent() - time
-        stats.insertSample("step0 - 1 - initialize steps", elapsed)
+        //stats.insertSample("step0 - 1 - initialize steps", elapsed)
         
         return step5
     }

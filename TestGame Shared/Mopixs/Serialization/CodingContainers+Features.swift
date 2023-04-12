@@ -107,8 +107,9 @@ public extension KeyedDecodingContainer where Key : CodingKey {
             do {
                 return try decoder.decode(type)
             } catch let DecodingError.valueNotFound(errKey, context) {
-                print("Key: \(String(describing: errKey)) - Key: \(String(describing: key)) ")
-                print("Value not found. -> \(context.prettyPath()) <- \(context.debugDescription)") //TODO: We could get the last path key and compare to key
+                //Uh what? value not found makes sense if its not present??
+                //print("Key: \(String(describing: errKey)) - Key: \(String(describing: key)) ")
+                //print("Value not found. -> \(context.prettyPath()) <- \(context.debugDescription)") //TODO: We could get the last path key and compare to key
                 return nil
             }
         } else {

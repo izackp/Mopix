@@ -130,3 +130,26 @@ https://github.com/libsdl-org/SDL/issues/1059
 
 
 I want to eventually target the web / wasm . This means we're going to have to drop foundation. We can replace somethings with the numerics library, but it should also be possible to just cherry pick what we need.
+
+
+#### Animations, Tasks, And what not
+* Simpliest solution is to avoid async await
+ - Less worries about swift ports
+
+Granted most Applications run based on tasks / threads
+UI all happens on one thread while other common operations happen on different threads. This is a difficult problem and
+best solved using async/await as it will be optimized and maintained by other people.
+
+
+We can combine the solutions. Spin up a UI thread..
+
+
+Ok what's neat about some animation systems is that you can 'move something' and it happens immediately. Move + scale + something and immediately it is in that position in memory. However, the screen in this system has a seperate representation. This representation will start and eventually animates into the desired values causing a seperation between the two.
+
+This provides us with some benefits:
+ - No need to wait for the animation to complete to begin the next one
+ - Never have the UI layout be in an 'odd' position by operating on incomplete animations.
+   - Pretty important. Lets say we insert a view between two others. This inserted view is animated from the bottom up. The layout could be mostly automatic.. however once we start animating we need to manually move everything affected.
+ - Knowing the next few frames of an animation would help interpolation if any.
+ 
+ but it sounds like a lot of work

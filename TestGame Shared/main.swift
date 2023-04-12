@@ -20,6 +20,7 @@ class AppDelegateTesting: NSObject, NSApplicationDelegate {
 }
 #endif
 func main() throws {
+    
     let app = try TestGameApp()
     try app.runLoop()
 }

@@ -75,6 +75,7 @@ public class Stats {
     
     var stats:[String: SingleStat] = [:]
     var enabled:Bool = true
+    var shouldPrint:Bool = true
     var printDelay:Double = 10
     var lastPrint:Double = 0
     
@@ -135,7 +136,7 @@ public class Stats {
     }
     
     public func printStats() {
-        if (enabled == false) { return }
+        if (enabled == false || shouldPrint == false) { return }
         let currentTime = CFAbsoluteTimeGetCurrent()
         let delta = currentTime - lastPrint
         if (delta < printDelay) { return }
@@ -155,10 +156,25 @@ public class Stats {
         }
         stats.removeAll(keepingCapacity: true)
     }
+    
+    public func lastStats() -> String {
+        var desc = "Stats:"
+        var kvpList = stats.map({$0})
+        kvpList.sort(by: {
+            return $0.key.compare($1.key) == .orderedAscending
+        })
+        for kvp in kvpList {
+            let values = kvp.value
+            let last = toStrSmart(values.last)
+            desc += "\n  \(last) - \(kvp.key)"
+        }
+        //stats.removeAll(keepingCapacity: true)
+        return desc
+    }
 }
 
 func toStrSmart(_ value:Double) -> String {
-    if (value > 0.01) {
+    if (value > 0.1) {
         return String(format: "%.3fs ", value)
     }
     return String(format: "%.3fms", value * 1000)
@@ -191,6 +207,11 @@ open class Application {
     var isRunning = true
     var stats = Stats()
     
+    var everySecond:Double = 0
+    var skippedFrames = 0
+    var skippedTime:Int = 0
+    var lastStats:String = ""
+    
     static weak var _shared:Application!
     static func shared() -> Application {
         return _shared!
@@ -198,6 +219,9 @@ open class Application {
     
     public init() throws {
         //Note: automatically initializes the Event Handling, File I/O and Threading subsystems
+        //NOTE: Present via metal is .. slow? taking 32+ms
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl")
+        
         try SDL.initialize(subSystems: [.video])
         try TTF.initialize()
         engine.start()
@@ -212,11 +236,13 @@ open class Application {
         TTF.quit()
         SDL.quit()
     }
+    var emitter:Emitter! = nil
     
     //TODO: Do not allow on platforms with a set number of screens
     public func addWindow() throws -> Window {
         let window = try Window(parent: self, title: "Test", frame: Frame<Int>(origin: Point.zero, size: Size(800, 600)), windowOptions: [], driver: .default, options: [])
         _listWindowsPendingAdd.append(window)
+
         return window
     }
     
@@ -235,13 +261,19 @@ open class Application {
         engine.onLogic()
     }
     
+    var surface:SDLSurface! = nil
+    var texture:SDLTexture? = nil
+    
     public func runLoop() throws {
+        if (emitter == nil) {
+            emitter = buildEmitter(false)
+        }
         var event = SDL_Event()
+        var idk = CFAbsoluteTimeGetCurrent()
         let regulator = TickBank(startTime: SDL_GetTicks64(), timePerTick: 24, startingTick: 0)
         
         var allEvents = Arr<SDL_Event>.init()
         var allImmediateUseEvents:Arr<SDL_Event> = Arr<SDL_Event>.init()
-
 
         while isRunning {
             try autoreleasepool {
@@ -251,18 +283,19 @@ open class Application {
                         allEvents.append(event)
                     }
                 }
-                //TODO: Not great; ms precision will be 0 in a lot of cases without rendering
-                regulator.setCurrentTime(time: SDL_GetTicks64())
-                var count = regulator.withdrawAll()
-                if (count == 0) {
-                    //print("Skip - \(elapsedSinceStart)s")
-                }
-                while (count > 0) {
-                    stats.measure("logic") {
-                        logic(allEvents, Int(count))
+                stats.measure("all logic") {
+                    regulator.setCurrentTime(time: SDL_GetTicks64())
+                    var count = regulator.withdrawAll()
+                    if (count == 0) {
+                        //print("Skip - \(elapsedSinceStart)s")
                     }
-                    allEvents.removeAll()
-                    count -= 1
+                    while (count > 0) {
+                        stats.measure("logic") {
+                            logic(allEvents, Int(count))
+                        }
+                        allEvents.removeAll()
+                        count -= 1
+                    }
                 }
                 
                 stats.measure("poll 2") {
@@ -271,37 +304,71 @@ open class Application {
                         allEvents.append(event)
                     }
                 }
-                
-                listWindows.append(contentsOf: _listWindowsPendingAdd)
-                _listWindowsPendingAdd.removeAll(keepingCapacity: true)
-                for eachItem in _listWindowsPendingRemove {
-                    guard let i = listWindows.firstIndex(where: {$0 === eachItem}) else { continue }
-                    listWindows.remove(at: i)
+                stats.measure("window - Manage Window") {
+                    
+                    listWindows.append(contentsOf: _listWindowsPendingAdd)
+                    _listWindowsPendingAdd.removeAll(keepingCapacity: true)
+                    for eachItem in _listWindowsPendingRemove {
+                        guard let i = listWindows.firstIndex(where: {$0 === eachItem}) else { continue }
+                        listWindows.remove(at: i)
+                    }
+                    _listWindowsPendingRemove.removeAll(keepingCapacity: true)
                 }
-                _listWindowsPendingRemove.removeAll(keepingCapacity: true)
                 
-                for eachWindow in listWindows {
-                    //guard let conv = eachWindow as? CustomWindow else { continue }
-                    
-                    stats.measure("window - handle events") {
-                        eachWindow.handleEvents(allImmediateUseEvents)
+                try stats.measure("window - Whole Window") {
+                    var isFirst = true
+                    for eachWindow in listWindows {
+                        //guard let conv = eachWindow as? CustomWindow else { continue }
+                        if surface == nil {
+                            surface = try SDLSurface(rgb: (0, 0, 0, 0), size: eachWindow.sdlWindow.size)
+                        }
+                        stats.measure("window - handle events") {
+                            eachWindow.handleEvents(allImmediateUseEvents)
+                        }
+                        
+                        try eachWindow.drawStart()
+                        if (isFirst) {
+                            if let window = eachWindow as? CustomWindow { //Hack: Until I figure out the api between the two; ideally the engine can run without a renderer or knowledge of.
+                                stats.measure("engine - draw") {
+                                    engine.onDraw(eachWindow.renderer, window.imageManager) //TODO: I'm not sure how to tie the window to the engine.. lol
+                                }
+                                isFirst = false
+                            }
+                        }
+                        //I think there should be a window view that gets tied to a camera in the engine..
+                        try stats.measure("window - draw") {
+                            //try eachWindow.draw(time: 0)
+                            try emitter?.logic(true, eachWindow.renderer, surface, eachWindow.frame.size)
+                            
+                        }
+                        
+                        texture = try SDLTexture(renderer: eachWindow.renderer, surface: surface)
+                        try eachWindow.renderer.copy(texture!, destination: SDL_Rect(x: 0, y: 0, w: Int32(surface.width), h: Int32(surface.height)))
+                        //double before_time = (double)SDL_GetPerformanceCounter() / SDL_GetPerformanceFrequency();
+                        let stopTime = CFAbsoluteTimeGetCurrent()
+                        let elapsedMs = stopTime - idk
+                        everySecond += elapsedMs
+                        if (everySecond > 2) {
+                            skippedFrames = 0
+                            everySecond = elapsedMs
+                            skippedTime = 0
+                        }
+                        idk = stopTime
+                        if (elapsedMs > 0.032) {
+                            skippedFrames += (Int(elapsedMs*1000) / 16) - 1
+                            skippedTime = Int(elapsedMs*1000)
+                            lastStats = stats.lastStats()
+                        }
+                        stats.measure("window - draw finish") {
+                            eachWindow.drawFinish() //TODO: Tied to vsync .. We should separate to different threads or predict this somehow
+                            texture = nil
+                            //https://blog.unity.com/technology/fixing-time-deltatime-in-unity-2020-2-for-smoother-gameplay-what-did-it-take
+                            //Basically sample the time right after the vsync (from the hw?)
+                        }
                     }
-                    
-                    try eachWindow.drawStart()
-                    stats.measure("engine - draw") {
-                        //engine.onDraw(eachWindow.renderer, conv.imageManager) //TODO: I'm not sure how to tie the window to the engine.. lol
-                    }
-                    //I think there should be a window view that gets tied to a camera in the engine..
-                    try stats.measure("window - draw") {
-                        try eachWindow.draw(time: 0)
-                    }
-                    
-                    stats.measure("window - draw finish") {
-                        eachWindow.drawFinish() //TODO: Tied to vsync .. We should separate to different threads or predict this somehow
-                    }
+                    allImmediateUseEvents.removeAll()
+                    stats.printStats()
                 }
-                allImmediateUseEvents.removeAll()
-                stats.printStats()
             }
         }
     }

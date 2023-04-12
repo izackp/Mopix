@@ -88,6 +88,7 @@ open class ViewController {
     open func viewWillDisappear(_ animated:Bool) { }
     open func viewDidDisappear(_ animated:Bool) { }
     open func didReceiveMemoryWarning() { }
+    open func drawStart() { }
 }
 
 

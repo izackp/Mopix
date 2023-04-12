@@ -22,27 +22,26 @@ Features to support:
 Feature to support after removeing sdl2:
  3d and affine transformations
  
-One problem I have is that content can be drawn outside the layer..
 */
 open class View: Codable {
 
     public var _id:String? = nil
     public var frame:Frame<Int16> = Frame.zero
     public var listLayouts:[LayoutElement] = []
+    public var listLayoutChildren:[LayoutChild] = []
     public var children:Arr<View> = Arr<View>.init()
     public weak var superView:View? = nil
     public weak var window:Window? = nil
     public var onTap:(()->())? = nil
-    public var userInteractable:Bool = true //Not sure how this is going to work yet
-    
-    public var clipBounds:Bool = false
     open var backgroundColor = LabeledColor.white
     public var alpha:Float = 1
-    public var shouldRasterize:Bool = false
-    public var shouldRedraw:Bool = false
     public var cachedImage:Image? = nil
     public var borderColor:LabeledColor = LabeledColor.clear
     public var borderWidth:DValue = 0
+    public var userInteractable:Bool = true //Not sure how this is going to work yet
+    public var clipBounds:Bool = false
+    public var shouldRasterize:Bool = false
+    public var shouldRedraw:Bool = false
     
     init () {
         
@@ -52,6 +51,7 @@ open class View: Codable {
         case _id
         case frame
         case listLayouts
+        case listLayoutChildren
         case children
         case clipBounds
         case backgroundColor
@@ -85,6 +85,7 @@ open class View: Codable {
         for eachChild in self.children {
             eachChild.superView = self
         }
+        self.listLayoutChildren = try container.decodeArray(LayoutChild.self, forKey: .listLayoutChildren)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -98,6 +99,7 @@ open class View: Codable {
         if (listLayouts.count != 0) {
             try container.encodeArray(listLayouts, forKey: .listLayouts)
         }
+        
         if (children.count != 0) {
             try container.encodeArray(children, forKey: .children)
         }
@@ -118,6 +120,9 @@ open class View: Codable {
         }
         if (borderWidth != 0) {
             try container.encode(borderWidth, forKey: .borderWidth)
+        }
+        if (listLayoutChildren.count != 0) { //TODO: Verify it is at end of object
+            try container.encodeArray(listLayoutChildren, forKey: .listLayoutChildren)
         }
     }
     
@@ -169,6 +174,10 @@ open class View: Codable {
         
     }
     
+    open func onMouseMotion(event: SDL_MouseMotionEvent) {
+        
+    }
+    
     open func onMousePress(_ event:MouseButtonEvent) {
         
     }
@@ -199,8 +208,12 @@ open class View: Codable {
         for eachItem in listLayouts {
             eachItem.updateFrame(self)
         }
-
+        
         layoutChildren()
+        
+        for eachItem in listLayoutChildren {
+            eachItem.updateChildren(self)
+        }
     }
 
     open func layoutChildren() {
@@ -220,7 +233,7 @@ open class View: Codable {
         if (requireRaster && cachedImage == nil || shouldRedraw) {
             let originalFrame = frame
             let image = try context.createAndDrawToTexture({ context, frame in
-                //TODO: I don't like below.. Also we could do some optimizations by avoiding rendering underspecific conditions
+                //TODO: I don't like below.. Also we could do some optimizations by avoiding rendering under specific conditions
                 //Currently we always need to redraw because we don't know anything about the the children
                 //If any of the children changed 
                 let offsetFrame = frame.offset(Point(originalFrame.origin.x * -1, originalFrame.origin.y * -1)) //2am brain hurts haxfix
@@ -275,6 +288,20 @@ open class View: Codable {
         if (clip) {
             try context.setClipRect(lastClipRect)
         }
+    }
+    
+    func viewForId(_ id:String) -> View? {
+        for eachView in children {
+            if (eachView._id == id) {
+                return eachView
+            }
+        }
+        for eachView in children {
+            if let result = eachView.viewForId(id) {
+                return result
+            }
+        }
+        return nil
     }
 }
 

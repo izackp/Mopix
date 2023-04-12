@@ -1,48 +1,128 @@
-[{
-    _id: "viewRoot",
-    _type: "View",
-    frame: { x: 0, y: 0, width: 320, height: 512 },
-    backgroundColor: 0x101030,
-    listLayouts: [
-        {
-            _type: "LEAnchor",
-            edge: "Right",
-            percent: 1.0
-        }, {
-            _type: "LEAnchor",
-            edge: "Bottom",
-            percent: 1.0
-        }
-    ],
-    children: [
-        {
-            _id: "viewLeftHeirachy",
-            _type: "View",
-            frame: { x: 0, y: 0, width: 120, height: 120 },
-            listLayouts: [ { _type: "LEAnchor", edge: "Bottom", percent: 1.0 } ],
-            backgroundColor: 0xFFFFFFFF,
-            children: [
-            ]
-        },
-        {
-            _id: "viewContent",
-            _type: "View",
-            frame: { x: 0, y: 0, width: 120, height: 120 },
-            listLayouts: [ { _type: "LEAnchor", edge: "Bottom", percent: 1.0 } ],
-            backgroundColor: 0xFFFFFFFF,
-            children: [
-            ]
-        },
-        {
-            _id: "viewRightInfo",
-            _type: "View",
-            frame: { x: 0, y: 0, width: 120, height: 120 },
-            listLayouts: [  { _type: "LEAnchor", edge: "Bottom", percent: 1.0 },
-            { _type: "LEAnchor", edge: "Right", percent: 1.0 } ],
-            backgroundColor: 0xFFFFFFFF,
-            children: [
-            ]
-        }
-    ]
-}
+[
+    {
+        _id: "viewRoot",
+        _type: "View",
+        frame: { x: 0, y: 0, width: 320, height: 512 },
+        backgroundColor: 0x101030,
+        listLayouts: [
+            {
+                _type: "LEAnchor",
+                edge: "Right",
+                percent: 1.0
+            }, {
+                _type: "LEAnchor",
+                edge: "Bottom",
+                percent: 1.0
+            }
+        ],
+        children: [
+            {
+                _id: "viewLeftHeirachy",
+                _type: "View",
+                frame: { x: 0, y: 0, width: 120, height: 120 },
+                listLayouts: [ { _type: "LEAnchor", edge: "Bottom", percent: 1.0 } ],
+                backgroundColor: 0xFFFFFFFF,
+                children: [
+                ]
+            },
+            {
+                _id: "viewContent",
+                _type: "View",
+                frame: { x: 0, y: 0, width: 120, height: 120 },
+                listLayouts: [
+                    { _type: "LEAnchor", edge: "Bottom", percent: 1.0 },
+                    
+                    ],
+                backgroundColor: 0xFFAAAAAA,
+                children: [
+                ]
+            },
+            {
+                _id: "viewRightInfo",
+                _type: "View",
+                frame: { x: 0, y: 0, width: 120, height: 120 },
+                listLayouts: [
+                    { _type: "LEAnchor", edge: "Bottom", percent: 1.0 },
+                    { _type: "LEAnchorFixed", edge: "Right", percent: 1.0 } ],
+                backgroundColor: 0xFFFFAAAA,
+                children: [
+                ]
+            },
+            {
+                _id: "lblFPS",
+                _type: "TextView",
+                frame: { x: 0, y: 0, width: 160, height: 32 },
+                listLayouts: [ { _type: "LEAnchorFixed", edge: "Right", percent: 1.0 } ],
+                backgroundColor: 0xFFFFFFFF,
+                children: [ ],
+                text: "0 frames skipped",
+                textAlignment: "right",
+            },
+            {
+                _id: "lblFPS2",
+                _type: "TextView",
+                frame: { x: 0, y: 32, width: 160, height: 32 },
+                listLayouts: [ { _type: "LEAnchorFixed", edge: "Right", percent: 1.0 } ],
+                backgroundColor: 0xFFFFFFFF,
+                children: [ ],
+                text: "xx ms",
+                textAlignment: "right",
+            },
+            {
+                _id: "lblStats",
+                _type: "TextView",
+                frame: { x: 0, y: 64, width: 400, height: 320 },
+                listLayouts: [ { _type: "LEAnchorFixed", edge: "Right", percent: 1.0 } ],
+                backgroundColor: 0xFFFFFFFF,
+                children: [ ],
+                text: "xx ms",
+                textAlignment: "right",
+            }
+        ],
+        listLayoutChildren: [
+            { _type: "LCMatch", target: { _id: "viewContent" }, source: { _id: "viewLeftHeirachy" }, edgeSource: "Right", edgeTarget: "Left" },
+            { _type: "LCMatch", target: { _id: "viewContent" }, source: { _id: "viewRightInfo" }, edgeSource: "Left", edgeTarget: "Right" }
+        ]
+    },
+    {
+        _id: "viewOpenFile",
+        _type: "View",
+        frame: { x: 0, y: 0, width: 320, height: 512 },
+        backgroundColor: 0x101030,
+        padding: 20,
+        listLayouts: [
+            {
+                _type: "LEAnchor",
+                edge: "Right",
+                percent: 1.0
+            }
+        ],
+        children: [
+            {
+                _id: "lblNote",
+                _type: "TextView",
+                frame: { x: 0, y: 0, width: 120, height: 120 },
+                listLayouts: [ { _type: "LEAnchor", edge: "Right", percent: 1.0 } ],
+                backgroundColor: 0xFFFFFFFF,
+                children: [ ],
+                text: "Select a json5 file to start editing.",
+                textAlignment: "center",
+            },
+            {
+                _id: "btnOpen",
+                _type: "View",
+                frame: { x: 0, y: 0, width: 100, height: 50 },
+                listLayouts: [ { _type: "LEAnchorFixed", edge: "Left", percent: 0.5 },
+                                { _type: "LEAnchorFixed", edge: "Left", percent: 0.5 } ],
+                backgroundColor: 0xFFFFFFFF,
+                children: [ ],
+                text: "Select a json5 file to start editing.",
+                textAlignment: "center",
+            },
+        ],
+        listLayoutChildren: [
+            { _type: "LCMatch", target: { _id: "viewContent" }, source: { _id: "viewLeftHeirachy" }, edgeSource: "Right", edgeTarget: "Left" },
+            { _type: "LCMatch", target: { _id: "viewContent" }, source: { _id: "viewRightInfo" }, edgeSource: "Left", edgeTarget: "Right" }
+        ]
+    }
 ]

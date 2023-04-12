@@ -7,6 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DF0B8E6C29C9447E0018BC9A /* Bank.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8E6B29C9447E0018BC9A /* Bank.swift */; };
+		DF0B8E6D29C9447E0018BC9A /* Bank.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8E6B29C9447E0018BC9A /* Bank.swift */; };
+		DF0B8E6E29C9447E0018BC9A /* Bank.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8E6B29C9447E0018BC9A /* Bank.swift */; };
+		DF0B8E6F29C9447E0018BC9A /* Bank.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8E6B29C9447E0018BC9A /* Bank.swift */; };
+		DF0B8E7029C9447E0018BC9A /* Bank.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8E6B29C9447E0018BC9A /* Bank.swift */; };
+		DF0B8E7229C945CC0018BC9A /* Emitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8E7129C945CC0018BC9A /* Emitter.swift */; };
+		DF0B8E7329C945CC0018BC9A /* Emitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8E7129C945CC0018BC9A /* Emitter.swift */; };
+		DF0B8E7429C945CC0018BC9A /* Emitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8E7129C945CC0018BC9A /* Emitter.swift */; };
+		DF0B8E7529C945CC0018BC9A /* Emitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8E7129C945CC0018BC9A /* Emitter.swift */; };
+		DF0B8E7629C945CC0018BC9A /* Emitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8E7129C945CC0018BC9A /* Emitter.swift */; };
+		DF0B8EF629CA2EE50018BC9A /* ARGB32.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8EF529CA2EE50018BC9A /* ARGB32.swift */; };
+		DF0B8EF729CA2EE50018BC9A /* ARGB32.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8EF529CA2EE50018BC9A /* ARGB32.swift */; };
+		DF0B8EF829CA2EE50018BC9A /* ARGB32.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8EF529CA2EE50018BC9A /* ARGB32.swift */; };
+		DF0B8EF929CA2EE50018BC9A /* ARGB32.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8EF529CA2EE50018BC9A /* ARGB32.swift */; };
+		DF0B8EFA29CA2EE50018BC9A /* ARGB32.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0B8EF529CA2EE50018BC9A /* ARGB32.swift */; };
 		DF0D7DF328A30E53008F53FB /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D7DF228A30E53008F53FB /* Resolver.swift */; };
 		DF0D7DF428A30E53008F53FB /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D7DF228A30E53008F53FB /* Resolver.swift */; };
 		DF0D7DF528A30E53008F53FB /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D7DF228A30E53008F53FB /* Resolver.swift */; };
@@ -65,6 +80,61 @@
 		DF3830B728714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
 		DF3830B828714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
 		DF3830B928714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
+		DF5AB5B129D4C795002D7482 /* ARGB32Diff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */; };
+		DF5AB5B229D4C795002D7482 /* ARGB32Diff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */; };
+		DF5AB5B329D4C795002D7482 /* ARGB32Diff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */; };
+		DF5AB5B429D4C795002D7482 /* ARGB32Diff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */; };
+		DF5AB5B529D4C795002D7482 /* ARGB32Diff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */; };
+		DF5AB5B729D4CD76002D7482 /* Range.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B629D4CD76002D7482 /* Range.swift */; };
+		DF5AB5B829D4CD76002D7482 /* Range.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B629D4CD76002D7482 /* Range.swift */; };
+		DF5AB5B929D4CD76002D7482 /* Range.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B629D4CD76002D7482 /* Range.swift */; };
+		DF5AB5BA29D4CD76002D7482 /* Range.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B629D4CD76002D7482 /* Range.swift */; };
+		DF5AB5BB29D4CD76002D7482 /* Range.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B629D4CD76002D7482 /* Range.swift */; };
+		DF5AB5BD29D4D110002D7482 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5BC29D4D110002D7482 /* Utility.swift */; };
+		DF5AB5BE29D4D110002D7482 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5BC29D4D110002D7482 /* Utility.swift */; };
+		DF5AB5BF29D4D110002D7482 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5BC29D4D110002D7482 /* Utility.swift */; };
+		DF5AB5C029D4D110002D7482 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5BC29D4D110002D7482 /* Utility.swift */; };
+		DF5AB5C129D4D110002D7482 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5BC29D4D110002D7482 /* Utility.swift */; };
+		DF5AB5C329D5D04A002D7482 /* InterfaceClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */; };
+		DF5AB5C429D5D04A002D7482 /* InterfaceClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */; };
+		DF5AB5C529D5D04A002D7482 /* InterfaceClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */; };
+		DF5AB5C629D5D04A002D7482 /* InterfaceClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */; };
+		DF5AB5C729D5D04A002D7482 /* InterfaceClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */; };
+		DF5AB5C929D5D440002D7482 /* InterfaceStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */; };
+		DF5AB5CA29D5D440002D7482 /* InterfaceStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */; };
+		DF5AB5CB29D5D440002D7482 /* InterfaceStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */; };
+		DF5AB5CC29D5D440002D7482 /* InterfaceStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */; };
+		DF5AB5CD29D5D440002D7482 /* InterfaceStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */; };
+		DF5AB5CF29D5D467002D7482 /* InterfaceStructClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5CE29D5D467002D7482 /* InterfaceStructClass.swift */; };
+		DF5AB5D029D5D467002D7482 /* InterfaceStructClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5CE29D5D467002D7482 /* InterfaceStructClass.swift */; };
+		DF5AB5D129D5D467002D7482 /* InterfaceStructClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5CE29D5D467002D7482 /* InterfaceStructClass.swift */; };
+		DF5AB5D229D5D467002D7482 /* InterfaceStructClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5CE29D5D467002D7482 /* InterfaceStructClass.swift */; };
+		DF5AB5D329D5D467002D7482 /* InterfaceStructClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5CE29D5D467002D7482 /* InterfaceStructClass.swift */; };
+		DF5AB5D629D5D51C002D7482 /* Tweener.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5D529D5D51C002D7482 /* Tweener.swift */; };
+		DF5AB5D729D5D51C002D7482 /* Tweener.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5D529D5D51C002D7482 /* Tweener.swift */; };
+		DF5AB5D829D5D51C002D7482 /* Tweener.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5D529D5D51C002D7482 /* Tweener.swift */; };
+		DF5AB5D929D5D51C002D7482 /* Tweener.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5D529D5D51C002D7482 /* Tweener.swift */; };
+		DF5AB5DA29D5D51C002D7482 /* Tweener.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5D529D5D51C002D7482 /* Tweener.swift */; };
+		DF5AB5DC29D5DDB4002D7482 /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5DB29D5DDB4002D7482 /* Tracker.swift */; };
+		DF5AB5DD29D5DDB4002D7482 /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5DB29D5DDB4002D7482 /* Tracker.swift */; };
+		DF5AB5DE29D5DDB4002D7482 /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5DB29D5DDB4002D7482 /* Tracker.swift */; };
+		DF5AB5DF29D5DDB4002D7482 /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5DB29D5DDB4002D7482 /* Tracker.swift */; };
+		DF5AB5E029D5DDB4002D7482 /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5DB29D5DDB4002D7482 /* Tracker.swift */; };
+		DF5AB5E329D5DDFA002D7482 /* Tween.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5E229D5DDFA002D7482 /* Tween.swift */; };
+		DF5AB5E429D5DDFA002D7482 /* Tween.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5E229D5DDFA002D7482 /* Tween.swift */; };
+		DF5AB5E529D5DDFA002D7482 /* Tween.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5E229D5DDFA002D7482 /* Tween.swift */; };
+		DF5AB5E629D5DDFA002D7482 /* Tween.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5E229D5DDFA002D7482 /* Tween.swift */; };
+		DF5AB5E729D5DDFA002D7482 /* Tween.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5E229D5DDFA002D7482 /* Tween.swift */; };
+		DF5AB5E929D5DE1E002D7482 /* TweenStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5E829D5DE1E002D7482 /* TweenStruct.swift */; };
+		DF5AB5EA29D5DE1E002D7482 /* TweenStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5E829D5DE1E002D7482 /* TweenStruct.swift */; };
+		DF5AB5EB29D5DE1E002D7482 /* TweenStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5E829D5DE1E002D7482 /* TweenStruct.swift */; };
+		DF5AB5EC29D5DE1E002D7482 /* TweenStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5E829D5DE1E002D7482 /* TweenStruct.swift */; };
+		DF5AB5ED29D5DE1E002D7482 /* TweenStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5E829D5DE1E002D7482 /* TweenStruct.swift */; };
+		DF5AB5EF29D5DE32002D7482 /* TweenT2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5EE29D5DE32002D7482 /* TweenT2D.swift */; };
+		DF5AB5F029D5DE32002D7482 /* TweenT2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5EE29D5DE32002D7482 /* TweenT2D.swift */; };
+		DF5AB5F129D5DE32002D7482 /* TweenT2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5EE29D5DE32002D7482 /* TweenT2D.swift */; };
+		DF5AB5F229D5DE32002D7482 /* TweenT2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5EE29D5DE32002D7482 /* TweenT2D.swift */; };
+		DF5AB5F329D5DE32002D7482 /* TweenT2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5EE29D5DE32002D7482 /* TweenT2D.swift */; };
 		DF5BE3F0289ABA0F00A0ED4E /* CodingContainers+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* CodingContainers+Features.swift */; };
 		DF5BE3F1289ABA0F00A0ED4E /* CodingContainers+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A5289855E7002F3DF4 /* CodingContainers+Features.swift */; };
 		DF5BE3F2289B263A00A0ED4E /* InstanceCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF831A92898577F002F3DF4 /* InstanceCache.swift */; };
@@ -106,7 +176,6 @@
 		DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */; };
 		DF6D4DDD28521DB80046BF8D /* CommandRepeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */; };
 		DF6D4DDE28521DB80046BF8D /* CommandRepeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D4DDB28521DB80046BF8D /* CommandRepeater.swift */; };
-		DF767DD228A15F75005DAB38 /* Util.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF767DD128A15F75005DAB38 /* Util.framework */; };
 		DF767DD428A16E65005DAB38 /* Decoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DD328A16E65005DAB38 /* Decoder+Features.swift */; };
 		DF767DD528A16E65005DAB38 /* Decoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DD328A16E65005DAB38 /* Decoder+Features.swift */; };
 		DF767DD628A16E65005DAB38 /* Decoder+Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF767DD328A16E65005DAB38 /* Decoder+Features.swift */; };
@@ -140,6 +209,51 @@
 		DF89275E28F23C0B0047250F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DF89275928F23C0B0047250F /* README.md */; };
 		DF89276128F35A870047250F /* ICU in Frameworks */ = {isa = PBXBuildFile; productRef = DF89276028F35A870047250F /* ICU */; };
 		DF89276328F517810047250F /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DF89276228F517800047250F /* libicucore.tbd */; };
+		DF98FE3D29833BFA00D101EC /* Chunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE3C29833BFA00D101EC /* Chunk.swift */; };
+		DF98FE3E29833BFA00D101EC /* Chunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE3C29833BFA00D101EC /* Chunk.swift */; };
+		DF98FE3F29833BFA00D101EC /* Chunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE3C29833BFA00D101EC /* Chunk.swift */; };
+		DF98FE4029833BFA00D101EC /* Chunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE3C29833BFA00D101EC /* Chunk.swift */; };
+		DF98FE4129833BFA00D101EC /* Chunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE3C29833BFA00D101EC /* Chunk.swift */; };
+		DF98FE4329833C0E00D101EC /* IReusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE4229833C0E00D101EC /* IReusable.swift */; };
+		DF98FE4429833C0E00D101EC /* IReusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE4229833C0E00D101EC /* IReusable.swift */; };
+		DF98FE4529833C0E00D101EC /* IReusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE4229833C0E00D101EC /* IReusable.swift */; };
+		DF98FE4629833C0E00D101EC /* IReusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE4229833C0E00D101EC /* IReusable.swift */; };
+		DF98FE4729833C0E00D101EC /* IReusable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE4229833C0E00D101EC /* IReusable.swift */; };
+		DF98FE4929838B4900D101EC /* ChunkedPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE4829838B4900D101EC /* ChunkedPool.swift */; };
+		DF98FE4A29838B4900D101EC /* ChunkedPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE4829838B4900D101EC /* ChunkedPool.swift */; };
+		DF98FE4B29838B4900D101EC /* ChunkedPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE4829838B4900D101EC /* ChunkedPool.swift */; };
+		DF98FE4C29838B4900D101EC /* ChunkedPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE4829838B4900D101EC /* ChunkedPool.swift */; };
+		DF98FE4D29838B4900D101EC /* ChunkedPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF98FE4829838B4900D101EC /* ChunkedPool.swift */; };
+		DF99789629DBC4F700CBA008 /* TestEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99789529DBC4F700CBA008 /* TestEmitter.swift */; };
+		DF99789729DBC4F700CBA008 /* TestEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99789529DBC4F700CBA008 /* TestEmitter.swift */; };
+		DF99789829DBC4F700CBA008 /* TestEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99789529DBC4F700CBA008 /* TestEmitter.swift */; };
+		DF99789929DBC4F700CBA008 /* TestEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99789529DBC4F700CBA008 /* TestEmitter.swift */; };
+		DF99789A29DBC4F700CBA008 /* TestEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99789529DBC4F700CBA008 /* TestEmitter.swift */; };
+		DF99795529DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */; };
+		DF99795629DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */; };
+		DF99795729DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */; };
+		DF99795829DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */; };
+		DF99795929DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */; };
+		DF99795B29DC906100CBA008 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795A29DC906100CBA008 /* ObjectPool.swift */; };
+		DF99795C29DC906100CBA008 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795A29DC906100CBA008 /* ObjectPool.swift */; };
+		DF99795D29DC906100CBA008 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795A29DC906100CBA008 /* ObjectPool.swift */; };
+		DF99795E29DC906100CBA008 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795A29DC906100CBA008 /* ObjectPool.swift */; };
+		DF99795F29DC906100CBA008 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795A29DC906100CBA008 /* ObjectPool.swift */; };
+		DF99799829DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99799729DC952F00CBA008 /* ContiguousObjectPool.swift */; };
+		DF99799929DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99799729DC952F00CBA008 /* ContiguousObjectPool.swift */; };
+		DF99799A29DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99799729DC952F00CBA008 /* ContiguousObjectPool.swift */; };
+		DF99799B29DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99799729DC952F00CBA008 /* ContiguousObjectPool.swift */; };
+		DF99799C29DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99799729DC952F00CBA008 /* ContiguousObjectPool.swift */; };
+		DF99799E29DCA11C00CBA008 /* OldTween.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99799D29DCA11C00CBA008 /* OldTween.swift */; };
+		DF99799F29DCA11C00CBA008 /* OldTween.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99799D29DCA11C00CBA008 /* OldTween.swift */; };
+		DF9979A029DCA11C00CBA008 /* OldTween.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99799D29DCA11C00CBA008 /* OldTween.swift */; };
+		DF9979A129DCA11C00CBA008 /* OldTween.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99799D29DCA11C00CBA008 /* OldTween.swift */; };
+		DF9979A229DCA11C00CBA008 /* OldTween.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99799D29DCA11C00CBA008 /* OldTween.swift */; };
+		DF997AD829DF3ED200CBA008 /* Array+Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF997AD729DF3ED200CBA008 /* Array+Performance.swift */; };
+		DF997AD929DF3ED200CBA008 /* Array+Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF997AD729DF3ED200CBA008 /* Array+Performance.swift */; };
+		DF997ADA29DF3ED200CBA008 /* Array+Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF997AD729DF3ED200CBA008 /* Array+Performance.swift */; };
+		DF997ADB29DF3ED200CBA008 /* Array+Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF997AD729DF3ED200CBA008 /* Array+Performance.swift */; };
+		DF997ADC29DF3ED200CBA008 /* Array+Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF997AD729DF3ED200CBA008 /* Array+Performance.swift */; };
 		DFA43E552877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
 		DFA43E562877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
 		DFA43E572877754900D9D37E /* TestViewController.json5 in Resources */ = {isa = PBXBuildFile; fileRef = DFA43E542877754900D9D37E /* TestViewController.json5 */; };
@@ -160,6 +274,17 @@
 		DFA8ADE8285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */ = {isa = PBXBuildFile; fileRef = DFA8ADE4285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp */; };
 		DFA8ADE9285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */ = {isa = PBXBuildFile; fileRef = DFA8ADE4285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp */; };
 		DFA8ADEA285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp in Resources */ = {isa = PBXBuildFile; fileRef = DFA8ADE4285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp */; };
+		DFABDEAB29DFA32300ACE26B /* Xorswift in Frameworks */ = {isa = PBXBuildFile; productRef = DFABDEAA29DFA32300ACE26B /* Xorswift */; };
+		DFABDEAD29E0A47200ACE26B /* InterfaceStructPractical.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABDEAC29E0A47200ACE26B /* InterfaceStructPractical.swift */; };
+		DFABDEAE29E0A47200ACE26B /* InterfaceStructPractical.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABDEAC29E0A47200ACE26B /* InterfaceStructPractical.swift */; };
+		DFABDEAF29E0A47200ACE26B /* InterfaceStructPractical.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABDEAC29E0A47200ACE26B /* InterfaceStructPractical.swift */; };
+		DFABDEB029E0A47200ACE26B /* InterfaceStructPractical.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABDEAC29E0A47200ACE26B /* InterfaceStructPractical.swift */; };
+		DFABDEB129E0A47200ACE26B /* InterfaceStructPractical.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABDEAC29E0A47200ACE26B /* InterfaceStructPractical.swift */; };
+		DFABDEB329E0AA1C00ACE26B /* Particle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABDEB229E0AA1C00ACE26B /* Particle.swift */; };
+		DFABDEB429E0AA1C00ACE26B /* Particle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABDEB229E0AA1C00ACE26B /* Particle.swift */; };
+		DFABDEB529E0AA1C00ACE26B /* Particle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABDEB229E0AA1C00ACE26B /* Particle.swift */; };
+		DFABDEB629E0AA1C00ACE26B /* Particle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABDEB229E0AA1C00ACE26B /* Particle.swift */; };
+		DFABDEB729E0AA1C00ACE26B /* Particle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFABDEB229E0AA1C00ACE26B /* Particle.swift */; };
 		DFC58371280641770097E39B /* TimeBank.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC58370280641770097E39B /* TimeBank.swift */; };
 		DFC58372280641770097E39B /* TimeBank.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC58370280641770097E39B /* TimeBank.swift */; };
 		DFC58373280641770097E39B /* TimeBank.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC58370280641770097E39B /* TimeBank.swift */; };
@@ -331,6 +456,23 @@
 		DFE172DF2805C72E00C44AB0 /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE172DD2805C72E00C44AB0 /* Geometry.swift */; };
 		DFE172E02805C72E00C44AB0 /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE172DD2805C72E00C44AB0 /* Geometry.swift */; };
 		DFE39A442965EE140087D0D4 /* TextLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD916532900F7C50025464E /* TextLine.swift */; };
+		DFE39B0129669FF90087D0D4 /* UIBuilderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE39B0029669FF90087D0D4 /* UIBuilderController.swift */; };
+		DFE39B0229669FF90087D0D4 /* UIBuilderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE39B0029669FF90087D0D4 /* UIBuilderController.swift */; };
+		DFE39B0329669FF90087D0D4 /* UIBuilderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE39B0029669FF90087D0D4 /* UIBuilderController.swift */; };
+		DFE39B0429669FF90087D0D4 /* UIBuilderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE39B0029669FF90087D0D4 /* UIBuilderController.swift */; };
+		DFE39B0529669FF90087D0D4 /* UIBuilderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE39B0029669FF90087D0D4 /* UIBuilderController.swift */; };
+		DFE39D1D296779E90087D0D4 /* SDL2_ttf.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = DF19394C28FF99C800A26A7E /* SDL2_ttf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DFE39D1E296779E90087D0D4 /* SDL2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = DF19394A28FF99C400A26A7E /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DFE3C452296F64AB00B7B8B6 /* YogaLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3C451296F64AB00B7B8B6 /* YogaLayout.swift */; };
+		DFE3C453296F64AB00B7B8B6 /* YogaLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3C451296F64AB00B7B8B6 /* YogaLayout.swift */; };
+		DFE3C454296F64AB00B7B8B6 /* YogaLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3C451296F64AB00B7B8B6 /* YogaLayout.swift */; };
+		DFE3C455296F64AB00B7B8B6 /* YogaLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3C451296F64AB00B7B8B6 /* YogaLayout.swift */; };
+		DFE3C456296F64AB00B7B8B6 /* YogaLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3C451296F64AB00B7B8B6 /* YogaLayout.swift */; };
+		DFE3C4D4297088F500B7B8B6 /* LayoutChild.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3C4D3297088F500B7B8B6 /* LayoutChild.swift */; };
+		DFE3C4D5297088F500B7B8B6 /* LayoutChild.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3C4D3297088F500B7B8B6 /* LayoutChild.swift */; };
+		DFE3C4D6297088F500B7B8B6 /* LayoutChild.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3C4D3297088F500B7B8B6 /* LayoutChild.swift */; };
+		DFE3C4D7297088F500B7B8B6 /* LayoutChild.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3C4D3297088F500B7B8B6 /* LayoutChild.swift */; };
+		DFE3C4D8297088F500B7B8B6 /* LayoutChild.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3C4D3297088F500B7B8B6 /* LayoutChild.swift */; };
 		DFE4226028A6DFFC009D5A47 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
 		DFE4226128A6DFFC009D5A47 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
 		DFE4226228A6E04E009D5A47 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830AB28714B560028B4E6 /* ViewController.swift */; };
@@ -441,6 +583,16 @@
 		DFE422EA28A6E431009D5A47 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC583EA2807762B0097E39B /* Engine.swift */; };
 		DFE422EB28A6E432009D5A47 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC583EA2807762B0097E39B /* Engine.swift */; };
 		DFEB98A628CACD7B000A5E31 /* EonilFSEvents in Frameworks */ = {isa = PBXBuildFile; productRef = DFEB98A528CACD7B000A5E31 /* EonilFSEvents */; };
+		DFF0E2DD2978D45C00F866CD /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2DC2978D45C00F866CD /* Table.swift */; };
+		DFF0E2DE2978D45C00F866CD /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2DC2978D45C00F866CD /* Table.swift */; };
+		DFF0E2DF2978D45C00F866CD /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2DC2978D45C00F866CD /* Table.swift */; };
+		DFF0E2E02978D45C00F866CD /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2DC2978D45C00F866CD /* Table.swift */; };
+		DFF0E2E12978D45C00F866CD /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2DC2978D45C00F866CD /* Table.swift */; };
+		DFF0E2E32978D94C00F866CD /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2E22978D94C00F866CD /* ScrollView.swift */; };
+		DFF0E2E42978D94C00F866CD /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2E22978D94C00F866CD /* ScrollView.swift */; };
+		DFF0E2E52978D94C00F866CD /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2E22978D94C00F866CD /* ScrollView.swift */; };
+		DFF0E2E62978D94C00F866CD /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2E22978D94C00F866CD /* ScrollView.swift */; };
+		DFF0E2E72978D94C00F866CD /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2E22978D94C00F866CD /* ScrollView.swift */; };
 		DFF7310928ECF1660036E52E /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF7310828ECF1660036E52E /* TextField.swift */; };
 		DFF7310A28ECF1660036E52E /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF7310828ECF1660036E52E /* TextField.swift */; };
 		DFF7310B28ECF1660036E52E /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF7310828ECF1660036E52E /* TextField.swift */; };
@@ -513,7 +665,24 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		DFE39D1C296779D80087D0D4 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DFE39D1D296779E90087D0D4 /* SDL2_ttf.framework in CopyFiles */,
+				DFE39D1E296779E90087D0D4 /* SDL2.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		DF0B8E6B29C9447E0018BC9A /* Bank.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bank.swift; sourceTree = "<group>"; };
+		DF0B8E7129C945CC0018BC9A /* Emitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emitter.swift; sourceTree = "<group>"; };
+		DF0B8EF529CA2EE50018BC9A /* ARGB32.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARGB32.swift; sourceTree = "<group>"; };
 		DF0D7DF228A30E53008F53FB /* Resolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
 		DF0D7DF828A31866008F53FB /* FontDesc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontDesc.swift; sourceTree = "<group>"; };
 		DF0D7E4528A3EE7D008F53FB /* TypeMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeMap.swift; sourceTree = "<group>"; };
@@ -541,6 +710,17 @@
 		DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleImageManager.swift; sourceTree = "<group>"; };
 		DF3830AB28714B560028B4E6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		DF3830B628714EE30028B4E6 /* TestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
+		DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARGB32Diff.swift; sourceTree = "<group>"; };
+		DF5AB5B629D4CD76002D7482 /* Range.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Range.swift; sourceTree = "<group>"; };
+		DF5AB5BC29D4D110002D7482 /* Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
+		DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceClass.swift; sourceTree = "<group>"; };
+		DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceStruct.swift; sourceTree = "<group>"; };
+		DF5AB5CE29D5D467002D7482 /* InterfaceStructClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceStructClass.swift; sourceTree = "<group>"; };
+		DF5AB5D529D5D51C002D7482 /* Tweener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tweener.swift; sourceTree = "<group>"; };
+		DF5AB5DB29D5DDB4002D7482 /* Tracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tracker.swift; sourceTree = "<group>"; };
+		DF5AB5E229D5DDFA002D7482 /* Tween.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tween.swift; sourceTree = "<group>"; };
+		DF5AB5E829D5DE1E002D7482 /* TweenStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweenStruct.swift; sourceTree = "<group>"; };
+		DF5AB5EE29D5DE32002D7482 /* TweenT2D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweenT2D.swift; sourceTree = "<group>"; };
 		DF5DA95028818C3300BA44F6 /* ReflectionTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionTest.swift; sourceTree = "<group>"; };
 		DF5DA9542883084500BA44F6 /* TestAVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestAVC.m; sourceTree = "<group>"; };
 		DF5DA9582883085E00BA44F6 /* TestAVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestAVC.h; sourceTree = "<group>"; };
@@ -562,6 +742,15 @@
 		DF8622BA292E80F10077ABA0 /* LabeledColorMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabeledColorMap.swift; sourceTree = "<group>"; };
 		DF89275928F23C0B0047250F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		DF89276228F517800047250F /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
+		DF98FE3C29833BFA00D101EC /* Chunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chunk.swift; sourceTree = "<group>"; };
+		DF98FE4229833C0E00D101EC /* IReusable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IReusable.swift; sourceTree = "<group>"; };
+		DF98FE4829838B4900D101EC /* ChunkedPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChunkedPool.swift; sourceTree = "<group>"; };
+		DF99789529DBC4F700CBA008 /* TestEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestEmitter.swift; sourceTree = "<group>"; };
+		DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweenerContiguousClass.swift; sourceTree = "<group>"; };
+		DF99795A29DC906100CBA008 /* ObjectPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectPool.swift; sourceTree = "<group>"; };
+		DF99799729DC952F00CBA008 /* ContiguousObjectPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContiguousObjectPool.swift; sourceTree = "<group>"; };
+		DF99799D29DCA11C00CBA008 /* OldTween.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldTween.swift; sourceTree = "<group>"; };
+		DF997AD729DF3ED200CBA008 /* Array+Performance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Performance.swift"; sourceTree = "<group>"; };
 		DFA43E542877754900D9D37E /* TestViewController.json5 */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestViewController.json5; sourceTree = "<group>"; };
 		DFA454E92804599600638A35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DFA454EE2804599600638A35 /* TestGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -582,6 +771,8 @@
 		DFA8ADE3285900E100DDC22B /* oryx_16bit_scifi_vehicles_105.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = oryx_16bit_scifi_vehicles_105.bmp; sourceTree = "<group>"; };
 		DFA8ADE4285900E100DDC22B /* oryx_16bit_scifi_vehicles_189.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = oryx_16bit_scifi_vehicles_189.bmp; sourceTree = "<group>"; };
 		DFA8ADEB285976C300DDC22B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		DFABDEAC29E0A47200ACE26B /* InterfaceStructPractical.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceStructPractical.swift; sourceTree = "<group>"; };
+		DFABDEB229E0AA1C00ACE26B /* Particle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Particle.swift; sourceTree = "<group>"; };
 		DFC58370280641770097E39B /* TimeBank.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBank.swift; sourceTree = "<group>"; };
 		DFC5837B280641AF0097E39B /* IntervalBank.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntervalBank.swift; sourceTree = "<group>"; };
 		DFC583D9280773DA0097E39B /* Window.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Window.swift; sourceTree = "<group>"; };
@@ -639,6 +830,12 @@
 		DFE172C728052D2B00C44AB0 /* main.old.swift.old */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.old.swift.old; sourceTree = "<group>"; };
 		DFE172D92805C6FE00C44AB0 /* Application.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Application.swift; sourceTree = "<group>"; };
 		DFE172DD2805C72E00C44AB0 /* Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Geometry.swift; sourceTree = "<group>"; };
+		DFE39B0029669FF90087D0D4 /* UIBuilderController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBuilderController.swift; sourceTree = "<group>"; };
+		DFE39D18296778030087D0D4 /* Util.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Util.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFE3C451296F64AB00B7B8B6 /* YogaLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YogaLayout.swift; sourceTree = "<group>"; };
+		DFE3C4D3297088F500B7B8B6 /* LayoutChild.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutChild.swift; sourceTree = "<group>"; };
+		DFF0E2DC2978D45C00F866CD /* Table.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Table.swift; sourceTree = "<group>"; };
+		DFF0E2E22978D94C00F866CD /* ScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollView.swift; sourceTree = "<group>"; };
 		DFF7310828ECF1660036E52E /* TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
 		DFF7310E28EE28780036E52E /* TestFolder */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestFolder; sourceTree = "<group>"; };
 		DFF831A5289855E7002F3DF4 /* CodingContainers+Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodingContainers+Features.swift"; sourceTree = "<group>"; };
@@ -685,8 +882,8 @@
 				DF89276328F517810047250F /* libicucore.tbd in Frameworks */,
 				DF89276128F35A870047250F /* ICU in Frameworks */,
 				DFEB98A628CACD7B000A5E31 /* EonilFSEvents in Frameworks */,
-				DF767DD228A15F75005DAB38 /* Util.framework in Frameworks */,
 				DF288CAD2884F4AC005F7C1F /* SDL2.framework in Frameworks */,
+				DFABDEAB29DFA32300ACE26B /* Xorswift in Frameworks */,
 				DF288CAB2884F40D005F7C1F /* SDL2_ttf.framework in Frameworks */,
 				DF5DA948287FAE4800BA44F6 /* Runtime in Frameworks */,
 			);
@@ -709,6 +906,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DF0B8E6929C9440E0018BC9A /* PixelTest */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = PixelTest;
+			sourceTree = "<group>";
+		};
+		DF0B8E6A29C944350018BC9A /* ParticleSystem */ = {
+			isa = PBXGroup;
+			children = (
+				DF0B8E6B29C9447E0018BC9A /* Bank.swift */,
+				DF0B8E7129C945CC0018BC9A /* Emitter.swift */,
+				DF0B8EF529CA2EE50018BC9A /* ARGB32.swift */,
+				DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */,
+				DF5AB5B629D4CD76002D7482 /* Range.swift */,
+				DF5AB5BC29D4D110002D7482 /* Utility.swift */,
+				DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */,
+				DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */,
+				DF5AB5CE29D5D467002D7482 /* InterfaceStructClass.swift */,
+				DFABDEAC29E0A47200ACE26B /* InterfaceStructPractical.swift */,
+				DFABDEB229E0AA1C00ACE26B /* Particle.swift */,
+			);
+			path = ParticleSystem;
+			sourceTree = "<group>";
+		};
 		DF2D826928662ED000D4A860 /* SwiftSDLTTF */ = {
 			isa = PBXGroup;
 			children = (
@@ -732,10 +954,33 @@
 			path = ImageHandling;
 			sourceTree = "<group>";
 		};
+		DF5AB5D429D5D4C8002D7482 /* AniTween */ = {
+			isa = PBXGroup;
+			children = (
+				DF99795329DC8FCA00CBA008 /* Old */,
+				DF5AB5E129D5DDC1002D7482 /* Tween */,
+				DF5AB5D529D5D51C002D7482 /* Tweener.swift */,
+				DF5AB5DB29D5DDB4002D7482 /* Tracker.swift */,
+				DF99789529DBC4F700CBA008 /* TestEmitter.swift */,
+			);
+			path = AniTween;
+			sourceTree = "<group>";
+		};
+		DF5AB5E129D5DDC1002D7482 /* Tween */ = {
+			isa = PBXGroup;
+			children = (
+				DF5AB5E229D5DDFA002D7482 /* Tween.swift */,
+				DF5AB5E829D5DE1E002D7482 /* TweenStruct.swift */,
+				DF5AB5EE29D5DE32002D7482 /* TweenT2D.swift */,
+			);
+			path = Tween;
+			sourceTree = "<group>";
+		};
 		DF6D4DCF2851DF420046BF8D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
 				DF6D4DD72851DF6E0046BF8D /* Commands+SDL.swift */,
+				DF997AD729DF3ED200CBA008 /* Array+Performance.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -754,6 +999,27 @@
 				DF86204D2925FCD20077ABA0 /* TextAlternatives.swift */,
 			);
 			path = TypeSetting;
+			sourceTree = "<group>";
+		};
+		DF98FE3B29833BCC00D101EC /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				DF98FE3C29833BFA00D101EC /* Chunk.swift */,
+				DF98FE4229833C0E00D101EC /* IReusable.swift */,
+				DF98FE4829838B4900D101EC /* ChunkedPool.swift */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
+		DF99795329DC8FCA00CBA008 /* Old */ = {
+			isa = PBXGroup;
+			children = (
+				DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */,
+				DF99795A29DC906100CBA008 /* ObjectPool.swift */,
+				DF99799729DC952F00CBA008 /* ContiguousObjectPool.swift */,
+				DF99799D29DCA11C00CBA008 /* OldTween.swift */,
+			);
+			path = Old;
 			sourceTree = "<group>";
 		};
 		DFA454E02804599500638A35 = {
@@ -782,6 +1048,7 @@
 				DFE1724F28050FA400C44AB0 /* Mopixs */,
 				DFC583FF280796100097E39B /* CustomWindow.swift */,
 				DF3830B628714EE30028B4E6 /* TestViewController.swift */,
+				DFE39B0029669FF90087D0D4 /* UIBuilderController.swift */,
 				DFFF55CE285BB21D00536EAD /* SpaceInvaders */,
 				DFC583E62807750B0097E39B /* TestGameApp.swift */,
 				DFE172C728052D2B00C44AB0 /* main.old.swift.old */,
@@ -844,6 +1111,7 @@
 		DFA45582280480A100638A35 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DFE39D18296778030087D0D4 /* Util.framework */,
 				DF19394E28FF99F700A26A7E /* CoreServices.framework */,
 				DF19394C28FF99C800A26A7E /* SDL2_ttf.framework */,
 				DF19394A28FF99C400A26A7E /* SDL2.framework */,
@@ -888,6 +1156,7 @@
 				DF6A812228E53DDF00AFEAA3 /* ImageView.swift */,
 				DF0D7DF828A31866008F53FB /* FontDesc.swift */,
 				DFC583EF28077C9C0097E39B /* Layouts.swift */,
+				DFE3C4D3297088F500B7B8B6 /* LayoutChild.swift */,
 				DFD6515328932575002DFCCE /* LabeledColor.swift */,
 				DF8622BA292E80F10077ABA0 /* LabeledColorMap.swift */,
 				DF81A1E728638CE50089E898 /* TextView.swift */,
@@ -896,6 +1165,9 @@
 				DFC583F328077CD00097E39B /* View.swift */,
 				DF3830AB28714B560028B4E6 /* ViewController.swift */,
 				DFF7310828ECF1660036E52E /* TextField.swift */,
+				DFE3C451296F64AB00B7B8B6 /* YogaLayout.swift */,
+				DFF0E2DC2978D45C00F866CD /* Table.swift */,
+				DFF0E2E22978D94C00F866CD /* ScrollView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -954,6 +1226,9 @@
 		DFE1724F28050FA400C44AB0 /* Mopixs */ = {
 			isa = PBXGroup;
 			children = (
+				DF5AB5D429D5D4C8002D7482 /* AniTween */,
+				DF0B8E6A29C944350018BC9A /* ParticleSystem */,
+				DF98FE3B29833BCC00D101EC /* Util */,
 				DFF831A4289855CC002F3DF4 /* Serialization */,
 				DF2D82E92870DAFE00D4A860 /* ImageHandling */,
 				DF6D4DCF2851DF420046BF8D /* Extensions */,
@@ -1020,6 +1295,7 @@
 		DFFF55CE285BB21D00536EAD /* SpaceInvaders */ = {
 			isa = PBXGroup;
 			children = (
+				DF0B8E6929C9440E0018BC9A /* PixelTest */,
 				DFFF55E7285BB2C100536EAD /* Bullet.swift */,
 				DFFF55DB285BB27700536EAD /* CollisionNode2D.swift */,
 				DFFF55E3285BB2A800536EAD /* Enemy.swift */,
@@ -1083,6 +1359,7 @@
 				DFA4550B2804599600638A35 /* Sources */,
 				DFA4550C2804599600638A35 /* Frameworks */,
 				DFA4550D2804599600638A35 /* Resources */,
+				DFE39D1C296779D80087D0D4 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1093,6 +1370,7 @@
 				DF5DA947287FAE4800BA44F6 /* Runtime */,
 				DFEB98A528CACD7B000A5E31 /* EonilFSEvents */,
 				DF89276028F35A870047250F /* ICU */,
+				DFABDEAA29DFA32300ACE26B /* Xorswift */,
 			);
 			productName = "TestGame macOS";
 			productReference = DFA4550F2804599600638A35 /* TestGame.app */;
@@ -1176,6 +1454,7 @@
 				DF5DA946287FAE4700BA44F6 /* XCRemoteSwiftPackageReference "Runtime" */,
 				DFEB98A428CACD7B000A5E31 /* XCRemoteSwiftPackageReference "FSEvents" */,
 				DF89275F28F35A870047250F /* XCRemoteSwiftPackageReference "icu-swift" */,
+				DFABDEA929DFA32300ACE26B /* XCRemoteSwiftPackageReference "xorswift" */,
 			);
 			productRefGroup = DFA454EF2804599600638A35 /* Products */;
 			projectDirPath = "";
@@ -1288,14 +1567,19 @@
 				DFC58400280796100097E39B /* CustomWindow.swift in Sources */,
 				DFE1728A280510B500C44AB0 /* Renderer.swift in Sources */,
 				DF3830B728714EE30028B4E6 /* TestViewController.swift in Sources */,
+				DF0B8E6C29C9447E0018BC9A /* Bank.swift in Sources */,
+				DFF0E2E32978D94C00F866CD /* ScrollView.swift in Sources */,
+				DF5AB5D629D5D51C002D7482 /* Tweener.swift in Sources */,
 				DFE17293280510B500C44AB0 /* Color.swift in Sources */,
 				DFFF55D4285BB23900536EAD /* EntityPool.swift in Sources */,
 				DF69FC70290F82220022F7C5 /* Shadow.swift in Sources */,
 				DFE17278280510B500C44AB0 /* BitMaskOption.swift in Sources */,
 				DF0D7DF928A31866008F53FB /* FontDesc.swift in Sources */,
 				DF767DD428A16E65005DAB38 /* Decoder+Features.swift in Sources */,
+				DF5AB5E929D5DE1E002D7482 /* TweenStruct.swift in Sources */,
 				DFCA77822818AF030099BC21 /* VirtualDrive.swift in Sources */,
 				DFCA78662821E6560099BC21 /* Animator.swift in Sources */,
+				DFE3C4D4297088F500B7B8B6 /* LayoutChild.swift in Sources */,
 				DFE17281280510B500C44AB0 /* PixelFormat.swift in Sources */,
 				DFFF55D0285BB22C00536EAD /* Player.swift in Sources */,
 				DF2D82762866300C00D4A860 /* SDLFont.swift in Sources */,
@@ -1315,51 +1599,76 @@
 				DF2D82EB2870DB1400D4A860 /* Image.swift in Sources */,
 				DFC583DF280774380097E39B /* Window+Ext.swift in Sources */,
 				DFE1726C280510B500C44AB0 /* Surface.swift in Sources */,
+				DF5AB5EF29D5DE32002D7482 /* TweenT2D.swift in Sources */,
 				DF6D4DD82851DF6E0046BF8D /* Commands+SDL.swift in Sources */,
 				DFE17272280510B500C44AB0 /* DisplayMode.swift in Sources */,
 				DFD050FC288B61C0008FA64E /* Date+Shortcuts.swift in Sources */,
+				DF5AB5B129D4C795002D7482 /* ARGB32Diff.swift in Sources */,
 				DF81A1E828638CE50089E898 /* TextView.swift in Sources */,
 				DF2D827228662EED00D4A860 /* TTF.swift in Sources */,
 				DF0D7DF328A30E53008F53FB /* Resolver.swift in Sources */,
+				DF0B8E7229C945CC0018BC9A /* Emitter.swift in Sources */,
 				DFE1727E280510B500C44AB0 /* CountableSet.swift in Sources */,
 				DFFF55E4285BB2A800536EAD /* Enemy.swift in Sources */,
+				DF99789629DBC4F700CBA008 /* TestEmitter.swift in Sources */,
 				DFE17269280510B500C44AB0 /* VideoDisplay.swift in Sources */,
+				DFABDEAD29E0A47200ACE26B /* InterfaceStructPractical.swift in Sources */,
 				DFCA777228189F1F0099BC21 /* GenericError.swift in Sources */,
 				DFE17275280510B500C44AB0 /* Error.swift in Sources */,
+				DF98FE4929838B4900D101EC /* ChunkedPool.swift in Sources */,
+				DF5AB5BD29D4D110002D7482 /* Utility.swift in Sources */,
+				DF98FE4329833C0E00D101EC /* IReusable.swift in Sources */,
 				DF3830AC28714B560028B4E6 /* ViewController.swift in Sources */,
 				DFFDA4A228DE3B1000805000 /* URL+VD.swift in Sources */,
+				DFABDEB329E0AA1C00ACE26B /* Particle.swift in Sources */,
 				DFF831A6289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */,
 				DF6A812328E53DDF00AFEAA3 /* ImageView.swift in Sources */,
+				DF5AB5B729D4CD76002D7482 /* Range.swift in Sources */,
+				DFE39B0129669FF90087D0D4 /* UIBuilderController.swift in Sources */,
+				DF99799829DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */,
+				DF5AB5E329D5DDFA002D7482 /* Tween.swift in Sources */,
 				DF0D7E4628A3EE7D008F53FB /* TypeMap.swift in Sources */,
 				DF69FC6A290F76180022F7C5 /* UnderlineStyle.swift in Sources */,
 				DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */,
 				DF8622BB292E80F10077ABA0 /* LabeledColorMap.swift in Sources */,
 				DFD916602900F9BA0025464E /* TextAlignment.swift in Sources */,
 				DF2D8280286BC48400D4A860 /* TTFInterface.m in Sources */,
+				DF99795529DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */,
+				DF5AB5C929D5D440002D7482 /* InterfaceStruct.swift in Sources */,
 				DFD6515428932576002DFCCE /* LabeledColor.swift in Sources */,
 				DFC585D62811CAD70097E39B /* AtlasAllocator.swift in Sources */,
 				DF288CA028849406005F7C1F /* VCTest.m in Sources */,
 				DFCA786A2821E9F80099BC21 /* SpaceInvaders.swift in Sources */,
 				DFC585AD2810A6570097E39B /* ImageAtlas.swift in Sources */,
 				DFE17287280510B500C44AB0 /* SDL.swift in Sources */,
+				DF98FE3D29833BFA00D101EC /* Chunk.swift in Sources */,
 				DFCA77762818A2F50099BC21 /* Version.swift in Sources */,
 				DFCA7801281B37050099BC21 /* String+Util.swift in Sources */,
+				DFF0E2DD2978D45C00F866CD /* Table.swift in Sources */,
+				DF5AB5DC29D5DDB4002D7482 /* Tracker.swift in Sources */,
 				DFC5837C280641AF0097E39B /* IntervalBank.swift in Sources */,
 				DFC584042807A8610097E39B /* SDLColor+Ext.swift in Sources */,
 				DF81A1F328638D6D0089E898 /* UIRenderContext.swift in Sources */,
 				DFC5860F28125B240097E39B /* Geometry+SDL.swift in Sources */,
+				DF99799E29DCA11C00CBA008 /* OldTween.swift in Sources */,
+				DF0B8EF629CA2EE50018BC9A /* ARGB32.swift in Sources */,
+				DF5AB5CF29D5D467002D7482 /* InterfaceStructClass.swift in Sources */,
 				DFFDA4A728DE3BA600805000 /* PackageMeta.swift in Sources */,
 				DFE17290280510B500C44AB0 /* SDLWindow.swift in Sources */,
+				DF5AB5C329D5D04A002D7482 /* InterfaceClass.swift in Sources */,
 				DF767DDB28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
 				DFD916662900FB0C0025464E /* TextWrapping.swift in Sources */,
 				DFFF55DC285BB27700536EAD /* CollisionNode2D.swift in Sources */,
+				DF997AD829DF3ED200CBA008 /* Array+Performance.swift in Sources */,
 				DFC583DA280773DA0097E39B /* Window.swift in Sources */,
 				DFC6FC0928DD019700D02B5F /* Weak.swift in Sources */,
 				DF69FBBC290B3EA90022F7C5 /* MopixAttributes.swift in Sources */,
+				DFE3C452296F64AB00B7B8B6 /* YogaLayout.swift in Sources */,
 				DFC583EB2807762B0097E39B /* Engine.swift in Sources */,
 				DF86204E2925FCD20077ABA0 /* TextAlternatives.swift in Sources */,
 				DFC583F028077C9C0097E39B /* Layouts.swift in Sources */,
 				DF69FC76290F87CB0022F7C5 /* TextAttachment.swift in Sources */,
+				DF99795B29DC906100CBA008 /* ObjectPool.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1370,30 +1679,47 @@
 				DFCA77812818AF020099BC21 /* VirtualDrive.swift in Sources */,
 				DFE17276280510B500C44AB0 /* Error.swift in Sources */,
 				DFD916552900F7C50025464E /* TextLine.swift in Sources */,
+				DFE39B0229669FF90087D0D4 /* UIBuilderController.swift in Sources */,
 				DFC583F128077C9C0097E39B /* Layouts.swift in Sources */,
 				DFF7310A28ECF1660036E52E /* TextField.swift in Sources */,
 				DFF831AB2898577F002F3DF4 /* InstanceCache.swift in Sources */,
 				DF81A1F428638D6D0089E898 /* UIRenderContext.swift in Sources */,
+				DF99799929DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */,
 				DFA455802804804500638A35 /* common.c in Sources */,
+				DFE3C453296F64AB00B7B8B6 /* YogaLayout.swift in Sources */,
+				DF99799F29DCA11C00CBA008 /* OldTween.swift in Sources */,
+				DF98FE4A29838B4900D101EC /* ChunkedPool.swift in Sources */,
 				DFFF55E1285BB28B00536EAD /* Scene.swift in Sources */,
 				DF81A1E928638CE50089E898 /* TextView.swift in Sources */,
 				DFD916612900F9BA0025464E /* TextAlignment.swift in Sources */,
+				DF99789729DBC4F700CBA008 /* TestEmitter.swift in Sources */,
+				DF5AB5C429D5D04A002D7482 /* InterfaceClass.swift in Sources */,
 				DF2D82F02870DB2C00D4A860 /* Font.swift in Sources */,
+				DF5AB5EA29D5DE1E002D7482 /* TweenStruct.swift in Sources */,
+				DF0B8E6D29C9447E0018BC9A /* Bank.swift in Sources */,
+				DFE3C4D5297088F500B7B8B6 /* LayoutChild.swift in Sources */,
 				DFC5861028125B240097E39B /* Geometry+SDL.swift in Sources */,
 				DF2D82F42870DB6600D4A860 /* ImageManager.swift in Sources */,
+				DF5AB5DD29D5DDB4002D7482 /* Tracker.swift in Sources */,
 				DFC585D72811CAD70097E39B /* AtlasAllocator.swift in Sources */,
+				DF5AB5CA29D5D440002D7482 /* InterfaceStruct.swift in Sources */,
 				DF2D82EC2870DB1400D4A860 /* Image.swift in Sources */,
 				DFCA786B2821E9F80099BC21 /* SpaceInvaders.swift in Sources */,
 				DFC58372280641770097E39B /* TimeBank.swift in Sources */,
 				DFE1727F280510B500C44AB0 /* CountableSet.swift in Sources */,
+				DF0B8EF729CA2EE50018BC9A /* ARGB32.swift in Sources */,
 				DFC585C32811A8430097E39B /* EtagerePacker.swift in Sources */,
 				DFCA78632821D4B10099BC21 /* FileManager.swift in Sources */,
 				DFCA78672821E6560099BC21 /* Animator.swift in Sources */,
 				DFFF55E9285BB2C100536EAD /* Bullet.swift in Sources */,
 				DF86204F2925FCD20077ABA0 /* TextAlternatives.swift in Sources */,
 				DFE172DB2805C6FE00C44AB0 /* Application.swift in Sources */,
+				DF997AD929DF3ED200CBA008 /* Array+Performance.swift in Sources */,
+				DF5AB5E429D5DDFA002D7482 /* Tween.swift in Sources */,
 				DF0D7DFA28A31866008F53FB /* FontDesc.swift in Sources */,
 				DF767DD528A16E65005DAB38 /* Decoder+Features.swift in Sources */,
+				DFABDEAE29E0A47200ACE26B /* InterfaceStructPractical.swift in Sources */,
+				DF98FE4429833C0E00D101EC /* IReusable.swift in Sources */,
 				DFC585AE2810A6570097E39B /* ImageAtlas.swift in Sources */,
 				DF69FC71290F82220022F7C5 /* Shadow.swift in Sources */,
 				DFCA7802281B37050099BC21 /* String+Util.swift in Sources */,
@@ -1407,11 +1733,14 @@
 				DFE17282280510B500C44AB0 /* PixelFormat.swift in Sources */,
 				DFC583EC2807762B0097E39B /* Engine.swift in Sources */,
 				DFC583E0280774380097E39B /* Window+Ext.swift in Sources */,
+				DFF0E2E42978D94C00F866CD /* ScrollView.swift in Sources */,
+				DFABDEB429E0AA1C00ACE26B /* Particle.swift in Sources */,
 				DFFABF37282C675200C9ABAA /* Commands.swift in Sources */,
 				DF0D7E4D28A3F4CE008F53FB /* Expressible.swift in Sources */,
 				DF2D827328662EED00D4A860 /* TTF.swift in Sources */,
 				DFFF55D5285BB23900536EAD /* EntityPool.swift in Sources */,
 				DFC584052807A8620097E39B /* SDLColor+Ext.swift in Sources */,
+				DF5AB5D729D5D51C002D7482 /* Tweener.swift in Sources */,
 				DFC583E82807750B0097E39B /* TestGameApp.swift in Sources */,
 				DFCA77772818A2F50099BC21 /* Version.swift in Sources */,
 				DFFF55DD285BB27700536EAD /* CollisionNode2D.swift in Sources */,
@@ -1425,10 +1754,13 @@
 				DF2D82772866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFE172DF2805C72E00C44AB0 /* Geometry.swift in Sources */,
 				DFA455022804599600638A35 /* AppDelegate.swift in Sources */,
+				DF5AB5F029D5DE32002D7482 /* TweenT2D.swift in Sources */,
+				DF98FE3E29833BFA00D101EC /* Chunk.swift in Sources */,
 				DFE1728E280510B500C44AB0 /* Texture.swift in Sources */,
 				DFD9165B2900F90A0025464E /* SDLRect+Ext.swift in Sources */,
 				DF6D4DDD28521DB80046BF8D /* CommandRepeater.swift in Sources */,
 				DFFDA4A328DE3B1000805000 /* URL+VD.swift in Sources */,
+				DF0B8E7329C945CC0018BC9A /* Emitter.swift in Sources */,
 				DFF831A7289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */,
 				DF6A812428E53DDF00AFEAA3 /* ImageView.swift in Sources */,
 				DF0D7E4728A3EE7D008F53FB /* TypeMap.swift in Sources */,
@@ -1437,9 +1769,12 @@
 				DFD6515528932576002DFCCE /* LabeledColor.swift in Sources */,
 				DFE17288280510B500C44AB0 /* SDL.swift in Sources */,
 				DF2D8281286BC48400D4A860 /* TTFInterface.m in Sources */,
+				DFF0E2DE2978D45C00F866CD /* Table.swift in Sources */,
 				DFCA777328189F1F0099BC21 /* GenericError.swift in Sources */,
 				DF8622BC292E80F10077ABA0 /* LabeledColorMap.swift in Sources */,
 				DFCA77852818DBA40099BC21 /* MountedDir.swift in Sources */,
+				DF5AB5B229D4C795002D7482 /* ARGB32Diff.swift in Sources */,
+				DF5AB5D029D5D467002D7482 /* InterfaceStructClass.swift in Sources */,
 				DFC583E4280774CA0097E39B /* main.swift in Sources */,
 				DFE1727C280510B500C44AB0 /* Palette.swift in Sources */,
 				DFE17270280510B500C44AB0 /* BlendMode.swift in Sources */,
@@ -1448,6 +1783,7 @@
 				DF69FC77290F87CB0022F7C5 /* TextAttachment.swift in Sources */,
 				DFFF55D1285BB22C00536EAD /* Player.swift in Sources */,
 				DF69FBBD290B3EA90022F7C5 /* MopixAttributes.swift in Sources */,
+				DF99795C29DC906100CBA008 /* ObjectPool.swift in Sources */,
 				DFC583F528077CD00097E39B /* View.swift in Sources */,
 				DF69FC6B290F76180022F7C5 /* UnderlineStyle.swift in Sources */,
 				DFFDA4A828DE3BA600805000 /* PackageMeta.swift in Sources */,
@@ -1455,11 +1791,14 @@
 				DFE1726D280510B500C44AB0 /* Surface.swift in Sources */,
 				DFD916672900FB0C0025464E /* TextWrapping.swift in Sources */,
 				DF767DDC28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
+				DF99795629DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */,
 				DFC5860B28125A900097E39B /* Common.swift in Sources */,
+				DF5AB5BE29D4D110002D7482 /* Utility.swift in Sources */,
 				DFE1728B280510B500C44AB0 /* Renderer.swift in Sources */,
 				DFC6FC0A28DD019700D02B5F /* Weak.swift in Sources */,
 				DFE17285280510B500C44AB0 /* Event.swift in Sources */,
 				DFE17294280510B500C44AB0 /* Color.swift in Sources */,
+				DF5AB5B829D4CD76002D7482 /* Range.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1468,16 +1807,22 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF69FBBE290B3EA90022F7C5 /* MopixAttributes.swift in Sources */,
+				DFF0E2DF2978D45C00F866CD /* Table.swift in Sources */,
 				DFC583E92807750B0097E39B /* TestGameApp.swift in Sources */,
+				DF98FE4B29838B4900D101EC /* ChunkedPool.swift in Sources */,
 				DF767DD628A16E65005DAB38 /* Decoder+Features.swift in Sources */,
 				DF2D82FD2870E97A00D4A860 /* SimpleImageManager.swift in Sources */,
 				DF69FC6C290F76180022F7C5 /* UnderlineStyle.swift in Sources */,
 				DFC58373280641770097E39B /* TimeBank.swift in Sources */,
 				DFC5862C281265150097E39B /* main.swift in Sources */,
+				DF5AB5D129D5D467002D7482 /* InterfaceStructClass.swift in Sources */,
 				DFE17277280510B500C44AB0 /* Error.swift in Sources */,
 				DFA455812804804500638A35 /* common.c in Sources */,
+				DF5AB5CB29D5D440002D7482 /* InterfaceStruct.swift in Sources */,
 				DFE17280280510B500C44AB0 /* CountableSet.swift in Sources */,
 				DFCA77862818DBA40099BC21 /* MountedDir.swift in Sources */,
+				DF98FE3F29833BFA00D101EC /* Chunk.swift in Sources */,
+				DFABDEB529E0AA1C00ACE26B /* Particle.swift in Sources */,
 				DFFF55DA285BB26400536EAD /* Util.swift in Sources */,
 				DFFABF38282C675200C9ABAA /* Commands.swift in Sources */,
 				DFCA78642821D4B10099BC21 /* FileManager.swift in Sources */,
@@ -1486,6 +1831,7 @@
 				DFC58402280796100097E39B /* CustomWindow.swift in Sources */,
 				DFF831AC2898577F002F3DF4 /* InstanceCache.swift in Sources */,
 				DFE17283280510B500C44AB0 /* PixelFormat.swift in Sources */,
+				DFE39B0329669FF90087D0D4 /* UIBuilderController.swift in Sources */,
 				DF3830B928714EE30028B4E6 /* TestViewController.swift in Sources */,
 				DFE1727A280510B500C44AB0 /* BitMaskOption.swift in Sources */,
 				DFFDA4A428DE3B1000805000 /* URL+VD.swift in Sources */,
@@ -1495,8 +1841,11 @@
 				DFE17274280510B500C44AB0 /* DisplayMode.swift in Sources */,
 				DFCA77802818AF010099BC21 /* VirtualDrive.swift in Sources */,
 				DFCA78682821E6560099BC21 /* Animator.swift in Sources */,
+				DF0B8EF829CA2EE50018BC9A /* ARGB32.swift in Sources */,
 				DFD6515628932576002DFCCE /* LabeledColor.swift in Sources */,
 				DFE1726B280510B500C44AB0 /* VideoDisplay.swift in Sources */,
+				DF5AB5BF29D4D110002D7482 /* Utility.swift in Sources */,
+				DF5AB5C529D5D04A002D7482 /* InterfaceClass.swift in Sources */,
 				DFFF55D2285BB22C00536EAD /* Player.swift in Sources */,
 				DF2D82782866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFC5860C28125A900097E39B /* Common.swift in Sources */,
@@ -1513,33 +1862,52 @@
 				DFFF55E2285BB28B00536EAD /* Scene.swift in Sources */,
 				DFE39A442965EE140087D0D4 /* TextLine.swift in Sources */,
 				DFE1728F280510B500C44AB0 /* Texture.swift in Sources */,
+				DF997ADA29DF3ED200CBA008 /* Array+Performance.swift in Sources */,
 				DFD050FE288B61C0008FA64E /* Date+Shortcuts.swift in Sources */,
 				DFCA77E7281A44CB0099BC21 /* StringScanner.swift in Sources */,
+				DF5AB5D829D5D51C002D7482 /* Tweener.swift in Sources */,
+				DF5AB5B329D4C795002D7482 /* ARGB32Diff.swift in Sources */,
+				DF5AB5F129D5DE32002D7482 /* TweenT2D.swift in Sources */,
 				DFE17289280510B500C44AB0 /* SDL.swift in Sources */,
 				DFC583F628077CD00097E39B /* View.swift in Sources */,
 				DFFF55EA285BB2C100536EAD /* Bullet.swift in Sources */,
+				DF98FE4529833C0E00D101EC /* IReusable.swift in Sources */,
+				DF99795D29DC906100CBA008 /* ObjectPool.swift in Sources */,
+				DFABDEAF29E0A47200ACE26B /* InterfaceStructPractical.swift in Sources */,
+				DFF0E2E52978D94C00F866CD /* ScrollView.swift in Sources */,
+				DF0B8E6E29C9447E0018BC9A /* Bank.swift in Sources */,
 				DF2D82ED2870DB1400D4A860 /* Image.swift in Sources */,
+				DF99795729DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */,
 				DFD9165C2900F90A0025464E /* SDLRect+Ext.swift in Sources */,
+				DF0B8E7429C945CC0018BC9A /* Emitter.swift in Sources */,
+				DF5AB5EB29D5DE1E002D7482 /* TweenStruct.swift in Sources */,
+				DFE3C4D6297088F500B7B8B6 /* LayoutChild.swift in Sources */,
 				DFE1727D280510B500C44AB0 /* Palette.swift in Sources */,
 				DFC583E1280774380097E39B /* Window+Ext.swift in Sources */,
 				DF69FC72290F82220022F7C5 /* Shadow.swift in Sources */,
+				DF5AB5DE29D5DDB4002D7482 /* Tracker.swift in Sources */,
+				DF5AB5B929D4CD76002D7482 /* Range.swift in Sources */,
 				DF6D4DDA2851DF6E0046BF8D /* Commands+SDL.swift in Sources */,
 				DFE17271280510B500C44AB0 /* BlendMode.swift in Sources */,
 				DF81A1EA28638CE50089E898 /* TextView.swift in Sources */,
 				DFF831A8289855E7002F3DF4 /* CodingContainers+Features.swift in Sources */,
 				DF2D827428662EED00D4A860 /* TTF.swift in Sources */,
+				DF9979A029DCA11C00CBA008 /* OldTween.swift in Sources */,
 				DFE17292280510B500C44AB0 /* SDLWindow.swift in Sources */,
 				DFFF55E6285BB2A800536EAD /* Enemy.swift in Sources */,
 				DFE1726E280510B500C44AB0 /* Surface.swift in Sources */,
 				DFCA777428189F1F0099BC21 /* GenericError.swift in Sources */,
 				DFE1728C280510B500C44AB0 /* Renderer.swift in Sources */,
 				DF3830AE28714B560028B4E6 /* ViewController.swift in Sources */,
+				DF99799A29DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */,
+				DF5AB5E529D5DDFA002D7482 /* Tween.swift in Sources */,
 				DF6D4DDE28521DB80046BF8D /* CommandRepeater.swift in Sources */,
 				DF0D7DFB28A31866008F53FB /* FontDesc.swift in Sources */,
 				DF2D8282286BC48400D4A860 /* TTFInterface.m in Sources */,
 				DFC585D82811CAD70097E39B /* AtlasAllocator.swift in Sources */,
 				DFCA786C2821E9F80099BC21 /* SpaceInvaders.swift in Sources */,
 				DFC585AF2810A6570097E39B /* ImageAtlas.swift in Sources */,
+				DF99789829DBC4F700CBA008 /* TestEmitter.swift in Sources */,
 				DFE17286280510B500C44AB0 /* Event.swift in Sources */,
 				DFCA77782818A2F50099BC21 /* Version.swift in Sources */,
 				DFCA7803281B37050099BC21 /* String+Util.swift in Sources */,
@@ -1555,6 +1923,7 @@
 				DFD916622900F9BA0025464E /* TextAlignment.swift in Sources */,
 				DF0D7E4E28A3F4CE008F53FB /* Expressible.swift in Sources */,
 				DFC583DC280773DA0097E39B /* Window.swift in Sources */,
+				DFE3C454296F64AB00B7B8B6 /* YogaLayout.swift in Sources */,
 				DF6A812528E53DDF00AFEAA3 /* ImageView.swift in Sources */,
 				DFC583ED2807762B0097E39B /* Engine.swift in Sources */,
 				DFC583F228077C9C0097E39B /* Layouts.swift in Sources */,
@@ -1572,17 +1941,24 @@
 				DFE4229B28A6E367009D5A47 /* MountedDir.swift in Sources */,
 				DFE422A428A6E371009D5A47 /* SimpleImageManager.swift in Sources */,
 				DFE422B628A6E391009D5A47 /* CountableSet.swift in Sources */,
+				DF0B8E6F29C9447E0018BC9A /* Bank.swift in Sources */,
+				DF5AB5C629D5D04A002D7482 /* InterfaceClass.swift in Sources */,
 				DF69FC73290F82220022F7C5 /* Shadow.swift in Sources */,
 				DFE422AF28A6E391009D5A47 /* SDL.swift in Sources */,
+				DFE3C455296F64AB00B7B8B6 /* YogaLayout.swift in Sources */,
 				DFE422E428A6E425009D5A47 /* CollisionNode2D.swift in Sources */,
+				DFABDEB629E0AA1C00ACE26B /* Particle.swift in Sources */,
 				DFD9165D2900F90A0025464E /* SDLRect+Ext.swift in Sources */,
 				DFE422D328A6E3E5009D5A47 /* TTF.swift in Sources */,
+				DF99789929DBC4F700CBA008 /* TestEmitter.swift in Sources */,
 				DFE4226228A6E04E009D5A47 /* ViewController.swift in Sources */,
 				DF69FC6D290F76180022F7C5 /* UnderlineStyle.swift in Sources */,
 				DFE4226C28A6E08D009D5A47 /* UIRenderContext.swift in Sources */,
 				DFE422B428A6E391009D5A47 /* PixelFormat.swift in Sources */,
+				DF5AB5BA29D4CD76002D7482 /* Range.swift in Sources */,
 				DFE422B128A6E391009D5A47 /* VideoDisplay.swift in Sources */,
 				DFC5860628125A4F0097E39B /* EtagerePacker.swift in Sources */,
+				DF5AB5F229D5DE32002D7482 /* TweenT2D.swift in Sources */,
 				DFE422A628A6E371009D5A47 /* Font.swift in Sources */,
 				DFE4229D28A6E367009D5A47 /* VirtualDrive.swift in Sources */,
 				DFF831AE2899E88A002F3DF4 /* SerializationTests.swift in Sources */,
@@ -1597,19 +1973,32 @@
 				DFCA777B2818AD0C0099BC21 /* VersionTests.swift in Sources */,
 				DFD916632900F9BA0025464E /* TextAlignment.swift in Sources */,
 				DFE422D828A6E415009D5A47 /* Commands+SDL.swift in Sources */,
+				DF997ADB29DF3ED200CBA008 /* Array+Performance.swift in Sources */,
+				DF98FE4629833C0E00D101EC /* IReusable.swift in Sources */,
+				DF5AB5C029D4D110002D7482 /* Utility.swift in Sources */,
 				DF8620512925FCD20077ABA0 /* TextAlternatives.swift in Sources */,
 				DFE422B528A6E391009D5A47 /* BlendMode.swift in Sources */,
 				DFE422E828A6E425009D5A47 /* Player.swift in Sources */,
+				DFE39B0429669FF90087D0D4 /* UIBuilderController.swift in Sources */,
+				DF5AB5CC29D5D440002D7482 /* InterfaceStruct.swift in Sources */,
 				DF8622BE292E80F10077ABA0 /* LabeledColorMap.swift in Sources */,
 				DFE422B728A6E391009D5A47 /* SDLWindow.swift in Sources */,
+				DF99795829DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */,
 				DFE422D728A6E410009D5A47 /* Application.swift in Sources */,
 				DFE422BA28A6E391009D5A47 /* Palette.swift in Sources */,
 				DF6A812628E53DDF00AFEAA3 /* ImageView.swift in Sources */,
 				DF69FBBF290B3EA90022F7C5 /* MopixAttributes.swift in Sources */,
+				DF5AB5D229D5D467002D7482 /* InterfaceStructClass.swift in Sources */,
+				DF99795E29DC906100CBA008 /* ObjectPool.swift in Sources */,
 				DFE422CC28A6E396009D5A47 /* Window+Ext.swift in Sources */,
 				DF0D7DF628A30E53008F53FB /* Resolver.swift in Sources */,
 				DFE422AE28A6E391009D5A47 /* Surface.swift in Sources */,
+				DFE3C4D7297088F500B7B8B6 /* LayoutChild.swift in Sources */,
+				DF0B8EF929CA2EE50018BC9A /* ARGB32.swift in Sources */,
+				DF98FE4029833BFA00D101EC /* Chunk.swift in Sources */,
+				DF0B8E7529C945CC0018BC9A /* Emitter.swift in Sources */,
 				DFE4229528A6E34E009D5A47 /* CustomWindow.swift in Sources */,
+				DFF0E2E02978D45C00F866CD /* Table.swift in Sources */,
 				DFC5860728125A4F0097E39B /* AtlasAllocator.swift in Sources */,
 				DFE422BC28A6E391009D5A47 /* Renderer.swift in Sources */,
 				DFD916692900FB0C0025464E /* TextWrapping.swift in Sources */,
@@ -1617,26 +2006,36 @@
 				DFE4226A28A6E081009D5A47 /* LabeledColor.swift in Sources */,
 				DFE422B928A6E391009D5A47 /* BitMaskOption.swift in Sources */,
 				DFE422A728A6E371009D5A47 /* Image.swift in Sources */,
+				DFABDEB029E0A47200ACE26B /* InterfaceStructPractical.swift in Sources */,
+				DF5AB5DF29D5DDB4002D7482 /* Tracker.swift in Sources */,
 				DF0D7E4928A3EE7D008F53FB /* TypeMap.swift in Sources */,
 				DFE4229F28A6E367009D5A47 /* Version.swift in Sources */,
 				DFE422D428A6E3E9009D5A47 /* TTFInterface.m in Sources */,
 				DF69FC79290F87CB0022F7C5 /* TextAttachment.swift in Sources */,
+				DF9979A129DCA11C00CBA008 /* OldTween.swift in Sources */,
+				DF98FE4C29838B4900D101EC /* ChunkedPool.swift in Sources */,
 				DFE422B328A6E391009D5A47 /* DisplayMode.swift in Sources */,
 				DFE422EB28A6E432009D5A47 /* Engine.swift in Sources */,
+				DFF0E2E62978D94C00F866CD /* ScrollView.swift in Sources */,
 				DF0D7E4F28A3F4CE008F53FB /* Expressible.swift in Sources */,
 				DFE422B228A6E391009D5A47 /* Event.swift in Sources */,
 				DFF7310C28ECF1660036E52E /* TextField.swift in Sources */,
 				DFE4226428A6E06E009D5A47 /* View.swift in Sources */,
+				DF5AB5E629D5DDFA002D7482 /* Tween.swift in Sources */,
 				DFE4226628A6E075009D5A47 /* Layouts.swift in Sources */,
 				DF5BE3F3289B263A00A0ED4E /* InstanceCache.swift in Sources */,
+				DF99799B29DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */,
 				DF5BE3F0289ABA0F00A0ED4E /* CodingContainers+Features.swift in Sources */,
 				DFE422E728A6E425009D5A47 /* Util.swift in Sources */,
+				DF5AB5B429D4C795002D7482 /* ARGB32Diff.swift in Sources */,
 				DFD916572900F7C50025464E /* TextLine.swift in Sources */,
 				DFE422D228A6E3E5009D5A47 /* SDLFont.swift in Sources */,
 				DFE422CD28A6E396009D5A47 /* SDLColor+Ext.swift in Sources */,
+				DF5AB5D929D5D51C002D7482 /* Tweener.swift in Sources */,
 				DFE4226028A6DFFC009D5A47 /* TestViewController.swift in Sources */,
 				DF767DD728A16E65005DAB38 /* Decoder+Features.swift in Sources */,
 				DFE422BB28A6E391009D5A47 /* Error.swift in Sources */,
+				DF5AB5EC29D5DE1E002D7482 /* TweenStruct.swift in Sources */,
 				DFE422E328A6E425009D5A47 /* EntityPool.swift in Sources */,
 				DFE422A528A6E371009D5A47 /* ImageAtlas.swift in Sources */,
 			);
@@ -1651,11 +2050,14 @@
 				DF69FC6E290F76180022F7C5 /* UnderlineStyle.swift in Sources */,
 				DF0D7DFD28A31866008F53FB /* FontDesc.swift in Sources */,
 				DFF7310D28ECF1660036E52E /* TextField.swift in Sources */,
+				DFE39B0529669FF90087D0D4 /* UIBuilderController.swift in Sources */,
+				DF98FE4729833C0E00D101EC /* IReusable.swift in Sources */,
 				DFE422D028A6E3E4009D5A47 /* SDLFont.swift in Sources */,
 				DFE422C728A6E392009D5A47 /* Texture.swift in Sources */,
 				DFE4226928A6E07A009D5A47 /* TextView.swift in Sources */,
 				DFE4226328A6E04F009D5A47 /* ViewController.swift in Sources */,
 				DFE4227E28A6E347009D5A47 /* MoPixUtil.swift in Sources */,
+				DF5AB5CD29D5D440002D7482 /* InterfaceStruct.swift in Sources */,
 				DF6A812728E53DDF00AFEAA3 /* ImageView.swift in Sources */,
 				DFE422D528A6E3EA009D5A47 /* TTFInterface.m in Sources */,
 				DFE422A328A6E368009D5A47 /* String+Util.swift in Sources */,
@@ -1663,14 +2065,19 @@
 				DFE4226D28A6E08D009D5A47 /* UIRenderContext.swift in Sources */,
 				DFE4228328A6E347009D5A47 /* Geometry.swift in Sources */,
 				DFF831AF2899E895002F3DF4 /* SerializationTests.swift in Sources */,
+				DFF0E2E12978D45C00F866CD /* Table.swift in Sources */,
+				DFE3C4D8297088F500B7B8B6 /* LayoutChild.swift in Sources */,
 				DFFDA4AA28DE3BA600805000 /* PackageMeta.swift in Sources */,
 				DFE422AA28A6E372009D5A47 /* ImageAtlas.swift in Sources */,
 				DFE422C328A6E392009D5A47 /* PixelFormat.swift in Sources */,
 				DFE4228428A6E347009D5A47 /* Geometry+SDL.swift in Sources */,
 				DFE422DB28A6E424009D5A47 /* EntityPool.swift in Sources */,
+				DF5AB5D329D5D467002D7482 /* InterfaceStructClass.swift in Sources */,
+				DFABDEB129E0A47200ACE26B /* InterfaceStructPractical.swift in Sources */,
 				DFE422A028A6E368009D5A47 /* MountedDir.swift in Sources */,
 				DFC5862228125F890097E39B /* EtagereTests.swift in Sources */,
 				DFD916582900F7C50025464E /* TextLine.swift in Sources */,
+				DF5AB5F329D5DE32002D7482 /* TweenT2D.swift in Sources */,
 				DFE422AB28A6E372009D5A47 /* Font.swift in Sources */,
 				DFE422DF28A6E424009D5A47 /* Util.swift in Sources */,
 				DFC6FC0C28DD019700D02B5F /* Weak.swift in Sources */,
@@ -1687,42 +2094,61 @@
 				DFE422DC28A6E424009D5A47 /* CollisionNode2D.swift in Sources */,
 				DF69FBC0290B3EA90022F7C5 /* MopixAttributes.swift in Sources */,
 				DFE4228128A6E347009D5A47 /* OS.swift in Sources */,
+				DF5AB5DA29D5D51C002D7482 /* Tweener.swift in Sources */,
 				DFE422CE28A6E397009D5A47 /* Window+Ext.swift in Sources */,
 				DFE422C928A6E392009D5A47 /* Palette.swift in Sources */,
+				DFABDEB729E0AA1C00ACE26B /* Particle.swift in Sources */,
 				DFE422AC28A6E372009D5A47 /* Image.swift in Sources */,
+				DF98FE4129833BFA00D101EC /* Chunk.swift in Sources */,
 				DFE422A128A6E368009D5A47 /* StringScanner.swift in Sources */,
 				DFE422A928A6E372009D5A47 /* SimpleImageManager.swift in Sources */,
 				DFE422C228A6E392009D5A47 /* DisplayMode.swift in Sources */,
+				DF5AB5E729D5DDFA002D7482 /* Tween.swift in Sources */,
 				DFE422CA28A6E392009D5A47 /* Error.swift in Sources */,
 				DFE422BF28A6E392009D5A47 /* Color.swift in Sources */,
 				DFE4226B28A6E082009D5A47 /* LabeledColor.swift in Sources */,
 				DFE422C128A6E392009D5A47 /* Event.swift in Sources */,
+				DF0B8E7629C945CC0018BC9A /* Emitter.swift in Sources */,
 				DF8620522925FCD20077ABA0 /* TextAlternatives.swift in Sources */,
 				DFFDA4A528DE3B1000805000 /* URL+VD.swift in Sources */,
 				DFCA77792818ACE80099BC21 /* Version.swift in Sources */,
 				DFE422C628A6E392009D5A47 /* SDLWindow.swift in Sources */,
+				DF98FE4D29838B4900D101EC /* ChunkedPool.swift in Sources */,
 				DF0D7E4A28A3EE7D008F53FB /* TypeMap.swift in Sources */,
 				DF0D7E5028A3F4CE008F53FB /* Expressible.swift in Sources */,
 				DFE4226528A6E06F009D5A47 /* View.swift in Sources */,
+				DF99789A29DBC4F700CBA008 /* TestEmitter.swift in Sources */,
+				DF99799C29DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */,
 				DFCA777F2818AE3C0099BC21 /* VersionTests.swift in Sources */,
 				DFE422EA28A6E431009D5A47 /* Engine.swift in Sources */,
 				DFE4227C28A6E347009D5A47 /* Common.swift in Sources */,
+				DF99795F29DC906100CBA008 /* ObjectPool.swift in Sources */,
 				DFE422AD28A6E372009D5A47 /* ImageManager.swift in Sources */,
 				DFE4228228A6E347009D5A47 /* TimeBank.swift in Sources */,
 				DFE422C028A6E392009D5A47 /* VideoDisplay.swift in Sources */,
 				DFE4227A28A6E347009D5A47 /* IntervalBank.swift in Sources */,
+				DF997ADC29DF3ED200CBA008 /* Array+Performance.swift in Sources */,
 				DFE4228028A6E347009D5A47 /* GenericError.swift in Sources */,
 				DFE4227F28A6E347009D5A47 /* Window.swift in Sources */,
 				DFE422D628A6E40F009D5A47 /* Application.swift in Sources */,
+				DF5AB5C129D4D110002D7482 /* Utility.swift in Sources */,
 				DFE422A228A6E368009D5A47 /* VirtualDrive.swift in Sources */,
 				DFE4228528A6E347009D5A47 /* CommandRepeater.swift in Sources */,
+				DF5AB5C729D5D04A002D7482 /* InterfaceClass.swift in Sources */,
+				DF9979A229DCA11C00CBA008 /* OldTween.swift in Sources */,
 				DFE4227B28A6E347009D5A47 /* Commands.swift in Sources */,
 				DFE422BE28A6E392009D5A47 /* SDL.swift in Sources */,
+				DF5AB5E029D5DDB4002D7482 /* Tracker.swift in Sources */,
 				DFE422BD28A6E392009D5A47 /* Surface.swift in Sources */,
 				DFE422C528A6E392009D5A47 /* CountableSet.swift in Sources */,
 				DFD9165E2900F90A0025464E /* SDLRect+Ext.swift in Sources */,
 				DFE422DD28A6E424009D5A47 /* SpaceInvaders.swift in Sources */,
+				DFF0E2E72978D94C00F866CD /* ScrollView.swift in Sources */,
+				DF0B8EFA29CA2EE50018BC9A /* ARGB32.swift in Sources */,
+				DF5AB5ED29D5DE1E002D7482 /* TweenStruct.swift in Sources */,
+				DF5AB5B529D4C795002D7482 /* ARGB32Diff.swift in Sources */,
 				DFE422C428A6E392009D5A47 /* BlendMode.swift in Sources */,
+				DF5AB5BB29D4CD76002D7482 /* Range.swift in Sources */,
 				DFE422DA28A6E424009D5A47 /* Bullet.swift in Sources */,
 				DFE422E028A6E424009D5A47 /* Player.swift in Sources */,
 				DFE4226728A6E075009D5A47 /* Layouts.swift in Sources */,
@@ -1730,11 +2156,14 @@
 				DFD916642900F9BA0025464E /* TextAlignment.swift in Sources */,
 				DFD9166A2900FB0C0025464E /* TextWrapping.swift in Sources */,
 				DFE4228628A6E347009D5A47 /* Animator.swift in Sources */,
+				DFE3C456296F64AB00B7B8B6 /* YogaLayout.swift in Sources */,
 				DF8622BF292E80F10077ABA0 /* LabeledColorMap.swift in Sources */,
+				DF99795929DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */,
 				DFE422CF28A6E397009D5A47 /* SDLColor+Ext.swift in Sources */,
 				DF5BE3F1289ABA0F00A0ED4E /* CodingContainers+Features.swift in Sources */,
 				DFE4226128A6DFFC009D5A47 /* TestViewController.swift in Sources */,
 				DF767DD828A16E65005DAB38 /* Decoder+Features.swift in Sources */,
+				DF0B8E7029C9447E0018BC9A /* Bank.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1830,7 +2259,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -1844,9 +2273,11 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = off;
 				SWIFT_OBJC_BRIDGING_HEADER = "TestGame-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Debug;
 		};
@@ -1899,7 +2330,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = off;
 				SWIFT_OBJC_BRIDGING_HEADER = "TestGame-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
@@ -2044,6 +2478,7 @@
 				PRODUCT_NAME = TestGame;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -2073,6 +2508,7 @@
 				PRODUCT_NAME = TestGame;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -2232,6 +2668,14 @@
 				kind = branch;
 			};
 		};
+		DFABDEA929DFA32300ACE26B /* XCRemoteSwiftPackageReference "xorswift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/t-ae/xorswift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
 		DFEB98A428CACD7B000A5E31 /* XCRemoteSwiftPackageReference "FSEvents" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/eonil/FSEvents";
@@ -2267,6 +2711,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DF89275F28F35A870047250F /* XCRemoteSwiftPackageReference "icu-swift" */;
 			productName = ICU;
+		};
+		DFABDEAA29DFA32300ACE26B /* Xorswift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DFABDEA929DFA32300ACE26B /* XCRemoteSwiftPackageReference "xorswift" */;
+			productName = Xorswift;
 		};
 		DFEB98A528CACD7B000A5E31 /* EonilFSEvents */ = {
 			isa = XCSwiftPackageProductDependency;

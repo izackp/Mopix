@@ -63,25 +63,25 @@ public struct LEPosY : LayoutElement, Codable {
     }
 }
 
-public struct LEMatch : LayoutElement, Codable {
-    public var edgeSource:Edge
-    public var source:View
-    public var edgeDestination:Edge
+public struct LEAlign : LayoutElement, Codable {
+    public var vertical:Bool
+    public var percentStart:Float
+    public var percentEnd:Float
 
+    //If I want to set the left edge to 50. I need to get the width of the parent
     public func updateFrame(_ view:View) {
-        view.frame.setValueForEdge(edgeDestination, source.frame.valueForEdge(edgeSource))
+        guard let container = view.containerSize() else { return }
+        let remainingSize = Float(container.width - view.frame.size.width)
+        let pTotal = percentEnd + percentStart
+        if (pTotal == 0) {
+            view.frame.x = Int16(remainingSize * 0.5)
+            return
+        }
+        let pStart = percentStart / pTotal
+        view.frame.x = Int16(remainingSize * pStart)
     }
 }
 
-public struct LEMatchFixed : LayoutElement, Codable {
-    public var edgeSource:Edge
-    public var source:View
-    public var edgeDestination:Edge
-
-    public func updateFrame(_ view:View) {
-        view.frame.setValueForEdgeFixed(edgeDestination, source.frame.valueForEdge(edgeSource))
-    }
-}
 
 public struct LEAnchor : LayoutElement, Codable {
     public var edge:Edge

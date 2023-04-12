@@ -12,7 +12,17 @@ import SDL2
 //TODO: limit amount of possible lines
 public class TextView : View {
     
-    public var text:String = ""
+    private var _text:String = ""
+    public var text:String {
+        get {
+            return _text
+        }
+        set {
+            if (_text == newValue) { return }
+            _text = newValue
+            _attrText = nil
+        }
+    }
     private var _attrText:AttributedString? = nil
     public var attributedText:AttributedString {
         get {
@@ -25,7 +35,7 @@ public class TextView : View {
         }
         set {
             _attrText = newValue
-            text = ""
+            _text = ""
         }
     }
     public var textColor:LabeledColor = LabeledColor.idk
@@ -51,7 +61,7 @@ public class TextView : View {
     }
     
     public init(text:String) {
-        self.text = text
+        _text = text
         super.init()
     }
     
@@ -129,18 +139,19 @@ public class TextView : View {
         
         
         var lines:[TextLine2] = []
-        try Application._shared.stats.measure("build draw thing") {
+        //try Application._shared.stats.measure("build draw thing") {
             switch textWrapping {
                 case .character:
                     //lines = try font.splitIntoLines(text, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
                     fallthrough
                 case .word:
+                    //print("Building: \(text)")
                     lines = try TextLine2.buildFrom(attributedText, renderContext: context, context: textContext, maxWidthPxs: Int(rect.width))//try font.splitIntoLinesWordWrapped2(text, maxWidthPxs: Int(rect.width), characterSpacing: characterSpacing)
                     break
                 case .none:
                     lines = try TextLine2.buildFrom(attributedText, renderContext: context, context: textContext, maxWidthPxs: nil)
             }
-        }
+        //}
 
         
         

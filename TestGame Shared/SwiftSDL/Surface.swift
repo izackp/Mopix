@@ -168,6 +168,10 @@ public final class SDLSurface {
         }
     }
     
+    public func drawPoint(_ x: Int32, _ y:Int32, _ color: UInt32) throws {
+        SDL_DrawPoint(internalPointer, x, y, color)
+    }
+    
     public func convertSurface(format: SDL_PixelFormatEnum) throws -> SDLSurface {
         let newPtr = try SDL_ConvertSurfaceFormat(internalPointer, format.rawValue, 0).sdlThrow(type: type(of: self))
         return SDLSurface(ptr: newPtr)

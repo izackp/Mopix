@@ -50,7 +50,7 @@ final class CustomWindow: Window {
         }
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
-        let vc = try TestViewController.build(imageManager)
+        let vc = try UIBuilderController.build(imageManager)
         setRootViewController(vc)
         
         Task { [weak self] in
@@ -60,6 +60,11 @@ final class CustomWindow: Window {
             self?.randomImage = sprite
         }
         
+    }
+    
+    override func drawStart() throws {
+        try super.drawStart()
+        rootViewController?.drawStart()
     }
     
     func setRootViewController(_ vc:ViewController) {
@@ -79,9 +84,11 @@ final class CustomWindow: Window {
                 let mouseEvent = eachEvent.motion
                 let touchingView = viewForPoint(mouseEvent.pos())
                 let previousView = viewForPoint(mouseEvent.previousPos())
-                if (touchingView === previousView) { continue }
-                touchingView?.onMouseEnter()
-                previousView?.onMouseLeave()
+                if (touchingView !== previousView) {
+                    touchingView?.onMouseEnter()
+                    previousView?.onMouseLeave()
+                }
+                touchingView?.onMouseMotion(event: mouseEvent)
                 continue
             }
             

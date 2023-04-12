@@ -8,11 +8,53 @@
 import Foundation
 import SDL2
 
+public struct Line1D<T: Codable & Numeric>: Equatable, Codable {
+    var begin:T
+    var length:T
+    
+    //var log = false
+
+    var beginFree:T {
+        get { begin }
+        set {
+            let diff = (newValue - begin)
+            begin += diff
+            length -= diff
+        }
+    }
+
+    var beginFixed:T {
+        get { begin }
+        set { begin = newValue }
+    }
+
+    var end:T {
+        get { begin + length }
+    }
+
+    var endFree:T {
+        get { end }
+        set { length = newValue - begin }
+    }
+
+    var endFixed:T {
+        get { end }
+        set { begin = newValue - length }
+    }
+}
+
+
 public struct Inset<T: Codable & Numeric>: Equatable, Codable   {
     var left:T
     var top:T
     var right:T
     var bottom:T
+    
+    public static var zero: Inset<T> {
+        get {
+            return Inset(left: 0, top: 0, right: 0, bottom: 0)
+        }
+    }
 }
 
 public enum Edge: String, Codable, ExpressibleByString {
@@ -120,7 +162,7 @@ public struct Point<T: Codable & Numeric & Hashable>: Equatable, Codable, Hashab
     }
 }
 
-public struct Vector<T: Codable & Numeric>: Equatable {
+public struct Vector<T: Codable & Numeric>: Equatable{
     var x:T
     var y:T
     
@@ -142,6 +184,14 @@ public struct Vector<T: Codable & Numeric>: Equatable {
     static func + (left: Vector<T>, right: Vector<T>) -> Vector<T> {
         return Vector<T>(left.x + right.x, left.y + right.y)
     }
+}
+
+//TODO: Not public? 
+extension Vector : Comparable where T == Float  {
+    public static func < (lhs: Vector<T>, rhs: Vector<T>) -> Bool {
+        return (lhs.x + lhs.y) < (rhs.x + rhs.y)
+    }
+    
 }
 
 public struct Size<T: Codable & Numeric>: Equatable, Codable  {
@@ -440,6 +490,10 @@ public struct Frame<T: Codable & Numeric & Hashable>: Equatable, Codable, Custom
         }
     }
     
+    //680
+    //100, 100 == 480 (680 - 200 = 480) 100 + 480 = 580
+    //-100, 100 == 680 (680 - (-100 + 100) = 680) -100 + 680 = 580
+    //TODO: Pretty confusing when I can just ignore the existing width and offset from x?
     var right : T {
         get { return origin.x + size.width }
         set {

@@ -164,6 +164,10 @@ public final class SDLRenderer {
         
         try SDL_RenderFillRect(internalPointer, rectPointer).sdlThrow(type: type(of: self))
     }
+    
+    public func drawPoint(x:Int32, y:Int32) throws {
+        try SDL_RenderDrawPoint(internalPointer, x, y).sdlThrow(type: type(of: self))
+    }
 }
 
 // MARK: - Supporting Types

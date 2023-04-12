@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 class Enemy {
     init (_ pos: Point<Int>) {
         self.pos = pos
