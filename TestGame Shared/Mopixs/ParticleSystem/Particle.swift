@@ -45,3 +45,43 @@ public struct Particle : IReusable {
         return false
     }
 }
+
+public class ParticleClass : IReusable {
+    public var pos:Vector<Float> = Vector.zero
+    public var color:ARGB32 = ARGB32.white //TODO: Was Int
+    public var completed = false
+
+    public var ID: ContiguousHandle
+    
+    public var isAlive: Bool
+    //public var completed: Bool
+    //private var _canceled: Bool = false
+
+    required public init() {
+        ID = ContiguousHandle(index: 0)
+        isAlive = false
+        completed = false
+    }
+    
+    public func initHook() {
+        assert(!isAlive, "unexpected")
+        pos = Vector.zero
+        color = ARGB32.white
+        completed = false
+    }
+    
+    public func clean() {
+        pos = Vector.zero
+        color = ARGB32.white
+        completed = false
+    }
+    
+    @inline(__always) public func cleanOnComplete() -> Bool {
+        if (isAlive && completed) {
+            clean()
+            isAlive = false
+            return true
+        }
+        return false
+    }
+}

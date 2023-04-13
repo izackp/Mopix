@@ -7,23 +7,36 @@
 
 //T == struct
 public class Chunk<T> where T : IReusable {
-    //public int chunkIndex = 0 //4 Bytes
-    public var unusedIndex:UInt16 = 0 //4 Bytes
-    public var data:ContiguousArray<T> //8 Bytes
-    var _availableIndexes:ContiguousArray<UInt16> //8 Bytes
+    public var data:ContiguousArray<T>
+    var _availableIndexes:ContiguousArray<UInt16>
+    public var unusedIndex:UInt16 = 0
+    //public var ID:UInt16 = 0
 
     public let cMaxSize = 65535
-    
-    /*init(size: UInt16, chunkIndex: UInt16) {
-        //chunkIndex = index
-        data = ContiguousArray(repeating: T(), count: Int(size))
-        _availableIndexes = ContiguousArray<UInt16>(repeating: 0, count: Int(size))
-        InitData(chunkIndex)
-    }*/
-    init(_ size: UInt16, _ chunkIndex: UInt16) { //}, _ data:ContiguousArray<T>) {
-        //chunkIndex = index
-        self.data = ContiguousArray(repeating: T(), count: Int(size))
-        _availableIndexes = ContiguousArray<UInt16>(repeating: 0, count: Int(size))
+
+    init(_ size: UInt16, _ chunkIndex: UInt16) {
+        let count = Int(size)
+        /*
+        self.data = ContiguousArray()
+        self.data.reserveCapacity(count)
+        
+        for i in 0..<count {
+            self.data.append(T())
+        }*/
+        
+        //let builder()
+        
+        self.data = ContiguousArray(unsafeUninitializedCapacity: count, initializingWith: { buffer, initializedCount in
+            guard let buffer = buffer.baseAddress else { return }
+            for i in 0 ..< count {
+                let ptr:UnsafeMutablePointer<T> = buffer.advanced(by: i)
+                ptr.initialize(to: T())
+            }
+            initializedCount = count
+        })
+        //ContiguousArray(repeating: T(), count: Int(size))
+        _availableIndexes = ContiguousArray<UInt16>(repeating: 0, count: count)
+        //ID = chunkIndex
         initData(chunkIndex)
     }
 
@@ -34,9 +47,29 @@ public class Chunk<T> where T : IReusable {
             _availableIndexes[i] = UInt16(i)
         }
     }
+    
+    public func assertStuff() {
+        let count = countLive()
+        let result = unusedIndex == count
+        assert(result)
+        if (!result) {
+            print("assert \(result) \(unusedIndex) == \(count)")
+        }
+    }
+    
+    public func countLive() -> Int {
+        var liveCount = 0
+        data.forEachUnchecked { (eachItem:inout T, t) in
+            if (eachItem.isAlive) {
+                liveCount += 1
+            }
+        }
+        return liveCount
+    }
 
     public func updateId(_ chunkIndex:UInt16) {
         assert(unusedIndex == 0)
+        //ID = chunkIndex
         for i in 0 ..< data.count {
             data[i].ID = ContiguousHandle.buildHandle(chunkIndex: chunkIndex, index: UInt16(i))
             _availableIndexes[i] = UInt16(i)
@@ -55,6 +88,20 @@ public class Chunk<T> where T : IReusable {
         let result = index
         unusedIndex += 1
         return result
+    }
+    
+    public func rentClass(_ block: ( _ item:inout T)->()) throws -> (UInt16, T) {
+        if (unusedIndex == data.count) {
+            throw GenericError("Exceeded chunk size")
+        }
+        let index = _availableIndexes[Int(unusedIndex)]
+        let indexInt = Int(index)
+        var ref = data[indexInt]
+        ref.isAlive = true
+        block(&ref)
+        let result = index
+        unusedIndex += 1
+        return (result, ref)
     }
     
     @inline(__always) public func with(_ index:UInt16, _ block: ( _ item:inout T)->()) {

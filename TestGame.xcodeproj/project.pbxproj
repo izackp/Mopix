@@ -80,6 +80,11 @@
 		DF3830B728714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
 		DF3830B828714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
 		DF3830B928714EE30028B4E6 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3830B628714EE30028B4E6 /* TestViewController.swift */; };
+		DF3BC80729E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC80629E77D4300B21FA9 /* InterfaceAllClasses.swift */; };
+		DF3BC80829E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC80629E77D4300B21FA9 /* InterfaceAllClasses.swift */; };
+		DF3BC80929E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC80629E77D4300B21FA9 /* InterfaceAllClasses.swift */; };
+		DF3BC80A29E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC80629E77D4300B21FA9 /* InterfaceAllClasses.swift */; };
+		DF3BC80B29E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC80629E77D4300B21FA9 /* InterfaceAllClasses.swift */; };
 		DF5AB5B129D4C795002D7482 /* ARGB32Diff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */; };
 		DF5AB5B229D4C795002D7482 /* ARGB32Diff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */; };
 		DF5AB5B329D4C795002D7482 /* ARGB32Diff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */; };
@@ -95,11 +100,6 @@
 		DF5AB5BF29D4D110002D7482 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5BC29D4D110002D7482 /* Utility.swift */; };
 		DF5AB5C029D4D110002D7482 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5BC29D4D110002D7482 /* Utility.swift */; };
 		DF5AB5C129D4D110002D7482 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5BC29D4D110002D7482 /* Utility.swift */; };
-		DF5AB5C329D5D04A002D7482 /* InterfaceClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */; };
-		DF5AB5C429D5D04A002D7482 /* InterfaceClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */; };
-		DF5AB5C529D5D04A002D7482 /* InterfaceClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */; };
-		DF5AB5C629D5D04A002D7482 /* InterfaceClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */; };
-		DF5AB5C729D5D04A002D7482 /* InterfaceClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */; };
 		DF5AB5C929D5D440002D7482 /* InterfaceStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */; };
 		DF5AB5CA29D5D440002D7482 /* InterfaceStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */; };
 		DF5AB5CB29D5D440002D7482 /* InterfaceStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */; };
@@ -229,11 +229,6 @@
 		DF99789829DBC4F700CBA008 /* TestEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99789529DBC4F700CBA008 /* TestEmitter.swift */; };
 		DF99789929DBC4F700CBA008 /* TestEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99789529DBC4F700CBA008 /* TestEmitter.swift */; };
 		DF99789A29DBC4F700CBA008 /* TestEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99789529DBC4F700CBA008 /* TestEmitter.swift */; };
-		DF99795529DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */; };
-		DF99795629DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */; };
-		DF99795729DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */; };
-		DF99795829DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */; };
-		DF99795929DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */; };
 		DF99795B29DC906100CBA008 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795A29DC906100CBA008 /* ObjectPool.swift */; };
 		DF99795C29DC906100CBA008 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795A29DC906100CBA008 /* ObjectPool.swift */; };
 		DF99795D29DC906100CBA008 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF99795A29DC906100CBA008 /* ObjectPool.swift */; };
@@ -710,10 +705,10 @@
 		DF2D82FA2870E97A00D4A860 /* SimpleImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleImageManager.swift; sourceTree = "<group>"; };
 		DF3830AB28714B560028B4E6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		DF3830B628714EE30028B4E6 /* TestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
+		DF3BC80629E77D4300B21FA9 /* InterfaceAllClasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceAllClasses.swift; sourceTree = "<group>"; };
 		DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARGB32Diff.swift; sourceTree = "<group>"; };
 		DF5AB5B629D4CD76002D7482 /* Range.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Range.swift; sourceTree = "<group>"; };
 		DF5AB5BC29D4D110002D7482 /* Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
-		DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceClass.swift; sourceTree = "<group>"; };
 		DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceStruct.swift; sourceTree = "<group>"; };
 		DF5AB5CE29D5D467002D7482 /* InterfaceStructClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceStructClass.swift; sourceTree = "<group>"; };
 		DF5AB5D529D5D51C002D7482 /* Tweener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tweener.swift; sourceTree = "<group>"; };
@@ -746,7 +741,6 @@
 		DF98FE4229833C0E00D101EC /* IReusable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IReusable.swift; sourceTree = "<group>"; };
 		DF98FE4829838B4900D101EC /* ChunkedPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChunkedPool.swift; sourceTree = "<group>"; };
 		DF99789529DBC4F700CBA008 /* TestEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestEmitter.swift; sourceTree = "<group>"; };
-		DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TweenerContiguousClass.swift; sourceTree = "<group>"; };
 		DF99795A29DC906100CBA008 /* ObjectPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectPool.swift; sourceTree = "<group>"; };
 		DF99799729DC952F00CBA008 /* ContiguousObjectPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContiguousObjectPool.swift; sourceTree = "<group>"; };
 		DF99799D29DCA11C00CBA008 /* OldTween.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldTween.swift; sourceTree = "<group>"; };
@@ -916,17 +910,18 @@
 		DF0B8E6A29C944350018BC9A /* ParticleSystem */ = {
 			isa = PBXGroup;
 			children = (
+				DF99789529DBC4F700CBA008 /* TestEmitter.swift */,
 				DF0B8E6B29C9447E0018BC9A /* Bank.swift */,
 				DF0B8E7129C945CC0018BC9A /* Emitter.swift */,
 				DF0B8EF529CA2EE50018BC9A /* ARGB32.swift */,
 				DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */,
 				DF5AB5B629D4CD76002D7482 /* Range.swift */,
 				DF5AB5BC29D4D110002D7482 /* Utility.swift */,
-				DF5AB5C229D5D04A002D7482 /* InterfaceClass.swift */,
 				DF5AB5C829D5D440002D7482 /* InterfaceStruct.swift */,
 				DF5AB5CE29D5D467002D7482 /* InterfaceStructClass.swift */,
 				DFABDEAC29E0A47200ACE26B /* InterfaceStructPractical.swift */,
 				DFABDEB229E0AA1C00ACE26B /* Particle.swift */,
+				DF3BC80629E77D4300B21FA9 /* InterfaceAllClasses.swift */,
 			);
 			path = ParticleSystem;
 			sourceTree = "<group>";
@@ -961,7 +956,6 @@
 				DF5AB5E129D5DDC1002D7482 /* Tween */,
 				DF5AB5D529D5D51C002D7482 /* Tweener.swift */,
 				DF5AB5DB29D5DDB4002D7482 /* Tracker.swift */,
-				DF99789529DBC4F700CBA008 /* TestEmitter.swift */,
 			);
 			path = AniTween;
 			sourceTree = "<group>";
@@ -1014,7 +1008,6 @@
 		DF99795329DC8FCA00CBA008 /* Old */ = {
 			isa = PBXGroup;
 			children = (
-				DF99795429DC8FDC00CBA008 /* TweenerContiguousClass.swift */,
 				DF99795A29DC906100CBA008 /* ObjectPool.swift */,
 				DF99799729DC952F00CBA008 /* ContiguousObjectPool.swift */,
 				DF99799D29DCA11C00CBA008 /* OldTween.swift */,
@@ -1631,9 +1624,9 @@
 				DF69FC6A290F76180022F7C5 /* UnderlineStyle.swift in Sources */,
 				DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */,
 				DF8622BB292E80F10077ABA0 /* LabeledColorMap.swift in Sources */,
+				DF3BC80729E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */,
 				DFD916602900F9BA0025464E /* TextAlignment.swift in Sources */,
 				DF2D8280286BC48400D4A860 /* TTFInterface.m in Sources */,
-				DF99795529DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */,
 				DF5AB5C929D5D440002D7482 /* InterfaceStruct.swift in Sources */,
 				DFD6515428932576002DFCCE /* LabeledColor.swift in Sources */,
 				DFC585D62811CAD70097E39B /* AtlasAllocator.swift in Sources */,
@@ -1655,7 +1648,6 @@
 				DF5AB5CF29D5D467002D7482 /* InterfaceStructClass.swift in Sources */,
 				DFFDA4A728DE3BA600805000 /* PackageMeta.swift in Sources */,
 				DFE17290280510B500C44AB0 /* SDLWindow.swift in Sources */,
-				DF5AB5C329D5D04A002D7482 /* InterfaceClass.swift in Sources */,
 				DF767DDB28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
 				DFD916662900FB0C0025464E /* TextWrapping.swift in Sources */,
 				DFFF55DC285BB27700536EAD /* CollisionNode2D.swift in Sources */,
@@ -1693,7 +1685,6 @@
 				DF81A1E928638CE50089E898 /* TextView.swift in Sources */,
 				DFD916612900F9BA0025464E /* TextAlignment.swift in Sources */,
 				DF99789729DBC4F700CBA008 /* TestEmitter.swift in Sources */,
-				DF5AB5C429D5D04A002D7482 /* InterfaceClass.swift in Sources */,
 				DF2D82F02870DB2C00D4A860 /* Font.swift in Sources */,
 				DF5AB5EA29D5DE1E002D7482 /* TweenStruct.swift in Sources */,
 				DF0B8E6D29C9447E0018BC9A /* Bank.swift in Sources */,
@@ -1704,6 +1695,7 @@
 				DFC585D72811CAD70097E39B /* AtlasAllocator.swift in Sources */,
 				DF5AB5CA29D5D440002D7482 /* InterfaceStruct.swift in Sources */,
 				DF2D82EC2870DB1400D4A860 /* Image.swift in Sources */,
+				DF3BC80829E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */,
 				DFCA786B2821E9F80099BC21 /* SpaceInvaders.swift in Sources */,
 				DFC58372280641770097E39B /* TimeBank.swift in Sources */,
 				DFE1727F280510B500C44AB0 /* CountableSet.swift in Sources */,
@@ -1791,7 +1783,6 @@
 				DFE1726D280510B500C44AB0 /* Surface.swift in Sources */,
 				DFD916672900FB0C0025464E /* TextWrapping.swift in Sources */,
 				DF767DDC28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
-				DF99795629DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */,
 				DFC5860B28125A900097E39B /* Common.swift in Sources */,
 				DF5AB5BE29D4D110002D7482 /* Utility.swift in Sources */,
 				DFE1728B280510B500C44AB0 /* Renderer.swift in Sources */,
@@ -1845,7 +1836,6 @@
 				DFD6515628932576002DFCCE /* LabeledColor.swift in Sources */,
 				DFE1726B280510B500C44AB0 /* VideoDisplay.swift in Sources */,
 				DF5AB5BF29D4D110002D7482 /* Utility.swift in Sources */,
-				DF5AB5C529D5D04A002D7482 /* InterfaceClass.swift in Sources */,
 				DFFF55D2285BB22C00536EAD /* Player.swift in Sources */,
 				DF2D82782866300C00D4A860 /* SDLFont.swift in Sources */,
 				DFC5860C28125A900097E39B /* Common.swift in Sources */,
@@ -1877,7 +1867,6 @@
 				DFF0E2E52978D94C00F866CD /* ScrollView.swift in Sources */,
 				DF0B8E6E29C9447E0018BC9A /* Bank.swift in Sources */,
 				DF2D82ED2870DB1400D4A860 /* Image.swift in Sources */,
-				DF99795729DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */,
 				DFD9165C2900F90A0025464E /* SDLRect+Ext.swift in Sources */,
 				DF0B8E7429C945CC0018BC9A /* Emitter.swift in Sources */,
 				DF5AB5EB29D5DE1E002D7482 /* TweenStruct.swift in Sources */,
@@ -1922,6 +1911,7 @@
 				DF0D7E4828A3EE7D008F53FB /* TypeMap.swift in Sources */,
 				DFD916622900F9BA0025464E /* TextAlignment.swift in Sources */,
 				DF0D7E4E28A3F4CE008F53FB /* Expressible.swift in Sources */,
+				DF3BC80929E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */,
 				DFC583DC280773DA0097E39B /* Window.swift in Sources */,
 				DFE3C454296F64AB00B7B8B6 /* YogaLayout.swift in Sources */,
 				DF6A812528E53DDF00AFEAA3 /* ImageView.swift in Sources */,
@@ -1942,7 +1932,6 @@
 				DFE422A428A6E371009D5A47 /* SimpleImageManager.swift in Sources */,
 				DFE422B628A6E391009D5A47 /* CountableSet.swift in Sources */,
 				DF0B8E6F29C9447E0018BC9A /* Bank.swift in Sources */,
-				DF5AB5C629D5D04A002D7482 /* InterfaceClass.swift in Sources */,
 				DF69FC73290F82220022F7C5 /* Shadow.swift in Sources */,
 				DFE422AF28A6E391009D5A47 /* SDL.swift in Sources */,
 				DFE3C455296F64AB00B7B8B6 /* YogaLayout.swift in Sources */,
@@ -1983,7 +1972,6 @@
 				DF5AB5CC29D5D440002D7482 /* InterfaceStruct.swift in Sources */,
 				DF8622BE292E80F10077ABA0 /* LabeledColorMap.swift in Sources */,
 				DFE422B728A6E391009D5A47 /* SDLWindow.swift in Sources */,
-				DF99795829DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */,
 				DFE422D728A6E410009D5A47 /* Application.swift in Sources */,
 				DFE422BA28A6E391009D5A47 /* Palette.swift in Sources */,
 				DF6A812628E53DDF00AFEAA3 /* ImageView.swift in Sources */,
@@ -2021,6 +2009,7 @@
 				DFE422B228A6E391009D5A47 /* Event.swift in Sources */,
 				DFF7310C28ECF1660036E52E /* TextField.swift in Sources */,
 				DFE4226428A6E06E009D5A47 /* View.swift in Sources */,
+				DF3BC80A29E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */,
 				DF5AB5E629D5DDFA002D7482 /* Tween.swift in Sources */,
 				DFE4226628A6E075009D5A47 /* Layouts.swift in Sources */,
 				DF5BE3F3289B263A00A0ED4E /* InstanceCache.swift in Sources */,
@@ -2057,6 +2046,7 @@
 				DFE4226928A6E07A009D5A47 /* TextView.swift in Sources */,
 				DFE4226328A6E04F009D5A47 /* ViewController.swift in Sources */,
 				DFE4227E28A6E347009D5A47 /* MoPixUtil.swift in Sources */,
+				DF3BC80B29E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */,
 				DF5AB5CD29D5D440002D7482 /* InterfaceStruct.swift in Sources */,
 				DF6A812728E53DDF00AFEAA3 /* ImageView.swift in Sources */,
 				DFE422D528A6E3EA009D5A47 /* TTFInterface.m in Sources */,
@@ -2134,7 +2124,6 @@
 				DF5AB5C129D4D110002D7482 /* Utility.swift in Sources */,
 				DFE422A228A6E368009D5A47 /* VirtualDrive.swift in Sources */,
 				DFE4228528A6E347009D5A47 /* CommandRepeater.swift in Sources */,
-				DF5AB5C729D5D04A002D7482 /* InterfaceClass.swift in Sources */,
 				DF9979A229DCA11C00CBA008 /* OldTween.swift in Sources */,
 				DFE4227B28A6E347009D5A47 /* Commands.swift in Sources */,
 				DFE422BE28A6E392009D5A47 /* SDL.swift in Sources */,
@@ -2158,7 +2147,6 @@
 				DFE4228628A6E347009D5A47 /* Animator.swift in Sources */,
 				DFE3C456296F64AB00B7B8B6 /* YogaLayout.swift in Sources */,
 				DF8622BF292E80F10077ABA0 /* LabeledColorMap.swift in Sources */,
-				DF99795929DC8FDC00CBA008 /* TweenerContiguousClass.swift in Sources */,
 				DFE422CF28A6E397009D5A47 /* SDLColor+Ext.swift in Sources */,
 				DF5BE3F1289ABA0F00A0ED4E /* CodingContainers+Features.swift in Sources */,
 				DFE4226128A6DFFC009D5A47 /* TestViewController.swift in Sources */,
@@ -2478,7 +2466,7 @@
 				PRODUCT_NAME = TestGame;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;

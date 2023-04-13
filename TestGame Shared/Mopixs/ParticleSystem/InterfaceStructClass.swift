@@ -151,7 +151,6 @@ public class InterfaceStructClass : IParticleBacking {
 
     public func runTweens(_ delta:Double) {
         _tweener.processFrame(delta)
-        _tweener.processCompleted()
     }
 
     public func debugInfo() -> String {

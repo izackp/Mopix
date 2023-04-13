@@ -10,7 +10,7 @@ import Foundation
 func buildEmitter(_ noWait:Bool) -> Emitter {
     //Console.CursorVisible = false
     //Console.WriteLine("Type 1 for Stuct or Type 2 for class backing.")
-    let backing = InterfaceStructPractical()//ParticleSystem.InterfaceStruct()
+    let backing = InterfaceStruct()//ParticleSystem.InterfaceStruct()
     /*
     while (backing == null) {
         var key = Console.ReadKey().Key

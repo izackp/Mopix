@@ -64,6 +64,22 @@ public class PoolRef<T> where T : IReusable {
     }
 }
 
+public class PoolRefClass<T> where T : IReusable {
+    public let handle:ContiguousHandle
+    public let _pool:ChunkedPool<T>
+    public let item:T
+    
+    public init(handle: ContiguousHandle, _pool: ChunkedPool<T>, item:T) {
+        self.handle = handle
+        self._pool = _pool
+        self.item = item
+    }
+
+    deinit {
+        //_pool.returnItem(handle)
+    }
+}
+
 //Necessary functions to exist in the struct
 public protocol IReusable: IInitializable {
     init()

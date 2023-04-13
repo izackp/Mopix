@@ -16,7 +16,7 @@ public struct ParticleData {
 }
 
 public protocol IParticleBacking {
-    func createParticle(startColor:ARGB32, colorDiff:ARGB32Diff, gravity:Float, ms:Int, vector:Vector<Float>, pos:Vector<Float>)
+    func createParticle(_ data:ParticleData)
     func createParticleBulk(_ data:ContiguousArray<ParticleData>)
     func numParticles() -> Int
     func runTweens(_ delta:Double)

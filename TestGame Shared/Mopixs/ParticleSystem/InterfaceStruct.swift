@@ -228,7 +228,6 @@ public class InterfaceStruct : IParticleBacking {
         _tweener.processFrame(delta)
         
         let time = CFAbsoluteTimeGetCurrent()
-        _tweener.processCompleted()
         let pool = InterfaceStruct.sharedPool
         let chunks = pool.data.count
         var deleted = 0
