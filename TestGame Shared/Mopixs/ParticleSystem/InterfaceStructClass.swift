@@ -9,7 +9,6 @@ import Foundation
 public class InterfaceStructClass : IParticleBacking {
 
     struct FastTweenC : SomeTween {
-
         public var targetPtr:Particle! = nil// { get set }
         public var particlePool:ObjectPool<Particle>! = nil
         public var _tracker = Tracker(0)
@@ -70,6 +69,7 @@ public class InterfaceStructClass : IParticleBacking {
         public var pos:Vector<Float> = Vector(0, 0)
         public var endGravity:Float = 0
         public var endVector:Vector<Float> = Vector(0, 0)
+        public var colorStart:ARGB32 = ARGB32.black
         public var colorDiff:ARGB32Diff = ARGB32Diff(start: 0, dest: 0)
 
         public func action(_ target:Particle, _ elapsedRatio:Double) {
@@ -78,7 +78,7 @@ public class InterfaceStructClass : IParticleBacking {
             let y = endVector.y * ratio
             let otherY = endGravity * ratio * ratio
             target.pos = Vector<Float>(x, y + otherY) + pos
-            target.color = colorDiff.colorForElapsedRatio(elapsedRatio)
+            target.color = colorDiff.colorForElapsedRatio(colorStart, elapsedRatio)
             //if (elapsedRatio == 1.0) { target.completed = true }
         }
 
@@ -116,28 +116,29 @@ public class InterfaceStructClass : IParticleBacking {
     let _tweener = Tweener<FastTweenC>()
     var _particlePool = ObjectPool<Particle>(initialCapacity: Helper.NUM_VIEWS)
 
-    public func createParticle(startColor:ARGB32, colorDiff:ARGB32Diff, gravity:Float, ms:Int, vector:Vector<Float>, pos:Vector<Float>) {
+    public func createParticle(_ data:ParticleCreationData) {
         let newParticle = _particlePool.retrieve()
-        newParticle.color = startColor
-        newParticle.pos = pos
+        newParticle.color = data.startColor
+        newParticle.pos = data.pos
         
-        let msF = Float(ms)
-        let msD = Double(ms)
-        let endGravity = gravity * msF * msF
-        let endVector = Vector<Float>(vector.x * msF, vector.y * msF)
+        let msF = Float(data.ms)
+        let msD = Double(data.ms)
+        let endGravity = data.gravity * msF * msF
+        let endVector = Vector<Float>(data.vector.x * msF, data.vector.y * msF)
 
         let _ = _tweener.popTween { tween in
             tween.targetPtr = newParticle
             tween.particlePool = _particlePool
             tween.setDuration(msD)
-            tween.pos = pos
+            tween.pos = data.pos
             tween.endGravity = endGravity
-            tween.colorDiff = colorDiff
+            tween.colorStart = data.startColor
+            tween.colorDiff = data.colorDiff
             tween.endVector = endVector
         }
     }
 
-    public func createParticleBulk(_ data:ContiguousArray<ParticleData>) {
+    public func createParticleBulk(_ data:ContiguousArray<ParticleCreationData>) {
     }
 
     public func numParticles() -> Int {

@@ -85,6 +85,16 @@
 		DF3BC80929E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC80629E77D4300B21FA9 /* InterfaceAllClasses.swift */; };
 		DF3BC80A29E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC80629E77D4300B21FA9 /* InterfaceAllClasses.swift */; };
 		DF3BC80B29E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC80629E77D4300B21FA9 /* InterfaceAllClasses.swift */; };
+		DF3BC9D429E8845200B21FA9 /* EasingF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC9D329E8845200B21FA9 /* EasingF.swift */; };
+		DF3BC9D529E8845200B21FA9 /* EasingF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC9D329E8845200B21FA9 /* EasingF.swift */; };
+		DF3BC9D629E8845200B21FA9 /* EasingF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC9D329E8845200B21FA9 /* EasingF.swift */; };
+		DF3BC9D729E8845200B21FA9 /* EasingF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC9D329E8845200B21FA9 /* EasingF.swift */; };
+		DF3BC9D829E8845200B21FA9 /* EasingF.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC9D329E8845200B21FA9 /* EasingF.swift */; };
+		DF3BC9DA29E8895700B21FA9 /* EasingD.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC9D929E8895700B21FA9 /* EasingD.swift */; };
+		DF3BC9DB29E8895700B21FA9 /* EasingD.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC9D929E8895700B21FA9 /* EasingD.swift */; };
+		DF3BC9DC29E8895700B21FA9 /* EasingD.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC9D929E8895700B21FA9 /* EasingD.swift */; };
+		DF3BC9DD29E8895700B21FA9 /* EasingD.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC9D929E8895700B21FA9 /* EasingD.swift */; };
+		DF3BC9DE29E8895700B21FA9 /* EasingD.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3BC9D929E8895700B21FA9 /* EasingD.swift */; };
 		DF5AB5B129D4C795002D7482 /* ARGB32Diff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */; };
 		DF5AB5B229D4C795002D7482 /* ARGB32Diff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */; };
 		DF5AB5B329D4C795002D7482 /* ARGB32Diff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */; };
@@ -588,6 +598,16 @@
 		DFF0E2E52978D94C00F866CD /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2E22978D94C00F866CD /* ScrollView.swift */; };
 		DFF0E2E62978D94C00F866CD /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2E22978D94C00F866CD /* ScrollView.swift */; };
 		DFF0E2E72978D94C00F866CD /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF0E2E22978D94C00F866CD /* ScrollView.swift */; };
+		DFF6975D29F067BC00A78E54 /* ContiguousHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF6975C29F067BC00A78E54 /* ContiguousHandle.swift */; };
+		DFF6975E29F067BC00A78E54 /* ContiguousHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF6975C29F067BC00A78E54 /* ContiguousHandle.swift */; };
+		DFF6975F29F067BC00A78E54 /* ContiguousHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF6975C29F067BC00A78E54 /* ContiguousHandle.swift */; };
+		DFF6976029F067BC00A78E54 /* ContiguousHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF6975C29F067BC00A78E54 /* ContiguousHandle.swift */; };
+		DFF6976129F067BC00A78E54 /* ContiguousHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF6975C29F067BC00A78E54 /* ContiguousHandle.swift */; };
+		DFF6976329F067D700A78E54 /* PoolRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF6976229F067D700A78E54 /* PoolRef.swift */; };
+		DFF6976429F067D700A78E54 /* PoolRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF6976229F067D700A78E54 /* PoolRef.swift */; };
+		DFF6976529F067D700A78E54 /* PoolRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF6976229F067D700A78E54 /* PoolRef.swift */; };
+		DFF6976629F067D700A78E54 /* PoolRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF6976229F067D700A78E54 /* PoolRef.swift */; };
+		DFF6976729F067D700A78E54 /* PoolRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF6976229F067D700A78E54 /* PoolRef.swift */; };
 		DFF7310928ECF1660036E52E /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF7310828ECF1660036E52E /* TextField.swift */; };
 		DFF7310A28ECF1660036E52E /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF7310828ECF1660036E52E /* TextField.swift */; };
 		DFF7310B28ECF1660036E52E /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF7310828ECF1660036E52E /* TextField.swift */; };
@@ -706,6 +726,8 @@
 		DF3830AB28714B560028B4E6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		DF3830B628714EE30028B4E6 /* TestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
 		DF3BC80629E77D4300B21FA9 /* InterfaceAllClasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceAllClasses.swift; sourceTree = "<group>"; };
+		DF3BC9D329E8845200B21FA9 /* EasingF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EasingF.swift; sourceTree = "<group>"; };
+		DF3BC9D929E8895700B21FA9 /* EasingD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EasingD.swift; sourceTree = "<group>"; };
 		DF5AB5B029D4C794002D7482 /* ARGB32Diff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARGB32Diff.swift; sourceTree = "<group>"; };
 		DF5AB5B629D4CD76002D7482 /* Range.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Range.swift; sourceTree = "<group>"; };
 		DF5AB5BC29D4D110002D7482 /* Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
@@ -830,6 +852,8 @@
 		DFE3C4D3297088F500B7B8B6 /* LayoutChild.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutChild.swift; sourceTree = "<group>"; };
 		DFF0E2DC2978D45C00F866CD /* Table.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Table.swift; sourceTree = "<group>"; };
 		DFF0E2E22978D94C00F866CD /* ScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollView.swift; sourceTree = "<group>"; };
+		DFF6975C29F067BC00A78E54 /* ContiguousHandle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContiguousHandle.swift; sourceTree = "<group>"; };
+		DFF6976229F067D700A78E54 /* PoolRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoolRef.swift; sourceTree = "<group>"; };
 		DFF7310828ECF1660036E52E /* TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
 		DFF7310E28EE28780036E52E /* TestFolder */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestFolder; sourceTree = "<group>"; };
 		DFF831A5289855E7002F3DF4 /* CodingContainers+Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodingContainers+Features.swift"; sourceTree = "<group>"; };
@@ -956,6 +980,8 @@
 				DF5AB5E129D5DDC1002D7482 /* Tween */,
 				DF5AB5D529D5D51C002D7482 /* Tweener.swift */,
 				DF5AB5DB29D5DDB4002D7482 /* Tracker.swift */,
+				DF3BC9D329E8845200B21FA9 /* EasingF.swift */,
+				DF3BC9D929E8895700B21FA9 /* EasingD.swift */,
 			);
 			path = AniTween;
 			sourceTree = "<group>";
@@ -1001,6 +1027,8 @@
 				DF98FE3C29833BFA00D101EC /* Chunk.swift */,
 				DF98FE4229833C0E00D101EC /* IReusable.swift */,
 				DF98FE4829838B4900D101EC /* ChunkedPool.swift */,
+				DFF6975C29F067BC00A78E54 /* ContiguousHandle.swift */,
+				DFF6976229F067D700A78E54 /* PoolRef.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -1558,6 +1586,7 @@
 				DFE1726F280510B500C44AB0 /* BlendMode.swift in Sources */,
 				DF2D82F32870DB6600D4A860 /* ImageManager.swift in Sources */,
 				DFC58400280796100097E39B /* CustomWindow.swift in Sources */,
+				DF3BC9DA29E8895700B21FA9 /* EasingD.swift in Sources */,
 				DFE1728A280510B500C44AB0 /* Renderer.swift in Sources */,
 				DF3830B728714EE30028B4E6 /* TestViewController.swift in Sources */,
 				DF0B8E6C29C9447E0018BC9A /* Bank.swift in Sources */,
@@ -1584,6 +1613,7 @@
 				DFE17284280510B500C44AB0 /* Event.swift in Sources */,
 				DFFF55E0285BB28B00536EAD /* Scene.swift in Sources */,
 				DFE1727B280510B500C44AB0 /* Palette.swift in Sources */,
+				DF3BC9D429E8845200B21FA9 /* EasingF.swift in Sources */,
 				DFCA77E5281A44CB0099BC21 /* StringScanner.swift in Sources */,
 				DF0D7E4C28A3F4CE008F53FB /* Expressible.swift in Sources */,
 				DFE172DE2805C72E00C44AB0 /* Geometry.swift in Sources */,
@@ -1611,6 +1641,7 @@
 				DF98FE4929838B4900D101EC /* ChunkedPool.swift in Sources */,
 				DF5AB5BD29D4D110002D7482 /* Utility.swift in Sources */,
 				DF98FE4329833C0E00D101EC /* IReusable.swift in Sources */,
+				DFF6975D29F067BC00A78E54 /* ContiguousHandle.swift in Sources */,
 				DF3830AC28714B560028B4E6 /* ViewController.swift in Sources */,
 				DFFDA4A228DE3B1000805000 /* URL+VD.swift in Sources */,
 				DFABDEB329E0AA1C00ACE26B /* Particle.swift in Sources */,
@@ -1624,6 +1655,7 @@
 				DF69FC6A290F76180022F7C5 /* UnderlineStyle.swift in Sources */,
 				DF6D4DDC28521DB80046BF8D /* CommandRepeater.swift in Sources */,
 				DF8622BB292E80F10077ABA0 /* LabeledColorMap.swift in Sources */,
+				DFF6976329F067D700A78E54 /* PoolRef.swift in Sources */,
 				DF3BC80729E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */,
 				DFD916602900F9BA0025464E /* TextAlignment.swift in Sources */,
 				DF2D8280286BC48400D4A860 /* TTFInterface.m in Sources */,
@@ -1689,6 +1721,7 @@
 				DF5AB5EA29D5DE1E002D7482 /* TweenStruct.swift in Sources */,
 				DF0B8E6D29C9447E0018BC9A /* Bank.swift in Sources */,
 				DFE3C4D5297088F500B7B8B6 /* LayoutChild.swift in Sources */,
+				DFF6976429F067D700A78E54 /* PoolRef.swift in Sources */,
 				DFC5861028125B240097E39B /* Geometry+SDL.swift in Sources */,
 				DF2D82F42870DB6600D4A860 /* ImageManager.swift in Sources */,
 				DF5AB5DD29D5DDB4002D7482 /* Tracker.swift in Sources */,
@@ -1718,6 +1751,7 @@
 				DFCA77E6281A44CB0099BC21 /* StringScanner.swift in Sources */,
 				DF2D82FC2870E97A00D4A860 /* SimpleImageManager.swift in Sources */,
 				DF3830B828714EE30028B4E6 /* TestViewController.swift in Sources */,
+				DF3BC9D529E8845200B21FA9 /* EasingF.swift in Sources */,
 				DFCA77FE281B30D00099BC21 /* OS.swift in Sources */,
 				DF3830AD28714B560028B4E6 /* ViewController.swift in Sources */,
 				DFC583DB280773DA0097E39B /* Window.swift in Sources */,
@@ -1778,11 +1812,13 @@
 				DF99795C29DC906100CBA008 /* ObjectPool.swift in Sources */,
 				DFC583F528077CD00097E39B /* View.swift in Sources */,
 				DF69FC6B290F76180022F7C5 /* UnderlineStyle.swift in Sources */,
+				DF3BC9DB29E8895700B21FA9 /* EasingD.swift in Sources */,
 				DFFDA4A828DE3BA600805000 /* PackageMeta.swift in Sources */,
 				DFE17291280510B500C44AB0 /* SDLWindow.swift in Sources */,
 				DFE1726D280510B500C44AB0 /* Surface.swift in Sources */,
 				DFD916672900FB0C0025464E /* TextWrapping.swift in Sources */,
 				DF767DDC28A19E36005DAB38 /* Encoder+Features.swift in Sources */,
+				DFF6975E29F067BC00A78E54 /* ContiguousHandle.swift in Sources */,
 				DFC5860B28125A900097E39B /* Common.swift in Sources */,
 				DF5AB5BE29D4D110002D7482 /* Utility.swift in Sources */,
 				DFE1728B280510B500C44AB0 /* Renderer.swift in Sources */,
@@ -1826,6 +1862,7 @@
 				DF3830B928714EE30028B4E6 /* TestViewController.swift in Sources */,
 				DFE1727A280510B500C44AB0 /* BitMaskOption.swift in Sources */,
 				DFFDA4A428DE3B1000805000 /* URL+VD.swift in Sources */,
+				DF3BC9DC29E8895700B21FA9 /* EasingD.swift in Sources */,
 				DF8622BD292E80F10077ABA0 /* LabeledColorMap.swift in Sources */,
 				DFF7310B28ECF1660036E52E /* TextField.swift in Sources */,
 				DFFF55D6285BB23900536EAD /* EntityPool.swift in Sources */,
@@ -1850,6 +1887,7 @@
 				DFC585C42811A8430097E39B /* EtagerePacker.swift in Sources */,
 				DFE172E02805C72E00C44AB0 /* Geometry.swift in Sources */,
 				DFFF55E2285BB28B00536EAD /* Scene.swift in Sources */,
+				DF3BC9D629E8845200B21FA9 /* EasingF.swift in Sources */,
 				DFE39A442965EE140087D0D4 /* TextLine.swift in Sources */,
 				DFE1728F280510B500C44AB0 /* Texture.swift in Sources */,
 				DF997ADA29DF3ED200CBA008 /* Array+Performance.swift in Sources */,
@@ -1886,6 +1924,7 @@
 				DFFF55E6285BB2A800536EAD /* Enemy.swift in Sources */,
 				DFE1726E280510B500C44AB0 /* Surface.swift in Sources */,
 				DFCA777428189F1F0099BC21 /* GenericError.swift in Sources */,
+				DFF6976529F067D700A78E54 /* PoolRef.swift in Sources */,
 				DFE1728C280510B500C44AB0 /* Renderer.swift in Sources */,
 				DF3830AE28714B560028B4E6 /* ViewController.swift in Sources */,
 				DF99799A29DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */,
@@ -1910,6 +1949,7 @@
 				DFFF55DE285BB27700536EAD /* CollisionNode2D.swift in Sources */,
 				DF0D7E4828A3EE7D008F53FB /* TypeMap.swift in Sources */,
 				DFD916622900F9BA0025464E /* TextAlignment.swift in Sources */,
+				DFF6975F29F067BC00A78E54 /* ContiguousHandle.swift in Sources */,
 				DF0D7E4E28A3F4CE008F53FB /* Expressible.swift in Sources */,
 				DF3BC80929E77D4300B21FA9 /* InterfaceAllClasses.swift in Sources */,
 				DFC583DC280773DA0097E39B /* Window.swift in Sources */,
@@ -1925,9 +1965,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF0D7DFC28A31866008F53FB /* FontDesc.swift in Sources */,
+				DFF6976029F067BC00A78E54 /* ContiguousHandle.swift in Sources */,
 				DFE4226828A6E079009D5A47 /* TextView.swift in Sources */,
 				DFE422A828A6E371009D5A47 /* ImageManager.swift in Sources */,
 				DFE4229E28A6E367009D5A47 /* String+Util.swift in Sources */,
+				DFF6976629F067D700A78E54 /* PoolRef.swift in Sources */,
 				DFE4229B28A6E367009D5A47 /* MountedDir.swift in Sources */,
 				DFE422A428A6E371009D5A47 /* SimpleImageManager.swift in Sources */,
 				DFE422B628A6E391009D5A47 /* CountableSet.swift in Sources */,
@@ -1946,6 +1988,7 @@
 				DFE422B428A6E391009D5A47 /* PixelFormat.swift in Sources */,
 				DF5AB5BA29D4CD76002D7482 /* Range.swift in Sources */,
 				DFE422B128A6E391009D5A47 /* VideoDisplay.swift in Sources */,
+				DF3BC9D729E8845200B21FA9 /* EasingF.swift in Sources */,
 				DFC5860628125A4F0097E39B /* EtagerePacker.swift in Sources */,
 				DF5AB5F229D5DE32002D7482 /* TweenT2D.swift in Sources */,
 				DFE422A628A6E371009D5A47 /* Font.swift in Sources */,
@@ -2013,6 +2056,7 @@
 				DF5AB5E629D5DDFA002D7482 /* Tween.swift in Sources */,
 				DFE4226628A6E075009D5A47 /* Layouts.swift in Sources */,
 				DF5BE3F3289B263A00A0ED4E /* InstanceCache.swift in Sources */,
+				DF3BC9DD29E8895700B21FA9 /* EasingD.swift in Sources */,
 				DF99799B29DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */,
 				DF5BE3F0289ABA0F00A0ED4E /* CodingContainers+Features.swift in Sources */,
 				DFE422E728A6E425009D5A47 /* Util.swift in Sources */,
@@ -2077,6 +2121,7 @@
 				DFE422D128A6E3E4009D5A47 /* TTF.swift in Sources */,
 				DFC5862A28125FFB0097E39B /* EtagerePacker.swift in Sources */,
 				DF0D7DF728A30E53008F53FB /* Resolver.swift in Sources */,
+				DFF6976729F067D700A78E54 /* PoolRef.swift in Sources */,
 				DFC5862B28125FFD0097E39B /* AtlasAllocator.swift in Sources */,
 				DFE422D928A6E416009D5A47 /* Commands+SDL.swift in Sources */,
 				DFE4229628A6E34F009D5A47 /* CustomWindow.swift in Sources */,
@@ -2100,6 +2145,7 @@
 				DFE422C128A6E392009D5A47 /* Event.swift in Sources */,
 				DF0B8E7629C945CC0018BC9A /* Emitter.swift in Sources */,
 				DF8620522925FCD20077ABA0 /* TextAlternatives.swift in Sources */,
+				DFF6976129F067BC00A78E54 /* ContiguousHandle.swift in Sources */,
 				DFFDA4A528DE3B1000805000 /* URL+VD.swift in Sources */,
 				DFCA77792818ACE80099BC21 /* Version.swift in Sources */,
 				DFE422C628A6E392009D5A47 /* SDLWindow.swift in Sources */,
@@ -2109,8 +2155,10 @@
 				DFE4226528A6E06F009D5A47 /* View.swift in Sources */,
 				DF99789A29DBC4F700CBA008 /* TestEmitter.swift in Sources */,
 				DF99799C29DC952F00CBA008 /* ContiguousObjectPool.swift in Sources */,
+				DF3BC9DE29E8895700B21FA9 /* EasingD.swift in Sources */,
 				DFCA777F2818AE3C0099BC21 /* VersionTests.swift in Sources */,
 				DFE422EA28A6E431009D5A47 /* Engine.swift in Sources */,
+				DF3BC9D829E8845200B21FA9 /* EasingF.swift in Sources */,
 				DFE4227C28A6E347009D5A47 /* Common.swift in Sources */,
 				DF99795F29DC906100CBA008 /* ObjectPool.swift in Sources */,
 				DFE422AD28A6E372009D5A47 /* ImageManager.swift in Sources */,
@@ -2310,6 +2358,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;

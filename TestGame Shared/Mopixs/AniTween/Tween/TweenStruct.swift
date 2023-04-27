@@ -7,19 +7,13 @@
 
 import Foundation
 
-//public delegate void ActionRef<T>(ref T target, double elapsedRatio)
-//public delegate void ActComplete<T>(ref T target, bool didFinish)
-
 public struct TweenStruct<T> : SomeTween where T : IReusable {
-//public struct TweenStruct<T> : ITween, IReusable where T : struct, IReusable {
 
     public var ID: ContiguousHandle
     
     public var isAlive: Bool
     public var completed: Bool
     
-
-    //public Func<double, double> modifier
     public var modifier: ((Double)->(Double))? = nil
     public var action: ((inout T, Double)->Void)? = nil
     public var onComplete: ((Bool)->Void)? = nil
@@ -48,7 +42,7 @@ public struct TweenStruct<T> : SomeTween where T : IReusable {
         completed = false
         modifier = nil
         
-        targetPtr = nil//PoolRef(handle: ContiguousHandle(index: -1), _pool: nil)
+        targetPtr = nil
         
     }
 
@@ -60,20 +54,13 @@ public struct TweenStruct<T> : SomeTween where T : IReusable {
         _canceled = true
     }
     
-    
-    
     struct ActionHandler {
         var elapsedRatio:Double = 0
         var itemIndex:Int = 0
-        
     }
     
-    var actionHandler:ActionHandler = ActionHandler()
+    var actionHandler:ActionHandler = ActionHandler() //No idea why but it's faster.
     
-    //var handler:((_ ptr:inout UnsafeMutableBufferPointer<T>)->Void)? = nil
-    
-    
-
     public mutating func processFrame(_ delta:Double) -> Bool {
         //ref var target = ref TargetPtr.FetchRef()
         if (_canceled) {
@@ -84,15 +71,10 @@ public struct TweenStruct<T> : SomeTween where T : IReusable {
         var elapsedRatio = tracker.progress(delta)
         elapsedRatio = modifier?(elapsedRatio) ?? elapsedRatio
         if let _ = action {
-            /*
-             targetPtr.with { item in
-                 action(&item, elapsedRatio)
-             }
-             */
             let pool = targetPtr._pool
             let index = targetPtr.handle
             let chunkIndex = Int(index.chunkIndex())
-            let itemIndex = Int(index.subIndex())
+            let itemIndex = Int(index.itemIndex())
             actionHandler.itemIndex = itemIndex
             actionHandler.elapsedRatio = elapsedRatio
             if let chunk = pool.data[chunkIndex] {
@@ -149,12 +131,4 @@ public struct TweenStruct<T> : SomeTween where T : IReusable {
     func onIteration3(ptr:inout T) {
         action?(&ptr, actionHandler.elapsedRatio)
     }
-/*
-    public ref T Target() {
-        return ref TargetPtr.FetchRef()
-    }
-
-    public bool ContainsTarget(ContiguousHandle ptr) {
-        return TargetPtr.Handle == ptr
-    }*/
 }

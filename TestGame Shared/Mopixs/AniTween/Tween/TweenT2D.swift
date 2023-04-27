@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 public protocol ITransformable2D {
     var pos:Vector<Float> { get set }
     var size:Vector<Float> { get set }

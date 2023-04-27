@@ -68,6 +68,7 @@ public class InterfaceAllClasses : IParticleBacking {
         public var pos:Vector<Float> = Vector(0, 0)
         public var endGravity:Float = 0
         public var endVector:Vector<Float> = Vector(0, 0)
+        public var colorStart:ARGB32 = ARGB32.black
         public var colorDiff:ARGB32Diff = ARGB32Diff(start: 0, dest: 0)
 
         public func action(_ target:ParticleClass, _ elapsedRatio:Double) {
@@ -85,7 +86,7 @@ public class InterfaceAllClasses : IParticleBacking {
                 target.color = ARGB32.darkRed
             } else {
                 target.pos = Vector<Float>(endx, end) + pos
-                target.color = colorDiff.colorForElapsedRatio(elapsedRatio)
+                target.color = colorDiff.colorForElapsedRatio(colorStart, elapsedRatio)
             }
             if (elapsedRatio == 1.0) {
                 target.completed = true
@@ -104,7 +105,7 @@ public class InterfaceAllClasses : IParticleBacking {
         pthread_rwlock_init(&_lockTweener, nil)
     }
 
-    public func createParticle(_ particleData:ParticleData) {
+    public func createParticle(_ particleData:ParticleCreationData) {
         
         //pthread_rwlock_wrlock(&_lockParticle)
         guard let newParticleRef = InterfaceAllClasses.particlePool.rentRefClass( { newParticle in
@@ -135,8 +136,7 @@ public class InterfaceAllClasses : IParticleBacking {
         //pthread_rwlock_unlock(&_lockTweener)
     }
 
-    public func createParticleBulk(_ data:ContiguousArray<ParticleData>) {
-        //var len = data.count
+    public func createParticleBulk(_ data:ContiguousArray<ParticleCreationData>) {
         for eachItem in data {
             createParticle(eachItem)
         }
@@ -150,21 +150,11 @@ public class InterfaceAllClasses : IParticleBacking {
         
         for eachChunk in InterfaceAllClasses.particlePool.data {
             guard let eachChunk = eachChunk else { continue }
-            let chunkData = eachChunk.data
-            let len = chunkData.count
-            for t in 0..<len {
-                let eachParticle = chunkData[t]
+            eachChunk.data.forEachUnchecked { eachParticle, i in
                 if (eachParticle.isAlive) {
                     let pos = eachParticle.pos
-                    if (pos.x < 0 || pos.y < 0) {
-                        continue
-                    }
-                    let x = Int(pos.x)
-                    let y = Int(pos.y)
-                    if (x > windowSize.width || y > windowSize.height) { continue }
                     let color = eachParticle.color
-                    
-                    try? surface.drawPoint(Int32(x), Int32(y), color.rawValue)
+                    try? surface.drawPoint(Int32(pos.x), Int32(pos.y), color.rawValue)
                 }
             }
         }
@@ -197,14 +187,5 @@ public class InterfaceAllClasses : IParticleBacking {
 
     public func debugInfo() -> String {
         return _tweener.debugInfo()
-    }
-    
-    static func handle(_ eachParticle:inout Particle) -> Bool {
-        if (eachParticle.isAlive && eachParticle.completed) {
-            eachParticle.clean()
-            eachParticle.isAlive = false
-            return true
-        }
-        return false
     }
 }

@@ -184,6 +184,32 @@ public struct Vector<T: Codable & Numeric>: Equatable{
     static func + (left: Vector<T>, right: Vector<T>) -> Vector<T> {
         return Vector<T>(left.x + right.x, left.y + right.y)
     }
+    
+    static func * (left: Vector<T>, right: Vector<T>) -> Vector<T> {
+        return Vector<T>(left.x * right.x, left.y * right.y)
+    }
+    
+    static func - (left: Vector<T>, right: T) -> Vector<T> {
+        return Vector<T>(left.x - right, left.y - right)
+    }
+    
+    static func + (left: Vector<T>, right: T) -> Vector<T> {
+        return Vector<T>(left.x + right, left.y + right)
+    }
+    
+    static func * (left: Vector<T>, right: T) -> Vector<T> {
+        return Vector<T>(left.x * right, left.y * right)
+    }
+}
+
+extension Vector where T : FloatingPoint {
+    static func / (left: Vector<T>, right: Vector<T>) -> Vector<T> {
+        return Vector<T>(left.x / right.x, left.y / right.y)
+    }
+    
+    static func / (left: Vector<T>, right: T) -> Vector<T> {
+        return Vector<T>(left.x / right, left.y / right)
+    }
 }
 
 //TODO: Not public? 
@@ -192,6 +218,9 @@ extension Vector : Comparable where T == Float  {
         return (lhs.x + lhs.y) < (rhs.x + rhs.y)
     }
     
+    public static func > (lhs: Vector<T>, rhs: Vector<T>) -> Bool {
+        return (lhs.x + lhs.y) > (rhs.x + rhs.y)
+    }
 }
 
 public struct Size<T: Codable & Numeric>: Equatable, Codable  {

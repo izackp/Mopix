@@ -6,7 +6,7 @@
 //
 
 import Foundation
-public struct ParticleData {
+public struct ParticleCreationData {
     let startColor:ARGB32
     let colorDiff:ARGB32Diff
     let gravity:Float
@@ -16,8 +16,8 @@ public struct ParticleData {
 }
 
 public protocol IParticleBacking {
-    func createParticle(_ data:ParticleData)
-    func createParticleBulk(_ data:ContiguousArray<ParticleData>)
+    func createParticle(_ data:ParticleCreationData)
+    func createParticleBulk(_ data:ContiguousArray<ParticleCreationData>)
     func numParticles() -> Int
     func runTweens(_ delta:Double)
     func drawParticles(_ renderer:SDLRenderer, _ surface:SDLSurface, _ windowSize:Size<Int>) throws
@@ -35,10 +35,7 @@ public class Emitter {
     var _backing:IParticleBacking
     
     var _limit:Int = 0
-
     var _particleBank = Bank(save: 1, cost: 1)
-    
-    var _data:ContiguousArray<ParticleData>? = nil
     
     init(_ backing: IParticleBacking) {
         _backing = backing
@@ -49,12 +46,9 @@ public class Emitter {
     }
 
     public func setStartArea(_ x:Float, _ y:Float, _ xOffset:Float, _ yOffset:Float) {
-        //var widthHalf = Console.WindowWidth * x
-        //var heightHalf = Console.WindowHeight * y
         let topLeft = Vector<Float>(x - xOffset, y - yOffset)
         let bottomRight = Vector<Float>(x + xOffset, y + yOffset)
         _startArea = topLeft ... bottomRight
-        //Console.WriteLine($"Console.WindowWidth {Console.WindowWidth} lx:{topLeft.X} ly:{topLeft.Y}")
     }
 
     var created:Int = 0
@@ -64,7 +58,7 @@ public class Emitter {
         //var expectedTarget = Backing.NumParticles() + available
         created = available
         createParticlesSync(available)
-        //createParticleBulk(available) //NOTE: ~3x slower creating 50k particles when 7.5 mil exist vs 143k //Thought it was chunk fragmentation
+        //createParticleBulk(available)
         
         //createParticlesThreaded(available)
 
@@ -85,11 +79,6 @@ public class Emitter {
 
     var doOnce = false
     private func createParticlesSync(_ available:Int) {
-        /*if (!doOnce) {
-            doOnce = true
-            createParticle()
-        }
-        return*/
         for _ in 0..<available {
             createParticle()
         }
@@ -128,7 +117,7 @@ public class Emitter {
                 let startColor = _startColor.random()
                 let endColor = _endColor.random()
                 let colorDiff = startColor.diff(endColor)
-                buffer[i] = ParticleData(
+                buffer[i] = ParticleCreationData(
                     startColor: startColor,
                     colorDiff: colorDiff,
                     gravity: _gravity,
@@ -150,13 +139,18 @@ public class Emitter {
     }
 
     public func createParticle() {
-        let pos = _startArea.random()
-        let vector = Emitter.randomFromPolarRange(_initialDirection, _initialVelocity)
-        let ms = _life.random()
         let startColor = _startColor.random()
         let endColor = _endColor.random()
         let colorDiff = startColor.diff(endColor)
-        _backing.createParticle(startColor: startColor, colorDiff: colorDiff, gravity: _gravity, ms: ms, vector: vector, pos: pos)
+        let data = ParticleCreationData(
+            startColor: startColor,
+            colorDiff: colorDiff,
+            gravity: _gravity,
+            ms: _life.random(),
+            vector: Emitter.randomFromPolarRange(_initialDirection, _initialVelocity),
+            pos: _startArea.random()
+        )
+        _backing.createParticle(data)
     }
 
     public static func randomFromPolarRange(_ direction:ClosedRange<Float>, _ velocity:ClosedRange<Float>) -> Vector<Float> {

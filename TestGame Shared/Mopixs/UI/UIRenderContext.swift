@@ -42,7 +42,7 @@ public class UIRenderContext {
         let texture = rollingTextureForPage[pageIndex] ?? atlas.listPages[pageIndex].texture
         
         //let previousBlendmode = blendMode
-        let previousTarget = try renderer.setTarget(texture)
+        let previousTarget = try renderer.swapTarget(texture)
         let targetFrame = targetImage.texture.sourceRect.to(Int16.self)
         currentWindowFrame.append(targetFrame)
         let lastClip = currentClipRect
@@ -69,13 +69,13 @@ public class UIRenderContext {
         
         let prevPageIndex = destinationPage.last!
         if (prevPageIndex == -1) {
-            let _ = try renderer.setTarget(previousTarget)
+            try renderer.setTarget(previousTarget)
         } else if let target = rollingTextureForPage[prevPageIndex] {
-            let _ = try renderer.setTarget(target)
+            try renderer.setTarget(target)
             usingNewPage = true
         } else {
             let target = atlas.listPages[prevPageIndex].texture
-            let _ = try renderer.setTarget(target)
+            try renderer.setTarget(target)
         }
         
         return targetImage
@@ -155,7 +155,7 @@ public class UIRenderContext {
         let atlas = imageManager.atlas
         let texturePage = atlas.listPages[index]
         let newTexture = try atlas.createTexture()
-        let _ = try renderer.setTarget(newTexture)
+        try renderer.setTarget(newTexture)
         //TODO: Why below int32 and above int??
         let textureFrame = SDL_Rect(x: 0, y: 0, w: Int32(atlas.textureSize.width), h: Int32(atlas.textureSize.height))
         let texture = texturePage.texture

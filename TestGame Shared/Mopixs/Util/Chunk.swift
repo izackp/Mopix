@@ -139,31 +139,6 @@ public class Chunk<T> where T : IReusable {
         }
     }
 
-    /*
-    public func returnItem(_ index:UInt16) {
-        with(index) {item in
-            item.clean()
-            item.isAlive = false
-        }
-        unusedIndex -= 1
-        _availableIndexes[Int(unusedIndex)] = index
-    }*/
-    /*
-    public func returnItemIf(_ index:UInt16, condition: ( _ item:inout T)->(Bool)) {
-        var exit = false
-        with(index) {item in
-            if (condition(&item)) {
-                item.clean()
-                item.isAlive = false
-            } else {
-                exit = true
-            }
-        }
-        if (exit) { return }
-        unusedIndex -= 1
-        _availableIndexes[Int(unusedIndex)] = index
-    }*/
-
     public func returnCleaned(_ index:UInt16) {
         unusedIndex -= 1
         _availableIndexes[Int(unusedIndex)] = index

@@ -8,7 +8,8 @@
 import Foundation
 
 //Note: It could be possible to move a lot of this to a base class, but we wouldnt be able to use a struct
-public struct Tween<T> : SomeTween where T : AnyObject {
+public struct Tween : SomeTween, ITweenFlex {
+    
     public init() {
         tracker = Tracker(0)
         ID = ContiguousHandle(index: 0)
@@ -43,7 +44,7 @@ public struct Tween<T> : SomeTween where T : AnyObject {
         modifier = nil
     }
 
-    public mutating func setDuration(_ time:TimeInterval ) {
+    public mutating func setDuration(_ time:TimeInterval) {
         tracker = .init(time)
     }
 
@@ -53,17 +54,17 @@ public struct Tween<T> : SomeTween where T : AnyObject {
 
     public mutating func processFrame(_ delta:Double) -> Bool {
         if (_canceled) {
-            onComplete?(false)
+            onComplete?(true)
             return true
         }
 
-        var elapsedRatio = tracker.progress(delta)
-        elapsedRatio = modifier?(elapsedRatio) ?? elapsedRatio
-        action?(elapsedRatio)
-
+        let elapsedRatio = tracker.progress(delta)
         completed = elapsedRatio == 1.0
+        let moddedRatio = modifier?(elapsedRatio) ?? elapsedRatio
+        action?(moddedRatio)
+
         if (completed) {
-            onComplete?(completed) //TODO: Do we really want to call this from a thread?
+            onComplete?(false)
         }
         return completed
     }
