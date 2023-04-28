@@ -153,3 +153,35 @@ This provides us with some benefits:
  - Knowing the next few frames of an animation would help interpolation if any.
  
  but it sounds like a lot of work
+
+
+#### Seperation between Logic, Drawing, and UI
+
+Maybe inheritance will work to seperate entity drawing and logic behaviors?
+
+SpaceShip
+  - Stats (hp, speed, etc)
+  - CollisionBox
+  - MoveToTheSun
+  
+  static initializeBuilder(isRendering)
+  static buildSpaceShip() -> SpaceShip //What if we need a drawable?
+  
+SpaceShipDrawable: SpaceShip
+  - Sprite
+  - Draw behavior
+  - if (hp < 20) drawSmoke()
+
+If we need performance we can still make a chunked pool of the specific entity.
+
+Scene:
+   if (rendering) SpaceShipDrawable else SpaceShip
+   
+What if we had a spaceship spawner?
+
+hmmm
+I feel like we could use #ifdefs to seperate the drawing and the logic. At least as a temporary solution.
+Anything else will require some sort of indirection. 
+
+Thoooo I would to treat pieces of entities as hardwired components. More importantly..
+Nevermind all this. I'm just going to get it working then figure it out afterwards
