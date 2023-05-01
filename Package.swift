@@ -3,7 +3,7 @@
 
 import PackageDescription
 
-let optimize = [SwiftSetting.unsafeFlags(["-cross-module-optimization", "-Ounchecked"])]
+let optimize = [SwiftSetting.unsafeFlags(["-cross-module-optimization", "-Ounchecked", "-g", "-debug-info-format=dwarf"])]
 
 let package = Package(
     name: "GameEngine",
@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/izackp/SDL.git", branch: "master"),
         .package(url: "https://github.com/eonil/FSEvents.git", from:"0.1.7"),
-        .package(url: "https://github.com/kphrx/icu-swift.git", branch: "master"),
+        .package(url: "https://github.com/izackp/icu-swift.git", branch: "master"),
         .package(url: "https://github.com/t-ae/xorswift", from: "3.0.0")
     ],
     targets: [
@@ -27,15 +27,16 @@ let package = Package(
         .target(
             name: "GameEngine",
             dependencies: [
-                "SystemFonts",
+                .byName(name: "SystemFonts", condition: .when(platforms: [.macOS])),
                 "AniTween",
                 .product(name: "SDL2Swift", package: "SDL"),
                 .product(name: "SDL2_TTFSwift", package: "SDL"),
                 .product(name: "EonilFSEvents", package: "FSEvents", condition: .when(platforms: [.macOS])),
                 .product(name: "ICU", package: "icu-swift"),
             ],
-	        swiftSettings: optimize,
-            linkerSettings: [.unsafeFlags (["-Xlinker", "-undefined", "-Xlinker", "dynamic_lookup"])]
+            cSettings: [.headerSearchPath("include"),],
+	        swiftSettings: optimize//,
+            //linkerSettings: [.unsafeFlags (["-Xlinker", "-undefined", "-Xlinker", "dynamic_lookup"])]
         ),
         .target(
             name: "SystemFonts",
@@ -61,9 +62,6 @@ let package = Package(
                 .product(name: "Xorswift", package: "xorswift"),
             ],
             swiftSettings: optimize
-        ),
-        .target(
-            name: "SpaceInvaders"
         ),
         .testTarget(
             name: "GameEngineTests",

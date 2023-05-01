@@ -38,6 +38,7 @@ public struct DataAttachment : DataProvider, Hashable, Codable {
     public var fileType: String
 }
 
+#if os(macOS)
 open class FileWrapperAttachment : DataProvider  {
 
     public init(fileWrapper: FileWrapper) {
@@ -57,6 +58,7 @@ open class FileWrapperAttachment : DataProvider  {
         }
     }
 }
+#endif
 
 //TODO: More protocol than class
 open class RenderableAttachment {

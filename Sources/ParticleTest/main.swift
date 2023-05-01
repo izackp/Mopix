@@ -6,7 +6,10 @@
 //
 
 import Foundation
+import SDL2
 import SDL2Swift
+
+print("start")
 
 #if os(macOS)
 class AppDelegateTesting: NSObject, NSApplicationDelegate {
@@ -52,16 +55,21 @@ let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFil
 
 if isRunningTests {
     
-#if os(macOS)
-    let delegate = AppDelegateTesting()
-    NSApplication.shared.delegate = delegate
-    NSApplication.shared.run()
+    #if os(macOS)
+      let delegate = AppDelegateTesting()
+      NSApplication.shared.delegate = delegate
+      NSApplication.shared.run()
     #endif
 } else {
     #if os(macOS)
     let _ = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
     //SDL_UIKitRunApp(CommandLine.argc, CommandLine.unsafeArgv, wrapperMain)
-    #else
+    #elseif os(macOS)
     SDL_UIKitRunApp(CommandLine.argc, CommandLine.unsafeArgv, wrapperMain)
+    #else
+    SDL_RegisterApp("TestGame", 0, nil)
+    let result = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
+    SDL_UnregisterApp()
+    //result
     #endif
 }

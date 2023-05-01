@@ -22,8 +22,10 @@ public class ImageManager {
     var _systemFonts:[String] = [] //TODO: Is it needed?
     
     public func loadSystemFonts() {
+        #if os(macOS)
         let names:[String] = (fontFamilyNames() as? [String]) ?? []
         _systemFonts = names
+        #endif
     }
     
     public func loadFont(_ url:URL) {
@@ -54,17 +56,23 @@ public class ImageManager {
             return result
         }
         
+        #if os(macOS)
         let result = try fromCGFont(name, desc: desc)
         _fontCache[desc] = result
         return result
+        #else
+        return nil
+        #endif
     }
     
+    #if os(macOS)
     func fromCGFont(_ name:String, desc:FontDesc) throws -> Font? {
         let cgFont = CGFont(name as CFString)
         guard let data = fontDataForCGFont(cgFont) else { return nil }
         let font = try SDLFont(data: data, ptSize: Int(desc.size))
         return Font(atlas: atlas, font: font)
     }
+    #endif
     
     public func image(directUrl:URL) -> Image? {
         let path = directUrl.absoluteString

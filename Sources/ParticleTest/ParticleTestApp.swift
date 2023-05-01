@@ -18,6 +18,8 @@ class TestGameApp : Application {
         
         #if os(macOS)
         let newWindow = try PTWindow(parent: self, title: "My Test Game", frame: Frame(x: 0, y: 0, width: 800, height: 600), engine:engine)
+        #elseif os(Windows)
+        let newWindow = try PTWindow(parent: self, title: "My Test Game", frame: Frame(x: 0, y: 0, width: 800, height: 600), engine:engine)
         #else
         let newWindow = try PTWindow(parent: self, title: "My Test Game", frame: Frame(x: 0, y: 0, width: 0, height: 0), engine:engine, windowOptions: [.fullscreen])
         #endif

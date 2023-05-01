@@ -5,15 +5,15 @@
 //  Created by Isaac Paul on 4/22/23.
 //
 
-import Foundation
+import SDL2
 
 public class Stats {
     
     var stats:[String: SingleStat] = [:]
     var enabled:Bool = true
     var shouldPrint:Bool = true
-    var printDelay:Double = 10
-    var lastPrint:Double = 0
+    var printDelay:UInt64 = 10
+    var lastPrint:UInt64 = 0
     
     public func measure(_ name:String, _ block:() throws ->()) rethrows {
         if (enabled) {
@@ -73,7 +73,7 @@ public class Stats {
     
     public func printStats() {
         if (enabled == false || shouldPrint == false) { return }
-        let currentTime = CFAbsoluteTimeGetCurrent()
+        let currentTime = SDL_GetPerformanceCounter() / SDL_GetPerformanceFrequency()
         let delta = currentTime - lastPrint
         if (delta < printDelay) { return }
         lastPrint = currentTime

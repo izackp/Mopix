@@ -10,7 +10,7 @@ import Foundation
 //Hoping its contiguous just by instantiating all objs in sequence
 public class ContiguousObjectPool<T> where T : AnyObject {
 
-    private var _lock = pthread_rwlock_t()
+    //private var _lock = pthread_rwlock_t()
     public var poolData:[OldTween<T>] = []
     private var _availableIndexes:[Int] = []
     var indexSize = 0
@@ -34,22 +34,22 @@ public class ContiguousObjectPool<T> where T : AnyObject {
     public func returnItem(_ obj:inout OldTween<T>) {
         obj.clean()
         obj.isAlive = false
-        pthread_rwlock_wrlock(&_lock)
+        //pthread_rwlock_wrlock(&_lock)
         _availableIndexes[indexSize] = obj.ID
         indexSize += 1
-        pthread_rwlock_unlock(&_lock)
+        //pthread_rwlock_unlock(&_lock)
     }
 
     public func rent() -> OldTween<T>? {
-        pthread_rwlock_wrlock(&_lock)
+        //pthread_rwlock_wrlock(&_lock)
         if (indexSize <= 0) {
-            pthread_rwlock_unlock(&_lock)
+            //pthread_rwlock_unlock(&_lock)
             return nil
         }
         indexSize -= 1
         let nextIndex = _availableIndexes[indexSize]
         let tween = poolData[nextIndex]
-        pthread_rwlock_unlock(&_lock)
+        //pthread_rwlock_unlock(&_lock)
         tween.isAlive = true
         return tween
     }

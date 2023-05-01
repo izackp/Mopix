@@ -4,6 +4,21 @@
 
 Workspace repo is here: https://github.com/izackp/MopixWorkspace
 
+
+### Running on Windows
+* Follow the instructs here to install swift on windows https://www.swift.org/getting-started/
+* * The commands specified above seem to include files that don't exist. Skip those. I also ran the two commands below. However, I don't know if they're needed.
+* * copy /Y %SDKROOT%\usr\share\vcruntime.apinotes "%VCToolsInstallDir%\include\vcruntime.apinotes"
+* * copy /Y %SDKROOT%\usr\share\visualc.apinotes "%VCToolsInstallDir%\include\visualc.apinotes"
+* Install swift toolchain from https://www.swift.org/download/
+* Copy sdl headers and libaries into some path
+* swift build --product "ParticleTweenTest" -c debug -Xswiftc -I"somepath\include" -Xlinker -L"somepath\lib\x64"
+* Same command but for -c release
+* Copy sdl dlls into .build/debug and .build/release
+
+In the future, I'll make a script or manipulate swiftpm into avoid the need to some of the above steps
+Note: enums on windows from c libraries are backed by an Int32 rather than a UInt32 which is why I needed to fork and modify some dependencies
+
 ### Todo Tasks
 ```
   = Unstarted
@@ -11,7 +26,7 @@ o = WIP
 / = Happy path works
 x = Done
 
-[ ] Seperate SwiftSDL into its own project
+[o] Seperate SwiftSDL into its own project
 [o] Virtual Drive
 - [/] Directory mounted drive - reading files
 - [ ] Directory mounted drive - writing files
@@ -20,14 +35,19 @@ x = Done
 - [ ] File change callbacks - For hot reloading assets
 - [ ] Seperate into its own project / library
 [/] Atlas Generator / Dynamic Image Packer
+- [ ] Resource reloading when textures 'go bad' (directx issue)
 - [ ] Plugin style codecs; JPEGXL
 [/] Loading and Drawing Fonts
 - [/] Loading system fonts
+- [ ] Loading system fonts (Windows)
 - [ ] Drawing text spans; several formats of text on one line
 [ ] Sprite sheets / pregenerated atlas
-[o] Tweening library
-[ ] Support windows / linux
-- [ ] Move project to SPM; requires heavily modifing SDL to support -fmodules compile flag
+[/] Tweening library
+ - Odd 6x performance slow down when main project is an spm project
+ - Need to replace handles with pointers if possible.
+[o] Support windows / linux
+- [ ] Move project to SPM; ~~requires heavily modifing SDL to support -fmodules compile flag~~ 
+- [o] Add build and vscode integration instructions. Possible include binaries to reduce friction.
 [ ] Audio
 - [ ] Wav and Ogg
 - [ ] Sound Effects API
@@ -37,7 +57,7 @@ x = Done
 - [ ] Sequencer / Instruments (like pico-8)
 [o] UI
 - [/] Views
-- [ ] Images
+- [o] Images
 - [o] TextView
     - [o] Type setting (text layout / word wrapping) - ENG
 - [ ] Effects (clipping, masks, border, shadows)
@@ -70,13 +90,11 @@ x = Done
 - [/] Encodable; Encode Ids
 - [o] Serialization boiler plate code generation; Because writing out serialization code sucks.
 - [ ] Serialize floats with a 'best match' number. Instead of just some random number.
-[ ] Works entirely from SPM without xcode
+[/] Works entirely from SPM without xcode
 - [ ] Leave SDL or port so it supports clang modules
 ```
 
 I'm not sure how I want to design an ECS. I would always prefer to use an existing solution like flecs. Though I want to support hardcoded classes first. Flecs uses arch type entities because it makes sense to group components together by type. My question is why bother have pieces when you can just have a single class. You get the grouping automatically. Overall, I'm curious about a hybrid approach.
-
-I also have previously designed a way for dynamic behavior via components + json. It removed the need of state machines because state was just the makeup of the components the entity had. 
 
 ### Requirements to build:
 * Code sign libicuuc or disable library validation

@@ -11,12 +11,18 @@ import ChunkedPool
 import GameEngine
 import Foundation
 import SDL2Swift
+import SDL2
 
 internal func toStrSmart(_ value:Double) -> String {
     if (value > 0.1) {
         return String(format: "%.3fs ", value)
     }
     return String(format: "%.3fms", value * 1000)
+}
+
+internal func toStrSmart(_ value:UInt64) -> String {
+    let value = Double(value) / Double(SDL_GetPerformanceFrequency())
+    return toStrSmart(value)
 }
 
 func buildEmitter(_ noWait:Bool) -> Emitter {
@@ -63,14 +69,14 @@ extension Emitter {
         
         //var ms = counter.MillisecondsSinceLastCheck()
         //Helper.MeasureBegin()
-        var time = CFAbsoluteTimeGetCurrent()
+        var time = SDL_GetPerformanceCounter()
         self.tick()
-        let creationTime = CFAbsoluteTimeGetCurrent() - time
+        let creationTime = SDL_GetPerformanceCounter() - time
         
-        time = CFAbsoluteTimeGetCurrent()
+        time = SDL_GetPerformanceCounter()
         let tweensToRun = self._backing.numParticles()
         self.runTweens(16)
-        let runAndDeleteTime = CFAbsoluteTimeGetCurrent() - time
+        let runAndDeleteTime = SDL_GetPerformanceCounter() - time
         let executionTime = creationTime + runAndDeleteTime
 
         //Helper.MeasureBegin()

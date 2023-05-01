@@ -23,7 +23,7 @@ public class ChunkedPool<T> where T : IReusable {
     private var _availableIndexes:[UInt16] = [] //confusing // 0..<UnusedIndex == used indexes // UnusedIndex..<Capacity == free indexes // Used like a stack
     private var _chunkSize:UInt16 = 0 //Max capacity of a chunk
     private var _freeChunk:Chunk<T>? = nil //Prevents unnecessary deleting and creating
-    private var _lock = pthread_rwlock_t()
+    //private var _lock = pthread_rwlock_t()
     
     //Book keeping for debugging... I'm not sure if to keep as it makes some api complicated
     private var _count:Int = 0
@@ -33,7 +33,7 @@ public class ChunkedPool<T> where T : IReusable {
     public init(capacity:UInt16 = 10, chunkSize:UInt16 = 256) {
         assert(capacity > 1) //We scale up by * 1.5 so 1 * 1.5 ends up being one...
         _chunkSize = chunkSize
-        pthread_rwlock_init(&_lock, nil)
+        //pthread_rwlock_init(&_lock, nil)
         //super.init()
         initData(0, capacity)
     }

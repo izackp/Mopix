@@ -167,7 +167,7 @@ open class Application {
         //var allImmediateUseEvents:[SDL_Event] = []
 
         while isRunning {
-            try autoreleasepool {
+            //try autoreleasepool {
                 stats.measure("poll") {
                     while (SDL_PollEvent(&event) == 1) {
                         //allImmediateUseEvents.append(event)
@@ -260,7 +260,7 @@ open class Application {
                     allImmediateUseEvents.removeAll()
                     stats.printStats()
                 }*/
-            }
+            //}
         }
     }
 }

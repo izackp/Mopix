@@ -88,12 +88,12 @@ public class InterfaceStruct : IParticleBacking {
     static let particlePool = ChunkedPool<Particle>()
 
     private let _tweener = Tweener<FastTween>()
-    private var _lockParticle = pthread_rwlock_t()
-    private var _lockTweener = pthread_rwlock_t()
+    //private var _lockParticle = pthread_rwlock_t()
+    //private var _lockTweener = pthread_rwlock_t()
     
     init() {
-        pthread_rwlock_init(&_lockParticle, nil)
-        pthread_rwlock_init(&_lockTweener, nil)
+        //pthread_rwlock_init(&_lockParticle, nil)
+        //pthread_rwlock_init(&_lockTweener, nil)
     }
     
     public func createParticle(_ particleData:ParticleCreationData) {

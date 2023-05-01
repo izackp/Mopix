@@ -5,6 +5,7 @@
 //  Created by Isaac Paul on 6/28/22.
 //
 
+#ifdef __APPLE__
 #import <Foundation/Foundation.h>
 #import <CoreText/CoreText.h>
 #include "include/TTFInterface.h"
@@ -141,3 +142,4 @@ NSArray* fontFamilyNames() {
     NSArray *array = CFBridgingRelease(arr);
     return array;
 }
+#endif

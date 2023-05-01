@@ -95,3 +95,6 @@ xcuserdata/
 
 ## SwiftPM
 .swiftpm/
+.build/
+include
+lib

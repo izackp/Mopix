@@ -5,7 +5,8 @@
 //  Created by Isaac Paul on 4/22/23.
 //
 
-import Foundation
+import SDL2
+
 func toStrSmart(_ value:Double) -> String {
     if (value > 0.1) {
         return String(format: "%.3fs ", value)
@@ -14,14 +15,14 @@ func toStrSmart(_ value:Double) -> String {
 }
 
 public class StopWatch {
-    var lastTime:Double
+    var lastTime:UInt64
     init() {
-        lastTime = CFAbsoluteTimeGetCurrent()
+        lastTime = SDL_GetPerformanceCounter()
     }
     
     public func reset() -> Double {
         let time = lastTime
-        lastTime = CFAbsoluteTimeGetCurrent()
-        return lastTime - time
+        lastTime = SDL_GetPerformanceCounter()
+        return Double(lastTime - time) / Double(SDL_GetPerformanceFrequency())
     }
 }

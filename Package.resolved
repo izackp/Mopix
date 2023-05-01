@@ -3,7 +3,7 @@
     {
       "identity" : "fsevents",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/eonil/FSEvents",
+      "location" : "https://github.com/eonil/FSEvents.git",
       "state" : {
         "revision" : "e6b7cdfa2754454e194a45ee6c2004d0f630fe88",
         "version" : "0.1.7"
@@ -12,19 +12,19 @@
     {
       "identity" : "icu-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kphrx/icu-swift.git",
+      "location" : "https://github.com/izackp/icu-swift.git",
       "state" : {
         "branch" : "master",
-        "revision" : "46ee83bf9ee8e6bc392dab9dd2cc4cd6a133c95b"
+        "revision" : "b41ebb2a8ef5057ef29617207ed9c66330d30177"
       }
     },
     {
       "identity" : "icu4c-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kPherox/icu4c-swift",
+      "location" : "https://github.com/izackp/icu4c-swift",
       "state" : {
         "branch" : "master",
-        "revision" : "48549b4281ff5f30d2602f39d82f530c31bcadb9"
+        "revision" : "900887dac7d58903d86b622fb080e5b3ee667a16"
       }
     },
     {
@@ -33,7 +33,7 @@
       "location" : "https://github.com/izackp/SDL.git",
       "state" : {
         "branch" : "master",
-        "revision" : "34207c431e06fe963375d61026da650ad83abc3e"
+        "revision" : "a2be4ed847135002a80838bf8b3f9b15cd551a21"
       }
     },
     {

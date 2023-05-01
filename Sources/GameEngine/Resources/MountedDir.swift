@@ -225,9 +225,7 @@ public class MountedDir : IFileSystem {
             }
         }
     }
-    #endif
-    
-#if os(iOS)
+    #else
     func startWatching(_ listener:PackageChangeListener) throws {
         if _fileWatchers.contains(where: { $0 === listener }) {
             return

@@ -9,8 +9,13 @@ import Foundation
 
 extension URL {
     func isDirectory() throws -> Bool {
+        #if os(macos) 
         let res = try resourceValues(forKeys: [.isDirectoryKey])
+        print("res: \(String(describing: res))")
         return res.isDirectory == true
+        #else
+            return true
+        #endif
     }
 }
 

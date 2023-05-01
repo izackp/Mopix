@@ -1,0 +1,30 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "name": "Debug ParticleTweenTest",
+            "program": "${workspaceFolder:Mopix}\\.build/debug/ParticleTweenTest",
+            "args": [],
+            "cwd": "${workspaceFolder:Mopix}",
+            "console": "integratedTerminal"
+            //"preLaunchTask": "swift: Build Debug ParticleTweenTest"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "name": "Release ParticleTweenTest",
+            "program": "${workspaceFolder:Mopix}\\.build/release/ParticleTweenTest",
+            "args": [],
+            "cwd": "${workspaceFolder:Mopix}",
+            "console": "integratedTerminal"
+            //"preLaunchTask": "swift: Build Release ParticleTweenTest"
+        }
+    ]
+}

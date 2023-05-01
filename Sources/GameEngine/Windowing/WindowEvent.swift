@@ -30,7 +30,7 @@ public enum WindowEvent {
     case displayChanged(displayId:Int32)
     
     init(_ event:SDL_WindowEvent) {
-        let thing = SDL_WindowEventID(rawValue: UInt32(event.event) )
+        let thing = SDL_WindowEventID(rawValue: SDL_WindowEventID.RawValue(event.event) )
         switch thing {
         case SDL_WINDOWEVENT_NONE:
             self = .none

@@ -137,7 +137,7 @@ public class VirtualDrive : IFileSystem {
             packages.append(instance)
             return
         } else {
-            throw GenericError("Mounting files not supported yet.")
+            throw GenericError("Attemping to mount: \(path.absoluteString) ; Mounting files not supported yet.")
         }
     }
 
@@ -211,7 +211,7 @@ public class VirtualDrive : IFileSystem {
     }
     
     func removeWatcher(_ listener:PackageChangeListener) {
-        for eachMD in packages {
+        for eachMD: MountedDir in packages {
             eachMD.stopWatching(listener)
         }
     }

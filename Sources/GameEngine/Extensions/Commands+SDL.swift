@@ -10,7 +10,7 @@ import SDL2
 
 extension SDL_Event {
     func toCommand() -> InputCommand? {
-        let eventType = SDL_EventType(rawValue: self.type)
+        let eventType = SDL_EventType(rawValue: SDL_EventType.RawValue(self.type))
         let keyValue:Int16
         if (eventType == SDL_KEYDOWN) {
             keyValue = 1
@@ -20,7 +20,7 @@ extension SDL_Event {
         
         
         let keyEvent = self.key //TODO: foremost or window with mouse should absorb key events when
-        let keyCode = SDL_KeyCode(rawValue: UInt32(keyEvent.keysym.sym))
+        let keyCode = SDL_KeyCode(rawValue: SDL_KeyCode.RawValue(keyEvent.keysym.sym))
         return SDL_Event.toInputCommand(keyCode, value: keyValue)
         
         /*

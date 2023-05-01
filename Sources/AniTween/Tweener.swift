@@ -76,12 +76,12 @@ public class Tweener<T> where T : SomeTween {
     }
 
     public func processFrameSync(_ deltaTime:Double) {
-        let time = CFAbsoluteTimeGetCurrent()
+        //let time = CFAbsoluteTimeGetCurrent()
         _pool.iteratePool { item in
             return item.processFrame(deltaTime)
         }
-        let processTime = CFAbsoluteTimeGetCurrent() - time
-        print("processFrame Tween Time: \(String(format: "%.3fms", processTime * 1000))")
+        //let processTime = CFAbsoluteTimeGetCurrent() - time
+        //print("processFrame Tween Time: \(String(format: "%.3fms", processTime * 1000))")
     }
     
     public func isComplete() -> Bool {
