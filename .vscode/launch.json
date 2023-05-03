@@ -10,7 +10,7 @@
             "program": "${workspaceFolder:Mopix}\\.build/debug/ParticleTweenTest",
             "args": [],
             "cwd": "${workspaceFolder:Mopix}",
-            "console": "integratedTerminal",
+            "console": "internalConsole", //See LLDB tab in output for logs
             "preLaunchTask": "swift: Build Debug ParticleTweenTest"
         },
         {
@@ -23,7 +23,7 @@
             "program": "${workspaceFolder:Mopix}\\.build/release/ParticleTweenTest",
             "args": [],
             "cwd": "${workspaceFolder:Mopix}",
-            "console": "integratedTerminal",
+            "console": "internalConsole",
             "preLaunchTask": "swift: Build Release ParticleTweenTest"
         }
     ]
