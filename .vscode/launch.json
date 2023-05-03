@@ -10,8 +10,8 @@
             "program": "${workspaceFolder:Mopix}\\.build/debug/ParticleTweenTest",
             "args": [],
             "cwd": "${workspaceFolder:Mopix}",
-            "console": "integratedTerminal"
-            //"preLaunchTask": "swift: Build Debug ParticleTweenTest"
+            "console": "integratedTerminal",
+            "preLaunchTask": "swift: Build Debug ParticleTweenTest"
         },
         {
             "type": "lldb",
@@ -23,8 +23,8 @@
             "program": "${workspaceFolder:Mopix}\\.build/release/ParticleTweenTest",
             "args": [],
             "cwd": "${workspaceFolder:Mopix}",
-            "console": "integratedTerminal"
-            //"preLaunchTask": "swift: Build Release ParticleTweenTest"
+            "console": "integratedTerminal",
+            "preLaunchTask": "swift: Build Release ParticleTweenTest"
         }
     ]
 }

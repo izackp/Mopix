@@ -1,0 +1,17 @@
+{
+    "lldb.library": "C:\\Library\\Developer\\Toolchains\\unknown-Asserts-development.xctoolchain\\usr\\bin\\liblldb.dll",
+    "sourcekit-lsp.serverArguments": [
+        "-Xcc",
+        "-IC:\\Users\\Isaac\\Documents\\Projects\\swift\\Mopix\\windows_bin\\include",
+        "-Xlinker",
+        "-LC:\\Users\\Isaac\\Documents\\Projects\\swift\\Mopix\\windows_bin\\lib\\x64"
+    ],
+    "swift.buildArguments": [
+        "-Xcc",
+        "-IC:\\Users\\Isaac\\Documents\\Projects\\swift\\Mopix\\windows_bin\\include",
+        "-Xlinker",
+        "-LC:\\Users\\Isaac\\Documents\\Projects\\swift\\Mopix\\windows_bin\\lib\\x64"
+    ],
+    "swift.diagnostics": true,
+    "lldb.launch.postRunCommands": ["image load -f swiftCore.dll -s 0"]
+}

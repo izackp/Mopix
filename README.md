@@ -2,21 +2,33 @@
 
 2D Game engine in Swift. Temporary name. You may notice things done a certain way that is not good practice. I typically prioritize getting it running and then refactoring. Refactoring is much easier one you have something running with example use cases. 
 
-Workspace repo is here: https://github.com/izackp/MopixWorkspace
-
-
 ### Running on Windows
-* Follow the instructs here to install swift on windows https://www.swift.org/getting-started/
-* * The commands specified above seem to include files that don't exist. Skip those. I also ran the two commands below. However, I don't know if they're needed.
-* * copy /Y %SDKROOT%\usr\share\vcruntime.apinotes "%VCToolsInstallDir%\include\vcruntime.apinotes"
-* * copy /Y %SDKROOT%\usr\share\visualc.apinotes "%VCToolsInstallDir%\include\visualc.apinotes"
-* Install swift toolchain from https://www.swift.org/download/
-* Copy sdl headers and libaries into some path
-* swift build --product "ParticleTweenTest" -c debug -Xswiftc -I"somepath\include" -Xlinker -L"somepath\lib\x64"
-* Same command but for -c release
-* Copy sdl dlls into .build/debug and .build/release
 
-In the future, I'll make a script or manipulate swiftpm into avoid the need to some of the above steps
+1. Follow the instructions here to install swift: https://github.com/pwsacademy/swift-setup/tree/main/platforms/windows
+
+2. Follow the instructions here to setup vscode: https://github.com/pwsacademy/swift-setup/tree/main/editors/vscode-windows
+
+    * Optional: Create a test hello world project to make sure and hit a breakpoint to make sure everything is working
+
+3. Run `.\downloadBinaries.ps1` **Or:** 
+    * Download SDL2 manually.
+    * Copy SDL2.dll, SDL2_ttf.dll, etc files into this folder
+    * Copy the appropiate files into `windows_bin\include` and `windows_bin\lib\x64`
+
+4. Run `.\fix_vscode_settings.ps1`
+    * SourceKit needs to be pointed to the SDL directories for intellisense.
+
+5. Open the project folder in vscode and hitting the Run and debug button should work fine.
+
+If you wish to run manually without vscode then run:
+
+```bash
+swift build --product "ParticleTweenTest" -c debug -Xswiftc -Iwindows_bin\\include -Xlinker -Lwindows_bin\\lib\\x64
+.\.build\debug\ParticleTweenTest.exe
+```
+
+We're using `swift build` because `swift run` can't find the SDL directories for some reason.
+
 Note: enums on windows from c libraries are backed by an Int32 rather than a UInt32 which is why I needed to fork and modify some dependencies
 
 ### Todo Tasks
@@ -96,6 +108,8 @@ x = Done
 
 I'm not sure how I want to design an ECS. I would always prefer to use an existing solution like flecs. Though I want to support hardcoded classes first. Flecs uses arch type entities because it makes sense to group components together by type. My question is why bother have pieces when you can just have a single class. You get the grouping automatically. Overall, I'm curious about a hybrid approach.
 
+What will be interesting is trying to serialize the entire game world in a timely manner to support rollback.
+
 ### Requirements to build:
 * Code sign libicuuc or disable library validation
 * * security find-identity
@@ -103,10 +117,10 @@ I'm not sure how I want to design an ECS. I would always prefer to use an existi
 * * codesign -s "Apple Development: Your Name (10-char-ID)"  /path/to/theirlib.dylib
 * * Possible Path: /opt/homebrew/Cellar/icu4c/70.1/lib/libicuuc.70.1.dylib
 or
-* * Project Settings > Signing & Capabilities > Hardened Runtime > Runtime Exceptions > Diable Library Validation
+* * Project Settings > Signing & Capabilities > Hardened Runtime > Runtime Exceptions > Disable Library Validation
 
 ### Design Goals
-Why not Godot? I wanted something I could possibly port to the 3ds. I also wanted to make a deterministic engine for input only networking. Granted.. the 3ds might not be powerful enough to support 'rollback' but we will see.
+I also wanted to make a deterministic engine for input only networking. Granted.. the swift might not be powerful enough to support 'rollback' but we will see.
 
 * Highly portable (built on SDL)
 * Deterministic
@@ -119,16 +133,13 @@ Subgoals:
 * Good UI
 * 3D (Maybe integrate Kinc or Mach or The-Forge)
 
-Notes:
+#### Notes & Ramblings
 I tried out these languages:
 * Haxe : I tried it out on a mac. No debugger for hashlink :( Their 3d engine was buggy. No real argument except I just didn't get a good vibe from it.
-* Swift : Got pissed at how difficult it was to compile the toolchain on a mac. Did a lot of research on swift embedded/android as I will probably have to port swift to the 3ds. Decided to try nim since it compiles to c and can be very performant.
 * Nim : Like it a lot, source code is understandable. However, I spent way too much learning macros because I wanted optionals, results, and early exits. Lack of _consistent_ support for indirection (interfaces, traits) made me look towards rust. Even the standard library uses different strategies for indirection. Look at file streams. Rust had all of the safety features I wanted (results and traits) that _everyone_ used.
-* Rust : Looks sexy from the outside. Though, once you start working with it you realize that you realllyyyy need shared mutability in order to provide decent abstractions and decoupling. I feel like swift is the most productive language I've ever used so I moved back to that. Swift is also in the works for implementing a sort of borrow checker, and I feel performance will soon be up to par.
+* Rust : Looks sexy from the outside. Though, once you start working with it you realize that you realllyyyy need shared mutability in order to provide decent abstractions and decoupling. It's a huge learning curve for sure.
+* Swift : I feel like swift is the most productive language I've ever used so I moved back to that. Swift is also in the works for implementing a sort of borrow checker, and I feel performance will soon be up to par.
 * Zig : I took a peak it at. Seems cool. ~~Takes like 8 gbs of ram to compile~~ .. I got scared away once I saw the code to manipulate strings. Though it seems like you can hide the mess by providing your own string class. I have hope for this language. If I like it enough I might just port this over after I'm done.
-
-I also spent a chunk of time wrapping The-Forge api to nim. One of the reasons I decided on SDL was so I don't have to do that again lol. 
-
 
 
 

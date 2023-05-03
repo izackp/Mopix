@@ -98,3 +98,5 @@ xcuserdata/
 .build/
 include
 lib
+*.dll
+windows_bin
