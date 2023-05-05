@@ -10,11 +10,16 @@ import SDL2
 import SDL2Swift
 import SDL2_TTFSwift
 
-public protocol IUpdate : class {
+public protocol IUpdate : AnyObject {
     //Fixed step also takes a delta. There could be a case were we want to change
     //ticks per second or simulate multiple ticks at once
-    func step(_ events:[SDL_Event], _ delta:UInt64)
+    func step(_ delta:UInt64)
 }
+
+public protocol IEventListener : AnyObject {
+    func onEvents(_ events:[SDL_Event])
+}
+
 
 extension IUpdate {
     static func == (lhs: IUpdate, rhs: IUpdate) -> Bool {
@@ -22,6 +27,7 @@ extension IUpdate {
     }
 }
 
+//TODO: Weird; refactor
 struct FixedUpdatedListener : Equatable {
     static func == (lhs: FixedUpdatedListener, rhs: FixedUpdatedListener) -> Bool {
         return lhs.listener === rhs.listener
@@ -45,6 +51,14 @@ class UpdatedListener : Equatable {
     var lastTick:UInt64
 }
 
+struct EventListener : Equatable {
+    static func == (lhs: EventListener, rhs: EventListener) -> Bool {
+        return lhs.listener === rhs.listener
+    }
+    
+    let listener:IEventListener
+}
+
 open class Application {
     var listWindows: [LiteWindow] = []
     //private var _listWindowsPendingRemove: [LiteWindow] = []
@@ -53,6 +67,7 @@ open class Application {
     
     var listFixedUpdate = MutableIteratableArray<IUpdate, FixedUpdatedListener>()
     var listUpdate = MutableIteratableArray<IUpdate, UpdatedListener>()
+    var listEvent = MutableIteratableArray<IEventListener, EventListener>()
     
     
     let vd = VirtualDrive.shared
@@ -101,12 +116,17 @@ open class Application {
     
     public func addWindow(_ window:LiteWindow) {
         listWindows.append(window)
+        addEventListener(window)
         addDeltaListener(window)
     }
     
     public func removeWindow(_ window:LiteWindow) {
         listWindows.removeAll(where: { $0 === window })
+        removeEventListener(window)
         removeDeltaListener(window)
+        if (listWindows.count == 0) {
+            isRunning = false
+        }
     }
     
     public func addFixedListener(_ listener:IUpdate, msPerTick:Int) {
@@ -120,12 +140,21 @@ open class Application {
         listUpdate.append(listener, listenerWrapped)
     }
     
+    public func addEventListener(_ listener:IEventListener) {
+        let listenerWrapped = EventListener(listener: listener)
+        listEvent.append(listener, listenerWrapped)
+    }
+    
     public func removeDeltaListener(_ listener:IUpdate) {
         listUpdate.remove(listener)
     }
     
     public func removeFixedListener(_ listener:IUpdate) {
         listFixedUpdate.remove(listener)
+    }
+    
+    public func removeEventListener(_ listener:IEventListener) {
+        listEvent.remove(listener)
     }
     
 /*
@@ -140,7 +169,27 @@ open class Application {
         engine?.onLogic()
     }*/
     
-    func logic(_ events:[SDL_Event]) {
+    func readEvents() {
+        var allEvents:[SDL_Event] = []
+        var event = SDL_Event()
+        stats.measure("poll") {
+            while (SDL_PollEvent(&event) == 1) {
+                //allImmediateUseEvents.append(event)
+                allEvents.append(event)
+            }
+        }
+        notifyEventListeners(allEvents)
+    }
+    
+    func notifyEventListeners(_ events:[SDL_Event]) {
+        if (events.count == 0) { return }
+        listEvent.applyChanges()
+        for eachListener in listEvent.data {
+            eachListener.onEvents(events)
+        }
+    }
+    
+    func logic() {
         listFixedUpdate.applyChanges()
         for eachUpdateListener in listFixedUpdate.metaData {
             let regulator = eachUpdateListener.tickBank
@@ -151,7 +200,8 @@ open class Application {
             }
             while (count > 0) {
                 //stats.measure("logic") {
-                eachUpdateListener.listener.step(events, regulator._timePerTick)
+                readEvents()
+                eachUpdateListener.listener.step(regulator._timePerTick)
                     //logic(events, Int(count))
                 //}
                 //allEvents.removeAll()
@@ -161,21 +211,14 @@ open class Application {
     }
     
     public func runLoop() throws {
-        var event = SDL_Event()
         
-        var allEvents:[SDL_Event] = []
         //var allImmediateUseEvents:[SDL_Event] = []
 
         while isRunning {
             //try autoreleasepool {
-                stats.measure("poll") {
-                    while (SDL_PollEvent(&event) == 1) {
-                        //allImmediateUseEvents.append(event)
-                        allEvents.append(event)
-                    }
-                }
+                readEvents()
                 stats.measure("FixedStep") {
-                    logic(allEvents)
+                    logic()
                 }
                 
                 stats.measure("Step") {
@@ -184,12 +227,12 @@ open class Application {
                         let currentTick = SDL_GetTicks64()
                         let deltaTicks = currentTick - eachUpdateListener.lastTick
                         if (deltaTicks > 0) {
-                            eachUpdateListener.listener.step(allEvents, deltaTicks)
+                            readEvents()
+                            eachUpdateListener.listener.step(deltaTicks)
                             eachUpdateListener.lastTick = currentTick
                         }
                     }
                 }
-                allEvents.removeAll(keepingCapacity: true)
                 
                 /*
                 stats.measure("poll 2") {

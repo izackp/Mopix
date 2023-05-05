@@ -6,7 +6,7 @@
 //
 
 import GameEngine
-
+/*
 final class SIWindow: CustomWindow {
     
     override init(parent: Application,
@@ -21,3 +21,4 @@ final class SIWindow: CustomWindow {
         //setRootViewController(vc)
     }
 }
+*/

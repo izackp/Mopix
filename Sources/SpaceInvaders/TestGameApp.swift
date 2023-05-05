@@ -5,27 +5,35 @@
 //  Created by Isaac Paul on 4/13/22.
 //
 
-import Foundation
+import GameEngine
+import SDL2Swift
 import SDL2
+
 
 class TestGameApp : Application {
     
+    let commandRepeater = CommandRepeater()
+    let scene = SIScene()
+    static var shared:TestGameApp! = nil
+    
     override init() throws {
-        CodableTypeResolver.resolve = { try TypeMap.customDecodeSwitch($0) }
-        //testSerialization()
         try super.init()
-        //let allDisplays = SDLVideoDisplay.all
-        //SDL_WINDOWPOS_CENTERED_DISPLAY Support picking a display and centering window
-        //As well as saving previous settings
-        //Mount Folders
+        TestGameApp.shared = self
         
-        #if os(macOS)
-        let newWindow = try SIWindow(parent: self, title: "My Test Game", frame: Frame(x: 0, y: 0, width: 800, height: 600))
+        //TODO: Automatically handle this in window
+        #if os(iOS)
+        let frame = Frame(x: 0, y: 0, width: 0, height: 0)
+        let options:BitMaskOptionSet<SDLWindow.Option> = [.fullscreen]
         #else
-        let newWindow = try SIWindow(parent: self, title: "My Test Game", frame: Frame(x: 0, y: 0, width: 0, height: 0), windowOptions: [.fullscreen])
+        let frame = Frame(x: 0, y: 0, width: 800, height: 600)
+        let options:BitMaskOptionSet<SDLWindow.Option> = []
         #endif
         
+        let newWindow = try LiteWindow(parent: self, title: "My Test Game", frame: frame, windowOptions: options)
         addWindow(newWindow)
+        newWindow.parentApp.addFixedListener(scene, msPerTick: 16)
     }
+    
+    
     
 }

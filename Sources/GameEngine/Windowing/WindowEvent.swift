@@ -8,7 +8,7 @@
 import SDL2
 //import SDL2Swift
 
-public enum WindowEvent {
+public enum WindowEvent : Equatable, Hashable {
     case none
     case shown
     case hidden

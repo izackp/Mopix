@@ -5,7 +5,7 @@
 //  Created by Isaac Paul on 6/16/22.
 //
 
-import Foundation
+import GameEngine
 
 typealias CollisionNode2D = Frame<Int>
 

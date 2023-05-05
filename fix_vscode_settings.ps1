@@ -1,3 +1,11 @@
+<#
+.Synopsis
+    Updates .vscode/settings.json to point to windows_bin with an absolute path
+.DESCRIPTION
+    Updates .vscode/settings.json to point to windows_bin with an absolute path
+.EXAMPLE
+    .\fix_vscode_settings.ps1
+#>
 
 Set-StrictMode -Version 3.0
 $ErrorActionPreference = "Stop"

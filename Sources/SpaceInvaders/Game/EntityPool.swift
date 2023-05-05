@@ -5,11 +5,9 @@
 //  Created by Isaac Paul on 6/16/22.
 //
 
-import Foundation
-
 struct EntityPool<T> {
-    var items:Arr<T> = Arr<T>()
-    var pendingItems:Arr<T> = Arr<T>()
+    var items:[T] = []
+    var pendingItems:[T] = []
     
     mutating func create(_ newItem:T) {
         pendingItems.append(newItem)

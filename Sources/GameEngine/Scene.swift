@@ -6,7 +6,12 @@
 //
 
 import SDL2Swift
-
+public protocol IScene {
+    func awake()
+    func logic()
+    func draw(_ renderer:RendererWrapped)
+}
+/*
 public class Scene {
     
     var engine:Engine
@@ -25,4 +30,4 @@ public class Scene {
     open func draw(_ renderer:RendererWrapped) {
         
     }
-}
+}*/

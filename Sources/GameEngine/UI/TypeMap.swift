@@ -8,13 +8,13 @@
 import Foundation
 
 
-protocol Initializable {
+public protocol Initializable {
     init()
 }
 
-class TypeMap {
+public class TypeMap {
     static let shared = TypeMap()
-    static func customDecodeSwitch(_ type:String) throws -> Decodable.Type {
+    public static func customDecodeSwitch(_ type:String) throws -> Decodable.Type {
         switch (type) {
             case "LEInset":
                 return LEInset.self

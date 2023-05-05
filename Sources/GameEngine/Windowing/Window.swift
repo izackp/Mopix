@@ -11,6 +11,10 @@ import SDL2Swift
 
 public typealias SDLWindow = SDL2Swift.Window
 
+public protocol IDrawable {
+    func draw(_ renderer:RendererWrapped)
+}
+
 /*
  public struct ControllerState {
      public let buttons:PressedControllerButtons
@@ -30,7 +34,7 @@ public struct Controller {
  }
  */
 
-open class LiteWindow : IUpdate {
+open class LiteWindow : IUpdate, IEventListener {
 
     internal let sdlWindow:SDLWindow
     internal let renderer:Renderer
@@ -70,13 +74,16 @@ open class LiteWindow : IUpdate {
     
     fileprivate let keyboardDeviceId:UInt32 = 1
     
-    //TODO: Think about whether this should propate the error upwards
-    open func step(_ events: [SDL_Event], _ delta: UInt64) {
+    open func onEvents(_ events: [SDL_Event]) {
         handleEvents(events)
+    }
+    
+    //TODO: Think about whether this should propate the error upwards
+    open func step(_ delta: UInt64) {
         do {
             try drawStart()
             try draw(time: delta)
-            try drawFinish()
+            drawFinish()
         } catch let error as SDLError {
             print("Error: \(error.debugDescription)")
         } catch {
@@ -116,7 +123,10 @@ open class LiteWindow : IUpdate {
     }
     
     open func onWindowEvent(_ events:[WindowEvent]) {
-        
+        //TODO: No equality contains method?
+        if (events.contains(WindowEvent.closeRequest)) {
+            parentApp.removeWindow(self)
+        }
     }
     
 

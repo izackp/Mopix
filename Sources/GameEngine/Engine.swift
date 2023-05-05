@@ -20,7 +20,7 @@ public protocol IEngine {
 public class Engine : IEngine {
     
     let commandRepeater = CommandRepeater()
-    public var scenes:[Scene] = []
+    public var scenes:[IScene] = []
     
     open func start() {
         //if (emitter == nil) { emitter = buildEmitter(false) }

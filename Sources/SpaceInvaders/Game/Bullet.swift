@@ -5,7 +5,7 @@
 //  Created by Isaac Paul on 6/16/22.
 //
 
-import Foundation
+import GameEngine
 
 class Bullet {
     init (_ pos: Point<Int>, _ vec:Vector<Int>) {

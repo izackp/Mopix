@@ -3,7 +3,9 @@
 
 import PackageDescription
 
-let optimize = [SwiftSetting.unsafeFlags(["-cross-module-optimization", "-Ounchecked", "-g", "-debug-info-format=dwarf"])]
+let optCSettings = ["-Os"]
+let optimizeC = [CSetting.unsafeFlags(optCSettings)]
+let optimize:[SwiftSetting] = []//[SwiftSetting.unsafeFlags(["-cross-module-optimization", "-Ounchecked", "-g", "-debug-info-format=dwarf", "-remove-runtime-asserts", "-enforce-exclusivity=unchecked"])]
 
 let package = Package(
     name: "GameEngine",
@@ -60,6 +62,19 @@ let package = Package(
             dependencies: [
                 "GameEngine",
                 .product(name: "Xorswift", package: "xorswift"),
+            ],
+            swiftSettings: optimize
+        ),
+        .executableTarget(
+            name: "SpaceInvaders",
+            dependencies: [
+                "GameEngine"
+            ],
+            resources: [
+                .copy("ExternalFiles/bullet.bmp"),
+                .copy("ExternalFiles/oryx_16bit_scifi_vehicles_105.bmp"),
+                .copy("ExternalFiles/oryx_16bit_scifi_vehicles_189.bmp"),
+                .copy("ExternalFiles/Roboto-Medium.ttf")
             ],
             swiftSettings: optimize
         ),

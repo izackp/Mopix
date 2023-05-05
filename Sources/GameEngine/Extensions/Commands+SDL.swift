@@ -9,7 +9,7 @@ import Foundation
 import SDL2
 
 extension SDL_Event {
-    func toCommand() -> InputCommand? {
+    public func toCommand() -> InputCommand? {
         let eventType = SDL_EventType(rawValue: SDL_EventType.RawValue(self.type))
         let keyValue:Int16
         if (eventType == SDL_KEYDOWN) {
@@ -31,14 +31,14 @@ extension SDL_Event {
         }*/
     }
     
-    static func toInputCommand(_ key:SDL_KeyCode, value:Int16) -> InputCommand? {
+    public static func toInputCommand(_ key:SDL_KeyCode, value:Int16) -> InputCommand? {
         if let btn = SDL_Event.keyToButton(key) {
             return InputCommand(id: UInt32(btn.rawValue), value: value)
         }
         return nil
     }
     
-    static func keyToButton(_ key:SDL_KeyCode) -> ButtonId? {
+    public static func keyToButton(_ key:SDL_KeyCode) -> ButtonId? {
         switch key {
         case SDLK_UP:
             return .dpadUp

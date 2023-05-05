@@ -5,13 +5,12 @@
 //  Created by Isaac Paul on 4/13/22.
 //
 
-import Foundation
 import SDL2
 import SDL2Swift
 
-print("start")
-
 #if os(macOS)
+import Cocoa
+
 class AppDelegateTesting: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     print("Unit Testing Run")
@@ -22,15 +21,19 @@ class AppDelegateTesting: NSObject, NSApplicationDelegate {
     // Insert code here to tear down your application
   }
 }
-#endif
-func main() throws {
-    
-    let app = try TestGameApp()
-    try app.runLoop()
+
+func runTestsMacOs() {
+    let delegate = AppDelegateTesting()
+    NSApplication.shared.delegate = delegate
+    NSApplication.shared.run()
 }
+#endif
 
 public func wrapperMain(argc:Int32, argv:UnsafeMutablePointer<UnsafeMutablePointer<Int8>?>?) -> Int32 {
-    do { try main() }
+    do {
+        let app = try TestGameApp()
+        try app.runLoop()
+    }
     catch let error as SDLError {
         print("Error: \(error.debugDescription)")
         exit(EXIT_FAILURE)
@@ -42,34 +45,20 @@ public func wrapperMain(argc:Int32, argv:UnsafeMutablePointer<UnsafeMutablePoint
     return 0
 }
 
-#if os(iOS)
-import SDL2
-#endif
-
-
-#if os(macOS)
-import Cocoa
-#endif
-//let isRunningTests = NSClassFromString("XCTestCase") != nil && ProcessInfo.processInfo.arguments.contains("-XCUnitTests")
 let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 
 if isRunningTests {
-    
     #if os(macOS)
-      let delegate = AppDelegateTesting()
-      NSApplication.shared.delegate = delegate
-      NSApplication.shared.run()
+        runTestsMacOs()
     #endif
 } else {
     #if os(macOS)
-    let _ = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
-    //SDL_UIKitRunApp(CommandLine.argc, CommandLine.unsafeArgv, wrapperMain)
+        let _ = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
     #elseif os(macOS)
-    SDL_UIKitRunApp(CommandLine.argc, CommandLine.unsafeArgv, wrapperMain)
+        SDL_UIKitRunApp(CommandLine.argc, CommandLine.unsafeArgv, wrapperMain)
     #else
-    SDL_RegisterApp("TestGame", 0, nil)
-    let result = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
-    SDL_UnregisterApp()
-    //result
+        SDL_RegisterApp("TestGame", 0, nil)
+        let result = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
+        SDL_UnregisterApp()
     #endif
 }

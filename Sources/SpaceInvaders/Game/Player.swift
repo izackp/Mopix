@@ -5,7 +5,7 @@
 //  Created by Isaac Paul on 6/16/22.
 //
 
-import Foundation
+import GameEngine
 
 class Player : IVirutalControllerListener {
     
@@ -27,11 +27,11 @@ class Player : IVirutalControllerListener {
     }
     
     func awake() {
-        scene.engine.commandRepeater.addListener(clientId, deviceId, self)
+        TestGameApp.shared.commandRepeater.addListener(clientId, deviceId, self)
     }
     
     deinit {
-        scene.engine.commandRepeater.removeListener(clientId, deviceId, self)
+        TestGameApp.shared.commandRepeater.removeListener(clientId, deviceId, self)
     }
     
     func logic() {

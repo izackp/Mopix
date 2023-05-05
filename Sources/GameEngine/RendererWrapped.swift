@@ -93,16 +93,19 @@ struct SurfaceBackedTexture {
 }
 
 public class RendererWrapped {
-    //TODO: Internal
-    public init(renderer: Renderer) {
+    
+    public init(renderer: Renderer, imageManager:SimpleImageManager) {
         self.renderer = renderer
+        self.imageManager = imageManager
     }
     
+    let imageManager:SimpleImageManager
     let renderer:Renderer
     var cache:[ObjectIdentifier:SurfaceBackedTexture] = [:]
     
-    public func draw(_ image:String, rect:Frame<Int>) {
-        
+    public func draw(_ imageUrl:VDUrl, rect:Frame<Int>, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
+        let image = imageManager.image(imageUrl)
+        image?.draw(renderer, rect.sdlRect(), color)
     }
     
     //TODO: Use texture atlas

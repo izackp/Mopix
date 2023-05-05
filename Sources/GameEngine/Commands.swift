@@ -24,21 +24,21 @@ public struct PressedControllerButtons : OptionSet {
         self.rawValue = rawValue
     }
 
-    static let back      = PressedControllerButtons(rawValue: 1 << ButtonId.back.index)
-    static let action    = PressedControllerButtons(rawValue: 1 << ButtonId.action.index)
-    static let action2   = PressedControllerButtons(rawValue: 1 << ButtonId.action2.index)
-    static let action3   = PressedControllerButtons(rawValue: 1 << ButtonId.action3.index)
-    static let action4   = PressedControllerButtons(rawValue: 1 << ButtonId.action4.index)
-    static let action5   = PressedControllerButtons(rawValue: 1 << ButtonId.action5.index)
-    static let start     = PressedControllerButtons(rawValue: 1 << ButtonId.start.index)
-    static let select    = PressedControllerButtons(rawValue: 1 << ButtonId.select.index)
-    static let l3        = PressedControllerButtons(rawValue: 1 << ButtonId.l3.index)
-    static let r3        = PressedControllerButtons(rawValue: 1 << ButtonId.r3.index)
-    static let home      = PressedControllerButtons(rawValue: 1 << ButtonId.home.index)
-    static let dpadLeft  = PressedControllerButtons(rawValue: 1 << ButtonId.dpadLeft.index)
-    static let dpadRight = PressedControllerButtons(rawValue: 1 << ButtonId.dpadRight.index)
-    static let dpadUp    = PressedControllerButtons(rawValue: 1 << ButtonId.dpadUp.index)
-    static let dpadDown  = PressedControllerButtons(rawValue: 1 << ButtonId.dpadDown.index)
+    public static let back      = PressedControllerButtons(rawValue: 1 << ButtonId.back.index)
+    public static let action    = PressedControllerButtons(rawValue: 1 << ButtonId.action.index)
+    public static let action2   = PressedControllerButtons(rawValue: 1 << ButtonId.action2.index)
+    public static let action3   = PressedControllerButtons(rawValue: 1 << ButtonId.action3.index)
+    public static let action4   = PressedControllerButtons(rawValue: 1 << ButtonId.action4.index)
+    public static let action5   = PressedControllerButtons(rawValue: 1 << ButtonId.action5.index)
+    public static let start     = PressedControllerButtons(rawValue: 1 << ButtonId.start.index)
+    public static let select    = PressedControllerButtons(rawValue: 1 << ButtonId.select.index)
+    public static let l3        = PressedControllerButtons(rawValue: 1 << ButtonId.l3.index)
+    public static let r3        = PressedControllerButtons(rawValue: 1 << ButtonId.r3.index)
+    public static let home      = PressedControllerButtons(rawValue: 1 << ButtonId.home.index)
+    public static let dpadLeft  = PressedControllerButtons(rawValue: 1 << ButtonId.dpadLeft.index)
+    public static let dpadRight = PressedControllerButtons(rawValue: 1 << ButtonId.dpadRight.index)
+    public static let dpadUp    = PressedControllerButtons(rawValue: 1 << ButtonId.dpadUp.index)
+    public static let dpadDown  = PressedControllerButtons(rawValue: 1 << ButtonId.dpadDown.index)
 }
 
 public enum ButtonId: Int, ExpressibleByIntegerLiteral {
@@ -73,11 +73,11 @@ public enum ButtonId: Int, ExpressibleByIntegerLiteral {
     
     case unknown
     
-    var index: Int {
+    public var index: Int {
         return rawValue
     }
     
-    var command: CommandId {
+    public var command: CommandId {
         switch self {
         case .action: return CommandId.action
         case .action2: return CommandId.action2
@@ -121,11 +121,11 @@ public enum AnalogId: Int, ExpressibleByIntegerLiteral {
     case btnRStickY
     case unknown
     
-    var index: Int {
+    public var index: Int {
         return rawValue
     }
     
-    var command: CommandId {
+    public var command: CommandId {
         switch self {
         case .btnLStickX: return CommandId.btnLStickX
         case .btnLStickY: return CommandId.btnLStickY
@@ -180,7 +180,7 @@ public enum CommandId: UInt32, ExpressibleByIntegerLiteral {
     
     case unknown
     
-    var buttonId: ButtonId? {
+    public var buttonId: ButtonId? {
         let value = self.rawValue
         if (value < 19) {
             return ButtonId(rawValue: Int(value))
@@ -188,7 +188,7 @@ public enum CommandId: UInt32, ExpressibleByIntegerLiteral {
         return nil
     }
     
-    var analogId: AnalogId? {
+    public var analogId: AnalogId? {
         switch self {
         case .btnLStickX: return AnalogId.btnLStickX
         case .btnLStickY: return AnalogId.btnLStickY
@@ -204,16 +204,27 @@ public enum CommandId: UInt32, ExpressibleByIntegerLiteral {
 }
 
 public struct InputCommand {
+    public init(id: UInt32, value: Int16) {
+        self.id = id
+        self.value = value
+    }
+
     public let id:UInt32
     public let value:Int16
 }
 
 public struct InputCommandList {
+    public init(clientId: UInt32, deviceId: UInt32, commands: [InputCommand]) {
+        self.clientId = clientId
+        self.deviceId = deviceId
+        self.commands = commands
+    }
+
     public let clientId:UInt32
     public let deviceId:UInt32
     public let commands:[InputCommand]
     
-    func getUniqueId() -> UInt64 {
+    public func getUniqueId() -> UInt64 {
         let id:UInt64 = (UInt64(clientId) << 32) & UInt64(deviceId)
         return id
     }
@@ -221,11 +232,17 @@ public struct InputCommandList {
 
 /* need to handle shift / click / release shift / release click */
 public struct ControllerState {
+    public init(buttons: PressedControllerButtons, analogValues: [AnalogId : Int16] = [:], commands: [InputCommand]) {
+        self.buttons = buttons
+        self.analogValues = analogValues
+        self.commands = commands
+    }
+
     public var buttons:PressedControllerButtons //Represents last state
     public var analogValues:[AnalogId:Int16] = [:] //Represents last state
     public var commands:[InputCommand]
     
-    static let blank = ControllerState(buttons: PressedControllerButtons(rawValue: 0), commands: [])
+    public static let blank = ControllerState(buttons: PressedControllerButtons(rawValue: 0), commands: [])
     
     
 }
@@ -235,7 +252,7 @@ extension ControllerState {
 }
 
 public class VirtualController {
-    init(clientId: UInt32, deviceId: UInt32, state: ControllerState, statePrevious: ControllerState) {
+    public init(clientId: UInt32, deviceId: UInt32, state: ControllerState, statePrevious: ControllerState) {
         self.clientId = clientId
         self.deviceId = deviceId
         self.state = state
@@ -247,7 +264,7 @@ public class VirtualController {
     public var state:ControllerState
     public var statePrevious:ControllerState
     
-    func pushCommandList(_ commandList:InputCommandList) {
+    public func pushCommandList(_ commandList:InputCommandList) {
         statePrevious = state //TODO: Hopefully copys
         state.commands = commandList.commands
         for eachCommmand in commandList.commands {
@@ -266,8 +283,4 @@ public class VirtualController {
             }
         }
     }
-}
-
-protocol InputListener {
-    //func inputUpdate(_ controller:Controller)
 }

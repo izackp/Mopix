@@ -8,6 +8,7 @@
 import Foundation
 
 //I need somthing to build off of
+/*
 class SpaceInvaders : Engine {
     
     override func start() {
@@ -17,5 +18,4 @@ class SpaceInvaders : Engine {
     }
     
 }
-
-
+*/

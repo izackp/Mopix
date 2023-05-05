@@ -11,13 +11,17 @@ import SDL2
 
 public final class PTWindow: LiteWindow {
     
-    let engine:PTEngine
     let rendererWrapped:RendererWrapped
+    
+    //
+    var emitter:Emitter
+    var surface:EditableImage
+    var windowSize:Size<Int16> = .zero
     
     init(parent: Application,
                   title: String,
                   frame: Frame<Int>,
-                  engine: PTEngine,
+                  emitter: Emitter? = nil,
                   windowOptions: BitMaskOptionSet<SDLWindow.Option> = [.resizable, .shown],
                   driver: Renderer.Driver = .default,
                   options: BitMaskOptionSet<Renderer.Option> = []) throws {
@@ -29,9 +33,22 @@ public final class PTWindow: LiteWindow {
         let renderer = try Renderer(window: sdlWindow, driver: driver, options: options)
         rendererWrapped = RendererWrapped(renderer: renderer)
         let windowSize = sdlWindow.rendererSize ?? sdlWindow.drawableSize
-        self.engine = engine
-        engine.updateWindowSize(Size(Int16(windowSize.width), Int16(windowSize.height)))
+        let wSize = Size(Int16(windowSize.width), Int16(windowSize.height))
+        self.windowSize = wSize
+        self.emitter = emitter ?? buildEmitter(false)
+        self.surface = try EditableImage(wSize.toInt())
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
+    }
+    
+    func updateWindowSize(_ size:Size<Int16>) {
+        windowSize = size
+        do {
+            try surface.resize(size.toInt())
+        } catch let error as SDLError {
+            print("Error: \(error.debugDescription)")
+        } catch {
+            print("Error: \(error.localizedDescription)")
+        }
     }
     
     public override func handleEvents(_ events:[SDL_Event]) {
@@ -47,6 +64,7 @@ public final class PTWindow: LiteWindow {
     }
 
     public override func draw(time: UInt64) throws {
-        engine.onDraw(rendererWrapped)
+        try? emitter.logic(true, surface, windowSize)
+        rendererWrapped.draw(surface, rect: surface.bounds())
     }
 }
