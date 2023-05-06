@@ -27,11 +27,17 @@ func runTestsMacOs() {
     NSApplication.shared.delegate = delegate
     NSApplication.shared.run()
 }
+
+let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+if isRunningTests {
+    runTestsMacOs()
+    return
+}
 #endif
 
 public func wrapperMain(argc:Int32, argv:UnsafeMutablePointer<UnsafeMutablePointer<Int8>?>?) -> Int32 {
     do {
-        let app = try TestGameApp()
+        let app = try ParticleTestApp()
         try app.runLoop()
     }
     catch let error as SDLError {
@@ -45,20 +51,14 @@ public func wrapperMain(argc:Int32, argv:UnsafeMutablePointer<UnsafeMutablePoint
     return 0
 }
 
-let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
-
-if isRunningTests {
-    #if os(macOS)
-        runTestsMacOs()
-    #endif
-} else {
-    #if os(macOS)
-        let _ = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
-    #elseif os(macOS)
-        SDL_UIKitRunApp(CommandLine.argc, CommandLine.unsafeArgv, wrapperMain)
-    #else
-        SDL_RegisterApp("TestGame", 0, nil)
-        let result = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
-        SDL_UnregisterApp()
-    #endif
-}
+#if os(macOS)
+    let _ = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
+#elseif os(iOS)
+    SDL_UIKitRunApp(CommandLine.argc, CommandLine.unsafeArgv, wrapperMain)
+#elseif os(Windows)
+    SDL_RegisterApp("TestGame", 0, nil)
+    let result = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
+    SDL_UnregisterApp()
+#else
+    let result = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
+#endif

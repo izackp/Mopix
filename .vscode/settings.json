@@ -10,8 +10,10 @@
         "-Xcc",
         "-IC:\\Users\\Isaac\\Documents\\Projects\\swift\\Mopix\\windows_bin\\include",
         "-Xlinker",
-        "-LC:\\Users\\Isaac\\Documents\\Projects\\swift\\Mopix\\windows_bin\\lib\\x64"
+        "-LC:\\Users\\Isaac\\Documents\\Projects\\swift\\Mopix\\windows_bin\\lib\\x64",
+        "-Xlinker",
+        "-debug:dwarf"
     ],
     "swift.diagnostics": true,
-    "lldb.launch.postRunCommands": ["image load -f swiftCore.dll -s 0"]
+    //"lldb.launch.postRunCommands": ["image load -f swiftCore.dll -s 0"]
 }

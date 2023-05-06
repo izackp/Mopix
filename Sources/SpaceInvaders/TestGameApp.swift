@@ -29,9 +29,10 @@ class TestGameApp : Application {
         let options:BitMaskOptionSet<SDLWindow.Option> = []
         #endif
         
-        let newWindow = try LiteWindow(parent: self, title: "My Test Game", frame: frame, windowOptions: options)
+        let newWindow = try CustomWindow(parent: self, title: "My Test Game", frame: frame, windowOptions: options)
         addWindow(newWindow)
         newWindow.parentApp.addFixedListener(scene, msPerTick: 16)
+        newWindow.drawable = scene
     }
     
     

@@ -9,12 +9,13 @@ import SDL2
 import SDL2Swift
 
 public final class CustomWindow: LiteWindow {
+    let rendererWrapped:RendererWrapped
     
     public var rootViewController:ViewController? = nil
     public var rootView:View? = nil
     public let atlas:ImageAtlas
     public let imageManager:SimpleImageManager
-    //var randomImage:Image? = nil
+    public var drawable:IDrawable? = nil
     
     //TODO: Replace options with features; Allow driver to change
     override public init(parent: Application,
@@ -36,6 +37,7 @@ public final class CustomWindow: LiteWindow {
         for eachItem in results {
             imageManager.loadVDFont(eachItem.url)
         }
+        rendererWrapped = RendererWrapped(renderer: renderer, imageManager: imageManager)
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
         //let vc = try UIBuilderController.build(imageManager)
@@ -167,7 +169,7 @@ public final class CustomWindow: LiteWindow {
     }
     
     public override func draw(time: UInt64) throws {
-        
+        drawable?.draw(rendererWrapped)
         let context = UIRenderContext(renderer: renderer, imageManger: imageManager)
         context.currentWindowFrame[context.currentWindowFrame.count - 1] = frame.bounds()
         if let view = rootView {

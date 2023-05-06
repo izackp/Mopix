@@ -15,7 +15,7 @@
       "location" : "https://github.com/izackp/icu-swift.git",
       "state" : {
         "branch" : "master",
-        "revision" : "b41ebb2a8ef5057ef29617207ed9c66330d30177"
+        "revision" : "c621ac5ab87126fab3f68cd56f03a1c3505b5a9d"
       }
     },
     {
@@ -24,7 +24,7 @@
       "location" : "https://github.com/izackp/icu4c-swift",
       "state" : {
         "branch" : "master",
-        "revision" : "900887dac7d58903d86b622fb080e5b3ee667a16"
+        "revision" : "f9715de593309f1e55a5cb993b7ae9403b11467b"
       }
     },
     {

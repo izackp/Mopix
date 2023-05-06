@@ -21,13 +21,15 @@ public class SIScene : IScene, IUpdate, IDrawable {
     var bullets:[Bullet] = []
     var collisionNodes:[CollisionNode2D] = []
     var bounds:Frame<Int> = Frame(x: 0, y: 0, width: 800, height: 600)
+    var isAwake = false
     
     public init() {
-        player.scene = self
-        player.awake()
     }
     
     public func awake() {
+        isAwake = true
+        player.scene = self
+        player.awake()
         bullets.removeAll()
         let startPosX = 40
         let spacingX = 40
@@ -51,6 +53,9 @@ public class SIScene : IScene, IUpdate, IDrawable {
     
     var keyCommands:[InputCommand] = []
     func onEvents(_ events: [SDL_Event]) {
+        if (isAwake == false) {
+            awake()
+        }
         //Wrap sdl_event; add 'use' counter
         for event in events {
             //ignore used events
@@ -62,7 +67,9 @@ public class SIScene : IScene, IUpdate, IDrawable {
     }
     
     public func step(_ delta: UInt64) {
-        
+        if (isAwake == false) {
+            awake()
+        }
         //Input pass; Tbh.. we could process it immediately.. or not. what if we do something different on 2 presses
         //vs 1 press.. yea.. better to batch it
         let list = InputCommandList(clientId: 0, deviceId: 0, commands: keyCommands)

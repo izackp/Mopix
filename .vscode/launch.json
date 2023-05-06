@@ -36,6 +36,7 @@
             "program": "${workspaceFolder:Mopix}\\.build/debug/SpaceInvaders",
             "args": [],
             "cwd": "${workspaceFolder:Mopix}",
+            "console": "internalConsole",
             "preLaunchTask": "swift: Build Debug SpaceInvaders"
         },
         {
@@ -48,6 +49,7 @@
             "program": "${workspaceFolder:Mopix}\\.build/release/SpaceInvaders",
             "args": [],
             "cwd": "${workspaceFolder:Mopix}",
+            "console": "internalConsole",
             "preLaunchTask": "swift: Build Release SpaceInvaders"
         }
     ]
