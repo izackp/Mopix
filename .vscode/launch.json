@@ -10,7 +10,7 @@
             "program": "${workspaceFolder:Mopix}\\.build/debug/ParticleTweenTest",
             "args": [],
             "cwd": "${workspaceFolder:Mopix}",
-            "console": "internalConsole", //See LLDB tab in output for logs
+            "console": "internalConsole",
             "preLaunchTask": "swift: Build Debug ParticleTweenTest"
         },
         {
@@ -25,6 +25,30 @@
             "cwd": "${workspaceFolder:Mopix}",
             "console": "internalConsole",
             "preLaunchTask": "swift: Build Release ParticleTweenTest"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "name": "Debug SpaceInvaders",
+            "program": "${workspaceFolder:Mopix}\\.build/debug/SpaceInvaders",
+            "args": [],
+            "cwd": "${workspaceFolder:Mopix}",
+            "preLaunchTask": "swift: Build Debug SpaceInvaders"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "name": "Release SpaceInvaders",
+            "program": "${workspaceFolder:Mopix}\\.build/release/SpaceInvaders",
+            "args": [],
+            "cwd": "${workspaceFolder:Mopix}",
+            "preLaunchTask": "swift: Build Release SpaceInvaders"
         }
     ]
 }
