@@ -27,11 +27,11 @@ class Player : IVirutalControllerListener {
     }
     
     func awake() {
-        TestGameApp.shared.commandRepeater.addListener(clientId, deviceId, self)
+        scene.commandRepeater.addListener(clientId, deviceId, self)
     }
     
     deinit {
-        TestGameApp.shared.commandRepeater.removeListener(clientId, deviceId, self)
+        scene.commandRepeater.removeListener(clientId, deviceId, self)
     }
     
     func logic() {

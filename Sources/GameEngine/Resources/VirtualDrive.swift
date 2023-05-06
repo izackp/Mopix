@@ -99,7 +99,7 @@ extension IFileSystem {
 }
 
 public class VirtualDrive : IFileSystem {
-    func allItems(_ relPath:String = "", _ recursive:Bool) -> AnyIterator<VDItem> {
+    public func allItems(_ relPath:String = "", _ recursive:Bool) -> AnyIterator<VDItem> {
         var lazySeq = packages.lazy.makeIterator()
         var lastPkg:AnyIterator<VDItem>? = lazySeq.next()?.allItems(relPath, recursive)
         let it = AnyIterator {
@@ -121,9 +121,9 @@ public class VirtualDrive : IFileSystem {
         self.packages = listMountedDirectories
     }
     
-    var packages: [MountedDir] //TODO: Should be prioritized
+    public var packages: [MountedDir] //TODO: Should be prioritized
             
-    func mountPath(path:URL, mountDir:Substring = "/") throws {
+    public func mountPath(path:URL, mountDir:Substring = "/") throws {
         if (path.isFileURL == false) {
             throw GenericError("Url is not a file path \(path.absoluteString)")
         }
@@ -142,7 +142,7 @@ public class VirtualDrive : IFileSystem {
     }
 
     //MARK: IFileSystem
-    func searchByName(_ name:String) -> VDItem? {
+    public func searchByName(_ name:String) -> VDItem? {
         for eachMD in packages {
             if let result = eachMD.searchByName(name) {
                 return result
@@ -152,7 +152,7 @@ public class VirtualDrive : IFileSystem {
     }
     
     //Converts vd:// to a file:// url if possible
-    func resolveToDirectUrl(_ item:VDItem) throws -> URL? {
+    public func resolveToDirectUrl(_ item:VDItem) throws -> URL? {
         let url = item.url
         if (url.scheme != "vd") { return nil } //TODO: We should be able to assume this is the correct url
         let path = url.path
@@ -163,7 +163,7 @@ public class VirtualDrive : IFileSystem {
         return try resolveToDirectUrl(item)
     }
     
-    func itemAt(_ path: String) -> VDItem? {
+    public func itemAt(_ path: String) -> VDItem? {
         for eachMD in packages {
             if let result = eachMD.itemAt(path) {
                 return result
@@ -172,7 +172,7 @@ public class VirtualDrive : IFileSystem {
         return nil
     }
     
-    func itemAt(_ url:URL) -> VDItem? {
+    public func itemAt(_ url:URL) -> VDItem? {
         for eachMD in packages {
             if let result = eachMD.itemAt(url) {
                 return result
@@ -183,7 +183,7 @@ public class VirtualDrive : IFileSystem {
     
     //File ops
     //Null if not found
-    func readFile(_ url:VDUrl) throws -> Data? {
+    public func readFile(_ url:VDUrl) throws -> Data? {
         let path = url.path
         if let host = url.host {
             let pkg = try packages.expectName(host)
@@ -192,7 +192,7 @@ public class VirtualDrive : IFileSystem {
         return readFile(path)
     }
     
-    func readFile(_ path: String) -> Data? {
+    public func readFile(_ path: String) -> Data? {
         for eachMD in packages {
             if let result = try? eachMD.readFile(path) {
                 return result
@@ -201,7 +201,7 @@ public class VirtualDrive : IFileSystem {
         return nil
     }
     
-    func writeFile(_ data:Data, _ url:VDUrl) throws {
+    public func writeFile(_ data:Data, _ url:VDUrl) throws {
         let path = url.path
         if let host = url.host {
             let pkg = try packages.expectName(host)
@@ -210,7 +210,7 @@ public class VirtualDrive : IFileSystem {
         throw GenericError("No package specified.")
     }
     
-    func removeWatcher(_ listener:PackageChangeListener) {
+    public func removeWatcher(_ listener:PackageChangeListener) {
         for eachMD: MountedDir in packages {
             eachMD.stopWatching(listener)
         }

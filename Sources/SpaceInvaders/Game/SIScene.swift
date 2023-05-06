@@ -15,7 +15,7 @@ struct Resources {
 }
 
 
-public class SIScene : IScene, IUpdate, IDrawable {
+public class SIScene : IScene, IUpdate, IDrawable, IEventListener {
     var enemies = EntityPool<Enemy>()
     var player:Player! = Player()
     var bullets:[Bullet] = []
@@ -52,7 +52,7 @@ public class SIScene : IScene, IUpdate, IDrawable {
     
     
     var keyCommands:[InputCommand] = []
-    func onEvents(_ events: [SDL_Event]) {
+    public func onEvents(_ events: [SDL_Event]) {
         if (isAwake == false) {
             awake()
         }
@@ -72,8 +72,10 @@ public class SIScene : IScene, IUpdate, IDrawable {
         }
         //Input pass; Tbh.. we could process it immediately.. or not. what if we do something different on 2 presses
         //vs 1 press.. yea.. better to batch it
-        let list = InputCommandList(clientId: 0, deviceId: 0, commands: keyCommands)
-        commandRepeater.onCommand(list)
+        if (keyCommands.count > 0) {
+            let list = InputCommandList(clientId: 0, deviceId: 0, commands: keyCommands)
+            commandRepeater.onCommand(list)
+        }
         //Remember ordering is important.
         // Lets say this was a multiplayer game.. we need to apply some sorting to the input
         //
@@ -81,7 +83,9 @@ public class SIScene : IScene, IUpdate, IDrawable {
         
         //
         commandRepeater.newTick()
-        keyCommands.removeAll(keepingCapacity: true)
+        if (keyCommands.count > 0) {
+            keyCommands.removeAll(keepingCapacity: true)
+        }
     }
     
     public func logic() {

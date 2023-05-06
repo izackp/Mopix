@@ -5,10 +5,14 @@
 //  Created by Isaac Paul on 4/13/22.
 //
 
+import Foundation
 import GameEngine
 import SDL2Swift
 import SDL2
 
+extension Bundle {
+    public static var SpaceInvaders: Bundle = .module
+}
 
 class TestGameApp : Application {
     
@@ -31,8 +35,16 @@ class TestGameApp : Application {
         
         let newWindow = try CustomWindow(parent: self, title: "My Test Game", frame: frame, windowOptions: options)
         addWindow(newWindow)
-        newWindow.parentApp.addFixedListener(scene, msPerTick: 16)
+        
+        let resources = URL(fileURLWithPath: Bundle.SpaceInvaders.resourcePath!).appendingPathComponent("ExternalFiles")
+        print("Mounting: \(resources)")
+        try vd.mountPath(path: resources)
+        
+        addFixedListener(scene, msPerTick: 16)
+        addEventListener(scene)
         newWindow.drawable = scene
+        
+        
     }
     
     

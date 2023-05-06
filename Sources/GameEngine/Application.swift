@@ -70,7 +70,7 @@ open class Application {
     var listEvent = MutableIteratableArray<IEventListener, EventListener>()
     
     
-    let vd = VirtualDrive.shared
+    public let vd = VirtualDrive.shared
     //var engine:IEngine? = nil
     //var delegate:LGAppDelegate
     var isRunning = true
@@ -96,9 +96,7 @@ open class Application {
         try TTF.initialize()
         //engine.start()
         //let resources = Bundle.main.bundleURL.appendingPathComponent("Contents").appendingPathComponent("Resources")
-        let resources = URL(fileURLWithPath: Bundle.main.resourcePath!)
-        print("Mounting: \(resources)")
-        try vd.mountPath(path: resources)
+
         Application._shared = self
     }
     

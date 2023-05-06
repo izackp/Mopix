@@ -31,7 +31,7 @@ func runTestsMacOs() {
 let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 if isRunningTests {
     runTestsMacOs()
-    return
+    //return
 }
 #endif
 

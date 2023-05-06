@@ -71,10 +71,7 @@ let package = Package(
                 "GameEngine"
             ],
             resources: [
-                .copy("ExternalFiles/bullet.bmp"),
-                .copy("ExternalFiles/oryx_16bit_scifi_vehicles_105.bmp"),
-                .copy("ExternalFiles/oryx_16bit_scifi_vehicles_189.bmp"),
-                .copy("ExternalFiles/Roboto-Medium.ttf")
+                .copy("ExternalFiles")
             ],
             swiftSettings: optimize
         ),
