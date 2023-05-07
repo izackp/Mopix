@@ -166,7 +166,9 @@ open class LiteWindow : IUpdate, IEventListener {
         
     }
     open func drawFinish() {
-        renderer.present()
+        parentApp.stats.measure("Present") {
+            renderer.present()
+        }
     }
     
     func close() {

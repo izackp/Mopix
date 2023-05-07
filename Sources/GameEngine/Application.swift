@@ -226,11 +226,13 @@ open class Application {
                         let deltaTicks = currentTick - eachUpdateListener.lastTick
                         if (deltaTicks > 0) {
                             readEvents()
+                            stats.insertSample("delta", Double(deltaTicks)/1000)
                             eachUpdateListener.listener.step(deltaTicks)
                             eachUpdateListener.lastTick = currentTick
                         }
                     }
                 }
+            stats.printStats()
                 
                 /*
                 stats.measure("poll 2") {

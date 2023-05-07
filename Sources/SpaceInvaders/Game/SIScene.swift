@@ -88,6 +88,7 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener {
         }
     }
     
+    var state = 0 // 0 none, 1 logic, 2 drawn
     public func logic() {
         enemies.insertPending()
         enemies.forEach { (eachEnemy:inout Enemy) in
@@ -104,6 +105,7 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener {
                 eachBullet.logic(self)
             }
         }
+        state = 1
     }
     
     //Scenes don't need to draw
@@ -111,6 +113,7 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener {
     //Can't use texture backed resources
     //So we use strings as references.
     public func draw(_ renderer: RendererWrapped) {
+        //if (state == 2) { return }
         //let bullet = imageManager.image(named: "bullet.bmp")
         //let playerSprite = imageManager.image(named: "oryx_16bit_scifi_vehicles_105.bmp")
         //let enemySprite = imageManager.image(named: "oryx_16bit_scifi_vehicles_189.bmp")
@@ -130,5 +133,6 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener {
         
         dest.origin = player.pos
         renderer.draw(Resources.oryx_16bit_scifi_vehicles_105, rect: dest)
+        state = 2
     }
 }

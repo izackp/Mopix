@@ -88,7 +88,7 @@ public class Stats {
             let highest = toStrSmart(values.highest)
             let lowest = toStrSmart(values.lowest)
             let last = toStrSmart(values.last)
-            print("  \(average) \(highest) \(lowest) \(last) - \(kvp.key)")
+            print("  Avg: \(average) High: \(highest) Low: \(lowest) Last: \(last) - \(kvp.key)")
         }
         stats.removeAll(keepingCapacity: true)
     }
