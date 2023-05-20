@@ -17,14 +17,21 @@ class Enemy {
     var collisionNode = CollisionNode2D(x: 0, y: 0, width: 24, height: 24)
     var isAlive = false
     
-    func logic() {
-        if (numSteps == 10) {
-            direction = -1
-        } else if (numSteps == -10) {
-            direction = 1
-        }
-        let moveSpeed = 2
+    func logic(_ delta: UInt64) {
+        let moveSpeed = 1 * Int(delta >> 2)
         pos.x += moveSpeed * direction
-        numSteps += direction
+        numSteps += moveSpeed * direction
+        
+        if (numSteps > 40) {
+            direction = -1
+            let diff = (numSteps - 40) * -1
+            numSteps += diff
+            pos.x += diff
+        } else if (numSteps < -40) {
+            direction = 1
+            let diff = (numSteps + 40) * -1
+            numSteps += diff
+            pos.x += diff
+        }
     }
 }

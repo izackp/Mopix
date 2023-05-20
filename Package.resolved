@@ -28,15 +28,6 @@
       }
     },
     {
-      "identity" : "sdl",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/izackp/SDL.git",
-      "state" : {
-        "branch" : "master",
-        "revision" : "af78e82965862fbd53b564fbe8ddbb97947c069e"
-      }
-    },
-    {
       "identity" : "xorswift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/t-ae/xorswift",

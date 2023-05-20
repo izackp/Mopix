@@ -9,7 +9,7 @@ import SDL2
 import SDL2Swift
 
 public final class CustomWindow: LiteWindow {
-    let rendererWrapped:RendererWrapped
+    let rendererWrapped:BatchRenderer
     
     public var rootViewController:ViewController? = nil
     public var rootView:View? = nil
@@ -37,7 +37,7 @@ public final class CustomWindow: LiteWindow {
         for eachItem in results {
             imageManager.loadVDFont(eachItem.url)
         }
-        rendererWrapped = RendererWrapped(renderer: renderer, imageManager: imageManager)
+        rendererWrapped = BatchRenderer(renderer: renderer, imageManager: imageManager)
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
         //let vc = try UIBuilderController.build(imageManager)

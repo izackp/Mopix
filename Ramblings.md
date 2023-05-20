@@ -80,3 +80,38 @@ Anything else will require some sort of indirection.
 
 Thoooo I would to treat pieces of entities as hardwired components. More importantly..
 Nevermind all this. I'm just going to get it working then figure it out afterwards
+
+
+//Only for drawing
+//var lastPos: Point<Int>
+//Ok so if we do rollbacks..
+//Draw server will call draw on the world before logic
+//Then call logic(delta)
+//Draw server will call draw again
+//We're going to need to keep the previous draw list
+// Logic calculates where we should be?
+// One problem we're trying to solve/reduce is jitter
+// if we draw at 60hz but logic is 50hz a handfull of frames will have no changes. (jitter)
+// Assuming logic hz <= draw hz ; input -> step -> draw -> draw -> input -> step -> draw
+// step _can_ describe where everything will be of x time.
+// Tap a to jump.. step (16ms) -> draw (5ms) -> draw(15ms; 21ms total) // We can't draw the future?
+// Tap a to jump.. step (16ms) -> draw (5ms) -> draw(8.33ms; 13.33ms total) // works but we need to limit this
+// Lets say jumping is this: prep frame (16ms) -> -42 y (64ms) + Upper jump sprite
+//From the a press to the prep frame this is going to be a delay of 16ms at least
+//We can't draw what we want (immediately) because of jitter. oorrr??
+// so jitter is a screen position thing... _not_ an animation thing.
+//We can immediately draw what we want here.. and even give an animation timeline
+// Tap a to jump.. step 1.. step 2 (16ms) -> draw (5ms) -> draw(8.33ms; 13.33ms total)
+//Here on step 2 we move up. The first draw will draw us moving to -42, the second will be almost there.
+//Lets say on step 3 we go down... the third will never reach the -42 height be we would have interpoliated through it
+//This is weird because imagine never seeing a collision. Since we're already moving away by the time we draw
+//We can force the game loop to draw the frame as if we reached the exact expected time..
+//Then we end up with a less form of jitter?
+
+//What if logic is very slow. Logic gives us where we will be in 200ms
+//There will be a 0-200 ms + frame_ratehz input delay.. press a to jump so 200+ms to where we want to be
+//The other extreme has the same input delay
+
+//What I'm most worried about are fighting games. If we never want to miss a frame. Logic will definitely need to be faster than hz. Or maybe that's not possible. Because we could end up with < 1ms to do logic before the next frame is needed.
+// In this case.. I think we can pass in not delta time but the target time. .. or nothing at all? if we have a frame that we need to display at 16ms its going to show. If logic dictates we need to display a frame immediately we will soon enough anways.. So what it comes down to.. your input might be delayed a frame because logic couldn't run fast enough.
+// Or would it? you see frame 3 -> tap a ..  Nah this whole thing is a mess. I think we would need a special 'frame perfect mode' where logic would have to be faster than frame rate, but tick rate

@@ -18,7 +18,8 @@ let package = Package(
         .executable(name: "ParticleTweenTest", targets: ["ParticleTest"])
     ],
     dependencies: [
-        .package(url: "https://github.com/izackp/SDL.git", branch: "master"),
+        .package(path: "/Users/isaacpaul/Projects/swift-projects/SDL"),
+        //.package(url: "https://github.com/izackp/SDL.git", branch: "master"),
         .package(url: "https://github.com/eonil/FSEvents.git", from:"0.1.7"),
         .package(url: "https://github.com/izackp/icu-swift.git", branch: "master"),
         .package(url: "https://github.com/t-ae/xorswift", from: "3.0.0")

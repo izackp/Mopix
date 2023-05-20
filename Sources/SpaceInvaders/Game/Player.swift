@@ -34,9 +34,16 @@ class Player : IVirutalControllerListener {
         scene.commandRepeater.removeListener(clientId, deviceId, self)
     }
     
-    func logic() {
-        pos.x += vel.x
-        pos.y += vel.y
+    func logic(_ delta:UInt64) {
+        //NOTE: The slowest you can go is 1 per ms.. otherwise using ints we truncate the value and lose determinism
+        //We can go slower by using a lower resolution delta.. but its obviously not good
+        //The only solution is storing a fixed point
+        //Or guaranteeing delta is a multiple of 2; Because we can just do delta >> 1
+        //for each multiple we can guarantee the higher we can shift. 2 == 1, 4 == 2, 8 == 3
+        //Not sure what to do with this information.. or what kind of assumptions you can make.
+        //I originally wanted to tick at 16, but lets say I decided 20.. it would cause issues if I shifted by 3
+        pos.x += vel.x * Int(delta >> 2)
+        pos.y += vel.y * Int(delta >> 2) //Now velocity is 1 per 4ms
     }
     
     func onInput(_ controller: VirtualController) {
@@ -48,8 +55,8 @@ class Player : IVirutalControllerListener {
             
             if (eachCommand.value == 1) {
                 switch (button) {
-                case ButtonId.dpadLeft: vel.x = -3; break
-                case ButtonId.dpadRight: vel.x = 3; break
+                case ButtonId.dpadLeft: vel.x = -1; break
+                case ButtonId.dpadRight: vel.x = 1; break
                 default: break
                 }
             } else {

@@ -17,8 +17,8 @@ class Bullet {
     var collisionNode:CollisionNode2D = CollisionNode2D(x: 0, y: 0, width: 10, height: 10)
     var isAlive = false
     
-    func logic(_ scene:SIScene) {
-        pos = pos + vec
+    func logic(_ scene:SIScene, _ delta: UInt64) {
+        pos = pos + (vec * Int(delta))
         collisionNode.x = pos.x
         collisionNode.y = pos.y
         if (scene.bounds.collides(collisionNode) == false) {

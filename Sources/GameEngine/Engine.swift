@@ -12,7 +12,7 @@ public protocol IEngine {
     func start()
     func onCommand( _ list:InputCommandList)
     func onLogic()
-    func onDraw(_ renderer:RendererWrapped)
+    //func onDraw(_ renderer:RendererWrapped)
 }
 
 
@@ -33,11 +33,11 @@ public class Engine : IEngine {
     
     open func onLogic() {
         for eachScene in scenes {
-            eachScene.logic()
+            eachScene.logic(0)
         }
     }
     
-    open func onDraw(_ renderer:RendererWrapped) {
+    open func onDraw(_ renderer:BatchRenderer) {
         for eachScene in scenes {
             eachScene.draw(renderer)
         }

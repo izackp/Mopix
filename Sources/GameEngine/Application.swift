@@ -92,7 +92,7 @@ open class Application {
         //NOTE: Present via metal is .. slow? taking 32+ms
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl")
         
-        try SDL.initialize(subSystems: [.video])
+        try SDL.initialize([.video])
         try TTF.initialize()
         //engine.start()
         //let resources = Bundle.main.bundleURL.appendingPathComponent("Contents").appendingPathComponent("Resources")
@@ -104,6 +104,14 @@ open class Application {
         TTF.quit()
         SDL.quit()
     }
+    /*
+     public let startTime:UInt64
+     public func getTimeInMicroSeconds() -> UInt64 {
+         let perSec = SDL_GetPerformanceFrequency()
+         let perMicroSecond = (perSec / 1000000)
+         let delta = SDL_GetPerformanceCounter()
+         return delta / perMicroSecond
+     }*/
     
     //TODO: Do not allow on platforms with a set number of screens
     public func addWindow() throws -> LiteWindow {

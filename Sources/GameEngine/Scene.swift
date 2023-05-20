@@ -8,8 +8,8 @@
 import SDL2Swift
 public protocol IScene {
     func awake()
-    func logic()
-    func draw(_ renderer:RendererWrapped)
+    func logic(_ delta:UInt64)
+    func draw(_ renderer:BatchRenderer)
 }
 /*
 public class Scene {

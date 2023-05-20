@@ -12,7 +12,7 @@ import SDL2Swift
 public typealias SDLWindow = SDL2Swift.Window
 
 public protocol IDrawable {
-    func draw(_ renderer:RendererWrapped)
+    func draw(_ renderer:BatchRenderer)
 }
 
 /*
