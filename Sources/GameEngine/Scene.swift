@@ -6,10 +6,9 @@
 //
 
 import SDL2Swift
-public protocol IScene {
+public protocol IScene : IDrawable {
     func awake()
     func logic(_ delta:UInt64)
-    func draw(_ renderer:BatchRenderer)
 }
 /*
 public class Scene {

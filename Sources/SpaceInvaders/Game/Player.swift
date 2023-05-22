@@ -19,6 +19,7 @@ class Player : IVirutalControllerListener {
     var vel = Vector<Int>.zero
     var clientId:UInt32 = 0
     var deviceId:UInt32 = 0
+    let uuid = Xoroshiro.shared.randomBytes()
     weak var scene:SIScene!
     
     func onInit(_ clientId:UInt32, _ deviceId:UInt32) {

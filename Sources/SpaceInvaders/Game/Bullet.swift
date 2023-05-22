@@ -16,6 +16,7 @@ class Bullet {
     var vec: Vector<Int>
     var collisionNode:CollisionNode2D = CollisionNode2D(x: 0, y: 0, width: 10, height: 10)
     var isAlive = false
+    let uuid = Xoroshiro.shared.randomBytes()
     
     func logic(_ scene:SIScene, _ delta: UInt64) {
         pos = pos + (vec * Int(delta))

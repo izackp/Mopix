@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  FullWindow.swift
 //  
 //
 //  Created by Isaac Paul on 4/23/23.
@@ -8,8 +8,9 @@
 import SDL2
 import SDL2Swift
 
-public final class CustomWindow: LiteWindow {
-    let rendererWrapped:BatchRenderer
+public final class FullWindow: LiteWindow {
+    let renderServer:RendererServer
+    public let renderClient:RendererClient
     
     public var rootViewController:ViewController? = nil
     public var rootView:View? = nil
@@ -37,7 +38,8 @@ public final class CustomWindow: LiteWindow {
         for eachItem in results {
             imageManager.loadVDFont(eachItem.url)
         }
-        rendererWrapped = BatchRenderer(renderer: renderer, imageManager: imageManager)
+        renderServer = RendererServer(renderer: renderer, imageManager: imageManager)
+        renderClient = RendererClient([], renderServer)
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
         //let vc = try UIBuilderController.build(imageManager)
@@ -52,7 +54,9 @@ public final class CustomWindow: LiteWindow {
         
     }
     
+    var drawCount = 0
     public override func drawStart() throws {
+        drawCount = 0
         try super.drawStart()
         rootViewController?.drawStart()
     }
@@ -167,11 +171,24 @@ public final class CustomWindow: LiteWindow {
             }
         }
     }
-    
+
+    public override func drawFinish() {
+        super.drawFinish()
+        if (drawCount == 0) {
+            print("wth")
+        }
+    }
+
+    var totalDrawTime:UInt64 = 0
     public override func draw(time: UInt64) throws {
-        drawable?.draw(rendererWrapped)
+        totalDrawTime += time
+        renderClient.clearCommands()
+        drawable?.draw(time, renderClient)
+        renderClient.sendCommands()
         let context = UIRenderContext(renderer: renderer, imageManger: imageManager)
         context.currentWindowFrame[context.currentWindowFrame.count - 1] = frame.bounds()
+        drawCount = renderServer._futureCmdList.count
+        renderServer.draw(totalDrawTime - 100)
         if let view = rootView {
             try view.draw(context, view.frame)
         }

@@ -8,6 +8,20 @@
 import Foundation
 import SDL2
 
+public extension BinaryFloatingPoint {
+    func lerp(_ older:Self, _ percent:Float) -> Self {
+        let diff = self - older
+        let result = Float(diff) * percent
+        return Self(result)
+    }
+
+    func lerp(_ older:Self, _ percent:Double) -> Self {
+        let diff = self - older
+        let result = Double(diff) * percent
+        return Self(result)
+    }
+}
+
 public struct Line1D<T: Codable & Numeric>: Equatable, Codable {
     public init(begin: T, length: T) {
         self.begin = begin
@@ -174,6 +188,22 @@ public struct Point<T: Codable & Numeric & Hashable>: Equatable, Codable, Hashab
     }
 }
 
+public extension BinaryInteger {
+    func lerp(_ older:Self, _ percent:Float) -> Self {
+        let diff = self - older
+        let result = Float(diff) * percent
+        return Self(result) + older
+    }
+}
+
+public extension Point where T: BinaryInteger {
+    func lerp(_ older:Point<T>, _ percent:Float) -> Point<T>{
+        let newX = x.lerp(older.x, percent)
+        let newY = y.lerp(older.y, percent)
+        return Point<T>(newX, newY)
+    }
+}
+
 public struct Vector<T: Codable & Numeric>: Equatable{
     public var x:T
     public var y:T
@@ -224,6 +254,14 @@ public extension Vector where T : FloatingPoint {
     }
 }
 
+public extension Vector where T: BinaryInteger {
+    func lerp(_ older:Vector<T>, _ percent:Float) -> Vector<T>{
+        let newX = x.lerp(older.x, percent)
+        let newY = y.lerp(older.y, percent)
+        return Vector<T>(newX, newY)
+    }
+}
+
 //TODO: Not public? 
 extension Vector : Comparable where T == Float  {
     public static func < (lhs: Vector<T>, rhs: Vector<T>) -> Bool {
@@ -271,8 +309,13 @@ extension Size where T : BinaryInteger {
     public func toInt() -> Size<Int> {
         return Size<Int>(Int(width), Int(height))
     }
-}
 
+    func lerp(_ older:Size<T>, _ percent:Float) -> Size<T>{
+        let newWidth = width.lerp(older.width, percent)
+        let newHeight = height.lerp(older.height, percent)
+        return Size<T>(newWidth, newHeight)
+    }
+}
 
 public extension Size<DValue> {
     func aspectFitScale(_ toSize:Size<DValue>) -> Float {
@@ -408,6 +451,13 @@ extension Frame where T: BinaryInteger {
         if (point.y > bottom) { return false }
         return true
     }
+
+    public func lerp(_ older:Frame<T>, _ percent:Float) -> Frame<T> {
+        let newOrigin = origin.lerp(older.origin, percent)
+        let newSize = size.lerp(older.size, percent)
+        return Frame(origin: newOrigin, size: newSize)
+    }
+
 }
 
 //TODO: Change Name to Rect; What is the best way to name some of these properties?

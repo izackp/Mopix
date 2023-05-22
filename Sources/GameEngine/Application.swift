@@ -90,7 +90,7 @@ open class Application {
         CodableTypeResolver.resolve = { try TypeMap.customDecodeSwitch($0) }
         //Note: automatically initializes the Event Handling, File I/O and Threading subsystems
         //NOTE: Present via metal is .. slow? taking 32+ms
-        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl")
+        //SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl")
         
         try SDL.initialize([.video])
         try TTF.initialize()
@@ -273,7 +273,7 @@ open class Application {
                         try eachWindow.drawStart()
                         if (isFirst) {
                             /*
-                            if let window = eachWindow as? CustomWindow { //Hack: Until I figure out the api between the two; ideally the engine can run without a renderer or knowledge of.
+                            if let window = eachWindow as? FullWindow { //Hack: Until I figure out the api between the two; ideally the engine can run without a renderer or knowledge of.
                                 stats.measure("engine - draw") {
                                     engine.onDraw(eachWindow.renderer, window.imageManager) //TODO: I'm not sure how to tie the window to the engine.. lol
                                 }

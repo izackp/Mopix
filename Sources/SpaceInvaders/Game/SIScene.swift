@@ -20,8 +20,7 @@ struct ResourceIds {
     var bullet:UInt64 = 0
 }
 
-
-public class SIScene : IScene, IUpdate, IDrawable, IEventListener {
+public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCache {
 
     var enemies = EntityPool<Enemy>()
     var player:Player! = Player()
@@ -56,7 +55,14 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener {
         player.pos = Point(250, 400)
     }
     
-    func loadResources(_ renderer:BatchRenderer) {
+    
+    public func invalidateCache(_ client:RendererClient) {
+        resourceIds.bullet = 0
+        resourceIds.oryx_16bit_scifi_vehicles_105 = 0
+        resourceIds.oryx_16bit_scifi_vehicles_189 = 0
+    }
+
+    public func loadResources(_ renderer:RendererClient) {
         let results = renderer.loadResources([
             Resources.bullet,
             Resources.oryx_16bit_scifi_vehicles_105,
@@ -65,9 +71,14 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener {
         resourceIds.oryx_16bit_scifi_vehicles_105 = results[1]
         resourceIds.oryx_16bit_scifi_vehicles_189 = results[2]
     }
+
+    public func unloadResources(_ renderer:RendererClient) {
+        let items = [resourceIds.bullet, resourceIds.oryx_16bit_scifi_vehicles_105, resourceIds.oryx_16bit_scifi_vehicles_189]
+        renderer.unloadResources(items)
+        invalidateCache(renderer)
+    }
     
     var commandRepeater:CommandRepeater = CommandRepeater()
-    
     
     var keyCommands:[InputCommand] = []
     public func onEvents(_ events: [SDL_Event]) {
@@ -124,7 +135,7 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener {
     //Can't use texture backed resources
     //So we use ids/strings as references.
     var didLoad = false
-    public func draw(_ renderer: BatchRenderer2) {
+    public func draw(_ delta:UInt64, _ renderer: RendererClient) {
         if (didLoad == false) {
             loadResources(renderer)
             didLoad = true
@@ -134,18 +145,19 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener {
         for eachBullet in bullets {
             if (eachBullet.isAlive) {
                 dest.origin = eachBullet.pos
-                renderer.draw(resourceIds.bullet, rect: dest)
+                renderer.draw(eachBullet.uuid, resourceIds.bullet, dest)
             }
         }
         enemies.forEach { (eachEnemy:inout Enemy) in
             if (eachEnemy.isAlive) {
                 dest.origin = eachEnemy.pos
-                renderer.draw(resourceIds.oryx_16bit_scifi_vehicles_189, rect: dest)
+                renderer.draw(eachEnemy.uuid, resourceIds.oryx_16bit_scifi_vehicles_189, dest)
+                return;
             }
         }
         
         dest.origin = player.pos
-        renderer.draw(resourceIds.oryx_16bit_scifi_vehicles_105, rect: dest)
+        renderer.draw(player.uuid, resourceIds.oryx_16bit_scifi_vehicles_105, dest)
         state = 2
     }
 }

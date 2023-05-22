@@ -134,7 +134,7 @@ public class UIBuilderController : ViewController, PackageChangeListener {
     public func fileChanges(_ files: [VDItem]) {
         do {
             if let _ = files.first(where: {$0.url == _source}),
-               let window = view.findWindow() as? CustomWindow {
+               let window = view.findWindow() as? FullWindow {
                 
                 let newVC = try UIBuilderController.build(window.imageManager)
                 window.setRootViewController(newVC)

@@ -101,7 +101,39 @@ public struct DrawCmdImage {
     let rotation:Float
     let rotationPoint:Point<Int> //point where to rotate
     let alpha:Float
+    let time:UInt64
 }
+
+public extension DrawCmdImage {
+    func lerp(_ oldCmd:DrawCmdImage, _ currentTime:UInt64) -> DrawCmdImage {
+        let diff = time - oldCmd.time
+        if (diff == 0) { return self }
+        let offset = currentTime - oldCmd.time
+        if (offset == 0) { return oldCmd }
+
+        let offsetF = Float(offset)
+        let diffF = Float(diff)
+        let percent:Float
+        if (offsetF >= diffF) {
+            percent = 1
+        } else {
+            percent = Float(offset) / Float(diff)
+        }
+
+        let result = DrawCmdImage(
+            animationId: animationId, 
+            resourceId: resourceId, 
+            dest: dest.lerp(oldCmd.dest, percent), 
+            z: z.lerp(oldCmd.z, percent), 
+            rotation: rotation.lerp(oldCmd.rotation, percent), 
+            rotationPoint: rotationPoint.lerp(oldCmd.rotationPoint, percent), 
+            alpha: alpha.lerp(oldCmd.alpha, percent), 
+            time: oldCmd.time + offset) //NOTE: time lerp not really needed...
+        return result
+    }
+}
+
+public typealias RendererServer = BatchRenderer
 
 public class BatchRenderer {
     
@@ -163,14 +195,53 @@ public class BatchRenderer {
         let image = imageManager.image(imageUrl)
         image?.draw(renderer, rect.sdlRect(), color)
     }
-    
-    public func draw(_ id:UInt64, rect:Frame<Int>, _ color:SDLColor = SDLColor.white, z:Int = 1, rotation:Float = 0, rotationPoint:Point<Int> = .zero, alpha:Float = 1) {
-        //let image = _idImageCache[id]
-        //image?.draw(renderer, rect.sdlRect(), color)
-        _futureCmdList.append(DrawCmdImage(animationId: 0, resourceId: id, dest: rect, z: z, rotation:rotation, rotationPoint:rotationPoint, alpha:alpha))
+
+    public func draw(_ command:DrawCmdImage) {
+        guard let image = self._idImageCache[command.resourceId] else { return }
+        let source = image.getSource()
+        renderer.draw(source, command.dest.sdlRect(), command.color)
+    }
+
+    //TODO: Sort
+    //TODO: interpolate
+    public func receiveCmds(_ list:[DrawCmdImage]) {
+        var oldList = self._lastCmdList
+        self._lastCmdList = _futureCmdList
+        oldList.removeAll(keepingCapacity: true)
+        oldList.append(contentsOf: list)
+        self._futureCmdList = oldList
+    }
+
+    func draw(_ time:UInt64) {
+        let interpolated = _futureCmdList.map() {
+            let id = $0.animationId
+            if (id == 0) {
+                return $0
+            }
+            let matching = _lastCmdList.first(where: { $0.animationId == id })
+            if let matching = matching {
+                return $0.lerp(matching, time)
+            } else {
+                return $0
+            }
+        }
+        if (interpolated.count == 0) {
+            print("wth")
+        }
+
+        for eachItem in interpolated {
+            draw(eachItem)
+        }
     }
     
-    func drawAllCommands() {
+    /*
+    public func draw(_ id:UInt64, rect:Frame<Int>, _ color:SDLColor = SDLColor.white, z:Int = 1, rotation:Float = 0, rotationPoint:Point<Int> = .zero, alpha:Float = 1,) {
+        //let image = _idImageCache[id]
+        //image?.draw(renderer, rect.sdlRect(), color)
+        _futureCmdList.append(DrawCmdImage(animationId: 0, resourceId: id, dest: rect, z: z, rotation:rotation, rotationPoint:rotationPoint, alpha:alpha, time:time))
+    }*/
+    
+    func present() {
         
     }
     
@@ -209,19 +280,84 @@ public class BatchRenderer {
     }
 }
 
+public protocol IResourceCache {
+    //Called when references go bad
+    func invalidateCache(_ client:RendererClient)
+
+    //
+    func loadResources(_ client:RendererClient)
+    func unloadResources(_ client:RendererClient)
+}
+
+//The seperation just allows my brain to work for some reason
+//I probably can make this a protocol but we're doing this for now
 public class RendererClient {
-    public init(cmdList: [DrawCmdImage] = []) {
-        self.cmdList = cmdList
-    }
-    
     
     var cmdList:[DrawCmdImage] = []
+    let server:RendererServer
+    var cacheList = WeakArray<IResourceCache>()
+    public var defaultTime:UInt64 = 0
+
+    public init(_ cmdList: [DrawCmdImage] = [], _ server:RendererServer) {
+        self.cmdList = cmdList
+        self.server = server
+    }
+
+    public func addResourceCache(_ cache: IResourceCache) {
+        //TODO: Assert unique
+        //TODO: Maybe not a protocol but a class.. so we can hold onto it and clean it up automatically if it the owner goes out of scope
+        cacheList.append(cache)
+        cache.loadResources(self)
+        cacheList.clean()
+    }
+    
+    public func removeResourceCache(_ cache: IResourceCache) {
+        cacheList.remove(element: cache)
+        cache.unloadResources(self)
+        cacheList.clean()
+    }
+
+    func needsReload() {
+        cacheList.clean()
+        for eachItem in cacheList {
+            eachItem?.invalidateCache(self)
+            eachItem?.loadResources(self)
+        }
+    }
     
     //MARK: -
-    
-    public func draw(_ id:UInt64, rect:Frame<Int>, _ color:SDLColor = SDLColor.white, z:Int = 1, rotation:Float = 0, rotationPoint:Point<Int> = .zero, alpha:Float = 1) {
+    public func draw(_ id:UInt64, _ resourceId:UInt64, _ rect:Frame<Int>, _ color:SDLColor = SDLColor.white, _ z:Int = 1, _ rotation:Float = 0, _ rotationPoint:Point<Int> = .zero, _ alpha:Float = 1, _ relTime:UInt64 = 0) {
         //let image = _idImageCache[id]
         //image?.draw(renderer, rect.sdlRect(), color)
-        cmdList.append(DrawCmdImage(animationId: 0, resourceId: id, dest: rect, z: z, rotation:rotation, rotationPoint:rotationPoint, alpha:alpha))
+        let time = relTime + defaultTime
+        cmdList.append(DrawCmdImage(animationId: id, resourceId: resourceId, dest: rect, z: z, rotation:rotation, rotationPoint:rotationPoint, alpha:alpha, time:time))
+    }
+
+    //MARK: -
+    public func loadResource(_ url:VDUrl) -> UInt64 {
+        return server.loadResource(url)
+    }
+    
+    public func unloadResource(_ id:UInt64) {
+        return server.unloadResource(id)
+    }
+    
+    public func loadResources(_ urlList:[VDUrl]) -> [UInt64] {
+        return server.loadResources(urlList)
+    }
+    
+    public func unloadResources(_ idList:[UInt64]) {
+        return server.unloadResources(idList)
+    }
+
+    //MARK: -
+    public func clearCommands() {
+        cmdList.removeAll(keepingCapacity: true)
+    }
+
+    public func sendCommands() {
+        if (cmdList.count > 0) {
+            server.receiveCmds(cmdList)
+        }
     }
 }

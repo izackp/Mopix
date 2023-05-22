@@ -16,6 +16,7 @@ class Enemy {
     var direction = 1
     var collisionNode = CollisionNode2D(x: 0, y: 0, width: 24, height: 24)
     var isAlive = false
+    let uuid = Xoroshiro.shared.randomBytes()
     
     func logic(_ delta: UInt64) {
         let moveSpeed = 1 * Int(delta >> 2)
