@@ -12,6 +12,8 @@ public class SingleStat {
     var highest:Double = 0
     var lowest:Double = 999 //No Double.max ??
     var last:Double = 0
+    var limit:Double = 0
+    var limitBreak:Double = 0
 
     func toSeconds(_ time:UInt64) -> Double {
         return Double(time) / Double(SDL_GetPerformanceFrequency())
@@ -52,6 +54,9 @@ public class SingleStat {
         }
         if (lowest > value) {
             lowest = value
+        }
+        if (value > limit && limit != 0) {
+            limitBreak += 1
         }
         last = value
     }

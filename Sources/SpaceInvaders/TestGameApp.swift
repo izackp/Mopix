@@ -64,13 +64,7 @@ class EngineWrapped : IUpdate, IDrawable {
     let scene:SIScene
     var totalTime:UInt64 = 0
     var pacing:UInt64 = 0
-    /*
-    let client:RendererClient
-    
-    init(scene: SIScene, client: RendererClient) {
-        self.scene = scene
-        self.client = client
-    }*/
+
     init(scene: SIScene) {
         self.scene = scene
     }
@@ -91,17 +85,6 @@ class EngineWrapped : IUpdate, IDrawable {
             scene.draw(delta, renderer) //16ms
             changes = false
         }
-    }
-}
-
-class Forwarder:IUpdate {
-    let cb:(_ delta: UInt64)->()
-    
-    init(cb: @escaping (UInt64) -> ()) {
-        self.cb = cb
-    }
-    func step(_ delta: UInt64) {
-        cb(delta)
     }
 }
 
@@ -136,7 +119,6 @@ class TestGameApp : Application {
         try vd.mountPath(path: resources)
 
         let engine = EngineWrapped(scene: scene)
-        //let forwarder = Forwarder() { engine.draw($0) }
         
         addFixedListener(engine, msPerTick: 100)
         addEventListener(scene)

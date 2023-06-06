@@ -14,6 +14,9 @@
         "-Xlinker",
         "-debug:dwarf"
     ],
-    "swift.diagnostics": true,
+    //"swift.diagnostics": true,
+    //"lldb.verboseLogging": true,
+    //"lldb.launch.terminal": "integrated",
+    //"lldb.launch.stdio": null
     //"lldb.launch.postRunCommands": ["image load -f swiftCore.dll -s 0"]
 }

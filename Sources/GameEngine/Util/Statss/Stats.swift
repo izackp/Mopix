@@ -15,9 +15,10 @@ public class Stats {
     var printDelay:UInt64 = 10
     var lastPrint:UInt64 = 0
     
-    public func measure(_ name:String, _ block:() throws ->()) rethrows {
+    public func measure(_ name:String, _ limit:Double = 0, _ block:() throws ->()) rethrows {
         if (enabled) {
             let stat = stats.fetchOrInsert(name, {SingleStat()})
+            stat.limit = limit
             try stat.measure(block)
         } else {
             try block()
@@ -88,7 +89,11 @@ public class Stats {
             let highest = toStrSmart(values.highest)
             let lowest = toStrSmart(values.lowest)
             let last = toStrSmart(values.last)
-            print("  Avg: \(average) High: \(highest) Low: \(lowest) Last: \(last) - \(kvp.key)")
+            if (values.limit > 0) {
+                print("  Avg: \(average) High: \(highest) Low: \(lowest) Last: \(last) Limit: \(values.limitBreak) - \(kvp.key)")
+            } else {
+                print("  Avg: \(average) High: \(highest) Low: \(lowest) Last: \(last) - \(kvp.key)")
+            }
         }
         stats.removeAll(keepingCapacity: true)
     }
