@@ -27,7 +27,8 @@ public protocol IParticleBacking {
     func debugInfo() -> String
 }
 
-public class Emitter {
+public class Emitter : IDrawable {
+
     var _life:ClosedRange<Int> = 0...0
     var _startColor:ClosedRange<ARGB32> = 0...0
     var _endColor:ClosedRange<ARGB32> = 255...255
@@ -166,6 +167,38 @@ public class Emitter {
     public func drawParticles(_ surface:EditableImage, _ windowSize:Size<Int16>) throws {
         let otherSize = Size<Int>(Int(windowSize.width), Int(windowSize.height))
         try _backing.drawParticles(surface, otherSize)
+    }
+    
+    private var _existingImage:EditableImage? = nil
+    private var _id:UInt64? = nil
+    
+    func getEditableImage(_ size:Size<Int>, _ renderer: GameEngine.RendererClient) throws -> (EditableImage, UInt64) {
+        if let existing = _existingImage {
+            return (existing, _id!)
+        }
+        let image = try EditableImage(size)
+        try image.fill(color: SDLColor.clear)
+        let id = try renderer.loadResource(image)
+        _existingImage = image
+        _id = id
+        return (image, id)
+    }
+    
+    public func draw(_ delta: UInt64, _ renderer: GameEngine.RendererClient) {
+        if (renderer.windowSize == Size.zero) {
+            return
+        }
+        step(16)
+        do {
+            let (image, id) = try getEditableImage(renderer.windowSize.toInt(), renderer)
+            try image.fill(color: SDLColor.clear)
+            try self.drawParticles(image, renderer.windowSize)
+            try renderer.updateImage(id, image)
+            //TODO: We don't need to draw particles if nothing changed
+            renderer.draw(0, id, Frame(origin: Point.zero, size: renderer.windowSize.toInt()))
+        } catch let error {
+            print("Unable to draw emitter: \(error.localizedDescription)")
+        }
     }
 
     public func runTweens(_ delta:Double) {

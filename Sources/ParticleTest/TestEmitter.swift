@@ -62,10 +62,9 @@ func buildEmitter(_ noWait:Bool) -> Emitter {
     return emitter
 }
 
-extension Emitter {
-    public func logic(_ draw:Bool, _ surface:EditableImage, _ windowSize:Size<Int16>) throws {
-        self.setStartArea(0.05 * Float(windowSize.width), 0.20 * Float(windowSize.height), 20, 20)
-        try surface.fill(color: SDLColor.clear)
+extension Emitter : IUpdate {
+    public func step(_ delta:UInt64) {
+        self.setStartArea(200, 200, 20, 20)
         
         //var ms = counter.MillisecondsSinceLastCheck()
         //Helper.MeasureBegin()
@@ -86,12 +85,10 @@ extension Emitter {
         let runAndDelete = toStrSmart(runAndDeleteTime)
         let debugInfo = self.debugInfo() //
         let msg = "Emitter: Updated \(tweensToRun) tweens: \(executionTimeFmt) -- per 50k: \(per) -- create: \(creation) -- run&delete: \(runAndDelete) -- \(debugInfo)          "
-        
-        if (draw) {
-            try self.drawParticles(surface, windowSize)
-        } else {
-        }
+
         print(msg)
+        
+        
         //lastDraw = Helper.MeasureEnd()
     }
 }

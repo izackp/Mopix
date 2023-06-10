@@ -21,14 +21,20 @@ public final class FullWindow: LiteWindow {
     //TODO: Replace options with features; Allow driver to change
     override public init(parent: Application,
                   title: String,
-                  frame: Frame<Int>,
+                  frame: Frame<Int> = Frame(x: 0, y: 0, width: 800, height: 600),
                   windowOptions: BitMaskOptionSet<SDLWindow.Option> = [.resizable, .shown],
                   driver: Renderer.Driver = .default,
                   options: BitMaskOptionSet<Renderer.Option> = []) throws {
         
+#if os(iOS)
+        let sdlWindow = try SDLWindow(title: title,
+                                  frame: (SDLWindow.Position.point(0), SDLWindow.Position.point(0), 0, 0),
+                                   options: [.fullscreen])
+#else
         let sdlWindow = try SDLWindow(title: title,
                                   frame: frame.toSDLTuple(),
                                    options: windowOptions)
+#endif
         
         let renderer = try Renderer(window: sdlWindow, driver: driver, options: options)
         atlas = ImageAtlas(renderer)
@@ -42,6 +48,11 @@ public final class FullWindow: LiteWindow {
         renderClient = RendererClient([], renderServer)
         
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
+        if let size = sdlWindow.rendererSize {
+            renderClient._windowSize = Size(Int16(size.width), Int16(size.height))
+        } else {
+            renderClient._windowSize = Size<Int16>(Int16(frame.size.width), Int16(frame.size.height))
+        }
         //let vc = try UIBuilderController.build(imageManager)
         //setRootViewController(vc)
         /*
@@ -138,10 +149,12 @@ public final class FullWindow: LiteWindow {
                 break
             case .resized(width: let width, height: let height):
                 frame.size = Size(Int16(width), Int16(height))
+                renderClient._windowSize = frame.size
                 self.rootView?.layout()
                 break
             case .sizeChanged(width: let width, height: let height):
                 frame.size = Size(Int16(width), Int16(height))
+                renderClient._windowSize = frame.size
                 self.rootView?.layout()
                 break
             case .minimized:
@@ -174,9 +187,6 @@ public final class FullWindow: LiteWindow {
 
     public override func drawFinish() {
         super.drawFinish()
-        if (drawCount == 0) {
-            print("wth")
-        }
     }
 
     var totalDrawTime:UInt64 = 0

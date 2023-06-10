@@ -19,7 +19,7 @@ public class BatchRenderer {
     
     let imageManager:SimpleImageManager
     let renderer:Renderer
-    var cache:[ObjectIdentifier:SurfaceBackedTexture] = [:]
+    var cache:[UInt64:SurfaceBackedTexture] = [:]
     
     var _idImageCache:[UInt64:Image] = [:]
     var _urlImageCache:[String:UInt64] = [:] //TODO: FIX: Also cached in image manager
@@ -29,12 +29,12 @@ public class BatchRenderer {
     
     //MARK: -
     //TODO: Add reference counting
-    public func loadResource(_ url:VDUrl) -> UInt64 {
+    public func loadResource(_ url:VDUrl) throws -> UInt64 {
         let path = url.absoluteString //TODO: probably doesn't include host
         if let image = _urlImageCache[path] {
             return image
         }
-        let image = imageManager.image(url)
+        guard let image = imageManager.image(url) else { throw GenericError("No image")}
         var uuid:UInt64 = 0
         while true {
             uuid = Xoroshiro.shared.randomBytes()
@@ -52,9 +52,9 @@ public class BatchRenderer {
     
     //This looks a little dumb but the idea is that we will want to move this off thread in the future
     //Which does bring up more questions about how to manage that..
-    public func loadResources(_ urlList:[VDUrl]) -> [UInt64] {
-        let result = urlList.map { (url:VDUrl) in
-            loadResource(url)
+    public func loadResources(_ urlList:[VDUrl]) throws -> [UInt64] {
+        let result = try urlList.map { (url:VDUrl) in
+            try loadResource(url)
         }
         return result
     }
@@ -64,6 +64,52 @@ public class BatchRenderer {
             unloadResource(eachId)
         }
     }
+    
+    //TODO: The problem is that if we ever make changes we can update the image.. but if we update the image we no longer have a way to restore it.
+    public func loadImage(_ backingImage:EditableImage) throws -> UInt64 {
+        guard let image = imageManager.image(backingImage) else { throw GenericError("No image")}
+        var uuid:UInt64 = 0
+        while true {
+            uuid = Xoroshiro.shared.randomBytes()
+            if (_idImageCache[uuid] == nil && uuid != 0) {
+                break
+            }
+        }
+        _idImageCache[uuid] = image
+
+        return uuid
+    }
+    
+    public func updateImage(_ id:UInt64, _ backingImage:EditableImage) throws {
+        if let existing = _idImageCache[id] {
+            //if (existing.editIteration == backingImage.editIteration) { return }
+            try imageManager.updateImage(existing, backingImage)
+            return
+        }
+        throw GenericError("Image id \(id) doesn't exist")
+    }
+    
+    /*
+    public func updateImage(_ backingImage:EditableImage, _ id:UInt64) throws {
+        if let existing = cache[id] {
+            let texture = existing.texture
+            if (existing.editIteration == backingImage.editIteration) {
+                return
+            }
+            let backingSurface = backingImage.surface
+            let attr = try texture.attributes() //TODO: Subtexture has size attrs too
+            if (attr.width == backingSurface.width && attr.height == backingSurface.height) {
+                try backingImage.surface.withPixelData { pixelData in
+                    try texture.update(pixels: pixelData.ptr, pitch: pixelData.pitch)
+                }
+                
+                cache[id]?.editIteration = backingImage.editIteration
+                return
+            }
+        }
+        let newTexture = try Texture(renderer: renderer, surface: backingImage.surface)
+        cache[id] = SurfaceBackedTexture(texture: newTexture, editIteration: backingImage.editIteration)
+    }*/
     
     //MARK: -
     public func draw(_ imageUrl:VDUrl, rect:Frame<Int>, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
@@ -107,7 +153,7 @@ public class BatchRenderer {
     }
 
     //TODO: Use texture atlas
-    func textureFor(_ id:ObjectIdentifier, _ backingImage:EditableImage) throws -> Texture {
+    func textureFor(_ id:UInt64, _ backingImage:EditableImage) throws -> Texture {
         if let existing = cache[id] {
             let texture = existing.texture
             if (existing.editIteration == backingImage.editIteration) {
@@ -128,7 +174,7 @@ public class BatchRenderer {
         cache[id] = SurfaceBackedTexture(texture: newTexture, editIteration: backingImage.editIteration)
         return newTexture
     }
-    
+    /*
     public func draw(_ image:EditableImage, rect:Frame<Int>) {
         let objId = ObjectIdentifier(image)
         
@@ -138,6 +184,6 @@ public class BatchRenderer {
         } catch {
             
         }
-    }
+    }*/
 }
 

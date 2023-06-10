@@ -1,5 +1,5 @@
 //
-//  Window.swift
+//  LiteWindow.swift
 //  TestGame
 //
 //  Created by Isaac Paul on 4/13/22.
@@ -81,9 +81,14 @@ open class LiteWindow : IUpdate, IEventListener {
     //TODO: Think about whether this should propate the error upwards
     open func step(_ delta: UInt64) {
         do {
+            self.parentApp.eventLogger.startEvent("draw")
             try drawStart()
             try draw(time: delta)
-            drawFinish()
+            self.parentApp.eventLogger.endEvent("draw")
+            
+            self.parentApp.eventLogger.measure("present") {
+                drawFinish()
+            }
         } catch let error as SDLError {
             print("Error: \(error.debugDescription)")
         } catch {
@@ -123,48 +128,20 @@ open class LiteWindow : IUpdate, IEventListener {
     }
     
     open func onWindowEvent(_ events:[WindowEvent]) {
-        //TODO: No equality contains method?
         if (events.contains(WindowEvent.closeRequest)) {
             parentApp.removeWindow(self)
         }
     }
-    
 
-    /*
-    func getOrCreateController(_ clientId:UInt32, _ deviceId:UInt32) -> Controller {
-        
-        let id:UInt64 = (UInt64(clientId) << 32) & UInt64(deviceId)
-        if let device = _devices[id] {
-            return device
-        }
-        let newDevice = Controller(clientId: clientId, deviceId: deviceId, state: ControllerState.blank, statePrevious: ControllerState.blank)
-        _devices[id] = newDevice
-        return newDevice
-    }
-    */
     open func drawStart() throws {
         try renderer.setDrawColor(red: 0x00, green: 0x00, blue: 0x00, alpha: 0xFF)
         try renderer.clear()
     }
     
     open func draw(time:UInt64) throws {
-        //if (_needsDisplay == false) { return }
-        //_needsDisplay = false
-        //try renderer.setDrawColor(red: 0xFF, green: 0xFF, blue: 0xFF, alpha: 0xFF)
-        //try renderer.clear()
-        /*
-        let surface = try SDLSurface(rgb: (0, 0, 0, 0), size: (width: 1, height: 1), depth: 32)
-        let color = SDLColor(
-            format: try SDLPixelFormat(format: .argb8888),
-            red: 25, green: 50, blue: .max, alpha: .max / 2
-        )
-        try surface.fill(color: color)
-        let surfaceTexture = try SDLTexture(renderer: renderer, surface: surface)
-        try surfaceTexture.setBlendMode([.alpha])
-        try renderer.copy(surfaceTexture, destination: SDL_Rect(x: 100, y: 100, w: 200, h: 200))
-         */
-        
+
     }
+    
     open func drawFinish() {
         parentApp.stats.measure("Present", 0.01666666) {
             renderer.present()

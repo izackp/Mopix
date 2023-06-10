@@ -94,4 +94,30 @@ public class SimpleImageManager : ImageManager {
         }
         return nil
     }
+    
+    public func image(_ editableImage:EditableImage) -> Image? {
+        do {
+            let subTexture = try atlas.save(editableImage.surface)
+            let image = Image(texture: subTexture, atlas: atlas)
+            //_imageCache[path] = image //Could cache based on obj id..
+            return image
+        } catch {
+            print("Couldn't load image into atlas: \(error.localizedDescription)")
+        }
+        return nil
+    }
+    
+    public func updateImage(_ image:Image, _ editableImage:EditableImage) throws {
+        let size = editableImage.size().asInt32()
+        let subTexture = image.texture
+        let subTextureSize = subTexture.sourceRect.size
+        if (size != subTextureSize) { throw GenericError("Editable size does not match image size. You should make a new image.")}
+        let pageIndex = subTexture.texturePageIndex
+        let texture = atlas.listPages[pageIndex].texture
+        let frame = subTexture.sourceRect
+        
+        try editableImage.surface.withPixelData { pixelData in
+            try texture.update(for: frame.sdlRect(), pixels: pixelData.ptr, pitch: pixelData.pitch)
+        }
+    }
 }

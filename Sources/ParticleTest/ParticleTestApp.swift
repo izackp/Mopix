@@ -10,7 +10,10 @@ import SDL2Swift
 
 class ParticleTestApp : Application {
     
+    let emitter:Emitter
+    
     override init() throws {
+        emitter = buildEmitter(false)
         try super.init()
         
         #if os(iOS)
@@ -21,8 +24,11 @@ class ParticleTestApp : Application {
             let options:BitMaskOptionSet<SDLWindow.Option> = []
         #endif
 
-        let newWindow = try CustomWindow(parent: self, title: "My Test Game", frame: frame, windowOptions: options)
+        let newWindow = try FullWindow(parent: self, title: "My Test Game", frame: frame, windowOptions: options)
         addWindow(newWindow)
+        
+        //addFixedListener(emitter, msPerTick: 16)
+        newWindow.drawable = emitter
     }
     
 }

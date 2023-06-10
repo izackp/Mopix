@@ -61,9 +61,6 @@ struct EventListener : Equatable {
 
 open class Application {
     var listWindows: [LiteWindow] = []
-    //private var _listWindowsPendingRemove: [LiteWindow] = []
-    //private var _listWindowsPendingAdd: [LiteWindow] = []
-    
     
     var listFixedUpdate = MutableIteratableArray<IUpdate, FixedUpdatedListener>()
     var listUpdate = MutableIteratableArray<IUpdate, UpdatedListener>()
@@ -71,6 +68,7 @@ open class Application {
     
     
     public let vd = VirtualDrive.shared
+    public let eventLogger = EventTimeline()
     //var engine:IEngine? = nil
     //var delegate:LGAppDelegate
     var isRunning = true
@@ -90,7 +88,7 @@ open class Application {
         CodableTypeResolver.resolve = { try TypeMap.customDecodeSwitch($0) }
         //Note: automatically initializes the Event Handling, File I/O and Threading subsystems
         //NOTE: Present via metal is .. slow? taking 32+ms
-        //SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl")
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl")
         
         try SDL.initialize([.video])
         try TTF.initialize()
@@ -101,19 +99,11 @@ open class Application {
     }
     
     deinit {
+        //TODO: Never called??
         TTF.quit()
         SDL.quit()
     }
-    /*
-     public let startTime:UInt64
-     public func getTimeInMicroSeconds() -> UInt64 {
-         let perSec = SDL_GetPerformanceFrequency()
-         let perMicroSecond = (perSec / 1000000)
-         let delta = SDL_GetPerformanceCounter()
-         return delta / perMicroSecond
-     }*/
     
-    //TODO: Do not allow on platforms with a set number of screens
     public func addWindow() throws -> LiteWindow {
         let window = try LiteWindow(parent: self, title: "Test", frame: Frame<Int>(origin: Point.zero, size: Size(800, 600)), windowOptions: [], driver: .default, options: [])
         addWindow(window)
@@ -176,22 +166,29 @@ open class Application {
     }*/
     
     func readEvents() {
+        
         var allEvents:[SDL_Event] = []
-        var event = SDL_Event()
-        stats.measure("poll") {
-            while (SDL_PollEvent(&event) == 1) {
-                //allImmediateUseEvents.append(event)
-                allEvents.append(event)
+        eventLogger.measure("readEvents") {
+            var event = SDL_Event()
+            stats.measure("poll") {
+                while (SDL_PollEvent(&event) == 1) {
+                    //allImmediateUseEvents.append(event)
+                    allEvents.append(event)
+                }
             }
         }
+        
         notifyEventListeners(allEvents)
     }
     
     func notifyEventListeners(_ events:[SDL_Event]) {
         if (events.count == 0) { return }
-        listEvent.applyChanges()
-        for eachListener in listEvent.data {
-            eachListener.onEvents(events)
+        
+        eventLogger.measure("onEvents") {
+            listEvent.applyChanges()
+            for eachListener in listEvent.data {
+                eachListener.onEvents(events)
+            }
         }
     }
     
@@ -223,10 +220,14 @@ open class Application {
         while isRunning {
             //try autoreleasepool {
                 readEvents()
+            
+            eventLogger.measure("FixedStep") {
                 stats.measure("FixedStep") {
                     logic()
                 }
+            }
                 
+                //eventLogger.startEvent("Step")
                 stats.measure("Step") {
                     listUpdate.applyChanges()
                     for eachUpdateListener in listUpdate.metaData {
@@ -240,6 +241,7 @@ open class Application {
                         }
                     }
                 }
+            //eventLogger.endEvent("Step")
             stats.printStats()
                 
                 /*
@@ -312,6 +314,16 @@ open class Application {
                     stats.printStats()
                 }*/
             //}
+        }
+        
+        
+        if let anyPath = vd.packages.first?.path {
+            do {
+                let namedFile = anyPath.appendingPathComponent("timeline.json")
+                try eventLogger.writeToFile(namedFile)
+            } catch let error {
+                print("Error saving timeline: \(error.localizedDescription)")
+            }
         }
     }
 }

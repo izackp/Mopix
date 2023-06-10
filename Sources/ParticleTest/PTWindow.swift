@@ -8,7 +8,7 @@
 import GameEngine
 import SDL2Swift
 import SDL2
-
+/*
 public final class PTWindow: LiteWindow {
     
     let rendererWrapped:RendererWrapped
@@ -68,3 +68,4 @@ public final class PTWindow: LiteWindow {
         rendererWrapped.draw(surface, rect: surface.bounds())
     }
 }
+*/

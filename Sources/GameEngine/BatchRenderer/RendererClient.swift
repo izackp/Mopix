@@ -15,6 +15,13 @@ public class RendererClient {
     let server:RendererServer
     var cacheList = WeakArray<IResourceCache>()
     public var defaultTime:UInt64 = 0
+    
+    public var _windowSize:Size<Int16> = Size(0, 0)
+    public var windowSize:Size<Int16> {
+        get {
+            return _windowSize
+        }
+    }
 
     public init(_ cmdList: [DrawCmdImage] = [], _ server:RendererServer) {
         self.cmdList = cmdList
@@ -52,20 +59,28 @@ public class RendererClient {
     }
 
     //MARK: -
-    public func loadResource(_ url:VDUrl) -> UInt64 {
-        return server.loadResource(url)
+    public func loadResource(_ url:VDUrl) throws -> UInt64 {
+        return try server.loadResource(url)
+    }
+    
+    public func loadResource(_ image:EditableImage) throws -> UInt64 {
+        return try server.loadImage(image)
     }
     
     public func unloadResource(_ id:UInt64) {
         return server.unloadResource(id)
     }
     
-    public func loadResources(_ urlList:[VDUrl]) -> [UInt64] {
-        return server.loadResources(urlList)
+    public func loadResources(_ urlList:[VDUrl]) throws -> [UInt64] {
+        return try server.loadResources(urlList)
     }
     
     public func unloadResources(_ idList:[UInt64]) {
         return server.unloadResources(idList)
+    }
+    
+    public func updateImage(_ id:UInt64, _ image:EditableImage) throws {
+        try server.updateImage(id, image)
     }
 
     //MARK: -

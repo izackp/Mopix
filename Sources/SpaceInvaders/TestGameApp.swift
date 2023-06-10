@@ -102,16 +102,7 @@ class TestGameApp : Application {
         try super.init()
         TestGameApp.shared = self
         
-        //TODO: Automatically handle this in window
-        #if os(iOS)
-        let frame = Frame(x: 0, y: 0, width: 0, height: 0)
-        let options:BitMaskOptionSet<SDLWindow.Option> = [.fullscreen]
-        #else
-        let frame = Frame(x: 0, y: 0, width: 500, height: 600)
-        let options:BitMaskOptionSet<SDLWindow.Option> = [.resizable]
-        #endif
-        
-        let newWindow = try FullWindow(parent: self, title: "My Test Game", frame: frame, windowOptions: options, options:[Renderer.Option.presentVsync])
+        let newWindow = try FullWindow(parent: self, title: "My Test Game", options:[Renderer.Option.presentVsync])
         addWindow(newWindow)
         
         let resources = URL(fileURLWithPath: Bundle.SpaceInvaders.resourcePath!).appendingPathComponent("ExternalFiles")

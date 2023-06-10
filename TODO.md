@@ -2,8 +2,11 @@
 ### Current Tasks
 [ ] Hide all exposed SDL api/structs
 [ ] Get asset reloading working
-[ ] Fix frame hiccups. Sometimes our logic starts late and holds up the thread so we miss the draw opportunity? maybe?
+[Hold] Fix frame hiccups. Sometimes our logic starts late and holds up the thread so we miss the draw opportunity? maybe?
+   Looked into it... seems like a bug with sdl. Present and PollEvent random takes a ton of time. Still need to test on windows.
 
+[ ] odd yet significant delay reading input with SDL_PollEvent
+[ ] same issue with SDL_Present eating up 1-2 frames
 ### Todo Tasks
 ```
   = Unstarted
