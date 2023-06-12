@@ -8,13 +8,13 @@
 import Foundation
 
 
-public struct KeyFrame<T> {
+public struct KeyRect<T> {
     public let value:T
     public let time:Float
 }
 
 public class SpriteAnimationClip {
-    public init(length: Float, name: String, keyFrames: [KeyFrame<Image>]) throws {
+    public init(length: Float, name: String, keyFrames: [KeyRect<AtlasImage>]) throws {
         if (keyFrames.isEmpty) {
             throw GenericError("Animation Clip must have frames") //TODO: ??
         }
@@ -25,16 +25,16 @@ public class SpriteAnimationClip {
     
     public var length:Float
     public var name:String
-    public var keyFrames:[KeyFrame<Image>]
+    public var keyFrames:[KeyRect<AtlasImage>]
 
     //TODO: Binary search?
-    func frameForTime(_ time:Float) -> KeyFrame<Image> {
+    func frameForTime(_ time:Float) -> KeyRect<AtlasImage> {
         var vTime = time
         if (vTime > length) {
             vTime -= length
         }
 
-        var currentFrame:KeyFrame<Image> = keyFrames.first!
+        var currentFrame:KeyRect<AtlasImage> = keyFrames.first!
         for frame in keyFrames {
             if (frame.time > time) {
                 return currentFrame
@@ -48,7 +48,7 @@ public class SpriteAnimationClip {
 
     public func applyFrame(_ time:Float) {
         
-        //KeyFrame<Sprite> frame = FrameForTime(time);
+        //KeyRect<Sprite> frame = FrameForTime(time);
         //if (renderer.sprite == frame.Value)
         //    return;
         //Debug.Log("Changing keyframe to: " + frame.Value.name);

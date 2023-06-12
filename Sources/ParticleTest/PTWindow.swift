@@ -20,7 +20,7 @@ public final class PTWindow: LiteWindow {
     
     init(parent: Application,
                   title: String,
-                  frame: Frame<Int>,
+                  frame: Rect<Int>,
                   emitter: Emitter? = nil,
                   windowOptions: BitMaskOptionSet<SDLWindow.Option> = [.resizable, .shown],
                   driver: Renderer.Driver = .default,

@@ -17,10 +17,10 @@ class ParticleTestApp : Application {
         try super.init()
         
         #if os(iOS)
-            let frame = Frame(x: 0, y: 0, width: 0, height: 0)
+            let frame = Rect(x: 0, y: 0, width: 0, height: 0)
             let options:BitMaskOptionSet<SDLWindow.Option> = [.fullscreen]
         #else
-            let frame = Frame(x: 0, y: 0, width: 800, height: 600)
+            let frame = Rect(x: 0, y: 0, width: 800, height: 600)
             let options:BitMaskOptionSet<SDLWindow.Option> = []
         #endif
 

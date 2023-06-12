@@ -104,7 +104,7 @@ public class UIBuilderController : ViewController, PackageChangeListener {
         ]
         scrollView.backgroundColor = LabeledColor.green
         let textSample = TextView(text: "Hello World")
-        textSample.frame = Frame(x: 20, y: 20, width: 100, height: 20)
+        textSample.frame = Rect(x: 20, y: 20, width: 100, height: 20)
         scrollView.addSubview(textSample)
         viewLeftHeirachy.addSubview(scrollView)
         super.init(view)

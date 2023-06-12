@@ -27,7 +27,7 @@ Feature to support after removeing sdl2:
 open class View: Codable {
 
     public var _id:String? = nil
-    public var frame:Frame<Int16> = Frame.zero
+    public var frame:Rect<Int16> = Rect.zero
     public var listLayouts:[LayoutElement] = []
     public var listLayoutChildren:[LayoutChild] = []
     public var children:[View] = []
@@ -36,7 +36,7 @@ open class View: Codable {
     public var onTap:(()->())? = nil
     open var backgroundColor = LabeledColor.white
     public var alpha:Float = 1
-    public var cachedImage:Image? = nil
+    public var cachedImage:AtlasImage? = nil
     public var borderColor:LabeledColor = LabeledColor.clear
     public var borderWidth:DValue = 0
     public var userInteractable:Bool = true //Not sure how this is going to work yet
@@ -74,7 +74,7 @@ open class View: Codable {
     func someInit(from decoder: Decoder, clipBoundsDefault:Bool) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self._id = try container.decodeIfPresent(String.self, forKey: ._id)
-        self.frame = try container.decodeIfPresent(Frame<Int16>.self, forKey: .frame) ?? .zero
+        self.frame = try container.decodeIfPresent(Rect<Int16>.self, forKey: .frame) ?? .zero
         self.listLayouts = try container.decodeArray(LayoutElement.self, forKey: .listLayouts)
         self.children = try container.decodeArray(View.self, forKey: .children)
         self.clipBounds = try container.decodeIfPresent(Bool.self, forKey: .clipBounds) ?? clipBoundsDefault
@@ -223,11 +223,11 @@ open class View: Codable {
         }
     }
     
-    open func drawContent(_ context:UIRenderContext, _ rect:Frame<DValue>) throws {
+    open func drawContent(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
         
     }
     
-    func drawOrRaster(_ context:UIRenderContext, _ rect:Frame<DValue>) throws {
+    func drawOrRaster(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
         if (alpha == 0) { return }
         let requiresComposition = (alpha != 1 && (children.count > 0 || !backgroundColor.isClear()))
         let requireRaster = (shouldRasterize || requiresComposition)
@@ -251,7 +251,7 @@ open class View: Codable {
         }
     }
     
-    open func draw(_ context:UIRenderContext, _ rect:Frame<DValue>) throws {
+    open func draw(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
         if (alpha == 0) { return }
         let offsetFrame = frame.offset(rect.origin)
         if let image = cachedImage, shouldRedraw == false {
@@ -261,7 +261,7 @@ open class View: Codable {
         
         try context.drawSquare(offsetFrame, backgroundColor.sdlColor())
         let clip = clipBounds
-        var lastClipRect:Frame<DValue>? = nil
+        var lastClipRect:Rect<DValue>? = nil
         if (clip) {
             lastClipRect = context.currentClipRect
             try context.setClipRect(offsetFrame)
@@ -272,7 +272,7 @@ open class View: Codable {
         }
         
         if (borderWidth > 0 && borderColor.isClear() == false) {
-            var line:Frame<DValue> = offsetFrame
+            var line:Rect<DValue> = offsetFrame
             line.height = borderWidth
             let borderColorSdl = borderColor.sdlColor()
             try context.drawSquare(line, borderColorSdl)

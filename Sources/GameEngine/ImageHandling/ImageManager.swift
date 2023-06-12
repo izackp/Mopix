@@ -15,7 +15,7 @@ public class ImageManager {
         self.atlas = atlas
     }
     
-    var _imageCache:[String:Image] = [:]
+    var _imageCache:[String:AtlasImage] = [:]
     var _fontList:[String:URL] = [:]
     var _fontCache:[FontDesc:Font] = [:] //TODO: Fonts should unload when no longer used
     
@@ -74,7 +74,7 @@ public class ImageManager {
     }
     #endif
     
-    public func image(directUrl:URL) -> Image? {
+    public func image(directUrl:URL) -> AtlasImage? {
         let path = directUrl.absoluteString
         if let image = _imageCache[path] {
             return image
@@ -85,7 +85,7 @@ public class ImageManager {
                 return try Surface(bmpDataPtr: ptr)
             }
             let subTexture = try atlas.save(preFormatSurface)
-            let image = Image(texture: subTexture, atlas: atlas)
+            let image = AtlasImage(texture: subTexture, atlas: atlas)
             _imageCache[path] = image
             return image
         } catch {

@@ -42,11 +42,11 @@ open class LiteWindow : IUpdate, IEventListener {
     public let parentApp:Application
     //private var _devices:[UInt64:Controller] = [:]
     private let _clientId:UInt32 = 0
-    public var frame:Frame<Int16>
+    public var frame:Rect<Int16>
     
     public init(parent:Application,
          title:String,
-         frame:Frame<Int>,
+         frame:Rect<Int>,
          windowOptions: BitMaskOptionSet<SDLWindow.Option> = [.resizable, .shown],
          driver: Renderer.Driver = .default,
          options: BitMaskOptionSet<Renderer.Option> = []) throws {
@@ -57,7 +57,7 @@ open class LiteWindow : IUpdate, IEventListener {
                                    options: windowOptions)
         
         renderer = try Renderer(window: sdlWindow, driver: driver, options: options)
-        self.frame = Frame(x: Int16(frame.x), y: Int16(frame.y), width: Int16(frame.width), height: Int16(frame.height))
+        self.frame = Rect(x: Int16(frame.x), y: Int16(frame.y), width: Int16(frame.width), height: Int16(frame.height))
     }
     
     public init(parent:Application,
@@ -69,7 +69,7 @@ open class LiteWindow : IUpdate, IEventListener {
         self.renderer = renderer
         let (width, height) = sdlWindow.size
         let (x, y) = sdlWindow.position
-        self.frame = Frame(x: Int16(x), y: Int16(y), width: Int16(width), height: Int16(height))
+        self.frame = Rect(x: Int16(x), y: Int16(y), width: Int16(width), height: Int16(height))
     }
     
     fileprivate let keyboardDeviceId:UInt32 = 1

@@ -11,7 +11,7 @@ final class SIWindow: CustomWindow {
     
     override init(parent: Application,
                   title: String,
-                  frame: Frame<Int>,
+                  frame: Rect<Int>,
                   windowOptions: BitMaskOptionSet<SDLWindow.Option> = [.resizable, .shown],
                   driver: Renderer.Driver = .default,
                   options: BitMaskOptionSet<Renderer.Option> = []) throws {

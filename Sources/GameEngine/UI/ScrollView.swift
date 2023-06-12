@@ -206,7 +206,7 @@ open class ScrollView : View {
         //print("scrollDidMove \(delta)")
     }
     
-    open override func draw(_ context: UIRenderContext, _ rect: Frame<DValue>) throws {
+    open override func draw(_ context: UIRenderContext, _ rect: Rect<DValue>) throws {
         
         let offsetFrame = rect.offset(Point(Int16(offset.x), Int16(offset.y)))
         try super.draw(context, offsetFrame)

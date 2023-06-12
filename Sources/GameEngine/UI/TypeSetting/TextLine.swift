@@ -1,5 +1,4 @@
 
-import Foundation
 //
 //  TextLine.swift
 //  TestGame
@@ -10,6 +9,7 @@ import Foundation
 import ICU
 import SDL2
 import SDL2Swift
+import Foundation
 
 struct SpaceInfo {
     var count:Int
@@ -270,7 +270,7 @@ public struct TextContext {
     let backgroundColor:LabeledColor?
     let kern:Float
     let tracking:Float
-    let image:Image?
+    let image:AtlasImage?
 }
 
 extension LabeledColor {
@@ -293,7 +293,7 @@ extension TextContext {
 }
 
 public struct RenderableCharacter {
-    let img:Image? //Empty for whitespace
+    let img:AtlasImage? //Empty for whitespace
     let size:Size<Int>
     let baseLine:Int
     let foreground:LabeledColor
@@ -678,8 +678,8 @@ struct RenderableCharacterIterator : ThrowingIteratorProtocol {
             return RenderableCharacter(img: nil, size: cSize, baseLine: 0, foreground: context.foregroundColor, background: context.backgroundColor, lineBreak: step2Item.lineBreak)
         }
         
-        let image:Image = try font.glyph(c)
-        //assert(cSize.height == image.texture.sourceRect.height, "\(cSize.height) == \(image.texture.sourceRect.height)")
+        let image:AtlasImage = try font.glyph(c)
+        //assert(cSize.height == image.subTextureIndex.sourceRect.height, "\(cSize.height) == \(image.subTextureIndex.sourceRect.height)")
         return RenderableCharacter(img: image, size: cSize, baseLine: font._font.descent(), foreground: context.foregroundColor, background: context.backgroundColor, lineBreak: step2Item.lineBreak)
     }
     
@@ -1130,8 +1130,8 @@ func splitIntoLinesWordWrapped2(_ font:SDLFont, _ text:String, maxWidthPxs:Int, 
 }
 
 extension SDLFont.GlyphMetrics {
-    func frame() -> Frame<Int> {
-        return Frame(x: self.x, y: self.y, width: self.width, height: self.height)
+    func frame() -> Rect<Int> {
+        return Rect(x: self.x, y: self.y, width: self.width, height: self.height)
     }
 }
 

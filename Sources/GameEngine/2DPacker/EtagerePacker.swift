@@ -40,7 +40,7 @@ public struct AllocatorOptions {
 /// The `AllocId` and `Rectangle` resulting from an allocation.
 public struct Allocation {
     public var id:AllocId
-    public var rectangle:Frame<Int32>
+    public var rectangle:Rect<Int32>
 }
 
 /// ID referring to an allocated rectangle.

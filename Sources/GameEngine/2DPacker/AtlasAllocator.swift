@@ -342,7 +342,7 @@ public class AtlasAllocator : Sequence {
 
         self.check()
 
-        let rectangle = Frame<Int32> (
+        let rectangle = Rect<Int32> (
             min: Point(xx0, yy0),
             max: Point(xx1, yy1)
         )
@@ -746,7 +746,7 @@ public struct AtlasIterator: IteratorProtocol {
         if self.atlas.flip_xy {
             alloc = Allocation(
                 id: id,
-                rectangle: Frame<Int32>(
+                rectangle: Rect<Int32>(
                     min: Point(
                         Int32(shelf.y),
                         Int32(item.x)
@@ -760,7 +760,7 @@ public struct AtlasIterator: IteratorProtocol {
         } else {
             alloc = Allocation(
                 id: id,
-                rectangle: Frame<Int32>(
+                rectangle: Rect<Int32>(
                     min: Point(
                         Int32(item.x),
                         Int32(shelf.y)

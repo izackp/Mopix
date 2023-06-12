@@ -70,7 +70,7 @@ public class TextField : TextView {
         //
     }
     
-    open override func drawContent(_ context:UIRenderContext, _ rect:Frame<DValue>) throws {
+    open override func drawContent(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
         try super.drawContent(context, rect)
         //return
         if (text.count != 0 || placeHolder.count == 0) { return }

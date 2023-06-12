@@ -21,7 +21,7 @@ public final class FullWindow: LiteWindow {
     //TODO: Replace options with features; Allow driver to change
     override public init(parent: Application,
                   title: String,
-                  frame: Frame<Int> = Frame(x: 0, y: 0, width: 800, height: 600),
+                  frame: Rect<Int> = Rect(x: 0, y: 0, width: 800, height: 600),
                   windowOptions: BitMaskOptionSet<SDLWindow.Option> = [.resizable, .shown],
                   driver: Renderer.Driver = .default,
                   options: BitMaskOptionSet<Renderer.Option> = []) throws {
@@ -59,7 +59,7 @@ public final class FullWindow: LiteWindow {
         Task { [weak self] in
             print("Loading Textures..")
             let sprite = imageManager.image(named:"oryx_16bit_scifi_vehicles_105.bmp")
-            print("idk: \(String(describing: sprite?.texture.sourceRect))")
+            print("idk: \(String(describing: sprite?.subTextureIndex.sourceRect))")
             self?.randomImage = sprite
         }*/
         

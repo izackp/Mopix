@@ -8,7 +8,7 @@
 public struct DrawCmdImage {
     let animationId:UInt64
     let resourceId:UInt64
-    let dest:Frame<Int>
+    let dest:Rect<Int>
     let color:SDLColor = SDLColor.white
     let z:Int
     let rotation:Float

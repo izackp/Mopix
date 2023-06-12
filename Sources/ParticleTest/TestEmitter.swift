@@ -13,16 +13,16 @@ import Foundation
 import SDL2Swift
 import SDL2
 
-internal func toStrSmart(_ value:Double) -> String {
-    if (value > 0.1) {
-        return String(format: "%.3fs ", value)
+internal func toStrSmart(seconds:Double) -> String {
+    if (seconds > 0.1) {
+        return String(format: "%.3fs ", seconds)
     }
-    return String(format: "%.3fms", value * 1000)
+    return String(format: "%.3fms", seconds * 1000)
 }
 
 internal func toStrSmart(_ value:UInt64) -> String {
     let value = Double(value) / Double(SDL_GetPerformanceFrequency())
-    return toStrSmart(value)
+    return toStrSmart(seconds: value)
 }
 
 func buildEmitter(_ noWait:Bool) -> Emitter {
@@ -77,10 +77,11 @@ extension Emitter : IUpdate {
         self.runTweens(16)
         let runAndDeleteTime = SDL_GetPerformanceCounter() - time
         let executionTime = creationTime + runAndDeleteTime
+        let perTween = executionTime / UInt64(tweensToRun)
 
         //Helper.MeasureBegin()
         let executionTimeFmt = toStrSmart(executionTime)
-        let per = toStrSmart(Double(executionTime) / Double(tweensToRun) * 50000)
+        let per = toStrSmart(perTween * 50000)
         let creation = toStrSmart(creationTime)
         let runAndDelete = toStrSmart(runAndDeleteTime)
         let debugInfo = self.debugInfo() //

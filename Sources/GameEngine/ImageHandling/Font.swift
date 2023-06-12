@@ -86,7 +86,7 @@ extension String {
 //I think we can accomplish 'Temp' via only lazy. We just need to drop the font when we're done with it.
 public class Font {
     //let _fileUrl:URL
-    var _glyphs:[Character:Image] = [:] //TODO: Array or dictionary?
+    var _glyphs:[Character:AtlasImage] = [:] //TODO: Array or dictionary?
     let _atlas:ImageAtlas
     let _font:SDLFont
     
@@ -123,13 +123,13 @@ public class Font {
         return MeasureResult(extent: width, count: count)
     }
     
-    func glyph(_ c:Character) throws -> Image {
+    func glyph(_ c:Character) throws -> AtlasImage {
         if let texture = _glyphs[c] {
             return texture
         }
         let surface = try _font.renderGlyphBlended(c, foregroundColor: SDL_Color(r: 255, g: 255, b: 255, a: 255))
         let texture = try _atlas.save(surface)
-        let image = Image(texture: texture, atlas: _atlas)
+        let image = AtlasImage(texture: texture, atlas: _atlas)
         //assert(height == texture.sourceRect.height)
         _glyphs[c] = image
         return image

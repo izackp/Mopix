@@ -16,58 +16,53 @@ extension SDLColor {
     }
 }
 
-struct ImageSource {
+struct SDLTextureSlice {
     let texture:Texture
     let rect:SDL_Rect
 }
 
-public class Image {
-    public init(texture: SubTexture, atlas: ImageAtlas) {
-        self.texture = texture
+public class AtlasImage {
+    public init(texture: SubTextureIndex, atlas: ImageAtlas) {
+        self.subTextureIndex = texture
         self.atlas = atlas
     }
     
-    let texture:SubTexture
-    let atlas:ImageAtlas
+    let subTextureIndex:SubTextureIndex
+    private let atlas:ImageAtlas
     
+    var size:Size<Int32> {
+        get { return subTextureIndex.sourceRect.size }
+    }
+    
+    var sourceRect:Rect<Int32> {
+        get { return subTextureIndex.sourceRect.to(Int32.self) }
+    }
     
     deinit {
-        atlas.returnSubtexture(texture)
+        atlas.returnSubtexture(subTextureIndex)
     }
     
-    func getSource() -> ImageSource {
-        let subTexture = texture
-        let texturePage = atlas.listPages[subTexture.texturePageIndex]
+    func getTextureSlice() -> SDLTextureSlice {
+        let texturePage = atlas.listPages[subTextureIndex.texturePageIndex]
         let sdlTexture = texturePage.texture
         
-        let rect = subTexture.sourceRect.sdlRect()
-        return ImageSource(texture: sdlTexture, rect: rect)
-    }
-    
-    //TODO: Not sure which is the better api.. one allows image?.draw(renderer, 0, 0) the other: renderer.draw(image, 0, 0)
-    func draw(_ renderer:Renderer, _ x:Int32, _ y:Int32, _ color:SDLColor = SDLColor.white) {
-        let source = getSource()
-        renderer.draw(source, SDL_Rect(x: x, y: y, w: source.rect.w, h: source.rect.h), color)
-    }
-    
-    func draw(_ renderer:Renderer, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white) {
-        let source = getSource()
-        renderer.draw(source, dest, color)
+        let rect = subTextureIndex.sourceRect.sdlRect()
+        return SDLTextureSlice(texture: sdlTexture, rect: rect)
     }
 }
 
 extension Renderer {
-    func draw(_ image:Image, _ x:Int32, _ y:Int32, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
-        let source = image.getSource()
+    func draw(_ image:AtlasImage, _ x:Int32, _ y:Int32, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
+        let source = image.getTextureSlice()
         draw(source, SDL_Rect(x: x, y: y, w: source.rect.w, h: source.rect.h), color, alpha)
     }
     
-    func draw(_ image:Image, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
-        let source = image.getSource()
+    func draw(_ image:AtlasImage, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
+        let source = image.getTextureSlice()
         draw(source, dest, color, alpha)
     }
     
-    func draw(_ imageSrc:ImageSource, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1) {
+    func draw(_ imageSrc:SDLTextureSlice, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1) {
         let texture = imageSrc.texture
         let src = imageSrc.rect
         do {

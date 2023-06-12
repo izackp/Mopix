@@ -105,7 +105,7 @@ open class Application {
     }
     
     public func addWindow() throws -> LiteWindow {
-        let window = try LiteWindow(parent: self, title: "Test", frame: Frame<Int>(origin: Point.zero, size: Size(800, 600)), windowOptions: [], driver: .default, options: [])
+        let window = try LiteWindow(parent: self, title: "Test", frame: Rect<Int>(origin: Point.zero, size: Size(800, 600)), windowOptions: [], driver: .default, options: [])
         addWindow(window)
         return window
     }

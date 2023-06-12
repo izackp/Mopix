@@ -190,12 +190,13 @@ public class Emitter : IDrawable {
         }
         step(16)
         do {
-            let (image, id) = try getEditableImage(renderer.windowSize.toInt(), renderer)
+            let windowSize = renderer.windowSize.to(Int.self)
+            let (image, id) = try getEditableImage(windowSize, renderer)
             try image.fill(color: SDLColor.clear)
             try self.drawParticles(image, renderer.windowSize)
             try renderer.updateImage(id, image)
             //TODO: We don't need to draw particles if nothing changed
-            renderer.draw(0, id, Frame(origin: Point.zero, size: renderer.windowSize.toInt()))
+            renderer.draw(0, id, Rect(origin: Point.zero, size: windowSize))
         } catch let error {
             print("Unable to draw emitter: \(error.localizedDescription)")
         }

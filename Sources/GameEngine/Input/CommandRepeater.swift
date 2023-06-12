@@ -14,7 +14,7 @@ public protocol ICommandListener {
 public protocol IVirutalControllerListener : AnyObject {
     func onInput(_ controller:VirtualController)
 }
-
+//
 public class CommandRepeater {
     public init(commandListeners: [ICommandListener] = [], listeners: [UInt64 : [IVirutalControllerListener]] = [:], commandsThisTickById: [UInt64 : InputCommandList] = [:], virtualControllersById: [UInt64 : VirtualController] = [:]) {
         self.commandListeners = commandListeners

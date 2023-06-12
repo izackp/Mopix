@@ -7,7 +7,7 @@
 
 import GameEngine
 
-typealias CollisionNode2D = Frame<Int>
+typealias CollisionNode2D = Rect<Int>
 
 extension CollisionNode2D {
     func collides(_ other:CollisionNode2D) -> Bool {

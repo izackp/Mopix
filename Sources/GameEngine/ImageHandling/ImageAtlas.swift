@@ -23,19 +23,15 @@ import SDL2Swift
  */
 
 public struct TexturePage {
-    //Incomplete meaning that there are no additional images completed that differ from the previous texture.
-    //
-    //Once any image has completed drawing we shift it down into texture. So it can resume normal behavior.
-    //public let inCompleteTexture:SDLTexture? //Needed for drawing the texture onto iteself
     public let texture:Texture //Always used for drawing and can be drawn to _unless_ there is an incomplete texture whish should also be used
     public let allocator:AtlasAllocator
 }
 
-public struct SubTexture {
+public struct SubTextureIndex {
     public let allocationId:AllocId
     public let texturePageIndex:Int
     //Maybe image atlas?
-    public let sourceRect:Frame<Int32>
+    public let sourceRect:Rect<Int32>
 }
 
 public struct PixelData {
@@ -77,14 +73,15 @@ public class ImageAtlas {
     var textureSize = Size<Int32>(1024, 1024)
     
     //Each texture has a blank pixel so we don't need to worry about switching textures.
-    var _blankImageCache:[SubTexture] = [] //index matches page
+    var _blankImageCache:[SubTextureIndex] = [] //index matches page
     var textureCache:[Texture] = [] //Object pool to avoid creating/deleting
     
     init(_ renderer:Renderer) {
         self.renderer = renderer
     }
 
-    func blankSubtexture(_ pageIdx:Int) throws -> SubTexture {
+    /// Returns an index for a blank pixel for the provided texture page
+    func blankTextureIndex(_ pageIdx:Int) throws -> SubTextureIndex {
         if _blankImageCache.count == 0 {
             let _ = try addPage()
         }
@@ -136,7 +133,7 @@ public class ImageAtlas {
         //Add blank texture for solid rectangles
         let surface = try buildBlankSurface()
         let index = listPages.count - 1
-        let blank:SubTexture = try surface.withPixelData { pixelData in
+        let blank:SubTextureIndex = try surface.withPixelData { pixelData in
             guard let texture = try saveIntoPage(&texturePage, index, pixelData) else {
                 throw GenericError("Couldnt save into new page.")
             }
@@ -156,22 +153,22 @@ public class ImageAtlas {
     }
     
     //TODO: I was told its faster/better to convert the surface to a texture and then render it on to the atlas
-    func save(_ preformat:Surface) throws -> SubTexture {
+    func save(_ preformat:Surface) throws -> SubTextureIndex {
         let surface = try preformat.convertSurface(format: SDL_PIXELFORMAT_ARGB8888)
-        let texture:SubTexture = try surface.withPixelData { pixelData in
+        let texture:SubTextureIndex = try surface.withPixelData { pixelData in
             return try save(pixelData)
         }
         return texture
     }
     
-    func save(_ data:Data, width:Int, pitch:Int) throws -> SubTexture {
+    func save(_ data:Data, width:Int, pitch:Int) throws -> SubTextureIndex {
         return try data.withUnsafeBytes { (ptr:UnsafeRawBufferPointer) in
             let pixelData = PixelData(ptr: ptr, width: width, pitch: pitch)
             return try save(pixelData)
         }
     }
     
-    func save(_ pixelData:PixelData) throws -> SubTexture {
+    func save(_ pixelData:PixelData) throws -> SubTextureIndex {
         let space = UInt32(pixelData.size().area())
         var pageIdx = nextPageThatFits(0, space)
         while (pageIdx != -1) {
@@ -188,7 +185,7 @@ public class ImageAtlas {
         return texture
     }
     
-    public func saveBlankImage(_ size:Size<DValue>) throws -> SubTexture {
+    public func saveBlankImage(_ size:Size<DValue>) throws -> SubTextureIndex {
         if (size.width > textureSize.width || size.height > textureSize.height) {
             throw GenericError("Blank Image cannot exceed atlas texture size.")
         }
@@ -199,12 +196,12 @@ public class ImageAtlas {
         return subTexture
     }
     
-    private func saveIntoPage(_ page: inout TexturePage, _ index:Int, _ pixelData:PixelData) throws -> SubTexture? {
+    private func saveIntoPage(_ page: inout TexturePage, _ index:Int, _ pixelData:PixelData) throws -> SubTextureIndex? {
         guard let alloc = try saveIntoPageLow(&page, pixelData) else {
             return nil
         }
-        let frame = Frame(origin: alloc.rectangle.origin, size: pixelData.size())
-        return SubTexture(allocationId: alloc.id, texturePageIndex: index, sourceRect: frame)
+        let frame = Rect(origin: alloc.rectangle.origin, size: pixelData.size())
+        return SubTextureIndex(allocationId: alloc.id, texturePageIndex: index, sourceRect: frame)
     }
     
     private func saveIntoPageLow(_ page: inout TexturePage, _ pixelData:PixelData) throws -> Allocation? {
@@ -226,7 +223,7 @@ public class ImageAtlas {
         textureCache.append(texture)
     }
     
-    func returnSubtexture(_ subTexture:SubTexture) {
+    func returnSubtexture(_ subTexture:SubTextureIndex) {
         //TODO: There is no mechanism to remove a texture page once created..
         let page = listPages[subTexture.texturePageIndex]
         page.allocator.deallocate(subTexture.allocationId)

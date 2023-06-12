@@ -69,12 +69,12 @@ public class SimpleImageManager : ImageManager {
         return try super.fetchFont(desc: desc)
     }
     
-    public func image(named:String) -> Image? {
+    public func image(named:String) -> AtlasImage? {
         guard let url = drive.searchByName(named)?.url else { return nil }
         return image(url)
     }
     
-    public func image(_ url:VDUrl) -> Image? {
+    public func image(_ url:VDUrl) -> AtlasImage? {
         let path = url.absoluteString //TODO: probably doesn't include host
         if let image = _imageCache[path] {
             return image
@@ -86,7 +86,7 @@ public class SimpleImageManager : ImageManager {
                 return try Surface.init(bmpDataPtr: ptr)
             }
             let subTexture = try atlas.save(preFormatSurface)
-            let image = Image(texture: subTexture, atlas: atlas)
+            let image = AtlasImage(texture: subTexture, atlas: atlas)
             _imageCache[path] = image
             return image
         } catch {
@@ -95,10 +95,10 @@ public class SimpleImageManager : ImageManager {
         return nil
     }
     
-    public func image(_ editableImage:EditableImage) -> Image? {
+    public func image(_ editableImage:EditableImage) -> AtlasImage? {
         do {
             let subTexture = try atlas.save(editableImage.surface)
-            let image = Image(texture: subTexture, atlas: atlas)
+            let image = AtlasImage(texture: subTexture, atlas: atlas)
             //_imageCache[path] = image //Could cache based on obj id..
             return image
         } catch {
@@ -107,9 +107,9 @@ public class SimpleImageManager : ImageManager {
         return nil
     }
     
-    public func updateImage(_ image:Image, _ editableImage:EditableImage) throws {
-        let size = editableImage.size().asInt32()
-        let subTexture = image.texture
+    public func updateImage(_ image:AtlasImage, _ editableImage:EditableImage) throws {
+        let size = editableImage.size().to(Int32.self)
+        let subTexture = image.subTextureIndex
         let subTextureSize = subTexture.sourceRect.size
         if (size != subTextureSize) { throw GenericError("Editable size does not match image size. You should make a new image.")}
         let pageIndex = subTexture.texturePageIndex

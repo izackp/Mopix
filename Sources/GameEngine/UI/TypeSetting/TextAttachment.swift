@@ -62,12 +62,12 @@ open class FileWrapperAttachment : DataProvider  {
 
 //TODO: More protocol than class
 open class RenderableAttachment {
-    init(bounds: Frame<Float>, lineLayoutPadding: CGFloat) {
+    init(bounds: Rect<Float>, lineLayoutPadding: CGFloat) {
         self.bounds = bounds
         self.lineLayoutPadding = lineLayoutPadding
     }
     
-    open var bounds: Frame<Float>
+    open var bounds: Rect<Float>
     open var lineLayoutPadding: CGFloat
     
     open func draw() {
@@ -76,12 +76,12 @@ open class RenderableAttachment {
 }
 
 open class RenderableAttachmentImage : RenderableAttachment {
-    init(image: Image, bounds: Frame<Float>, lineLayoutPadding: CGFloat) {
+    init(image: AtlasImage, bounds: Rect<Float>, lineLayoutPadding: CGFloat) {
         self.image = image
         super.init(bounds: bounds, lineLayoutPadding: lineLayoutPadding)
     }
     
-    open var image: Image
+    open var image: AtlasImage
 }
 
 

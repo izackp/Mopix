@@ -14,8 +14,8 @@ public extension Surface {
         return Size(self.width, self.height)
     }
     
-    func bounds() -> Frame<Int> {
-        return Frame(origin: .zero, size: Size(self.width, self.height))
+    func bounds() -> Rect<Int> {
+        return Rect(origin: .zero, size: Size(self.width, self.height))
     }
     
     func withPixelData<Result>(_ body:(_ pixelData:PixelData) throws -> (Result)) throws -> Result {
@@ -50,7 +50,7 @@ public extension Surface {
                 throw GenericError("Couldnt save into new page.")
             }
             
-            let frame = Frame(origin: alloc.rectangle.origin, size: size)
+            let frame = Rect(origin: alloc.rectangle.origin, size: size)
             return SubTexture(allocationId: alloc.id, texturePageIndex: page, sourceRect: frame)
         }!
         return texture

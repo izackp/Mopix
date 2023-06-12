@@ -10,6 +10,6 @@ public protocol IResourceCache {
     func invalidateCache(_ client:RendererClient)
 
     //
-    func loadResources(_ client:RendererClient)
+    func loadResources(_ client:RendererClient) throws
     func unloadResources(_ client:RendererClient)
 }

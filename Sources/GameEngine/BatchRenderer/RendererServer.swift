@@ -1,5 +1,5 @@
 //
-//  BatchRenderer.swift
+//  RendererServer.swift
 //  
 //
 //  Created by Isaac Paul on 5/9/23.
@@ -8,9 +8,7 @@
 import SDL2
 import SDL2Swift
 
-public typealias RendererServer = BatchRenderer
-
-public class BatchRenderer {
+public class RendererServer {
     
     public init(renderer: Renderer, imageManager:SimpleImageManager) {
         self.renderer = renderer
@@ -21,7 +19,7 @@ public class BatchRenderer {
     let renderer:Renderer
     var cache:[UInt64:SurfaceBackedTexture] = [:]
     
-    var _idImageCache:[UInt64:Image] = [:]
+    var _idImageCache:[UInt64:AtlasImage] = [:]
     var _urlImageCache:[String:UInt64] = [:] //TODO: FIX: Also cached in image manager
     var _lastCmdList:[DrawCmdImage] = []
     var _futureCmdList:[DrawCmdImage] = []
@@ -112,14 +110,14 @@ public class BatchRenderer {
     }*/
     
     //MARK: -
-    public func draw(_ imageUrl:VDUrl, rect:Frame<Int>, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
-        let image = imageManager.image(imageUrl)
-        image?.draw(renderer, rect.sdlRect(), color)
+    public func draw(_ imageUrl:VDUrl, rect:Rect<Int>, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
+        guard let image = imageManager.image(imageUrl) else { return }
+        renderer.draw(image, rect.sdlRect(), color)
     }
 
     public func draw(_ command:DrawCmdImage) {
         guard let image = self._idImageCache[command.resourceId] else { return }
-        let source = image.getSource()
+        let source = image.getTextureSlice()
         renderer.draw(source, command.dest.sdlRect(), command.color)
     }
 
@@ -175,7 +173,7 @@ public class BatchRenderer {
         return newTexture
     }
     /*
-    public func draw(_ image:EditableImage, rect:Frame<Int>) {
+    public func draw(_ image:EditableImage, rect:Rect<Int>) {
         let objId = ObjectIdentifier(image)
         
         do {

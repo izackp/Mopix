@@ -28,11 +28,11 @@ public class RendererClient {
         self.server = server
     }
 
-    public func addResourceCache(_ cache: IResourceCache) {
+    public func addResourceCache(_ cache: IResourceCache) throws {
         //TODO: Assert unique
         //TODO: Maybe not a protocol but a class.. so we can hold onto it and clean it up automatically if it the owner goes out of scope
         cacheList.append(cache)
-        cache.loadResources(self)
+        try cache.loadResources(self)
         cacheList.clean()
     }
     
@@ -42,16 +42,16 @@ public class RendererClient {
         cacheList.clean()
     }
 
-    func needsReload() {
+    func reloadCache() throws {
         cacheList.clean()
         for eachItem in cacheList {
             eachItem?.invalidateCache(self)
-            eachItem?.loadResources(self)
+            try eachItem?.loadResources(self)
         }
     }
     
     //MARK: -
-    public func draw(_ id:UInt64, _ resourceId:UInt64, _ rect:Frame<Int>, _ color:SDLColor = SDLColor.white, _ z:Int = 1, _ rotation:Float = 0, _ rotationPoint:Point<Int> = .zero, _ alpha:Float = 1, _ relTime:UInt64 = 0) {
+    public func draw(_ id:UInt64, _ resourceId:UInt64, _ rect:Rect<Int>, _ color:SDLColor = SDLColor.white, _ z:Int = 1, _ rotation:Float = 0, _ rotationPoint:Point<Int> = .zero, _ alpha:Float = 1, _ relTime:UInt64 = 0) {
         //let image = _idImageCache[id]
         //image?.draw(renderer, rect.sdlRect(), color)
         let time = relTime + defaultTime

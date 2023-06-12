@@ -26,7 +26,7 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCach
     var player:Player! = Player()
     var bullets:[Bullet] = []
     var collisionNodes:[CollisionNode2D] = []
-    var bounds:Frame<Int> = Frame(x: 0, y: 0, width: 800, height: 600)
+    var bounds:Rect<Int> = Rect(x: 0, y: 0, width: 800, height: 600)
     var isAwake = false
     var resourceIds = ResourceIds()
     
@@ -62,8 +62,8 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCach
         resourceIds.oryx_16bit_scifi_vehicles_189 = 0
     }
 
-    public func loadResources(_ renderer:RendererClient) {
-        let results = renderer.loadResources([
+    public func loadResources(_ renderer:RendererClient) throws {
+        let results = try renderer.loadResources([
             Resources.bullet,
             Resources.oryx_16bit_scifi_vehicles_105,
             Resources.oryx_16bit_scifi_vehicles_189])
@@ -137,11 +137,11 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCach
     var didLoad = false
     public func draw(_ delta:UInt64, _ renderer: RendererClient) {
         if (didLoad == false) {
-            loadResources(renderer)
+            try? loadResources(renderer)
             didLoad = true
         }
         //if (state == 2) { return }
-        var dest = Frame<Int>.init(origin: .zero, size: Size(24, 24))
+        var dest = Rect<Int>.init(origin: .zero, size: Size(24, 24))
         for eachBullet in bullets {
             if (eachBullet.isAlive) {
                 dest.origin = eachBullet.pos

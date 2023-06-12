@@ -24,7 +24,7 @@ public enum ContentMode : Int, Codable {
 }
 public class ImageView : View {
     
-    public var image:Image? = nil
+    public var image:AtlasImage? = nil
     private var _imageSrc:String? = nil //Temporary.. We're going to need to tie image to a file anyways for hotreloading
     public var tint:LabeledColor = LabeledColor.white
     public var contentMode:ContentMode = ContentMode.right
@@ -34,7 +34,7 @@ public class ImageView : View {
         super.init()
     }
     
-    public init(image:Image?) {
+    public init(image:AtlasImage?) {
         self.image = image
         super.init()
     }
@@ -80,68 +80,68 @@ public class ImageView : View {
         }
     }
     
-    open override func drawContent(_ context: UIRenderContext, _ rect: Frame<DValue>) throws {
+    open override func drawContent(_ context: UIRenderContext, _ rect: Rect<DValue>) throws {
         
         if let image = image {
-            let destFrame:Frame<DValue>
+            let destFrame:Rect<DValue>
             switch contentMode {
                 case .stretch:
                     destFrame = rect
                 case .aspectFit:
-                    let imgSize = image.texture.sourceRect.size
+                    let imgSize = image.subTextureIndex.sourceRect.size
                     let imgSize16 = Size<DValue>(Int16(imgSize.width), Int16(imgSize.height))
                     let newSize = imgSize16.aspectFitInto(frame.size)
-                    var newFrame = Frame(origin: Point.zero, size: newSize)
+                    var newFrame = Rect(origin: Point.zero, size: newSize)
                     newFrame.center = rect.center
                     destFrame = newFrame
                 case .aspectFill:
-                    let imgSize = image.texture.sourceRect.size
+                    let imgSize = image.subTextureIndex.sourceRect.size
                     let imgSize16 = Size<DValue>(Int16(imgSize.width), Int16(imgSize.height))
                     let newSize = imgSize16.aspectFillInto(frame.size)
-                    var newFrame = Frame(origin: Point.zero, size: newSize)
+                    var newFrame = Rect(origin: Point.zero, size: newSize)
                     newFrame.center = rect.center
                     destFrame = newFrame
                 case .center:
-                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    var nativeFrame = image.subTextureIndex.sourceRect.to(DValue.self)
                     nativeFrame.center = rect.center
                     destFrame = nativeFrame
                     //Added these because they're in UIKit, but I don't think anyone uses them?
                 case .top:
-                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    var nativeFrame = image.subTextureIndex.sourceRect.to(DValue.self)
                     nativeFrame.centerX = rect.centerX
                     nativeFrame.y = rect.y
                     destFrame = nativeFrame
                 case .right:
-                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    var nativeFrame = image.subTextureIndex.sourceRect.to(DValue.self)
                     nativeFrame.centerY = rect.centerY
                     nativeFrame.rightFixed = rect.right
                     destFrame = nativeFrame
                 case .bottom:
-                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    var nativeFrame = image.subTextureIndex.sourceRect.to(DValue.self)
                     nativeFrame.centerX = rect.centerX
                     nativeFrame.bottomFixed = rect.bottom
                     destFrame = nativeFrame
                 case .left:
-                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    var nativeFrame = image.subTextureIndex.sourceRect.to(DValue.self)
                     nativeFrame.centerY = rect.centerY
                     nativeFrame.x = rect.x
                     destFrame = nativeFrame
                 case .topRight:
-                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    var nativeFrame = image.subTextureIndex.sourceRect.to(DValue.self)
                     nativeFrame.y = rect.y
                     nativeFrame.rightFixed = rect.right
                     destFrame = nativeFrame
                 case .topLeft:
-                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    var nativeFrame = image.subTextureIndex.sourceRect.to(DValue.self)
                     nativeFrame.origin = rect.origin
                     destFrame = nativeFrame
                 case .bottomRight:
-                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    var nativeFrame = image.subTextureIndex.sourceRect.to(DValue.self)
                     nativeFrame.bottomFixed = rect.bottom
                     nativeFrame.rightFixed = rect.right
                     destFrame = nativeFrame
                 case .bottomLeft:
-                    var nativeFrame = image.texture.sourceRect.to(DValue.self)
+                    var nativeFrame = image.subTextureIndex.sourceRect.to(DValue.self)
                     nativeFrame.bottomFixed = rect.bottom
                     nativeFrame.x = rect.x
                     destFrame = nativeFrame

@@ -17,10 +17,11 @@ public class UIRenderContext {
     
     let renderer:Renderer
     let imageManager:ImageManager
-    var lastTexture:Int = 0
+    private var _lastTexture:Int = 0
     //var lastOffset:Point<Int16> = .zero //TODO: This feels hacky
-    var currentClipRect:Frame<DValue>? = nil
-    var currentWindowFrame:[Frame<DValue>] = [.zero]
+    var currentClipRect:Rect<DValue>? = nil
+    ///Needed to preserve clipping
+    var currentWindowFrame:[Rect<DValue>] = [.zero]
     
     var usingNewPage:Bool = false
     var destinationPage:[Int] = [-1]
@@ -34,17 +35,17 @@ public class UIRenderContext {
         return font
     }
     
-    func createAndDrawToTexture(_ block:(_ context:UIRenderContext, _ frame:Frame<DValue>) throws -> (), size:Size<DValue>) throws -> Image {
+    func createAndDrawToTexture(_ block:(_ context:UIRenderContext, _ frame:Rect<DValue>) throws -> (), size:Size<DValue>) throws -> AtlasImage {
         let atlas = imageManager.atlas
         let subTexture = try atlas.saveBlankImage(size)
-        let targetImage = Image(texture: subTexture, atlas: atlas)
+        let targetImage = AtlasImage(texture: subTexture, atlas: atlas)
         //we must use the correct texture
         let pageIndex = subTexture.texturePageIndex
         let texture = rollingTextureForPage[pageIndex] ?? atlas.listPages[pageIndex].texture
         
         //let previousBlendmode = blendMode
         let previousTarget = try renderer.swapTarget(texture)
-        let targetFrame = targetImage.texture.sourceRect.to(Int16.self)
+        let targetFrame = targetImage.sourceRect.to(Int16.self)
         currentWindowFrame.append(targetFrame)
         let lastClip = currentClipRect
         try setClipRect(targetFrame)
@@ -90,13 +91,13 @@ public class UIRenderContext {
     func popOffset(_ point:Point<Int16>) {
         lastOffset = Point(lastOffset.x - point.x, lastOffset.y - point.y)
     }
-    func setClipRectRelative(_ frame:Frame<DValue>) throws {
+    func setClipRectRelative(_ frame:Rect<DValue>) throws {
         var newFrame = frame.offset(lastOffset)
         newFrame.clip(currentWindowFrame) //Metal crashes when clipping area exceeds window size
         try renderer.setClipRect(newFrame.sdlRect())
     }*/
     
-    func setClipRect(_ frame:Frame<DValue>?) throws {
+    func setClipRect(_ frame:Rect<DValue>?) throws {
         var newFrame = frame
         newFrame?.clip(currentWindowFrame.last!)
         try renderer.setClipRect(newFrame?.sdlRect())
@@ -105,13 +106,14 @@ public class UIRenderContext {
     
     func drawText( _ text:Substring, _ font:Font, _ pos:Point<Int16>, _ color:SDLColor, _ alpha:Float = 1, spacing:Int = 0) throws {
         //let bounds = currentWindowFrame.last!
-        var dest = Frame<Int16>(x: pos.x, y: pos.y, width: 0, height: 0)
+        var dest = Rect<Int16>(x: pos.x, y: pos.y, width: 0, height: 0)
         for c in text {
             do {
                 let metrics = try font._font.glyphMetrics(c: c)
                 let image = try font.glyph(c)
-                dest.width = Int16(image.texture.sourceRect.width)
-                dest.height = Int16(image.texture.sourceRect.height)
+                let imageSize = image.size.to(Int16.self)
+                dest.width = imageSize.width
+                dest.height = imageSize.height
                 renderer.draw(image, dest.sdlRect(), color)
                 dest.x += Int16(metrics.advance) + Int16(spacing)
             } catch {
@@ -122,7 +124,7 @@ public class UIRenderContext {
     
     func drawTextLine( _ text:ArraySlice<RenderableCharacter>, _ pos:Point<Int16>, _ alpha:Float = 1) throws {
         //let bounds = currentWindowFrame.last!
-        var dest = Frame<Int16>(x: pos.x, y: pos.y, width: 0, height: 0)
+        var dest = Rect<Int16>(x: pos.x, y: pos.y, width: 0, height: 0)
         for c in text {
             dest.width = Int16(c.size.width)
             dest.height = Int16(c.size.height)
@@ -131,25 +133,25 @@ public class UIRenderContext {
                 try drawSquare(dest, bgColor.sdlColor())
             }
             if let image = c.img {
-                dest.height = Int16(image.texture.sourceRect.size.height)
-                //assert(c.size.asInt32() == image.texture.sourceRect.size)
+                dest.height = Int16(image.size.height)
+                //assert(c.size.asInt32() == image.subTextureIndex.sourceRect.size)
                 renderer.draw(image, dest.sdlRect(), c.foreground.sdlColor())
             }
             dest.x += Int16(c.size.width)
         }
     }
     
-    func drawSquare(_ dest:Frame<Int16>, _ color:SDLColor, _ alpha:Float = 1) throws {
+    func drawSquare(_ dest:Rect<Int16>, _ color:SDLColor, _ alpha:Float = 1) throws {
         //let newFrame = frame.offset(lastOffset)
         //TODO: we can probably just return sdl texture and source
         //var newFrame = frame
         //newFrame.clip(currentWindowFrame)
         let atlas = imageManager.atlas
-        let blankSubTexture = try atlas.blankSubtexture(lastTexture)
+        let blankSubTexture = try atlas.blankTextureIndex(_lastTexture)
         let texturePage = atlas.listPages[blankSubTexture.texturePageIndex]
         let source = blankSubTexture.sourceRect.sdlRect()
         let texture = texturePage.texture
-        try drawImage2(dest, color, 1, imgSrc: ImageSource(texture: texture, rect: source), texturePageIndex: blankSubTexture.texturePageIndex)
+        try drawImage2(dest, color, 1, imgSrc: SDLTextureSlice(texture: texture, rect: source), texturePageIndex: blankSubTexture.texturePageIndex)
     }
     
     func copyAndSetTargetPage(_ index:Int) throws {
@@ -171,15 +173,15 @@ public class UIRenderContext {
         try newTexture.setBlendMode(previousBlendMode)
     }
     
-    func drawImage(_ image:Image, _ dest:Frame<Int16>, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1) throws {
-        let src = image.getSource()
-        try drawImage2(dest, color, alpha, imgSrc: src, texturePageIndex: image.texture.texturePageIndex)
+    func drawImage(_ image:AtlasImage, _ dest:Rect<Int16>, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1) throws {
+        let src = image.getTextureSlice()
+        try drawImage2(dest, color, alpha, imgSrc: src, texturePageIndex: image.subTextureIndex.texturePageIndex)
     }
     
-    func drawImage2(_ dest:Frame<Int16>, _ color:SDLColor, _ alpha:Float, imgSrc:ImageSource, texturePageIndex:Int) throws {
-        lastTexture = texturePageIndex
-        if (!usingNewPage && destinationPage.last == lastTexture) {
-            try copyAndSetTargetPage(lastTexture)
+    func drawImage2(_ dest:Rect<Int16>, _ color:SDLColor, _ alpha:Float, imgSrc:SDLTextureSlice, texturePageIndex:Int) throws {
+        _lastTexture = texturePageIndex
+        if (!usingNewPage && destinationPage.last == _lastTexture) {
+            try copyAndSetTargetPage(_lastTexture)
         }
         if (try imgSrc.texture.blendMode().contains(blendMode) == false) {
             try imgSrc.texture.setBlendMode([blendMode])//TODO: wth why optionset

@@ -21,8 +21,8 @@ public class EditableImage {
         return self.surface.size()
     }
     
-    public func bounds() -> Frame<Int> {
-        return Frame(origin: .zero, size: size())
+    public func bounds() -> Rect<Int> {
+        return Rect(origin: .zero, size: size())
     }
     
     public func resize(_ size:Size<Int>) throws {
