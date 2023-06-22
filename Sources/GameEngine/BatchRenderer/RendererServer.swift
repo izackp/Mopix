@@ -7,6 +7,13 @@
 
 import SDL2
 import SDL2Swift
+import ChunkedPool
+
+extension BitMaskOptionSet<Renderer.RendererFlip> {
+    func hasValue() -> Bool {
+        return self.contains(.horizontal) || self.contains(.vertical)
+    }
+}
 
 public class RendererServer {
     
@@ -23,6 +30,8 @@ public class RendererServer {
     var _urlImageCache:[String:UInt64] = [:] //TODO: FIX: Also cached in image manager
     var _lastCmdList:[DrawCmdImage] = []
     var _futureCmdList:[DrawCmdImage] = []
+    var _lastCmdListIndex:[Int:DrawCmdImage] = [:]
+    var _futureCmdListIndex:[Int:DrawCmdImage] = [:]
     var _futureTime:UInt64 = 0
     
     //MARK: -
@@ -118,26 +127,44 @@ public class RendererServer {
     public func draw(_ command:DrawCmdImage) {
         guard let image = self._idImageCache[command.resourceId] else { return }
         let source = image.getTextureSlice()
-        renderer.draw(source, command.dest.sdlRect(), command.color)
+        if (command.rotation != 0 || command.flip.hasValue()) {
+            renderer.draw(source, command.dest.sdlRect(), command.color, command.alpha, Double(command.rotation), command.rotationPoint.sdlPoint(), command.flip)
+        } else {
+            renderer.draw(source, command.dest.sdlRect(), command.color, command.alpha)
+        }
+        
     }
 
-    //TODO: Sort
-    //TODO: interpolate
+    //TODO: What if this is sent multiple times?
+    //TODO: Try flattening z values to reduce texture switching;
+    //Sort by z then sort by collision
     public func receiveCmds(_ list:[DrawCmdImage]) {
-        var oldList = self._lastCmdList
-        self._lastCmdList = _futureCmdList
+        var oldList = _lastCmdList
+        var oldIndex = _lastCmdListIndex
+        _lastCmdList = _futureCmdList
+        _lastCmdListIndex = _futureCmdListIndex
         oldList.removeAll(keepingCapacity: true)
-        oldList.append(contentsOf: list)
-        self._futureCmdList = oldList
+        //In Swift 5 sort() uses stable implementation
+        let sorted = list.sorted { (cmd:DrawCmdImage, other:DrawCmdImage) in
+            return cmd.compare(other) == .orderedAscending
+        }
+        oldList.append(contentsOf: sorted)
+        oldIndex.removeAll(keepingCapacity: true)
+        sorted.forEachUnchecked { eachItem, i in
+            let index = Int(Int64(bitPattern: eachItem.animationId))
+            oldIndex[index] = eachItem
+        }
+        _futureCmdList = oldList
+        _futureCmdListIndex = oldIndex
     }
 
     func draw(_ time:UInt64) {
         let interpolated = _futureCmdList.map() {
-            let id = $0.animationId
+            let id = Int(Int64(bitPattern: $0.animationId))
             if (id == 0) {
                 return $0
             }
-            let matching = _lastCmdList.first(where: { $0.animationId == id })
+            let matching = _lastCmdListIndex[id]
             if let matching = matching {
                 return $0.lerp(matching, time)
             } else {
@@ -145,8 +172,24 @@ public class RendererServer {
             }
         }
 
-        for eachItem in interpolated {
-            draw(eachItem)
+        
+        let previousRect = renderer.getClipRect()
+        do {
+            try renderer.setClipRect(nil)
+            let currentClip = Rect<Int>.zero
+            let currentSDLClip = currentClip.sdlRect()
+            for eachItem in interpolated {
+                //TODO: We can also do the same with color mod and alpha; check if effects perfomance
+                let clippingRect = eachItem.clippingRect
+                if (clippingRect != currentClip) {
+                    try renderer.setClipRect(currentSDLClip) ///Note: 0 width or height is same as setting nil
+                }
+                
+                draw(eachItem)
+            }
+            try renderer.setClipRect(previousRect)
+        } catch let error {
+            print("Got error: \(error)")
         }
     }
 

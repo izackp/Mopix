@@ -6,7 +6,7 @@
 //
 
 
-public struct Size<T: Codable & Numeric>: Equatable, Codable  {
+public struct Size<T: Codable & Numeric & Hashable>: Equatable, Codable  {
     public var width:T
     public var height:T
     
@@ -30,9 +30,10 @@ public struct Size<T: Codable & Numeric>: Equatable, Codable  {
     func area() -> T {
         return width * height
     }
+    
 }
 
-extension Size where T : BinaryInteger {
+public extension Size where T : BinaryInteger {
     func lerp(_ older:Size<T>, _ percent:Float) -> Size<T>{
         let newWidth = width.lerp(older.width, percent)
         let newHeight = height.lerp(older.height, percent)
@@ -41,6 +42,10 @@ extension Size where T : BinaryInteger {
     
     public func to<A: Codable & Numeric & Equatable>(_ type:A.Type) -> Size<A> {
         return Size<A>(A(exactly: width)!, A(exactly: height)!)
+    }
+    
+    func center() -> Point<T> {
+        return Point(width >> 1, height >> 1)
     }
 }
 

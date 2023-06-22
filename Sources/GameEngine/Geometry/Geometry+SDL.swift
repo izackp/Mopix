@@ -26,7 +26,7 @@ public extension SDL_Rect {
         }
     }
 }
-
+/*
 extension Rect where T == Int {
 
     public func toSDLTuple() -> (SDLWindow.Position, SDLWindow.Position, Int, Int) {
@@ -72,5 +72,25 @@ extension Rect where T == UInt16 {
     }
     func sdlRect() -> SDL_Rect {
         return SDL_Rect(x: Int32(x), y: Int32(y), w: Int32(width), h: Int32(height))
+    }
+}
+*/
+
+extension Rect where T : BinaryInteger {
+    public func toSDLTuple() -> (SDLWindow.Position, SDLWindow.Position, Int, Int) {
+        return (SDLWindow.Position.point(Int(origin.x)), SDLWindow.Position.point(Int(origin.y)), Int(size.width), Int(size.height))
+    }
+    
+    func toSDLSize() -> (Int, Int) {
+        return (Int(size.width), Int(size.height))
+    }
+    func sdlRect() -> SDL_Rect {
+        return SDL_Rect(x: Int32(x), y: Int32(y), w: Int32(width), h: Int32(height))
+    }
+}
+
+extension Point where T : BinaryInteger {
+    func sdlPoint() -> SDL_Point {
+        return SDL_Point(x: Int32(x), y: Int32(y))
     }
 }

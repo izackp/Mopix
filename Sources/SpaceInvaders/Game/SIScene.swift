@@ -157,7 +157,7 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCach
         }
         
         dest.origin = player.pos
-        renderer.draw(player.uuid, resourceIds.oryx_16bit_scifi_vehicles_105, dest)
+        renderer.draw(player.uuid, resourceIds.oryx_16bit_scifi_vehicles_105, dest, SDLColor.white, 1, player.rot, player.size.center())
         state = 2
     }
 }

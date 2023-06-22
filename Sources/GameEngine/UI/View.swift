@@ -291,6 +291,47 @@ open class View: Codable {
         }
     }
     
+    open func draw(_ context:IDraw) throws {
+        if (alpha == 0) { return }
+        let offsetFrame = frame
+        let img:UInt64 = 0 //image
+        if let image = cachedImage, shouldRedraw == false {
+            context.draw(DrawCmdImage(animationId: 0, resourceId: img, dest: offsetFrame.to(Int.self), z: 0, alpha: alpha, rotation: 0, rotationPoint: Point.zero, clippingRect: Rect.zero, time: 0))
+            return
+        }
+        
+        try context.drawSquare(offsetFrame, backgroundColor.sdlColor())
+        let clip = clipBounds
+        var lastClipRect:Rect<DValue>? = nil
+        if (clip) {
+            lastClipRect = context.currentClipRect
+            try context.setClipRect(offsetFrame)
+        }
+        try drawContent(context, offsetFrame)
+        for eachChild in children {
+            try eachChild.drawOrRaster(context, offsetFrame)
+        }
+        
+        if (borderWidth > 0 && borderColor.isClear() == false) {
+            var line:Rect<DValue> = offsetFrame
+            line.height = borderWidth
+            let borderColorSdl = borderColor.sdlColor()
+            try context.drawSquare(line, borderColorSdl)
+            line.y = offsetFrame.bottom - borderWidth
+            try context.drawSquare(line, borderColorSdl)
+            line.y = offsetFrame.y + borderWidth
+            line.width = borderWidth
+            line.height = offsetFrame.height - (borderWidth * 2)
+            try context.drawSquare(line, borderColorSdl)
+            line.x = offsetFrame.right - borderWidth
+            try context.drawSquare(line, borderColorSdl)
+        }
+        
+        if (clip) {
+            try context.setClipRect(lastClipRect)
+        }
+    }
+    
     func viewForId(_ id:String) -> View? {
         for eachView in children {
             if (eachView._id == id) {

@@ -74,4 +74,16 @@ extension Renderer {
             print("Couldn't draw image")
         }
     }
+    
+    func draw(_ imageSrc:SDLTextureSlice, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1, _ angle:Double = 0, _ center:SDL_Point = SDL_Point(x: 0, y: 0), _ flip:BitMaskOptionSet<RendererFlip> = [.none]) {
+        let texture = imageSrc.texture
+        let src = imageSrc.rect
+        do {
+            try texture.setColorModulation(color)
+            try texture.setAlphaModulation(UInt8(255*alpha))
+            try copyEx(texture, src, dest, angle, center, flip)
+        } catch {
+            print("Couldn't draw image")
+        }
+    }
 }

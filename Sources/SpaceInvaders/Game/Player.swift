@@ -17,6 +17,8 @@ class Player : IVirutalControllerListener {
     
     var pos = Point<Int>.zero
     var vel = Vector<Int>.zero
+    let size = Size<Int>(24, 24)
+    var rot:Float = 0
     var clientId:UInt32 = 0
     var deviceId:UInt32 = 0
     let uuid = Xoroshiro.shared.randomBytes()
@@ -45,6 +47,10 @@ class Player : IVirutalControllerListener {
         //I originally wanted to tick at 16, but lets say I decided 20.. it would cause issues if I shifted by 3
         pos.x += vel.x * Int(delta >> 2)
         pos.y += vel.y * Int(delta >> 2) //Now velocity is 1 per 4ms
+        rot -= 8
+        if (rot < 0) {
+            rot += 360
+        }
     }
     
     func onInput(_ controller: VirtualController) {
