@@ -21,6 +21,17 @@ struct SDLTextureSlice {
     let rect:SDL_Rect
 }
 
+//3 types of images
+//Image { id, url, size }
+//FlyWeight { id }
+
+//raw pixel data
+//Editable { id, pixeldata, size }
+
+//meta data info
+
+//This additional layer exists so we can 'drop' textures. To do that we need a reference to the atlas
+//subTextureIndex
 public class AtlasImage {
     public init(texture: SubTextureIndex, atlas: ImageAtlas) {
         self.subTextureIndex = texture

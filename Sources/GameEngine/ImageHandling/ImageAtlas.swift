@@ -34,29 +34,66 @@ public struct SubTextureIndex {
     public let sourceRect:Rect<Int32>
 }
 
-public struct PixelData {
+public struct RawPixelData {
     public let ptr:UnsafeRawBufferPointer
     public let width:Int
     public let pitch:Int
     
-    func size() -> Size<Int32> {
+    public func size() -> Size<Int32> {
         let len = ptr.count
         let height = len / pitch
         let size = Size<Int32>(Int32(width), Int32(height))
         return size
     }
+    
+    public func getPixelValue(_ x:Int, _ y:Int) -> Int {
+        let bytesPerPixel = pitch / width
+        let index = (y * width) + x
+        let byteIndex = index * bytesPerPixel
+        var result:Int = 0
+        
+        //TODO: Would probably be easier to just use a mask over iterating bytes
+        for i in 0 ..< bytesPerPixel { //stride(from:bytesPerPixel-1, through:0, by:-1)
+            let shiftBy = (bytesPerPixel - 1) - i
+            result += Int(ptr[byteIndex]) << shiftBy
+        }
+    }
 }
 
-public struct PixelDataMutable {
+public struct MutableRawPixelData {
     public let ptr:UnsafeMutableRawBufferPointer
     public let width:Int
     public let pitch:Int
     
-    func size() -> Size<Int32> {
+    public func size() -> Size<Int32> {
         let len = ptr.count
         let height = len / pitch
         let size = Size<Int32>(Int32(width), Int32(height))
         return size
+    }
+    
+    public func getPixelValue(_ x:Int, _ y:Int) -> UInt {
+        let bytesPerPixel = pitch / width
+        let index = (y * width) + x
+        let byteIndex = index * bytesPerPixel
+        var result:UInt = 0
+        
+        //TODO: Would probably be easier to just use a mask over iterating bytes
+        for i in 0 ..< bytesPerPixel { //stride(from:bytesPerPixel-1, through:0, by:-1)
+            let shiftBy = (bytesPerPixel - 1) - i
+            result += UInt(ptr[byteIndex + i]) << shiftBy
+        }
+    }
+    
+    public func setPixelValue(_ x:Int, _ y:Int, _ value:UInt) {
+        let bytesPerPixel = pitch / width
+        let index = (y * width) + x
+        let byteIndex = index * bytesPerPixel
+        
+        for i in 0 ..< bytesPerPixel { //stride(from:bytesPerPixel-1, through:0, by:-1)
+            let shiftBy = (bytesPerPixel - 1) - i
+            ptr[byteIndex + i] = UInt8((value >> shiftBy) & 0xFF)
+        }
     }
 }
 
@@ -163,12 +200,12 @@ public class ImageAtlas {
     
     func save(_ data:Data, width:Int, pitch:Int) throws -> SubTextureIndex {
         return try data.withUnsafeBytes { (ptr:UnsafeRawBufferPointer) in
-            let pixelData = PixelData(ptr: ptr, width: width, pitch: pitch)
+            let pixelData = RawPixelData(ptr: ptr, width: width, pitch: pitch)
             return try save(pixelData)
         }
     }
     
-    func save(_ pixelData:PixelData) throws -> SubTextureIndex {
+    func save(_ pixelData:RawPixelData) throws -> SubTextureIndex {
         let space = UInt32(pixelData.size().area())
         var pageIdx = nextPageThatFits(0, space)
         while (pageIdx != -1) {
@@ -196,7 +233,7 @@ public class ImageAtlas {
         return subTexture
     }
     
-    private func saveIntoPage(_ page: inout TexturePage, _ index:Int, _ pixelData:PixelData) throws -> SubTextureIndex? {
+    private func saveIntoPage(_ page: inout TexturePage, _ index:Int, _ pixelData:RawPixelData) throws -> SubTextureIndex? {
         guard let alloc = try saveIntoPageLow(&page, pixelData) else {
             return nil
         }
@@ -204,7 +241,7 @@ public class ImageAtlas {
         return SubTextureIndex(allocationId: alloc.id, texturePageIndex: index, sourceRect: frame)
     }
     
-    private func saveIntoPageLow(_ page: inout TexturePage, _ pixelData:PixelData) throws -> Allocation? {
+    private func saveIntoPageLow(_ page: inout TexturePage, _ pixelData:RawPixelData) throws -> Allocation? {
         let size = pixelData.size()
         guard let alloc = page.allocator.allocate(size_: size) else { return nil }
         do {

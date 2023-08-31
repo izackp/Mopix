@@ -20,6 +20,7 @@ struct ResourceIds {
     var bullet:UInt64 = 0
 }
 
+@available(macOS 12.0, *)
 public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCache {
 
     var enemies = EntityPool<Enemy>()
@@ -29,8 +30,11 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCach
     var bounds:Rect<Int> = Rect(x: 0, y: 0, width: 800, height: 600)
     var isAwake = false
     var resourceIds = ResourceIds()
+    var state = 0 // 0 none, 1 logic, 2 drawn
+    var viewController:TestController
     
-    public init() {
+    public init(testVC:TestController) {
+        viewController = testVC
     }
     
     public func awake() {
@@ -112,7 +116,6 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCach
         }
     }
     
-    var state = 0 // 0 none, 1 logic, 2 drawn
     public func logic(_ delta: UInt64) {
         enemies.insertPending()
         enemies.forEach { (eachEnemy:inout Enemy) in

@@ -39,11 +39,11 @@ extension StandardColors {
  */
 public class LabeledColorMap {
     
-    init(_ mapping: [String : UInt32]) {
+    public init(_ mapping: [String : UInt32]) {
         self.mapping = mapping
     }
     
-    static let standard = LabeledColorMap(
+    public static let standard = LabeledColorMap(
         ["white":0xFFFFFFFF,
          "green":0xFF00FF00,
          "red":0xFFFF0000,
@@ -54,9 +54,9 @@ public class LabeledColorMap {
          "clear":0x00000000]
     )
     
-    var mapping:[String:UInt32]
+    public var mapping:[String:UInt32]
     
-    func expectRawColor(_ label:String) throws -> UInt32 {
+    public func expectRawColor(_ label:String) throws -> UInt32 {
         guard let result = mapping[label] else {
             throw GenericError("No color mapping for label: \(label)")
         }

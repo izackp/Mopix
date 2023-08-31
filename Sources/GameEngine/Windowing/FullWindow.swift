@@ -72,7 +72,7 @@ public final class FullWindow: LiteWindow {
         rootViewController?.drawStart()
     }
     
-    func setRootViewController(_ vc:ViewController) {
+    public func setRootViewController(_ vc:ViewController) {
         self.rootViewController = vc
         let view = vc.view
         self.rootView = view
@@ -126,7 +126,7 @@ public final class FullWindow: LiteWindow {
         
     }
     
-    func viewForPoint(_ point:Point<DValue>) -> View? {
+    public func viewForPoint(_ point:Point<DValue>) -> View? {
         let result = rootView?.viewForPoint(point)
         return result
     }
@@ -195,12 +195,23 @@ public final class FullWindow: LiteWindow {
         renderClient.clearCommands()
         drawable?.draw(time, renderClient)
         renderClient.sendCommands()
+        
         let context = UIRenderContext(renderer: renderer, imageManger: imageManager)
         context.currentWindowFrame[context.currentWindowFrame.count - 1] = frame.bounds()
         drawCount = renderServer._futureCmdList.count
         renderServer.draw(totalDrawTime - 100)
+        
+        //TODO: Move; we want the server to draw everything?
         if let view = rootView {
             try view.draw(context, view.frame)
         }
     }
 }
+
+/*
+ I notice a problem with remote rendering.
+ if we want a truely disconnected rendering experience
+ we need to be able to create windows.. right?
+ seems like an os problem.. 
+ 
+ */

@@ -9,9 +9,35 @@ import Foundation
 import SDL2Swift
 import SDL2
 
+public struct DrawProperties {
+    let animationId:UInt64
+    let resourceId:UInt64
+    let dest:Rect<Int>
+    let color:SDLColor = SDLColor.white
+    let z:Int
+    let alpha:Float
+    let rotation:Float
+    let rotationPoint:Point<Int> //point where to rotate
+    let clippingRect:Rect<Int>
+    let flip:BitMaskOptionSet<Renderer.RendererFlip> = [.none]
+    var time:UInt64
+}
+
 //Var vs let : https://forums.swift.org/t/to-var-or-let-struct-properties/52363/12
 //Seems like defaulting to var makes sense unless we have specific varients
 public struct DrawCmdImage {
+    public init(animationId: UInt64, resourceId: UInt64, dest: Rect<Int>, z: Int, alpha: Float, rotation: Float, rotationPoint: Point<Int>, clippingRect: Rect<Int>, time: UInt64) {
+        self.animationId = animationId
+        self.resourceId = resourceId
+        self.dest = dest
+        self.z = z
+        self.alpha = alpha
+        self.rotation = rotation
+        self.rotationPoint = rotationPoint
+        self.clippingRect = clippingRect
+        self.time = time
+    }
+    
     let animationId:UInt64
     let resourceId:UInt64
     let dest:Rect<Int>

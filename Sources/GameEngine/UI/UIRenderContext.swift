@@ -154,7 +154,7 @@ public class UIRenderContext {
         try drawImage2(dest, color, 1, imgSrc: SDLTextureSlice(texture: texture, rect: source), texturePageIndex: blankSubTexture.texturePageIndex)
     }
     
-    func copyAndSetTargetPage(_ index:Int) throws {
+    private func copyAndSetTargetPage(_ index:Int) throws {
         let atlas = imageManager.atlas
         let texturePage = atlas.listPages[index]
         let newTexture = try atlas.createTexture()

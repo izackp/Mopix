@@ -34,6 +34,11 @@ public class RendererServer {
     var _futureCmdListIndex:[Int:DrawCmdImage] = [:]
     var _futureTime:UInt64 = 0
     
+    
+    var _lastUsed:[UInt64:Int] = [:] //Store last used id
+    var _pinnedIDs:[UInt64] = [] //ids that we dont remove
+    
+    
     //MARK: -
     //TODO: Add reference counting
     public func loadResource(_ url:VDUrl) throws -> UInt64 {
@@ -189,7 +194,7 @@ public class RendererServer {
             }
             try renderer.setClipRect(previousRect)
         } catch let error {
-            print("Got error: \(error)")
+            print("Unable to set clipping rect: \(error)")
         }
     }
 
@@ -200,10 +205,10 @@ public class RendererServer {
             if (existing.editIteration == backingImage.editIteration) {
                 return texture
             }
-            let backingSurface = backingImage.surface
+            let size = backingImage.size()
             let attr = try texture.attributes()
-            if (attr.width == backingSurface.width && attr.height == backingSurface.height) {
-                try backingImage.surface.withPixelData { pixelData in
+            if (attr.width == size.width && attr.height == size.height) {
+                try backingImage.withPixelData { pixelData in
                     try texture.update(pixels: pixelData.ptr, pitch: pixelData.pitch)
                 }
                 
@@ -211,7 +216,7 @@ public class RendererServer {
                 return texture
             }
         }
-        let newTexture = try Texture(renderer: renderer, surface: backingImage.surface)
+        let newTexture = try Texture(renderer: renderer, surface: backingImage.getSurface())
         cache[id] = SurfaceBackedTexture(texture: newTexture, editIteration: backingImage.editIteration)
         return newTexture
     }

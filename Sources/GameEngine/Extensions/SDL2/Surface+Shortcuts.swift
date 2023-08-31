@@ -18,12 +18,12 @@ public extension Surface {
         return Rect(origin: .zero, size: Size(self.width, self.height))
     }
     
-    func withPixelData<Result>(_ body:(_ pixelData:PixelData) throws -> (Result)) throws -> Result {
+    func withPixelData<Result>(_ body:(_ pixelData:RawPixelData) throws -> (Result)) throws -> Result {
         let pitch = self.pitch
         let numBytes = self.height * pitch
         let blank = try self.withUnsafeMutableBytes { (ptr:UnsafeMutableRawPointer) -> Result in
             let bufferPtr = UnsafeRawBufferPointer(start: ptr, count: numBytes)
-            let pixelData = PixelData(ptr: bufferPtr, width: self.width, pitch: pitch)
+            let pixelData = RawPixelData(ptr: bufferPtr, width: self.width, pitch: pitch)
             return try body(pixelData)
         }!
         return blank

@@ -14,6 +14,11 @@ public protocol LayoutElement : Codable {
 }
 
 public struct LEInset : LayoutElement, Codable {
+    public init(edge: Edge, value: DValue) {
+        self.edge = edge
+        self.value = value
+    }
+
     public var edge:Edge
     public var value:DValue
     
@@ -23,6 +28,11 @@ public struct LEInset : LayoutElement, Codable {
 }
 
 public struct LEInsetFixed : LayoutElement, Codable {
+    public init(edge: Edge, value: DValue) {
+        self.edge = edge
+        self.value = value
+    }
+
     public var edge:Edge
     public var value:DValue
     
@@ -32,6 +42,10 @@ public struct LEInsetFixed : LayoutElement, Codable {
 }
 
 public struct LEWidth : LayoutElement, Codable {
+    public init(value: DValue) {
+        self.value = value
+    }
+
     public var value:DValue
 
     public func updateFrame(_ view:View) {
@@ -40,6 +54,10 @@ public struct LEWidth : LayoutElement, Codable {
 }
 
 public struct LEHeight : LayoutElement, Codable {
+    public init(value: DValue) {
+        self.value = value
+    }
+
     public var value:DValue
 
     public func updateFrame(_ view:View) {
@@ -48,6 +66,10 @@ public struct LEHeight : LayoutElement, Codable {
 }
 
 public struct LEPosX : LayoutElement, Codable {
+    public init(value: DValue) {
+        self.value = value
+    }
+
     public var value:DValue
 
     public func updateFrame(_ view:View) {
@@ -56,6 +78,10 @@ public struct LEPosX : LayoutElement, Codable {
 }
 
 public struct LEPosY : LayoutElement, Codable {
+    public init(value: DValue) {
+        self.value = value
+    }
+
     public var value:DValue
 
     public func updateFrame(_ view:View) {
@@ -64,6 +90,12 @@ public struct LEPosY : LayoutElement, Codable {
 }
 
 public struct LEAlign : LayoutElement, Codable {
+    public init(vertical: Bool, percentStart: Float, percentEnd: Float) {
+        self.vertical = vertical
+        self.percentStart = percentStart
+        self.percentEnd = percentEnd
+    }
+
     public var vertical:Bool
     public var percentStart:Float
     public var percentEnd:Float
@@ -84,6 +116,11 @@ public struct LEAlign : LayoutElement, Codable {
 
 
 public struct LEAnchor : LayoutElement, Codable {
+    public init(edge: Edge, percent: Float) {
+        self.edge = edge
+        self.percent = percent
+    }
+
     public var edge:Edge
     public var percent:Float
 
@@ -108,6 +145,11 @@ public struct LEAnchor : LayoutElement, Codable {
 }
 
 public struct LEAnchorFixed : LayoutElement, Codable {
+    public init(edge: Edge, percent: Float) {
+        self.edge = edge
+        self.percent = percent
+    }
+
     public var edge:Edge
     public var percent:Float
 
@@ -186,6 +228,11 @@ public struct LEWrapHeight : LayoutElement, Codable {
 
 //TODO: I don't like it.. Think of something else
 public struct LEMirrorMargin: LayoutElement, Codable {
+    public init(source: Edge, destination: Edge) {
+        self.source = source
+        self.destination = destination
+    }
+
     public var source:Edge
     public var destination:Edge
     

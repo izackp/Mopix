@@ -44,7 +44,7 @@ open class View: Codable {
     public var shouldRasterize:Bool = false
     public var shouldRedraw:Bool = false
     
-    init () {
+    public init () {
         
     }
     
@@ -71,7 +71,7 @@ open class View: Codable {
         try someInit(from: decoder, clipBoundsDefault: false)
     }
     
-    func someInit(from decoder: Decoder, clipBoundsDefault:Bool) throws {
+    private func someInit(from decoder: Decoder, clipBoundsDefault:Bool) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self._id = try container.decodeIfPresent(String.self, forKey: ._id)
         self.frame = try container.decodeIfPresent(Rect<Int16>.self, forKey: .frame) ?? .zero
@@ -127,7 +127,7 @@ open class View: Codable {
         }
     }
     
-    func containerSize() -> Size<DValue>? {
+    public func containerSize() -> Size<DValue>? {
         return superView?.frame.size ?? window?.frame.size
     }
     /*
@@ -138,7 +138,7 @@ open class View: Codable {
         return superView?.isUserInteractable() ?? true
     }*/
     
-    func viewForPoint(_ point:Point<DValue>) -> View? {
+    public func viewForPoint(_ point:Point<DValue>) -> View? {
         if (self.frame.containsPoint(point) == false) { return nil }
         
         let offsetPoint = point.offset(frame.x, frame.y)
@@ -227,7 +227,7 @@ open class View: Codable {
         
     }
     
-    func drawOrRaster(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
+    private func drawOrRaster(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
         if (alpha == 0) { return }
         let requiresComposition = (alpha != 1 && (children.count > 0 || !backgroundColor.isClear()))
         let requireRaster = (shouldRasterize || requiresComposition)
@@ -299,7 +299,7 @@ open class View: Codable {
             context.draw(DrawCmdImage(animationId: 0, resourceId: img, dest: offsetFrame.to(Int.self), z: 0, alpha: alpha, rotation: 0, rotationPoint: Point.zero, clippingRect: Rect.zero, time: 0))
             return
         }
-        
+        /*
         try context.drawSquare(offsetFrame, backgroundColor.sdlColor())
         let clip = clipBounds
         var lastClipRect:Rect<DValue>? = nil
@@ -329,10 +329,10 @@ open class View: Codable {
         
         if (clip) {
             try context.setClipRect(lastClipRect)
-        }
+        }*/
     }
     
-    func viewForId(_ id:String) -> View? {
+    public func viewForId(_ id:String) -> View? {
         for eachView in children {
             if (eachView._id == id) {
                 return eachView

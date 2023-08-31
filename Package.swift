@@ -76,6 +76,16 @@ let package = Package(
             ],
             swiftSettings: optimize
         ),
+        .executableTarget(
+            name: "UITest",
+            dependencies: [
+                "GameEngine"
+            ],
+            resources: [
+                .copy("ExternalFiles")
+            ],
+            swiftSettings: optimize
+        ),
         .testTarget(
             name: "GameEngineTests",
             dependencies: ["GameEngine"]),

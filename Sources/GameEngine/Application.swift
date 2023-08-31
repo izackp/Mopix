@@ -71,16 +71,16 @@ open class Application {
     public let eventLogger = EventTimeline()
     //var engine:IEngine? = nil
     //var delegate:LGAppDelegate
-    var isRunning = true
-    var stats = Stats()
+    public var isRunning = true
+    public var stats = Stats()
     
-    var everySecond:Double = 0
-    var skippedFrames = 0
-    var skippedTime:Int = 0
-    var lastStats:String = ""
+    public var everySecond:Double = 0
+    public var skippedFrames = 0
+    public var skippedTime:Int = 0
+    public var lastStats:String = ""
     
     static weak var _shared:Application!
-    static func shared() -> Application {
+    public static func shared() -> Application {
         return _shared!
     }
     

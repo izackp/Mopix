@@ -77,7 +77,7 @@ open class ViewController {
     }*/
     
     public var view:View
-    init(_ view:View) {
+    public init(_ view:View) {
         self.view = view
     }
     

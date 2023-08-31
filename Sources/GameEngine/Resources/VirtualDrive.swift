@@ -20,9 +20,9 @@ import Foundation
 public typealias VDUrl = URL
 
 public struct VDItem  {
-    let url:URL
-    let isFile:Bool
-    let isDir:Bool
+    public let url:URL
+    public let isFile:Bool
+    public let isDir:Bool
 }
 
 extension Array where Element == MountedDir {

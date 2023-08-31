@@ -40,7 +40,7 @@ public extension Size where T : BinaryInteger {
         return Size<T>(newWidth, newHeight)
     }
     
-    public func to<A: Codable & Numeric & Equatable>(_ type:A.Type) -> Size<A> {
+    func to<A: Codable & Numeric & Equatable>(_ type:A.Type) -> Size<A> {
         return Size<A>(A(exactly: width)!, A(exactly: height)!)
     }
     

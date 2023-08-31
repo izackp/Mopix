@@ -16,13 +16,13 @@ public protocol PackageChangeListener : AnyObject {
 }
 
 public class MountedDir : IFileSystem {
-    
-    let meta:PackageMeta
-    let path:URL
-    let virtualPath:String
-    let isReadOnly:Bool
-    let isIndexed:Bool // Allows being searched for resources
-    let isDirectory:Bool
+
+    public let meta:PackageMeta
+    public let path:URL
+    public let virtualPath:String
+    public let isReadOnly:Bool
+    public let isIndexed:Bool // Allows being searched for resources
+    public let isDirectory:Bool
     
     private var _fileWatchers = WeakArray<PackageChangeListener>([])
     var fileWatchers:WeakArray<PackageChangeListener> { get { return _fileWatchers } }
@@ -31,7 +31,7 @@ public class MountedDir : IFileSystem {
     private var _eventStream:EonilFSEventStream? = nil
     #endif
     
-    init(meta: PackageMeta, path: URL, virtualPath: String, isReadOnly: Bool, isDirectory:Bool, isIndexed:Bool = true) {
+    public init(meta: PackageMeta, path: URL, virtualPath: String, isReadOnly: Bool, isDirectory:Bool, isIndexed:Bool = true) {
         self.meta = meta
         self.path = path
         self.virtualPath = virtualPath
@@ -41,7 +41,7 @@ public class MountedDir : IFileSystem {
     }
     
     //NOTE: Foresee problems with /my/path/../
-    static func newMountedDir(path:URL, isDirectory:Bool, mountDir:String = String(OS.defaultPathSeparator)) throws -> MountedDir {
+    public static func newMountedDir(path:URL, isDirectory:Bool, mountDir:String = String(OS.defaultPathSeparator)) throws -> MountedDir {
         // TODO: Check if file is writable/readable
         let lastPart = path.lastPathComponent
         var fileORDirPath:URL
@@ -59,7 +59,7 @@ public class MountedDir : IFileSystem {
     }
     
     
-    func allItems(_ relPath:String = "", _ recursive:Bool) -> AnyIterator<VDItem> {
+    public func allItems(_ relPath:String = "", _ recursive:Bool) -> AnyIterator<VDItem> {
         let fm = FileManager()
         let dirUrl = path.appendingPathComponent(relPath)
         let options:FileManager.DirectoryEnumerationOptions
@@ -94,7 +94,7 @@ public class MountedDir : IFileSystem {
         return empty
     }
     
-    func searchByName(_ fileName:String) -> VDItem? {
+    public func searchByName(_ fileName:String) -> VDItem? {
         let result = allItems("", true).lazy.first(where: {
             $0.url.lastPathComponent == fileName
         })
@@ -177,7 +177,7 @@ public class MountedDir : IFileSystem {
     
     //TODO: Not thread safe
     #if os(macOS)
-    func startWatching(_ listener:PackageChangeListener) throws {
+    public func startWatching(_ listener:PackageChangeListener) throws {
         if _fileWatchers.contains(where: { $0 === listener }) {
             return
         }
@@ -194,7 +194,7 @@ public class MountedDir : IFileSystem {
         }
     }
     
-    func stopWatching(_ listener:PackageChangeListener) {
+    public func stopWatching(_ listener:PackageChangeListener) {
         _fileWatchers.clean()
         if let index = _fileWatchers.firstIndex(where: { $0 === listener }) {
             _fileWatchers.remove(at: index)
@@ -226,14 +226,14 @@ public class MountedDir : IFileSystem {
         }
     }
     #else
-    func startWatching(_ listener:PackageChangeListener) throws {
+    public func startWatching(_ listener:PackageChangeListener) throws {
         if _fileWatchers.contains(where: { $0 === listener }) {
             return
         }
         _fileWatchers.append(listener)
     }
     
-    func stopWatching(_ listener:PackageChangeListener) {
+    public func stopWatching(_ listener:PackageChangeListener) {
         _fileWatchers.clean()
         if let index = _fileWatchers.firstIndex(where: { $0 === listener }) {
             _fileWatchers.remove(at: index)

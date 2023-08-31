@@ -22,6 +22,7 @@ public enum ContentMode : Int, Codable {
     case bottomRight
     case bottomLeft
 }
+
 public class ImageView : View {
     
     public var image:AtlasImage? = nil

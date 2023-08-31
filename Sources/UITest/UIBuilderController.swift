@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import GameEngine
 /*
 public class UIBuilderView: View {
     internal init(viewLeftHeirachy: View, viewContent: View, viewRightInfo: View) {
@@ -55,6 +56,7 @@ public class UIBuilderView: View {
     }
 }*/
 
+@available(macOS 12.0, *)
 public class UIBuilderController : ViewController, PackageChangeListener {
     
     let _source:VDUrl
@@ -74,7 +76,7 @@ public class UIBuilderController : ViewController, PackageChangeListener {
             if (view._id == "viewRoot") { return true }
             return false
         }) as? View else { throw GenericError("Unexpected type")}
-        let mountedDir = vd.packages.contains(vcUrl)
+        let mountedDir = vd.packages.first(where: {$0.path == vcUrl})
         let result = try UIBuilderController(myView, vcUrl)
         try mountedDir?.startWatching(result)
         return result
@@ -117,7 +119,7 @@ public class UIBuilderController : ViewController, PackageChangeListener {
     
     var lastFrames = 0
     override public func drawStart() {
-        let app = TestGameApp.shared()
+        let app = UITestApp.shared!
         let newFrames = app.skippedFrames
         if (lastFrames == newFrames) { return }
         lastFrames = newFrames

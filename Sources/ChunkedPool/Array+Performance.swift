@@ -27,6 +27,30 @@ public extension Array {
             block(&self[i])
         }
     }
+    
+    //~0.7ms - Best option for speed and clean code
+    @inline(__always) func forEachUnchecked(_ block: ( _ item:inout Element, _ i:Int)->()) {
+        self.withUnsafeBufferPointer { (ptr:UnsafeBufferPointer<Element>) in
+            guard let buffer = ptr.baseAddress else { return }
+            let len = ptr.count
+            for t in 0 ..< len {
+                let ptr:UnsafeMutablePointer<Element> = UnsafeMutablePointer(mutating: buffer.advanced(by: t))
+                block(&ptr.pointee, t)
+            }
+        }
+    }
+    
+    //~0.7ms - Best option for speed and clean code
+    @inline(__always) mutating func forEachUncheckedMut(_ block: ( _ item:inout Element, _ i:Int)->()) {
+        self.withUnsafeMutableBufferPointer { (ptr:inout UnsafeMutableBufferPointer<Element>) in
+            guard let buffer = ptr.baseAddress else { return }
+            let len = ptr.count
+            for t in 0 ..< len {
+                let ptr:UnsafeMutablePointer<Element> = buffer.advanced(by: t)
+                block(&ptr.pointee, t)
+            }
+        }
+    }
 }
 
 public extension ContiguousArray {

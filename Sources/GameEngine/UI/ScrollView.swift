@@ -101,19 +101,19 @@ extension Point where T:SignedInteger {
 //TODO: Calculate frames lost per second
 open class ScrollView : View {
     
-    var offsetInter:Point<Int64> = Point.zero
-    var offset:Point<Int64> = Point.zero //current
-    var contentSize:Size<DValue> = Size.zero
+    public var offsetInter:Point<Int64> = Point.zero
+    public var offset:Point<Int64> = Point.zero //current
+    public var contentSize:Size<DValue> = Size.zero
     
-    var destinationOffset:Point<Int64> = Point.zero
+    public var destinationOffset:Point<Int64> = Point.zero
     
-    var previousLocation:Point<DValue>? = nil
-    var currentLocation:Point<DValue>? = nil
+    public var previousLocation:Point<DValue>? = nil
+    public var currentLocation:Point<DValue>? = nil
     
-    let stretchMargin:DValue = 20
-    let maxVel:Int64 = 1
-    var isPressed = false
-    var mouseOffset:Point<DValue>? = nil
+    public let stretchMargin:DValue = 20
+    public let maxVel:Int64 = 1
+    public var isPressed = false
+    public var mouseOffset:Point<DValue>? = nil
     
     open override func onMousePress(_ event:MouseButtonEvent) {
         isPressed = true

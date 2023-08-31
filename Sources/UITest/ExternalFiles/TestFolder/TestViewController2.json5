@@ -1,0 +1,60 @@
+[{
+    _id: "viewRoot",
+    _type: "View",
+    frame: { x: 0, y: 0, width: 320, height: 512 },
+    backgroundColor: 0x101030,
+    listLayouts: [
+        {
+            _type: "LEAnchor",
+            edge: "Right",
+            percent: 1.0
+        }, {
+            _type: "LEAnchor",
+            edge: "Bottom",
+            percent: 1.0
+        }
+    ],
+    children: [
+        {
+            _id: "viewNavigationBar",
+            _type: "View",
+            frame: { x: 0, y: 0, width: 320, height: 44 },
+            listLayouts: [ { _type: "LEAnchor", edge: "Right", percent: 1.0 } ],
+            backgroundColor: 0xFFFFFFFF, //TODO: label based colors //CSS style etc
+            children: [
+                {
+                    _id: "btnOptions",
+                    _type: "TextView",
+                    frame: { x: 270, y: 0, width: 50, height: 44 },
+                    listLayouts: [ { _type: "LEAnchorFixed", edge: "Right", percent: 1.0 } ],
+                    backgroundColor: "green"
+                },
+                {
+                    _id: "lblTitle",
+                    _type: "TextView",
+                    frame: { x: 50, y: 0, width: 220, height: 44 },
+                    listLayouts: [
+                        { _type: "LEMatch", source: { _id: "btnOptions" }, edgeSource: "Left", edgeDestination: "Right" },
+                        { _type: "LEAnchor", edge: "Left", percent: 0.0 },
+                        { _type: "LEMirrorMarginHorizontalMax" },
+                    ],
+                    text: "Sample Title",
+                    alignment: "center",
+                    backgroundColor: "red"
+                }
+            ]
+        },
+        {
+            _id: "viewImage",
+            _type: "ImageView",
+            frame: { x: 0, y: 44, width: 320, height: 300 },
+            listLayouts: [
+                                    { _type: "LEMatch", source: { _id: "viewNavigationBar" }, edgeSource: "Bottom", edgeDestination: "Top" },
+                                    { _type: "LEAnchor", edge: "Right", percent: 1.0 },
+                                    { _type: "LEAnchor", edge: "Bottom", percent: 1.0 } ],
+            image: "oryx_16bit_scifi_vehicles_105.bmp",
+            backgroundColor: "blue",
+        }
+    ]
+}
+]

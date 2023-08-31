@@ -20,12 +20,19 @@ import Foundation
 
 public class InstanceCache {
     
+    public init(_cache: [Any] = [], _strIndex: [String : Int] = [:], _intIndex: [Int64 : Int] = [:], _objIdIndex: [ObjectIdentifier : Int] = [:]) {
+        self._cache = _cache
+        self._strIndex = _strIndex
+        self._intIndex = _intIndex
+        self._objIdIndex = _objIdIndex
+    }
+    
     var _cache:[Any] = []
     var _strIndex:[String:Int] = [:]
     var _intIndex:[Int64:Int] = [:] //Int64???
     var _objIdIndex:[ObjectIdentifier:Int] = [:]
     
-    func instanceForId<T>(_ id:String) throws -> Optional<T> where T: AnyObject {
+    public func instanceForId<T>(_ id:String) throws -> Optional<T> where T: AnyObject {
         guard let index = _strIndex[id] else {
             //throw GenericError("Instance cache has no instance for str id: \(id).")
             return nil
@@ -33,14 +40,14 @@ public class InstanceCache {
         return try instanceForIndex(index)
     }
     
-    func indexForId(_ objId:ObjectIdentifier) -> Int? {
+    public func indexForId(_ objId:ObjectIdentifier) -> Int? {
         if let existingIndex = _objIdIndex[objId] {
             return existingIndex// _cache[existingIndex] as? T
         }
         return nil
     }
     
-    func instanceForId<T>(_ id:String, factory:() throws -> T) throws -> T {
+    public func instanceForId<T>(_ id:String, factory:() throws -> T) throws -> T {
         guard let index = _strIndex[id] else {
             let new = try factory()
             let index = saveInstance(new)
@@ -50,7 +57,7 @@ public class InstanceCache {
         return try instanceForIndex(index)
     }
     
-    func instanceForId<T>(_ id:Int64, factory:() throws -> T) throws -> T {
+    public func instanceForId<T>(_ id:Int64, factory:() throws -> T) throws -> T {
         guard let index = _intIndex[id] else {
             let new = try factory()
             let index = saveInstance(new)
@@ -60,7 +67,7 @@ public class InstanceCache {
         return try instanceForIndex(index)
     }
     
-    func instanceForId<T>(_ id:Int64) throws -> Optional<T>  {
+    public func instanceForId<T>(_ id:Int64) throws -> Optional<T>  {
         guard let index = _intIndex[id] else {
             //throw GenericError("Instance cache has no instance for int id: \(id).")
             return nil
@@ -68,7 +75,7 @@ public class InstanceCache {
         return try instanceForIndex(index)
     }
     
-    func instanceForIndex<T>(_ index:Int) throws -> T {
+    public func instanceForIndex<T>(_ index:Int) throws -> T {
         let instance = _cache[index]
         if let conv = instance as? T {
             return conv
@@ -76,7 +83,7 @@ public class InstanceCache {
         throw GenericError("Existing instance with type \(type(of: instance)) does not conform to expected type: \(T.self)")
     }
     
-    func saveInstance(_ obj:AnyObject) -> Int {
+    public func saveInstance(_ obj:AnyObject) -> Int {
         let objId = ObjectIdentifier(obj)
         if let existingIndex = _objIdIndex[objId] {
             return existingIndex
@@ -108,7 +115,7 @@ public class InstanceCache {
         return index
     }
     
-    func saveInstance(_ instance:Any, id:String) throws -> Int {
+    public func saveInstance(_ instance:Any, id:String) throws -> Int {
         if let index = _strIndex[id] {
             try checkMismatch(index, instance: instance, id)
             return index
@@ -119,7 +126,7 @@ public class InstanceCache {
         return index
     }
     
-    func saveInstance(_ instance:Any, id:Int64) throws -> Int {
+    public func saveInstance(_ instance:Any, id:Int64) throws -> Int {
         if let index = _intIndex[id] {
             try checkMismatch(index, instance: instance, "\(id)")
             return index
@@ -130,7 +137,7 @@ public class InstanceCache {
         return index
     }
     
-    func checkMismatch(_ index:Int, instance:Any, _ idForError:String) throws {
+    private func checkMismatch(_ index:Int, instance:Any, _ idForError:String) throws {
         if type(of: instance) is AnyClass {
             let obj = instance as AnyObject
             let existing = _cache[index]

@@ -59,6 +59,7 @@ class NoIdea {
  I think it would be neat or user simple to keep track of the animations automatically.
 */
 
+@available(macOS 12.0, *)
 class EngineWrapped : IUpdate, IDrawable {
 
     let scene:SIScene
@@ -92,15 +93,21 @@ extension Bundle {
     public static var SpaceInvaders: Bundle = .module
 }
 
+func printMemoryInfo<T>(_ item:T.Type) {
+    print(String(describing: item))
+    print(MemoryLayout<T>.size)       // 8
+    print(MemoryLayout<T>.stride)     // 8
+    print(MemoryLayout<T>.alignment)  // 8
+}
+
+@available(macOS 12.0, *)
 class TestGameApp : Application {
     
     let commandRepeater = CommandRepeater()
-    let scene = SIScene()
+    let scene:SIScene
     static var shared:TestGameApp! = nil
     
     override init() throws {
-        try super.init()
-        TestGameApp.shared = self
         
         let newWindow = try FullWindow(parent: self, title: "My Test Game", options:[Renderer.Option.presentVsync])
         addWindow(newWindow)
@@ -108,12 +115,18 @@ class TestGameApp : Application {
         let resources = URL(fileURLWithPath: Bundle.SpaceInvaders.resourcePath!).appendingPathComponent("ExternalFiles")
         print("Mounting: \(resources)")
         try vd.mountPath(path: resources)
+        
+        let testVC = try TestController.build(newWindow.imageManager)
+        scene = SIScene(testVC: testVC)
+        try super.init()
 
         let engine = EngineWrapped(scene: scene)
         
         addFixedListener(engine, msPerTick: 100)
         addEventListener(scene)
         newWindow.drawable = engine
+        
+        TestGameApp.shared = self
         
     }
 }

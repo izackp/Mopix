@@ -5,7 +5,7 @@
 //  Created by Isaac Paul on 4/23/23.
 //
 
-extension View {
+public extension View {
     func findWindow() -> LiteWindow? {
         var view:View? = self
         while let viewToCheck = view {
