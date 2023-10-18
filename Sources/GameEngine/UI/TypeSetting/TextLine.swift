@@ -885,7 +885,7 @@ extension TextLine2 {
     static func buildLineIterator(_ str:AttributedString, renderContext:UIRenderContext, context:TextContext, maxWidthPxs:Int? = nil) throws -> LineIterator {
         
         let stats = Application._shared.stats
-        var time = SDL_GetPerformanceCounter()
+        //var time = SDL_GetPerformanceCounter()
         let allCharacters = String(str.characters[...]) //https://forums.swift.org/t/attributedstring-to-string/61667
         
         //var currentPos = 0
@@ -900,9 +900,9 @@ extension TextLine2 {
         list.removeAll(keepingCapacity: true)
         //lines.removeAll(keepingCapacity: true)
 
-        var elapsed = SDL_GetPerformanceCounter() - time
+        //var elapsed = SDL_GetPerformanceCounter() - time
         //stats.insertSample("step0 - 0 - initialize vars", elapsed)
-        time = SDL_GetPerformanceCounter()
+        //time = SDL_GetPerformanceCounter()
         
         let step1 = RunIterator(str: str, runIterator: runIterator, renderContext: renderContext, textContext: context)
         let step2 = Step2ContextIterator(lineBreakChecker: lineBreakChecker, step1: step1)
@@ -910,7 +910,7 @@ extension TextLine2 {
         let step4 = SegmentIterator(step3: step3, listStep4: listStep4)
         let step5 = LineIterator(step3: step3, step4: step4, list: list, maxWidthPxs: maxWidthPxs)
         
-        elapsed = SDL_GetPerformanceCounter() - time
+        //elapsed = SDL_GetPerformanceCounter() - time
         //stats.insertSample("step0 - 1 - initialize steps", elapsed)
         
         return step5

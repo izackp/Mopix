@@ -30,7 +30,6 @@ public struct Size<T: Codable & Numeric & Hashable>: Equatable, Codable  {
     func area() -> T {
         return width * height
     }
-    
 }
 
 public extension Size where T : BinaryInteger {

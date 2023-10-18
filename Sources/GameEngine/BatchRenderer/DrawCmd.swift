@@ -49,6 +49,10 @@ public struct DrawCmdImage {
     let clippingRect:Rect<Int>
     let flip:BitMaskOptionSet<Renderer.RendererFlip> = [.none]
     var time:UInt64
+    
+    static func getId(_ item:DrawCmdImage) -> Int {
+        Int(Int64(bitPattern: item.animationId))
+    }
 }
 
 public extension DrawCmdImage {

@@ -8,6 +8,9 @@
 import SDL2
 import SDL2Swift
 
+//A wrapper for surface because I don't want to expose sdl2.
+//Though it would make sense to call it surface
+//Though it would be confusing inside of the codebase.
 public class PixelData {
     internal var _surface:Surface
     
@@ -15,8 +18,23 @@ public class PixelData {
         _surface = try Surface(rgb: (0, 0, 0, 0), size: (size.width, size.height))
     }
     
+    public init(_ data:[UInt8], _ sourceFormat:SDL_PixelFormat, _ size:Size<Int>) throws {
+        _surface = try Surface(data, sourceFormat, size.width, size.height)
+    }
+    
+    internal init(_ surface:Surface) {
+        _surface = surface
+    }
+    
     public func size() -> Size<Int> {
         return _surface.size()
+    }
+    
+    public func copy() throws -> PixelData { //TODO: Shouldn't throw? // We can avoid every error but a failed allocation. Though swift typically doesn't care?
+        
+        let newSurface = try Surface(rgb: (0, 0, 0, 0), size: (_surface.width, _surface.height))
+        try _surface.upperBlit(to: newSurface)
+        return PixelData(newSurface)
     }
     
     public func resize(_ size:Size<Int>) throws {
@@ -26,7 +44,7 @@ public class PixelData {
         
         try oldSurface.upperBlit(to: newSurface)
         _surface = newSurface
-        /*
+        /* keeping around.. would like to make blitting non-throwing
         try oldSurface.withPixelData { oldPixelData in
             let oldPxDataSize = oldPixelData.size()
             try self.surface.withMutablePixelData { pixelData in
@@ -57,7 +75,7 @@ public class PixelData {
         try _surface.fill(rect: rect, color: color)
     }
     
-    func withPixelData<Result>(_ body:(_ pixelData:RawPixelData) throws -> (Result)) throws -> Result {
+    public func withPixelData<Result>(_ body:(_ pixelData:RawPixelData) throws -> (Result)) throws -> Result {
         return try _surface.withPixelData(body)
     }
     

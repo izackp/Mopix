@@ -11,18 +11,9 @@ import SDL2Swift
 import SDL2_TTF
 import SDL2_TTFSwift
 
-extension SDLFont {
-    public convenience init(data:Data, ptSize:Int, index:Int = 0, hdpi:UInt32 = 0, vdpi:UInt32 = 0) throws {
-        
-        var fontPtr:OpaquePointer? = nil
-        try data.withUnsafeBytes { (dataPtr:UnsafeRawBufferPointer) in
-            let rwops = SDL_RWFromMem(UnsafeMutableRawPointer(mutating: dataPtr.baseAddress), Int32(dataPtr.count))
-            fontPtr = TTF_OpenFontIndexDPIRW(rwops, 0, Int32(ptSize), CLong(index), hdpi, vdpi)
-        }
-        
-        let ptr = try fontPtr.sdlThrow(type: type(of: self))
-        try self.init(fontPtr: ptr)
-    }
+public struct ImageResult {
+    let image:AtlasImage
+    let data:PixelData
 }
 
 public class SimpleImageManager : ImageManager {
@@ -95,9 +86,34 @@ public class SimpleImageManager : ImageManager {
         return nil
     }
     
-    public func image(_ editableImage:EditableImage) -> AtlasImage? {
+    public func imageAndPixels(_ url:VDUrl) -> ImageResult? {
+        let path = url.absoluteString //TODO: probably doesn't include host
+        let existingImage = _imageCache[path]
         do {
-            let subTexture = try atlas.save(editableImage.surface)
+            guard var file = try drive.readFile(url) else { return nil }
+        
+            let preFormatSurface = try file.withUnsafeMutableBytes { (ptr:UnsafeMutableRawBufferPointer) in
+                return try Surface.init(bmpDataPtr: ptr)
+            }
+            let image:AtlasImage
+            if let toUse = existingImage {
+                image = toUse
+            } else {
+                let subTexture = try atlas.save(preFormatSurface)
+                image = AtlasImage(texture: subTexture, atlas: atlas)
+            }
+            _imageCache[path] = image
+            let pixelData = PixelData(preFormatSurface)
+            return ImageResult(image: image, data: pixelData) //Not sure if the best idea to use preformat
+        } catch {
+            print("Couldn't load sprite: \(error.localizedDescription)")
+        }
+        return nil
+    }
+    
+    public func image(_ editableImage:PixelData) -> AtlasImage? {
+        do {
+            let subTexture = try atlas.save(editableImage._surface)
             let image = AtlasImage(texture: subTexture, atlas: atlas)
             //_imageCache[path] = image //Could cache based on obj id..
             return image
@@ -107,7 +123,7 @@ public class SimpleImageManager : ImageManager {
         return nil
     }
     
-    public func updateImage(_ image:AtlasImage, _ editableImage:EditableImage) throws {
+    public func updateImage(_ image:AtlasImage, _ editableImage:PixelData) throws {
         let size = editableImage.size().to(Int32.self)
         let subTexture = image.subTextureIndex
         let subTextureSize = subTexture.sourceRect.size
@@ -116,7 +132,7 @@ public class SimpleImageManager : ImageManager {
         let texture = atlas.listPages[pageIndex].texture
         let frame = subTexture.sourceRect
         
-        try editableImage.surface.withPixelData { pixelData in
+        try editableImage._surface.withPixelData { pixelData in
             try texture.update(for: frame.sdlRect(), pixels: pixelData.ptr, pitch: pixelData.pitch)
         }
     }

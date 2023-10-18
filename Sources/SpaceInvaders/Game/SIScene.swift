@@ -11,7 +11,7 @@ import SDL2
 struct Resources {
     static let oryx_16bit_scifi_vehicles_105 = VDUrl(string: "vd:/oryx_16bit_scifi_vehicles_105.bmp")!
     static let oryx_16bit_scifi_vehicles_189 = VDUrl(string: "vd:/oryx_16bit_scifi_vehicles_189.bmp")!
-    static let bullet = VDUrl(string: "vd:/bullet.bmp")!
+    static let bullet = VDUrl(string: "vd:/bullet.bmp")! //TODO: We can use a new type to replicate this behavior
 }
 
 struct ResourceIds {

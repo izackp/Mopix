@@ -198,8 +198,9 @@ public final class FullWindow: LiteWindow {
         
         let context = UIRenderContext(renderer: renderer, imageManger: imageManager)
         context.currentWindowFrame[context.currentWindowFrame.count - 1] = frame.bounds()
-        drawCount = renderServer._futureCmdList.count
-        renderServer.draw(totalDrawTime - 100)
+        let drawingInterp = renderServer.drawingInterpolator
+        drawCount = drawingInterp._futureCmdList.count
+        drawingInterp.draw(totalDrawTime - 100)
         
         //TODO: Move; we want the server to draw everything?
         if let view = rootView {

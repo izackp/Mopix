@@ -29,15 +29,26 @@ public extension Surface {
         return blank
     }
     
-    func withMutablePixelData<Result>(_ body:(_ pixelData:PixelDataMutable) throws -> (Result)) throws -> Result {
+    func withMutablePixelData<Result>(_ body:(_ pixelData:MutableRawPixelData) throws -> (Result)) throws -> Result {
         let pitch = self.pitch
         let numBytes = self.height * pitch
         let blank = try self.withUnsafeMutableBytes { (ptr:UnsafeMutableRawPointer) -> Result in
             let bufferPtr = UnsafeMutableRawBufferPointer(start: ptr, count: numBytes)
-            let pixelData = PixelDataMutable(ptr: bufferPtr, width: self.width, pitch: pitch)
+            let pixelData = MutableRawPixelData(ptr: bufferPtr, width: self.width, pitch: pitch)
             return try body(pixelData)
         }!
         return blank
+    }
+    
+    //TODO: withUnsafeMutableBytes doesn't unlock the surface on exception
+    func withMutablePixelData(_ body:(_ pixelData:MutableRawPixelData) throws -> ()) throws {
+        let pitch = self.pitch
+        let numBytes = self.height * pitch
+        try self.withUnsafeMutableBytes { (ptr:UnsafeMutableRawPointer) in
+            let bufferPtr = UnsafeMutableRawBufferPointer(start: ptr, count: numBytes)
+            let pixelData = MutableRawPixelData(ptr: bufferPtr, width: self.width, pitch: pitch)
+            try body(pixelData)
+        }
     }
     /*
     public func toSubTexture(page:Int, _ body:(_ ptr:UnsafeRawBufferPointer, _ size:Size<Int32>, _ pitch:Int) throws -> Allocation?) throws -> SubTexture {

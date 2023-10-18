@@ -23,7 +23,7 @@ import SDL2Swift
  */
 
 public struct TexturePage {
-    public let texture:Texture //Always used for drawing and can be drawn to _unless_ there is an incomplete texture whish should also be used
+    public let texture:Texture //Always used for drawing and can be drawn to _unless_ there is an incomplete texture which should also be used
     public let allocator:AtlasAllocator
 }
 

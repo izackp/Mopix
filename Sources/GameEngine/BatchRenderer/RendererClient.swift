@@ -40,126 +40,33 @@ import SDL2Swift
 // Also this allows us to guarantee unique ids
 //Except in special circumstances I don't want the main engine to even care about whether an image is loaded
 
-public protocol IDraw {
-    func draw(_ image:DrawCmdImage)
-    func createImage(_ block:(_ context:IDraw) throws -> (), size:Size<DValue>) throws -> UInt64
-    //func drawText( _ text:Substring, _ font:Font, _ pos:Point<Int16>, _ color:SDLColor, _ alpha:Float = 1, spacing:Int = 0)
-    //not used ^
-    
-    //func drawTextLine( _ text:ArraySlice<RenderableCharacter>, _ pos:Point<Int16>, _ alpha:Float = 1)
-    //func drawSquare(_ dest:Rect<Int16>, _ color:SDLColor, _ alpha:Float = 1)
-    //func drawSquareEx(_ dest:Rect<Int16>, _ color:SDLColor, _ alpha:Float = 1)
-    //func drawAtlas(_ x:Int, _ y:Int, index:Int = 0)
-    
-    //func fetchFont(_ fontDesc:FontDesc) -> Font
-}
 
-public protocol IRefImage {
-    var id:UInt64 { get }
-}
-
-public protocol IResourceContainer {
-    func loadResourceAsync(_ url:VDUrl) async throws -> UInt64
-    func loadResourceAsync(_ image:EditableImage) async throws -> UInt64
-    func loadResourcesAsync(_ urlList:[VDUrl]) async throws -> [UInt64]
-    
-    func loadResource(_ url:VDUrl) throws -> ImageFlyWeight
-    func loadResource(_ image:EditableImage) throws -> ImageFlyWeight
-    func loadResources(_ urlList:[VDUrl]) throws -> [ImageFlyWeight]
-    func unloadResource(_ id:UInt64)
-    func unloadResources(_ idList:[UInt64])
-    func softDropResource(_ idList:UInt64) //Hint to not cache resource anymore
-    func updateImage(_ id:UInt64, _ image:EditableImage) throws
-    func pinResource(_ id:UInt64) -> Bool
-    func unpinResource(_ id:UInt64) -> Bool
-}
-
+/*
+ We need to keep a weak reference of all images
+ * Keep images alive long enough to be fetched between rollbacks
+   A: Track resource usage? No; Images that aren't used but a reference is still needed will be destroyed during a rollback
+   B: delay unload requests: Keep a reference around of the image and a time frame. Drop the reference after x time.
+ * Remove images that are no longer needed
+ */
 public enum DrawItem {
     case image(cmd:DrawCmdImage)
     case atlas(x:Int, y:Int, index:Int)
     case square(_ dest:Rect<Int16>, _ color:SDLColor, _ alpha:Float = 1)
 }
 
-//TODO: make cmdList use enum. Some random testing seems to suggest
-//that enum associated values will be contigous
-//TODO: Make unit test
-public class ImageBuilder: IDraw {
-    public init(client: RendererClient, cmdList: [DrawCmdImage] = []) {
-        self.client = client
-        self.cmdList = cmdList
-    }
-    
-    let client:RendererClient
-    var cmdList:[DrawCmdImage] = []
-    private var _clipRect:Rect<DValue>? = nil
-    private var _offset:Point<DValue> = .zero
-    
-    public func draw(_ image:DrawCmdImage) {
-        cmdList.append(image)
-    }
-    
-    public func finalize() -> UInt64 {
-        return 0
-    }
-    
-    public func createImage(_ block:(_ context:IDraw) throws -> (), size:Size<DValue>) throws -> UInt64 {
-        let builder = ImageBuilder(client: client)
-        try block(builder)
-        return builder.finalize()
-    }
-    
-    func withClipRect(_ frame:Rect<DValue>?, _ block:(_ context:IDraw) throws -> ()) rethrows {
-        let previousClipRect = _clipRect
-        setClipRect(frame)
-        try block(self)
-        setClipRect(previousClipRect)
-    }
-    
-    func setClipRect(_ frame:Rect<DValue>?) {
-        _clipRect = frame
-    }
-    
-    func getClipRect() -> Rect<DValue>? {
-        return _clipRect
-    }
-    
-    func withOffset(_ point:Point<DValue>, _ block:(_ context:IDraw) throws -> ()) rethrows {
-        let previousOffset = _offset
-        setOffset(point)
-        try block(self)
-        setOffset(previousOffset)
-    }
-    
-    func setOffset(_ offset:Point<DValue>) {
-        _offset = offset
-    }
-    
-    func getOffset() -> Point<DValue> {
-        return _offset
-    }
+public struct QueuedUnload {
+    let resource:ImageResource
+    var ticks:Int
 }
+
+enum ResourceError : Error {
+    case newId(_ id:UInt64)
+}
+
 
 //How to keep things around on the server?
 //
 public class RendererClient: IDraw, IResourceContainer {
-    
-    
-    public func loadResource(_ url: VDUrl) throws -> ImageFlyWeight {
-        <#code#>
-    }
-    
-    public func loadResource(_ image: EditableImage) throws -> ImageFlyWeight {
-        <#code#>
-    }
-    
-    public func loadResources(_ urlList: [VDUrl]) throws -> [ImageFlyWeight] {
-        <#code#>
-    }
-    
-    public func softDropResource(_ idList: UInt64) {
-        <#code#>
-    }
-    
     
     var cmdList:[DrawCmdImage] = []
     let server:RendererServer
@@ -167,8 +74,11 @@ public class RendererClient: IDraw, IResourceContainer {
     public var defaultTime:UInt64 = 0
     public var maxTicksForRollback = 10
     
-    var _lastUsed:[UInt64:Int] = [:] //Store last used id
+    //var _lastUsed:[UInt64:Int] = [:] //Store last used id
     var _pinnedIDs:Set<UInt64> = Set() //ids that we dont remove
+    private var _toUnload:[QueuedUnload] = []
+    var errorForId:[UInt64:Error] = [:]
+    var _resourceForId:[UInt64:ImageResource] = [:]
     
     public var _windowSize:Size<Int16> = Size(0, 0)
     public var windowSize:Size<Int16> {
@@ -204,6 +114,24 @@ public class RendererClient: IDraw, IResourceContainer {
         }
     }
     
+    func idExists(_ id:UInt64) -> Bool {
+        if (id != 0 && _resourceForId[id] != nil) {
+            return false
+        }
+        return true
+    }
+    
+    func genId() -> UInt64 {
+        var uuid:UInt64 = 0
+        while true {
+            uuid = Xoroshiro.shared.randomBytes()
+            if (!idExists(uuid)) {
+                break
+            }
+        }
+        return uuid
+    }
+    
     //MARK: -
     public func draw(_ id:UInt64,
                      _ resourceId:UInt64,
@@ -215,13 +143,13 @@ public class RendererClient: IDraw, IResourceContainer {
                      _ alpha:Float = 1,
                      _ clipping:Rect<Int> = Rect.zero,
                      _ relTime:UInt64 = 0) {
-        _lastUsed[resourceId] = 0
+       // _lastUsed[resourceId] = 0
         let time = relTime + defaultTime
         cmdList.append(DrawCmdImage(animationId: id, resourceId: resourceId, dest: rect, z: z, alpha:alpha, rotation:rotation, rotationPoint:rotationPoint, clippingRect: clipping, time:time))
     }
     
     public func draw(_ image:DrawCmdImage) {
-        _lastUsed[image.resourceId] = 0
+        //_lastUsed[image.resourceId] = 0
         let time = image.time + defaultTime
         var imgCopy = image
         imgCopy.time = time
@@ -230,50 +158,176 @@ public class RendererClient: IDraw, IResourceContainer {
     }
     
     public func finishDrawing() {
+        _toUnload.forEachUncheckedMut { (eachItem:inout QueuedUnload, index:Int) in
+            eachItem.ticks -= 1
+        }
+        _toUnload.removeAll(where: { $0.ticks <= 0 } )
+        /*
         for (key, value) in _lastUsed {
             if (value >= maxTicksForRollback) {
                 _lastUsed[key] = nil
-                unloadResource(key)
+                unloadResourceRaw(key)
                 continue
             }
             _lastUsed[key] = value + 1
-        }
+        }*/
     }
+    
 
-    //MARK: -
+    //MARK: - LOADING
     //So.. These shouldn't throw.. considering the engine wont care mostly..
     //Maybe the engine does care? and needs pixel data or size of an image.
     //await try -> id
     //FW
-    public func loadResourceAsync(_ url: VDUrl) async throws -> UInt64 {
-        let id = try server.loadResource(url)
-        _lastUsed[id] = 0
+    
+    public func loadResourceAsync(_ url: VDUrl) async throws -> Image {
+        let image = try server.resourceStore.loadResource(url)
+        return image
+    }
+    
+    public func loadResourceWithPixelDataAsync(_ url: VDUrl) async throws -> ReadOnlyImage {
+        let image = try server.resourceStore.loadResourceAsEditable(url)
+        return image
+    }
+    
+    public func loadResourceAsync(_ image: PixelData) async throws -> ReadOnlyImage {
+        let id = try server.resourceStore.loadResource(image)
         return id
     }
     
-    public func loadResourceAsync(_ image: EditableImage) async throws -> UInt64 {
-        let id = try server.loadImage(image)
-        _lastUsed[id] = 0
+    public func loadResourcesAsync(_ urlList: [VDUrl]) async -> [Result<Image, Error>] {
+        return server.resourceStore.loadResources(urlList)
+    }
+    
+    public func loadResourceAsync(_ url: VDUrl, _ choosenId: UInt64) async throws -> Image {
+        let image = try server.resourceStore.loadResource(url, choosenId)
+        return image
+    }
+    
+    public func loadResourceWithPixelDataAsync(_ url: VDUrl, _ choosenId: UInt64) async throws -> ReadOnlyImage {
+        let image = try server.resourceStore.loadResourceAsEditable(url, choosenId)
+        return image
+    }
+    
+    public func loadResourceAsync(_ image: PixelData, _ choosenId: UInt64) async throws -> ReadOnlyImage {
+        let id = try server.resourceStore.loadResource(image, choosenId)
         return id
     }
     
-    public func loadResourcesAsync(_ urlList: [VDUrl]) async throws -> [UInt64] {
-        return try server.loadResources(urlList)
+    public func loadResourcesAsync(_ urlList: [VDUrl], _ choosenId: [UInt64]) async -> [Result<Image, Error>] {
+        return server.resourceStore.loadResources(urlList, choosenId)
     }
     
-    public func unloadResource(_ id:UInt64) {
-        _lastUsed[id] = nil
-        return server.unloadResource(id) //permanent
+    public func loadResource(_ url:VDUrl) -> ImageFlyWeight {
+        let uuid = genId()
+        let flyWeight = ImageFlyWeight(id: uuid)
+        Task {
+            do {
+                let serverImg = try await loadResourceAsync(url)
+                //if (result.id != uuid) { errorForId[uuid] = ResourceError.newId(result.id) }
+                if (serverImg.id != uuid) {
+                    flyWeight._id = uuid //shouldn't happen
+                }
+            } catch {
+                errorForId[uuid] = error
+            }
+        }
+        return flyWeight
     }
     
-    public func unloadResources(_ idList:[UInt64]) {
-        return server.unloadResources(idList)
+    public func loadResource(_ data:PixelData) -> ReadOnlyImage {
+        let uuid = genId()
+        let img = ReadOnlyImage(id: uuid, data: data)
+        _resourceForId[uuid] = img
+        Task {
+            do {
+                let serverImg = try await loadResourceAsync(data)
+                //if (result.id != uuid) { errorForId[uuid] = ResourceError.newId(result.id) }
+                if (serverImg.id != uuid) {
+                    img.id = uuid //shouldn't happen
+                }
+            } catch {
+                errorForId[uuid] = error
+            }
+        }
+        return img
     }
     
-    public func updateImage(_ id:UInt64, _ image:EditableImage) throws {
-        try server.updateImage(id, image)
+    public func loadResources(_ urlList:[VDUrl]) throws -> [ImageFlyWeight] {
+        let result = urlList.map { loadResource($0) }
+        return result
     }
     
+    public func loadResourceRaw(_ url: VDUrl) throws -> UInt64 {
+        let uuid = genId()
+        Task {
+            do {
+                let serverImg = try await loadResourceAsync(url)
+                if (serverImg.id != uuid) { errorForId[uuid] = ResourceError.newId(serverImg.id) }
+            } catch {
+                errorForId[uuid] = error
+            }
+        }
+        return uuid
+    }
+    
+    public func loadResourceRaw(_ image: PixelData) throws -> UInt64 {
+        
+        let uuid = genId()
+        Task {
+            do {
+                let serverImg = try await loadResourceAsync(image)
+                if (serverImg.id != uuid) { errorForId[uuid] = ResourceError.newId(serverImg.id) }
+            } catch {
+                errorForId[uuid] = error
+            }
+        }
+        return uuid
+    }
+    
+    //MARK: - UNLOADING
+    public func unloadResource(_ id:ImageResource) {
+        //_lastUsed[id.id] = nil
+        Task {
+            server.resourceStore.unloadResource(id) //permanent
+        }
+    }
+    
+    public func unloadResources(_ idList:[ImageResource]) {
+        Task {
+            server.resourceStore.unloadResources(idList)
+        }
+    }
+    
+    public func unloadResourceDelayed(_ id:ImageResource, _ ticks:Int) {
+        _toUnload.append(QueuedUnload(resource: id, ticks: ticks))
+    }
+    
+    public func unloadResourcesDelayed(_ idList:[ImageResource], _ ticks:Int) {
+        for eachItem in idList {
+            _toUnload.append(QueuedUnload(resource: eachItem, ticks: ticks))
+        }
+    }
+    
+    //MARK: - Conversions
+    public func updateImage(_ image:EditedImage) throws -> ReadOnlyImage {
+        return try server.resourceStore.updateImage(image)
+    }
+    
+    public func toImage(_ id: ImageFlyWeight) async throws -> Image {
+        return try server.resourceStore.toImage(id)
+    }
+    
+    public func toEditableImage(_ id: ImageFlyWeight) async throws -> ReadOnlyImage {
+        return try server.resourceStore.toEditableImage(id)
+    }
+    
+    //MARK: -
+    public func keepAliveAfterDeath(_ milliseconds: Int) {
+        
+    }
+    
+    /*
     public func pinResource(_ id:UInt64) -> Bool {
         let (contained, _) = _pinnedIDs.insert(id)
         _lastUsed[id] = nil
@@ -284,7 +338,7 @@ public class RendererClient: IDraw, IResourceContainer {
         let contained = _pinnedIDs.remove(id)
         _lastUsed[id] = 0
         return contained != nil
-    }
+    }*/
 
     //MARK: -
     public func clearCommands() {
@@ -293,7 +347,7 @@ public class RendererClient: IDraw, IResourceContainer {
 
     public func sendCommands() {
         if (cmdList.count > 0) {
-            server.receiveCmds(cmdList)
+            server.drawingInterpolator.receiveCmds(cmdList)
         }
     }
     

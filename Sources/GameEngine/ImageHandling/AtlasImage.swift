@@ -60,6 +60,19 @@ public class AtlasImage {
         let rect = subTextureIndex.sourceRect.sdlRect()
         return SDLTextureSlice(texture: sdlTexture, rect: rect)
     }
+    
+    func readPixelData() throws -> PixelData {
+        let renderer = atlas.renderer
+        let texturePageIndex = self.subTextureIndex.texturePageIndex
+        let texture = atlas.textureCache[texturePageIndex]
+        let oldTarget = renderer.target
+        try renderer.setTarget(texture)
+        let rect = subTextureIndex.sourceRect.sdlRect()
+        let format = try texture.attributes().format.toPixelFormat()
+        let defaultBPP = Int(format.bytesPerPixel)
+        let pixels = try renderer.readPixels(format: format)
+        return PixelData(pixels)
+    }
 }
 
 extension Renderer {
