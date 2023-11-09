@@ -36,10 +36,12 @@ public class AtlasImage {
     public init(texture: SubTextureIndex, atlas: ImageAtlas) {
         self.subTextureIndex = texture
         self.atlas = atlas
+        self.ticksSinceLastUse = 0
     }
     
     let subTextureIndex:SubTextureIndex
     private let atlas:ImageAtlas
+    var ticksSinceLastUse:Int = 0
     
     var size:Size<Int32> {
         get { return subTextureIndex.sourceRect.size }
@@ -61,53 +63,47 @@ public class AtlasImage {
         return SDLTextureSlice(texture: sdlTexture, rect: rect)
     }
     
+    ///Very slow
     func readPixelData() throws -> PixelData {
         let renderer = atlas.renderer
         let texturePageIndex = self.subTextureIndex.texturePageIndex
         let texture = atlas.textureCache[texturePageIndex]
         let oldTarget = renderer.target
-        try renderer.setTarget(texture)
         let rect = subTextureIndex.sourceRect.sdlRect()
         let format = try texture.attributes().format.toPixelFormat()
-        let defaultBPP = Int(format.bytesPerPixel)
+        
+        try renderer.setTarget(texture)
         let pixels = try renderer.readPixels(format: format)
+        try renderer.setTarget(oldTarget)
         return PixelData(pixels)
     }
 }
 
 extension Renderer {
-    func draw(_ image:AtlasImage, _ x:Int32, _ y:Int32, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
+    func draw(_ image:AtlasImage, _ x:Int32, _ y:Int32, _ color:SDLColor = SDLColor.white, alpha:Float = 1) throws {
         let source = image.getTextureSlice()
-        draw(source, SDL_Rect(x: x, y: y, w: source.rect.w, h: source.rect.h), color, alpha)
+        try draw(source, SDL_Rect(x: x, y: y, w: source.rect.w, h: source.rect.h), color, alpha)
     }
     
-    func draw(_ image:AtlasImage, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
+    func draw(_ image:AtlasImage, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, alpha:Float = 1) throws {
         let source = image.getTextureSlice()
-        draw(source, dest, color, alpha)
+        try draw(source, dest, color, alpha)
     }
     
-    func draw(_ imageSrc:SDLTextureSlice, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1) {
+    func draw(_ imageSrc:SDLTextureSlice, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1) throws {
         let texture = imageSrc.texture
         let src = imageSrc.rect
-        do {
-            try texture.setColorModulation(color)
-            try texture.setAlphaModulation(UInt8(255*alpha))
-            try copy(texture, source: src, destination: dest)
-            //try renderer.copy(sdlTexture.texture, source: test, destination: test)
-        } catch {
-            print("Couldn't draw image")
-        }
+        try texture.setColorModulation(color)
+        try texture.setAlphaModulation(UInt8(255*alpha))
+        try copy(texture, source: src, destination: dest)
+        //try renderer.copy(sdlTexture.texture, source: test, destination: test)
     }
     
-    func draw(_ imageSrc:SDLTextureSlice, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1, _ angle:Double = 0, _ center:SDL_Point = SDL_Point(x: 0, y: 0), _ flip:BitMaskOptionSet<RendererFlip> = [.none]) {
+    func draw(_ imageSrc:SDLTextureSlice, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1, _ angle:Double = 0, _ center:SDL_Point = SDL_Point(x: 0, y: 0), _ flip:BitMaskOptionSet<RendererFlip> = [.none]) throws {
         let texture = imageSrc.texture
         let src = imageSrc.rect
-        do {
-            try texture.setColorModulation(color)
-            try texture.setAlphaModulation(UInt8(255*alpha))
-            try copyEx(texture, src, dest, angle, center, flip)
-        } catch {
-            print("Couldn't draw image")
-        }
+        try texture.setColorModulation(color)
+        try texture.setAlphaModulation(UInt8(255*alpha))
+        try copyEx(texture, src, dest, angle, center, flip)
     }
 }

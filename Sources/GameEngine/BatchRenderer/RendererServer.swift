@@ -32,7 +32,12 @@ public class RendererServer {
     
     public func draw(_ imageUrl:VDUrl, rect:Rect<Int>, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
         guard let image = imageManager.image(imageUrl) else { return }
-        renderer.draw(image, rect.sdlRect(), color)
+        try? renderer.draw(image, rect.sdlRect(), color)
+    }
+    
+    public func receiveCmds(_ list:[DrawCmdImage]) {
+        resourceStore.increaseTicks()
+        drawingInterpolator.receiveCmds(list)
     }
 
     //TODO: Use texture atlas

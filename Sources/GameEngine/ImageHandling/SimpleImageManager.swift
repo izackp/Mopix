@@ -16,6 +16,10 @@ public struct ImageResult {
     let data:PixelData
 }
 
+public class FontStorage {
+    
+}
+
 public class SimpleImageManager : ImageManager {
     let drive:VirtualDrive
     public init(atlas: ImageAtlas, drive: VirtualDrive) {
@@ -29,7 +33,6 @@ public class SimpleImageManager : ImageManager {
         do {
             //TODO: This is pretty extra.. I would perfer to use something lighter than SDLFont
             //I would also prefer to have more infomation (available styles, sizes, etc)
-            //guard let fileUrl = try? drive.resolveToDirectUrl(url) else { return }
             guard let file = try drive.readFile(url) else { return }
             let font = try SDLFont(data: file, ptSize: 14)
             guard let name = font.faceFamilyName() else {

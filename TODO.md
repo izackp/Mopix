@@ -1,12 +1,13 @@
 
 ### Current Tasks
-[ ] Hide all exposed SDL api/structs
-[ ] Get asset reloading working
-[Hold] Fix frame hiccups. Sometimes our logic starts late and holds up the thread so we miss the draw opportunity? maybe?
+- [ ] Hide all exposed SDL api/structs
+- [ ] Get asset reloading working
+- [Hold] Fix frame hiccups. Sometimes our logic starts late and holds up the thread so we miss the draw opportunity? maybe?
    Looked into it... seems like a bug with sdl. Present and PollEvent random takes a ton of time. Still need to test on windows.
 
-[ ] odd yet significant delay reading input with SDL_PollEvent
-[ ] same issue with SDL_Present eating up 1-2 frames
+- [ ] odd yet significant delay reading input with SDL_PollEvent
+- [ ] same issue with SDL_Present eating up 1-2 frames
+
 ### Todo Tasks
 ```
   = Unstarted
@@ -30,7 +31,7 @@ x = Done
 - [ ] Loading system fonts (Windows)
 - [ ] Drawing text spans; several formats of text on one line
 [/] Tweening library
- - Odd 6x performance slow down when main project is an spm project
+ - [ ] Odd 6x performance slow down when main project is an spm project
 [o] Support windows / linux
 - [/] Move project to SPM
 - [/] Add build and vscode integration instructions. Possible include binaries to reduce friction.

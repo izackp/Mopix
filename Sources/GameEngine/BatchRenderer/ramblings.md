@@ -62,6 +62,12 @@
  
  -==-=-=-=-=-=-=-=-=-
  
+ NOTES:
+ Tested interpolation vs extrapolation.
+ Interpolation (delay) feels _much_ better than mispredictions from extrapolation
+ 
+ -==--=-=-=-=-=-=-=-=
+ 
  To consider: We need to run unique code anyways during each frame. For example, Lets say if our mouse hovers over a unit. We would want to immediately highlight the unit and maybe update the mouse icon.
  
  Maybe this is not a problem? Controller input wasn't expected to have that kind of responsiveness.. but maybe it should.
@@ -80,3 +86,20 @@ I'm trying to figure out the best way to get rid of jitter from running simulati
   - More responsive
   - How to keep sync? Keep recreating the world every tick? Would this reintroduce jitter? We have to interpolate anyways?
   
+
+======================================
+RendererClient
+ Issue 2 is animations. Seems pretty inefficient to animate things twice which
+ is what would happen if we have interpolation mixed with our normal animation stuff
+ I like the server / Client seperation we have, but I don't think its possible
+ to keep it and merge the animation functionality. However it doesn't mean we can't
+ reimplement it without the optimization, and if we do use it performance won't matter
+ much since the server would be on a remote machine.
+ 
+ is this separation useful? probably not. Why?
+ * We can deterministically just run the game on the server and accept input remotely
+ * Size of the draw commands could exceed the size of an image file (video streaming) maybe?
+   - The greater the framerate over tick rate the less likely this is true.
+   - Might be a fun experiement in the future
+   - 'Dumb' clients might be a pretty interesting idea. Essentially, you can play any game because
+ the client is dumb. Lets say user has 70ms ping, + 1 frame buffer, so a possible delay from input to screen at about 102ms.. You might not need to simulate the game world, but the input delay costs are huge. At less than 40ms.. it turns into something viable. Might be an interesting concept for lan plan..

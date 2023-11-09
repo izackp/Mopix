@@ -22,13 +22,13 @@ public class DrawCmdInterpolator {
     var _futureCmdList:IndexedOrderedList<DrawCmdImage> = IndexedOrderedList()
     
     //MARK: -
-    func drawCmd(_ command:DrawCmdImage) {
-        guard let image = resourceStore._idImageCache[command.resourceId] else { return }
+    func drawCmd(_ command:DrawCmdImage) throws {
+        let image = try resourceStore.fetchResource(command.resourceId)
         let source = image.getTextureSlice()
         if (command.rotation != 0 || command.flip.hasValue()) {
-            renderer.draw(source, command.dest.sdlRect(), command.color, command.alpha, Double(command.rotation), command.rotationPoint.sdlPoint(), command.flip)
+            try renderer.draw(source, command.dest.sdlRect(), command.color, command.alpha, Double(command.rotation), command.rotationPoint.sdlPoint(), command.flip)
         } else {
-            renderer.draw(source, command.dest.sdlRect(), command.color, command.alpha)
+            try renderer.draw(source, command.dest.sdlRect(), command.color, command.alpha)
         }
         
     }
@@ -38,7 +38,7 @@ public class DrawCmdInterpolator {
     //Sort by z then sort by collision
     //Not sure if as fast as previous method but it is easier to read
     public func receiveCmds(_ list:[DrawCmdImage]) {
-        var oldList = _lastCmdList
+        let oldList = _lastCmdList
         _lastCmdList = _futureCmdList
         //In Swift 5 sort() uses stable implementation
         let sorted = list.sorted { (cmd:DrawCmdImage, other:DrawCmdImage) in
@@ -46,6 +46,10 @@ public class DrawCmdInterpolator {
         }
         oldList.updateList(sorted, getId: DrawCmdImage.getId)
         _futureCmdList = oldList
+        
+        for eachReasource in resourceStore._idImageCache.values {
+            eachReasource.ticksSinceLastUse += 1
+        }
     }
     
     /*
@@ -97,7 +101,11 @@ public class DrawCmdInterpolator {
                     try renderer.setClipRect(currentSDLClip) ///Note: 0 width or height is same as setting nil
                 }
                 
-                drawCmd(eachItem)
+                do {
+                    try drawCmd(eachItem)
+                } catch {
+                    print("Unable to draw drawCmd: \(eachItem.animationId) : \(error)")
+                }
             }
             try renderer.setClipRect(previousRect)
         } catch let error {

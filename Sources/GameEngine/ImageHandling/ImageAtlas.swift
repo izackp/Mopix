@@ -57,6 +57,7 @@ public struct RawPixelData {
             let shiftBy = (bytesPerPixel - 1) - i
             result += Int(ptr[byteIndex]) << shiftBy
         }
+        return result
     }
 }
 
@@ -83,6 +84,7 @@ public struct MutableRawPixelData {
             let shiftBy = (bytesPerPixel - 1) - i
             result += UInt(ptr[byteIndex + i]) << shiftBy
         }
+        return result
     }
     
     public func setPixelValue(_ x:Int, _ y:Int, _ value:UInt) {
@@ -115,6 +117,35 @@ public class ImageAtlas {
     
     init(_ renderer:Renderer) {
         self.renderer = renderer
+    }
+    
+    func usedVRam() -> Int {
+        var count = 0
+        for eachTexture in listPages {
+            do {
+                let attr = try eachTexture.texture.attributes()
+                let bpp = try attr.format.toPixelFormat().bytesPerPixel
+                let bytes = attr.width * attr.height * Int(bpp)
+                count += bytes
+            } catch {
+                
+            }
+        }
+        return count
+    }
+    
+    func totalAllocations() -> Int {
+        var count = 0
+        for eachTexture in listPages {
+            do {
+                let attr = try eachTexture.texture.attributes()
+                let bpp = try attr.format.toPixelFormat().bytesPerPixel
+                count += Int(eachTexture.allocator.allocated_space) * Int(bpp)
+            } catch {
+                
+            }
+        }
+        return count
     }
 
     /// Returns an index for a blank pixel for the provided texture page
@@ -183,10 +214,9 @@ public class ImageAtlas {
     }
     
     func buildBlankSurface() throws -> Surface {
-        let surface = try Surface(rgb: (0, 0, 0, 0), size: (width: 3, height: 3), depth: 32)
-        let color = SDLColor.white
-        try surface.fill(color: color)
-        return try surface.convertSurface(format: SDL_PIXELFORMAT_ARGB8888)
+        let surface = try Surface(width: 3, height: 3, format: try PixelFormat(format: .argb8888))
+        try surface.fill(color: SDLColor.white)
+        return surface
     }
     
     //TODO: I was told its faster/better to convert the surface to a texture and then render it on to the atlas

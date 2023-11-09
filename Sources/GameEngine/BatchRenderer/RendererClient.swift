@@ -7,28 +7,9 @@
 
 import SDL2Swift
 
-//The seperation just allows my brain to work for some reason
-//I probably can make this a protocol but we're doing this for now
+//The seperation (Client/Server) just allows my brain to work for some reason
 /*
- So the issue here is we have UIRenderContext which is very similar.
- We need to make RendererClient capable of the same things, to remove it.
- * We add clip info for every draw command
- * We add functionality creating textures out of other textures
- 
- Issue 2 is animations. Seems pretty inefficient to animate things twice which
- is what would happen if we have interpolation mixed with our normal animation stuff
- I like the server / Client seperation we have, but I don't think its possible
- to keep it and merge the animation functionality. However it doesn't mean we can't
- reimplement it without the optimization, and if we do use it performance won't matter
- much since the server would be on a remote machine.
- 
- is this separation useful? probably not. Why?
- * We can deterministically just run the game on the server and accept input remotely
- * Size of the draw commands could exceed the size of an image file (video streaming) maybe?
-   - The greater the framerate over tick rate the less likely this is true.
-   - Might be a fun experiement in the future
-   - 'Dumb' clients might be a pretty interesting idea. Essentially, you can play any game because
- the client is dumb. Lets say user has 70ms ping, + 1 frame buffer, so a possible delay from input to screen at about 102ms.. You might not need to simulate the game world, but the input delay costs are huge. At less than 40ms.. it turns into something viable. Might be an interesting concept for lan plan..
+
  */
 //Right now everything is using handles
 //We don't have to use handles..
@@ -63,19 +44,16 @@ enum ResourceError : Error {
     case newId(_ id:UInt64)
 }
 
-
-//How to keep things around on the server?
-//
 public class RendererClient: IDraw, IResourceContainer {
     
     var cmdList:[DrawCmdImage] = []
     let server:RendererServer
-    var cacheList = WeakArray<IResourceCache>()
     public var defaultTime:UInt64 = 0
     public var maxTicksForRollback = 10
+    var cacheList = WeakArray<IResourceCache>()
     
     //var _lastUsed:[UInt64:Int] = [:] //Store last used id
-    var _pinnedIDs:Set<UInt64> = Set() //ids that we dont remove
+    //var _pinnedIDs:Set<UInt64> = Set() //ids that we dont remove
     private var _toUnload:[QueuedUnload] = []
     var errorForId:[UInt64:Error] = [:]
     var _resourceForId:[UInt64:ImageResource] = [:]
@@ -175,10 +153,6 @@ public class RendererClient: IDraw, IResourceContainer {
     
 
     //MARK: - LOADING
-    //So.. These shouldn't throw.. considering the engine wont care mostly..
-    //Maybe the engine does care? and needs pixel data or size of an image.
-    //await try -> id
-    //FW
     
     public func loadResourceAsync(_ url: VDUrl) async throws -> Image {
         let image = try server.resourceStore.loadResource(url)

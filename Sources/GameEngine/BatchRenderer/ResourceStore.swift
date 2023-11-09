@@ -13,6 +13,7 @@ public class ResourceStore {
     
     
     var _idImageCache:[UInt64:AtlasImage] = [:] //Not a cache but a lookup table
+    var _idDroppableImageTbl:[UInt64:AtlasImage] = [:] //Not a cache but a lookup table
     var _idDataCache:[UInt64:ReadOnlyImage] = [:] //Not a cache but a lookup table
     var _urlImageCache:[String:UInt64] = [:] //TODO: FIX: Also cached in image manager
     var _urlEditableImageCache:[String:ReadOnlyImage] = [:] //TODO: FIX: Also cached in image manager
@@ -41,6 +42,42 @@ public class ResourceStore {
         
     }
     
+    public func fetchResource(_ id:UInt64) throws -> AtlasImage {
+        guard let resource = _idImageCache[id] else { throw GenericError("No resource with id: \(id)") }
+        resource.ticksSinceLastUse = 0
+        return resource
+    }
+    
+    public func increaseTicks() {
+        for eachResource in _idImageCache.values {
+            eachResource.ticksSinceLastUse += 1
+        }
+    }
+    
+    let cacheSize:UInt = 1000 * 1000 * 32 //32mb
+    
+    public func cleanUnusedResources() {
+        //NOTE: I have a better idea.
+        //When we create a resource we possibly create a texture page
+        //instead we check if creating that texture page pushes us over
+        //if it does then we remove garbage until we're able to fit the new resource
+        let atlas = imageManager.atlas
+        let usedBytes = imageManager.atlas.usedVRam()
+        if (usedBytes < cacheSize) { return }
+        let mapped = _idDroppableImageTbl.map({ ($0.key, $0.value.ticksSinceLastUse) })
+        let resources = mapped.sorted {
+            $0.1.compare($1.1) == .orderedDescending
+        }
+        let origNumTextures = atlas.listPages.count
+        for eachResource in resources {
+            unloadResource(eachResource.0)
+            let numTextures = atlas.listPages.count
+            if (numTextures < origNumTextures) {
+                break
+            }
+        }
+    }
+    
     //MARK: - Manual
     //TODO: Add reference counting
     public func loadResourceRaw(_ url:VDUrl) throws -> UInt64 {
@@ -49,7 +86,7 @@ public class ResourceStore {
             return image
         }
         guard let image = imageManager.image(url) else { throw GenericError("No image")}
-        var uuid:UInt64 = genId()
+        let uuid:UInt64 = genId()
         _idImageCache[uuid] = image
         return uuid
     }
@@ -60,7 +97,7 @@ public class ResourceStore {
         //cache[uuid] = SurfaceBackedTexture(texture: newTexture, editIteration: 0)
         //return newTexture
         guard let image = imageManager.image(data) else { throw GenericError("No image")}
-        var uuid:UInt64 = genId()
+        let uuid:UInt64 = genId()
         _idImageCache[uuid] = image
         return uuid
     }
@@ -120,15 +157,13 @@ public class ResourceStore {
 
     public func loadResource(_ image:PixelData) throws -> ReadOnlyImage {
         let id = try loadResourceRaw(image)
-        guard let imageAtlas = _idImageCache[id] else { throw GenericError("No image cached")}
-        
         return ReadOnlyImage(id: id, data: image)
     }
     
     public func loadResourceAsEditable(_ url:VDUrl) throws -> ReadOnlyImage {
-        let path = url.absoluteString //TODO: probably doesn't include host
+        //let path = url.absoluteString //TODO: probably doesn't include host
         guard let result = imageManager.imageAndPixels(url) else { throw GenericError("No image")}
-        var uuid:UInt64 = genId()
+        let uuid:UInt64 = genId()
         _idImageCache[uuid] = result.image
         return ReadOnlyImage(id: uuid, data: result.data)
     }
@@ -154,13 +189,10 @@ public class ResourceStore {
 
     public func loadResource(_ image:PixelData, _ choosenId:UInt64) throws -> ReadOnlyImage {
         let id = try loadResourceRaw(image, choosenId)
-        guard let imageAtlas = _idImageCache[id] else { throw GenericError("No image cached")}
-        
         return ReadOnlyImage(id: id, data: image)
     }
     
     public func loadResourceAsEditable(_ url:VDUrl, _ choosenId:UInt64) throws -> ReadOnlyImage {
-        let path = url.absoluteString //TODO: probably doesn't include host
         guard let result = imageManager.imageAndPixels(url) else { throw GenericError("No image")}
         let uuid:UInt64
         if (idExists(choosenId)) {
