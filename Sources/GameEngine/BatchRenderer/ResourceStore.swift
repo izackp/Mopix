@@ -6,10 +6,10 @@
 //
 
 public class ResourceStore {
-    public init(_ imageManager:SimpleImageManager) {
+    public init(_ imageManager:ImageManager) {
         self.imageManager = imageManager
     }
-    let imageManager:SimpleImageManager
+    let imageManager:ImageManager
     
     
     var _idImageCache:[UInt64:AtlasImage] = [:] //Not a cache but a lookup table

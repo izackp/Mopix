@@ -98,7 +98,7 @@ extension IFileSystem {
     }
 }
 
-public class VirtualDrive : IFileSystem {
+public class VirtualDrive : IFileSystem, IDataSource {
     public func allItems(_ relPath:String = "", _ recursive:Bool) -> AnyIterator<VDItem> {
         var lazySeq = packages.lazy.makeIterator()
         var lastPkg:AnyIterator<VDItem>? = lazySeq.next()?.allItems(relPath, recursive)
@@ -142,6 +142,24 @@ public class VirtualDrive : IFileSystem {
     }
 
     //MARK: IFileSystem
+    public func fetch(_ url:URL) throws -> [UInt8] {
+        
+        if let result = try readFile(url) {
+            return result
+        }
+        
+        throw GenericError("File not found: \(url)")
+    }
+
+    public func searchItemByName(_ name:String) -> URL? {
+        return searchByName(name)?.url
+    }
+
+    public func canHandle(_ url:URL) -> Bool {
+        let scheme = url.scheme
+        return (scheme == "vd")
+    }
+
     public func searchByName(_ name:String) -> VDItem? {
         for eachMD in packages {
             if let result = eachMD.searchByName(name) {
@@ -183,7 +201,7 @@ public class VirtualDrive : IFileSystem {
     
     //File ops
     //Null if not found
-    public func readFile(_ url:VDUrl) throws -> Data? {
+    public func readFile(_ url:VDUrl) throws -> [UInt8]? {
         let path = url.path
         if let host = url.host {
             let pkg = try packages.expectName(host)
@@ -192,7 +210,7 @@ public class VirtualDrive : IFileSystem {
         return readFile(path)
     }
     
-    public func readFile(_ path: String) -> Data? {
+    public func readFile(_ path: String) -> [UInt8]? {
         for eachMD in packages {
             if let result = try? eachMD.readFile(path) {
                 return result
@@ -201,7 +219,7 @@ public class VirtualDrive : IFileSystem {
         return nil
     }
     
-    public func writeFile(_ data:Data, _ url:VDUrl) throws {
+    public func writeFile(_ data:[UInt8], _ url:VDUrl) throws {
         let path = url.path
         if let host = url.host {
             let pkg = try packages.expectName(host)

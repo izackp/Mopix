@@ -20,6 +20,17 @@ extension URL {
 }
 
 extension URL {
+    
+    func readFile() throws -> [UInt8] {
+        let data = try Data(contentsOf: self)
+        return [UInt8](data)
+    }
+    
+    func readFile(relPath:String) throws -> [UInt8] {
+        let fileUrl = self.appendingPathComponent(relPath)
+        return try fileUrl.readFile()
+    }
+    
     static func from(_ str:String) throws -> URL {
         guard let fUrl = URL(string: str) else { throw GenericError("Unable to convert: \(str) to url.")}
         return fUrl

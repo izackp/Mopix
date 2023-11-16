@@ -114,7 +114,7 @@ public class UIRenderContext {
                 let imageSize = image.size.to(Int16.self)
                 dest.width = imageSize.width
                 dest.height = imageSize.height
-                renderer.draw(image, dest.sdlRect(), color)
+                try renderer.draw(image, dest.sdlRect(), color)
                 dest.x += Int16(metrics.advance) + Int16(spacing)
             } catch {
                 print("Error couldn't draw character '\(c)': \(error.localizedDescription)")
@@ -135,7 +135,7 @@ public class UIRenderContext {
             if let image = c.img {
                 dest.height = Int16(image.size.height)
                 //assert(c.size.asInt32() == image.subTextureIndex.sourceRect.size)
-                renderer.draw(image, dest.sdlRect(), c.foreground.sdlColor())
+                try renderer.draw(image, dest.sdlRect(), c.foreground.sdlColor())
             }
             dest.x += Int16(c.size.width)
         }
@@ -186,7 +186,7 @@ public class UIRenderContext {
         if (try imgSrc.texture.blendMode().contains(blendMode) == false) {
             try imgSrc.texture.setBlendMode([blendMode])//TODO: wth why optionset
         }
-        renderer.draw(imgSrc, dest.sdlRect(), color, alpha)
+        try renderer.draw(imgSrc, dest.sdlRect(), color, alpha)
     }
         
     func drawAtlas(_ x:Int, _ y:Int, index:Int = 0) throws {

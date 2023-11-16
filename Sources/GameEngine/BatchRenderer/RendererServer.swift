@@ -17,7 +17,7 @@ extension BitMaskOptionSet<Renderer.RendererFlip> {
 
 public class RendererServer {
     
-    public init(renderer: Renderer, imageManager:SimpleImageManager) {
+    public init(renderer: Renderer, imageManager:ImageManager) {
         self.renderer = renderer
         self.imageManager = imageManager
         let resourceStore = ResourceStore(imageManager)
@@ -25,7 +25,7 @@ public class RendererServer {
         self.drawingInterpolator = DrawCmdInterpolator(renderer: renderer, resourceStore: resourceStore)
     }
     
-    let imageManager:SimpleImageManager
+    let imageManager:ImageManager
     let resourceStore:ResourceStore
     let renderer:Renderer
     let drawingInterpolator:DrawCmdInterpolator

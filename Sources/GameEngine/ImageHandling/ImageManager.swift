@@ -16,11 +16,13 @@ public struct ImageResult {
 
 public class ImageManager {
     let atlas:ImageAtlas
-    public init(atlas: ImageAtlas) {
+    public init(atlas: ImageAtlas, dataSources:[IDataSource]) {
         self.atlas = atlas
+        self._dataSource = CombinedDataSource(dataSources)
     }
     
-    var _dataSource:CombinedDataSource = CombinedDataSource()
+    
+    var _dataSource:CombinedDataSource
     var _imageCache:[String:AtlasImage] = [:]
     var _fontList:[String:URL] = [:]
     var _fontCache:[FontDesc:Font] = [:] //TODO: Fonts should unload when no longer used
@@ -104,7 +106,7 @@ public class ImageManager {
     }
     
     public func image(named:String) -> AtlasImage? {
-        guard let url = _dataSource.searchByName(named) else { return nil }
+        guard let url = _dataSource.searchItemByName(named) else { return nil }
         return image(url)
     }
     

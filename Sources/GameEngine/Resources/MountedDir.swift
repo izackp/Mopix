@@ -143,7 +143,7 @@ public class MountedDir : IFileSystem {
     func writeFile(_ bytes:[UInt8], _ relPath:String) throws {
         let data = Data(bytes)
         guard let url = resolveToDirectUrl(relPath) else { throw GenericError("Cannot resolve \(relPath) to url")}
-        try data.write(to: try URL.from(url), options: [.atomic])
+        try data.write(to: url, options: [.atomic])
         guard let url = itemAt(url.path) else { return }
         for eachListener in _fileWatchers {
             eachListener?.fileChanges([url])

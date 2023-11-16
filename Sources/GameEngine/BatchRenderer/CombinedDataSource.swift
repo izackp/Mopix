@@ -7,16 +7,24 @@
 
 import Foundation
 
-protocol DataSource {
+public protocol IDataSource {
     func fetch(_ url:URL) throws -> [UInt8]
-    func searchByName(_ name:String) -> URL?
+    func searchItemByName(_ name:String) -> URL?
     func canHandle(_ url:URL) -> Bool
 }
 
-public class CombinedDataSource : DataSource {
-    func searchByName(_ name: String) -> URL? {
+public class CombinedDataSource : IDataSource {
+    //Can probably do something like the below and use maps in the future
+    //func register(_ protocol:String, _ source:DataSource)
+    var sources:[IDataSource] = []
+    
+    public init(_ dataSources:[IDataSource]) {
+        self.sources = dataSources
+    }
+    
+    public func searchItemByName(_ name: String) -> URL? {
         for eachSource in sources {
-            let found = try eachSource.searchByName(name)
+            let found = eachSource.searchItemByName(name)
             if (found != nil) {
                 return found
             }
@@ -24,11 +32,7 @@ public class CombinedDataSource : DataSource {
         return nil
     }
     
-    //Can probably do something like the below and use maps in the future
-    //func register(_ protocol:String, _ source:DataSource)
-    var sources:[DataSource] = []
-    
-    func fetch(_ url: URL) throws -> [UInt8] {
+    public func fetch(_ url: URL) throws -> [UInt8] {
         for eachSource in sources {
             if (eachSource.canHandle(url)) {
                 return try eachSource.fetch(url)
@@ -37,7 +41,7 @@ public class CombinedDataSource : DataSource {
         throw GenericError("Combined DataSource cannot handle: \(url)")
     }
     
-    func canHandle(_ url:URL) -> Bool {
+    public func canHandle(_ url:URL) -> Bool {
         return true
     }
 }

@@ -25,7 +25,7 @@ class VirtualDriveView : ViewFactory {
     }
 }
 
-extension Data {
+extension Array where Element == UInt8 {
     func toView() -> View {
         return View()
     }
@@ -33,7 +33,7 @@ extension Data {
 
 extension URL: ViewFactory {
     func loadView() throws -> View {
-        let data = try Data(contentsOf: self)
+        let data = try self.readFile()
         return data.toView()
     }
 }
