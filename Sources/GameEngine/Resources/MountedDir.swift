@@ -51,7 +51,7 @@ public class MountedDir : IFileSystem {
             let parent = path.deletingLastPathComponent()
             fileORDirPath = parent
         }
-        if lastPart.count == 0 {
+        if lastPart.isEmpty {
             throw GenericError("last component in path is empty: \(path)")
         }
         let meta = (try? PackageMeta.parseMetaFromName(lastPart)) ?? PackageMeta(name: lastPart, version: Version.zero)
@@ -136,21 +136,21 @@ public class MountedDir : IFileSystem {
     }
     
     //
-    func readFile(_ relPath:String) throws -> Data {
-        let fileUrl = path.appendingPathComponent(relPath)
-        return try Data(contentsOf: fileUrl)
+    func readFile(_ relPath:String) throws -> [UInt8] {
+        return try path.readFile(relPath: relPath)
     }
     
-    func writeFile(_ data:Data, _ relPath:String) throws {
+    func writeFile(_ bytes:[UInt8], _ relPath:String) throws {
+        let data = Data(bytes)
         guard let url = resolveToDirectUrl(relPath) else { throw GenericError("Cannot resolve \(relPath) to url")}
-        try data.write(to: url, options: [.atomic])
+        try data.write(to: try URL.from(url), options: [.atomic])
         guard let url = itemAt(url.path) else { return }
         for eachListener in _fileWatchers {
             eachListener?.fileChanges([url])
         }
     }
     
-    func readFile(_ item:VDItem) throws -> Data {
+    func readFile(_ item:VDItem) throws -> [UInt8] {
         let url = item.url
         let itemPath = url.path
         if let host = url.host {
@@ -159,11 +159,10 @@ public class MountedDir : IFileSystem {
             }
         }
         
-        let fileUrl = path.appendingPathComponent(itemPath)
-        return try Data(contentsOf: fileUrl)
+        return try path.readFile(relPath: itemPath)
     }
     
-    func writeFile(_ data:Data, _ item:VDItem) throws {
+    func writeFile(_ data:[UInt8], _ item:VDItem) throws {
         let url = item.url
         let relPath = url.path
         if let host = url.host {

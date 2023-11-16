@@ -14,7 +14,7 @@ import SDL2Swift
  using the same texture page!
  When this occurs we create a new page by copying the old then writing one part of the change. After this the old page is 'old' but it isn't yet discard.
  We keep it around because what if the next thing we're drawing also needs to do the same thing since we're still drawing to the same allocation
- we don't want to keep creating new textures. We can start x amount of images and still use the old. Once an image is complete this all changes.
+ we don't want to keep creating new textures. We can start x amount of images and still use the old. Once an image is complete, this all changes.
  The next op that makes use use the same texture on itself again will need to make a new texture.
  
  What do we do with old textures? We push / Pop them into a stack simple, easy, no need to create / destroy textures.
@@ -108,10 +108,11 @@ public class ImageAtlas {
     let renderer:Renderer
     //1024 because why not
     //renderer->info.max_texture_width
-    var listPages:[TexturePage] = [] //Note assuming relatively small array
+    var listPages:[TexturePage] = []
     var textureSize = Size<Int32>(1024, 1024)
     
     //Each texture has a blank pixel so we don't need to worry about switching textures.
+    //TODO: SDL contains a drawRect function.. so we don't need that pixel
     var _blankImageCache:[SubTextureIndex] = [] //index matches page
     var textureCache:[Texture] = [] //Object pool to avoid creating/deleting
     

@@ -20,6 +20,11 @@ extension URL {
 }
 
 extension URL {
+    static func from(_ str:String) throws -> URL {
+        guard let fUrl = URL(string: str) else { throw GenericError("Unable to convert: \(str) to url.")}
+        return fUrl
+    }
+    
     func vdPath(from base: URL, packageInfo:PackageMeta? = nil) throws -> URL {
 
         // Remove/replace "." and "..", make paths absolute:
