@@ -20,13 +20,16 @@ public class ImageManager {
         self.atlas = atlas
         self._dataSource = CombinedDataSource(dataSources)
     }
-    
-    
+
+
     var _dataSource:CombinedDataSource
     var _imageCache:[String:AtlasImage] = [:]
     var _fontList:[String:URL] = [:]
     var _fontCache:[FontDesc:Font] = [:] //TODO: Fonts should unload when no longer used
-    
+
+    /// Optional ResourceStore for registering glyph resource IDs into the pipeline.
+    public weak var resourceStore: ResourceStore? = nil
+
     var _systemFonts:[String] = [] //TODO: Is it needed?
     
     public func loadSystemFonts() {
@@ -57,15 +60,15 @@ public class ImageManager {
             return cached
         }
         let name = desc.family
-        
+
         if let url = _fontList[name] {
             let file = try _dataSource.fetch(url)
             let font = try SDLFont(data: file, ptSize: Int(desc.size))
-            let result = Font(atlas: atlas, font: font)
+            let result = Font(atlas: atlas, font: font, resourceStore: resourceStore)
             _fontCache[desc] = result
             return result
         }
-        
+
         #if os(macOS)
         let result = try fromCGFont(name, desc: desc)
         _fontCache[desc] = result
@@ -82,7 +85,7 @@ public class ImageManager {
         let cgFont = CGFont(name as CFString)
         guard let data = fontDataForCGFont(cgFont) else { return nil }
         let font = try SDLFont(data: data, ptSize: Int(desc.size))
-        return Font(atlas: atlas, font: font)
+        return Font(atlas: atlas, font: font, resourceStore: resourceStore)
     }
     #endif
     

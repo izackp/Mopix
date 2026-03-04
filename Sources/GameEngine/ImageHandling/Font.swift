@@ -34,7 +34,7 @@ extension Substring {
 }
 
 extension String {
-    
+
     func forEachCharacterWithIndex(iterator: (String.Index, Character) -> Void) {
         var currIndex = self.startIndex
         for char in self {
@@ -42,7 +42,7 @@ extension String {
             currIndex = self.index(after: currIndex)
         }
     }
-    
+
     //words start at white space
     func iterateWords() -> AnyIterator<Substring> {
         var it = self.makeIterator()
@@ -87,26 +87,31 @@ extension String {
 public class Font {
     //let _fileUrl:URL
     var _glyphs:[Character:AtlasImage] = [:] //TODO: Array or dictionary?
+    /// Stable resource IDs for each glyph, registered with ResourceStore.
+    var _glyphIds:[Character:UInt64] = [:]
     let _atlas:ImageAtlas
     let _font:SDLFont
-    
-    public init(atlas: ImageAtlas, font:SDL2_TTFSwift.Font) {
+    /// Reference to the resource store for registering glyph images.
+    weak var _resourceStore: ResourceStore?
+
+    public init(atlas: ImageAtlas, font:SDL2_TTFSwift.Font, resourceStore: ResourceStore? = nil) {
         _atlas = atlas
         _font = font
+        _resourceStore = resourceStore
     }
-    
+
     deinit {
         /*
         for subTexture in _glyphs.values {
             _atlas.returnSubtexture(subTexture)
         }*/
     }
-    
+
     func widthOfText(_ text:String, maxWidthPxs:Int) throws -> MeasureResult {
         let metrics = try _font.measure(text, inWidth: maxWidthPxs)
         return metrics
     }
-    
+
     func widthOfText(_ text:Substring, maxWidthPxs:Int) throws -> MeasureResult {
         var width:Int = 0
         var count:Int = 0
@@ -122,7 +127,7 @@ public class Font {
         }
         return MeasureResult(extent: width, count: count)
     }
-    
+
     func glyph(_ c:Character) throws -> AtlasImage {
         if let texture = _glyphs[c] {
             return texture
@@ -132,6 +137,16 @@ public class Font {
         let image = AtlasImage(texture: texture, atlas: _atlas)
         //assert(height == texture.sourceRect.height)
         _glyphs[c] = image
+        // Register with resource store for pipeline rendering
+        if let store = _resourceStore {
+            let id = store.registerAtlasImage(image)
+            _glyphIds[c] = id
+        }
         return image
+    }
+
+    /// Returns the stable resource ID for the given glyph character, if registered.
+    public func resourceId(for c: Character) -> UInt64? {
+        return _glyphIds[c]
     }
 }

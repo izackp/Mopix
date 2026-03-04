@@ -46,11 +46,33 @@ public class ResourceStore {
     }
     
     public func fetchResource(_ id:UInt64) throws -> AtlasImage {
-        guard let resource = _idImageCache[id] else { 
+        guard let resource = _idImageCache[id] else {
             throw GenericError("No resource with id: \(id)")
         }
         resource.ticksSinceLastUse = 0
         return resource
+    }
+
+    /// Register an already-loaded AtlasImage under a new stable resource ID.
+    /// Returns the assigned resource ID.
+    public func registerAtlasImage(_ image: AtlasImage) -> UInt64 {
+        let uuid = genId()
+        _idImageCache[uuid] = image
+        return uuid
+    }
+
+    /// Register an already-loaded AtlasImage under a specific resource ID.
+    /// If the ID is already taken a new ID is generated. Returns the actual ID used.
+    @discardableResult
+    public func registerAtlasImage(_ image: AtlasImage, id: UInt64) -> UInt64 {
+        let uuid: UInt64
+        if idExists(id) {
+            uuid = genId()
+        } else {
+            uuid = id
+        }
+        _idImageCache[uuid] = image
+        return uuid
     }
     
     public func increaseTicks() {

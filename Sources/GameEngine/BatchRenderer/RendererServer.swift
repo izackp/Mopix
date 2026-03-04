@@ -1,6 +1,6 @@
 //
 //  RendererServer.swift
-//  
+//
 //
 //  Created by Isaac Paul on 5/9/23.
 //
@@ -16,26 +16,28 @@ extension BitMaskOptionSet<Renderer.RendererFlip> {
 }
 
 public class RendererServer {
-    
+
     public init(renderer: Renderer, imageManager:ImageManager) {
         self.renderer = renderer
         self.imageManager = imageManager
         let resourceStore = ResourceStore(imageManager)
         self.resourceStore = resourceStore
         self.drawingInterpolator = DrawCmdInterpolator(renderer: renderer, resourceStore: resourceStore)
+        // Wire ResourceStore into ImageManager so newly created Fonts can register glyphs
+        imageManager.resourceStore = resourceStore
     }
-    
+
     let imageManager:ImageManager
     let resourceStore:ResourceStore
     let renderer:Renderer
     let drawingInterpolator:DrawCmdInterpolator
-    
+
     public func draw(_ imageUrl:VDUrl, rect:Rect<Int>, _ color:SDLColor = SDLColor.white, alpha:Float = 1) {
         guard let image = imageManager.image(imageUrl) else { return }
         try? renderer.draw(image, rect.sdlRect(), color)
     }
-    
-    public func receiveCmds(_ list: [DrawCmdImage]) {
+
+    func receiveCmdsSync(_ list: [DrawCmd]) {
         resourceStore.increaseTicks()
         drawingInterpolator.receiveCmds(list)
     }
@@ -109,6 +111,12 @@ extension RendererServer: IRendererServer {
         }
     }
 
+    public func receiveCmds(_ list: [DrawCmd]) async {
+        await MainActor.run() {
+            receiveCmdsSync(list)
+        }
+    }
+
     //TODO: Use texture atlas
     /*
     func textureFor(_ id:UInt64, _ backingImage:EditableImage) throws -> Texture {
@@ -123,7 +131,7 @@ extension RendererServer: IRendererServer {
                 try backingImage.withPixelData { pixelData in
                     try texture.update(pixels: pixelData.ptr, pitch: pixelData.pitch)
                 }
-                
+
                 cache[id]?.editIteration = backingImage.editIteration
                 return texture
             }
@@ -135,13 +143,12 @@ extension RendererServer: IRendererServer {
     /*
     public func draw(_ image:EditableImage, rect:Rect<Int>) {
         let objId = ObjectIdentifier(image)
-        
+
         do {
             let texture = try textureFor(objId, image)
             try renderer.copy(texture, destination: rect.sdlRect())
         } catch {
-            
+
         }
     }*/
 }
-

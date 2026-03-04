@@ -31,5 +31,5 @@ public protocol IRendererServer: AnyObject {
     func toEditableImage(_ id: ImageFlyWeight) async throws -> ReadOnlyImage
 
     // MARK: - Draw commands
-    func receiveCmds(_ list: [DrawCmdImage]) async
+    func receiveCmds(_ list: [DrawCmd]) async
 }

@@ -28,6 +28,12 @@ open class View: Codable {
 
     public var _id:String? = nil
     public var frame:Rect<Int16> = Rect.zero
+
+    /// Stable identity for this view, valid for the lifetime of the object.
+    /// Used as animationId in draw commands so the interpolator can lerp across frames.
+    public var animationId: UInt64 {
+        return UInt64(bitPattern: Int64(Int(bitPattern: ObjectIdentifier(self))))
+    }
     public var listLayouts:[LayoutElement] = []
     public var listLayoutChildren:[LayoutChild] = []
     public var children:[View] = []
@@ -224,9 +230,9 @@ open class View: Codable {
     }
     
     open func drawContent(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
-        
+
     }
-    
+
     private func drawOrRaster(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
         if (alpha == 0) { return }
         let requiresComposition = (alpha != 1 && (children.count > 0 || !backgroundColor.isClear()))
@@ -236,7 +242,7 @@ open class View: Codable {
             let image = try context.createAndDrawToTexture({ context, frame in
                 //TODO: I don't like below.. Also we could do some optimizations by avoiding rendering under specific conditions
                 //Currently we always need to redraw because we don't know anything about the the children
-                //If any of the children changed 
+                //If any of the children changed
                 let offsetFrame = frame.offset(Point(originalFrame.origin.x * -1, originalFrame.origin.y * -1)) //2am brain hurts haxfix
                 try draw(context, offsetFrame)
             }, size: originalFrame.size)
@@ -250,7 +256,7 @@ open class View: Codable {
             try draw(context, rect)
         }
     }
-    
+
     open func draw(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
         if (alpha == 0) { return }
         let offsetFrame = frame.offset(rect.origin)
@@ -258,8 +264,31 @@ open class View: Codable {
             try context.drawImage(image, offsetFrame)
             return
         }
-        
-        try context.drawSquare(offsetFrame, backgroundColor.sdlColor())
+
+        // Emit a single DrawCmdView for this view's background and borders.
+        let myAnimId = animationId
+        let parentAnimId = context.currentParentAnimationId
+        let bgColor = backgroundColor.sdlColor()
+        let bdColor = borderColor.sdlColor()
+        let clipRect = context.currentClipRect.map { $0.to(Int.self) } ?? .zero
+        let viewCmd = DrawCmdView(
+            animationId: myAnimId,
+            parentAnimationId: parentAnimId,
+            dest: offsetFrame.to(Int.self),
+            backgroundColor: bgColor,
+            backgroundAlpha: alpha,
+            borderColor: bdColor,
+            borderWidth: Int(borderWidth),
+            z: context.currentZ,
+            clippingRect: clipRect
+        )
+        context.currentZ += 1
+        context.emit(.view(viewCmd))
+
+        // Children use this view's animationId as their parent.
+        let savedParentAnimId = context.currentParentAnimationId
+        context.currentParentAnimationId = myAnimId
+
         let clip = clipBounds
         var lastClipRect:Rect<DValue>? = nil
         if (clip) {
@@ -270,27 +299,15 @@ open class View: Codable {
         for eachChild in children {
             try eachChild.drawOrRaster(context, offsetFrame)
         }
-        
-        if (borderWidth > 0 && borderColor.isClear() == false) {
-            var line:Rect<DValue> = offsetFrame
-            line.height = borderWidth
-            let borderColorSdl = borderColor.sdlColor()
-            try context.drawSquare(line, borderColorSdl)
-            line.y = offsetFrame.bottom - borderWidth
-            try context.drawSquare(line, borderColorSdl)
-            line.y = offsetFrame.y + borderWidth
-            line.width = borderWidth
-            line.height = offsetFrame.height - (borderWidth * 2)
-            try context.drawSquare(line, borderColorSdl)
-            line.x = offsetFrame.right - borderWidth
-            try context.drawSquare(line, borderColorSdl)
-        }
-        
+
         if (clip) {
             try context.setClipRect(lastClipRect)
         }
+
+        // Restore parent animationId
+        context.currentParentAnimationId = savedParentAnimId
     }
-    
+
     open func draw(_ context:IDraw) throws {
         if (alpha == 0) { return }
         let offsetFrame = frame
@@ -299,37 +316,6 @@ open class View: Codable {
             context.draw(DrawCmdImage(animationId: 0, resourceId: img, dest: offsetFrame.to(Int.self), z: 0, alpha: alpha, rotation: 0, rotationPoint: Point.zero, clippingRect: Rect.zero, time: 0))
             return
         }
-        /*
-        try context.drawSquare(offsetFrame, backgroundColor.sdlColor())
-        let clip = clipBounds
-        var lastClipRect:Rect<DValue>? = nil
-        if (clip) {
-            lastClipRect = context.currentClipRect
-            try context.setClipRect(offsetFrame)
-        }
-        try drawContent(context, offsetFrame)
-        for eachChild in children {
-            try eachChild.drawOrRaster(context, offsetFrame)
-        }
-        
-        if (borderWidth > 0 && borderColor.isClear() == false) {
-            var line:Rect<DValue> = offsetFrame
-            line.height = borderWidth
-            let borderColorSdl = borderColor.sdlColor()
-            try context.drawSquare(line, borderColorSdl)
-            line.y = offsetFrame.bottom - borderWidth
-            try context.drawSquare(line, borderColorSdl)
-            line.y = offsetFrame.y + borderWidth
-            line.width = borderWidth
-            line.height = offsetFrame.height - (borderWidth * 2)
-            try context.drawSquare(line, borderColorSdl)
-            line.x = offsetFrame.right - borderWidth
-            try context.drawSquare(line, borderColorSdl)
-        }
-        
-        if (clip) {
-            try context.setClipRect(lastClipRect)
-        }*/
     }
     
     public func viewForId(_ id:String) -> View? {

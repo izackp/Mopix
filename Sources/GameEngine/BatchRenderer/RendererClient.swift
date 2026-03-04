@@ -1,6 +1,6 @@
 //
 //  RendererClient.swift
-//  
+//
 //
 //  Created by Isaac Paul on 5/22/23.
 //
@@ -45,19 +45,19 @@ enum ResourceError : Error {
 }
 
 public class RendererClient: IDraw, IResourceContainer {
-    
-    var cmdList:[DrawCmdImage] = []
+
+    var cmdList:[DrawCmd] = []
     let server:any IRendererServer
     public var defaultTime:UInt64 = 0
     public var maxTicksForRollback = 10
     var cacheList = WeakArray<IResourceCache>()
-    
+
     //var _lastUsed:[UInt64:Int] = [:] //Store last used id
     //var _pinnedIDs:Set<UInt64> = Set() //ids that we dont remove
     private var _toUnload:[QueuedUnload] = []
     var errorForId:[UInt64:Error] = [:]
     var _resourceForId:[UInt64:ImageResource] = [:]
-    
+
     public var _windowSize:Size<Int16> = Size(0, 0)
     public var windowSize:Size<Int16> {
         get {
@@ -65,7 +65,7 @@ public class RendererClient: IDraw, IResourceContainer {
         }
     }
 
-    public init(_ cmdList: [DrawCmdImage] = [], _ server: any IRendererServer) {
+    public init(_ cmdList: [DrawCmd] = [], _ server: any IRendererServer) {
         self.cmdList = cmdList
         self.server = server
     }
@@ -77,7 +77,7 @@ public class RendererClient: IDraw, IResourceContainer {
         try cache.loadResources(self)
         cacheList.clean() //Removes broken weak refs
     }
-    
+
     public func removeResourceCache(_ cache: IResourceCache) {
         cacheList.remove(element: cache)
         cache.unloadResources(self)
@@ -91,7 +91,7 @@ public class RendererClient: IDraw, IResourceContainer {
             try eachItem?.loadResources(self)
         }
     }
-    
+
     func idExists(_ id:UInt64) -> Bool {
         if (id == 0) {
             return true
@@ -101,7 +101,7 @@ public class RendererClient: IDraw, IResourceContainer {
         }
         return false
     }
-    
+
     func genId() -> UInt64 {
         var uuid:UInt64 = 0
         while true {
@@ -112,7 +112,7 @@ public class RendererClient: IDraw, IResourceContainer {
         }
         return uuid
     }
-    
+
     //MARK: -
     public func draw(_ id:UInt64,
                      _ resourceId:UInt64,
@@ -126,37 +126,32 @@ public class RendererClient: IDraw, IResourceContainer {
                      _ relTime:UInt64 = 0) {
        // _lastUsed[resourceId] = 0
         let time = relTime + defaultTime
-        cmdList.append(DrawCmdImage(animationId: id, resourceId: resourceId, dest: rect, z: z, alpha:alpha, rotation:rotation, rotationPoint:rotationPoint, clippingRect: clipping, time:time))
+        let cmd = DrawCmdImage(animationId: id, resourceId: resourceId, dest: rect, z: z, alpha:alpha, rotation:rotation, rotationPoint:rotationPoint, clippingRect: clipping, time:time)
+        cmdList.append(.image(cmd))
     }
-    
+
     public func draw(_ image:DrawCmdImage) {
         //_lastUsed[image.resourceId] = 0
         let time = image.time + defaultTime
         var imgCopy = image
         imgCopy.time = time
-        
-        cmdList.append(imgCopy)
+        cmdList.append(.image(imgCopy))
     }
-    
+
+    public func drawCmd(_ cmd:DrawCmd) {
+        cmdList.append(cmd)
+    }
+
     public func finishDrawing() {
         _toUnload.forEachUncheckedMut { (eachItem:inout QueuedUnload, index:Int) in
             eachItem.ticks -= 1
         }
         _toUnload.removeAll(where: { $0.ticks <= 0 } )
-        /*
-        for (key, value) in _lastUsed {
-            if (value >= maxTicksForRollback) {
-                _lastUsed[key] = nil
-                unloadResourceRaw(key)
-                continue
-            }
-            _lastUsed[key] = value + 1
-        }*/
     }
-    
+
 
     //MARK: - LOADING
-    
+
     public func loadResourceAsync(_ url: VDUrl) async throws -> Image {
         return try await server.loadResource(url)
     }
@@ -188,7 +183,7 @@ public class RendererClient: IDraw, IResourceContainer {
     public func loadResourcesAsync(_ urlList: [VDUrl], _ choosenId: [UInt64]) async -> [Result<Image, Error>] {
         return await server.loadResources(urlList, choosenId)
     }
-    
+
     public func loadResource(_ url:VDUrl) -> ImageFlyWeight {
         let uuid = genId()
         let flyWeight = ImageFlyWeight(id: uuid)
@@ -207,7 +202,7 @@ public class RendererClient: IDraw, IResourceContainer {
         }
         return flyWeight
     }
-    
+
     public func loadResource(_ data:PixelData) -> ReadOnlyImage {
         let uuid = genId()
         let img = ReadOnlyImage(id: uuid, data: data)
@@ -227,12 +222,12 @@ public class RendererClient: IDraw, IResourceContainer {
         }
         return img
     }
-    
+
     public func loadResources(_ urlList:[VDUrl]) throws -> [ImageFlyWeight] {
         let result = urlList.map { loadResource($0) }
         return result
     }
-    
+
     public func loadResourceRaw(_ url: VDUrl) throws -> UInt64 {
         let uuid = genId()
         Task {
@@ -247,9 +242,9 @@ public class RendererClient: IDraw, IResourceContainer {
         }
         return uuid
     }
-    
+
     public func loadResourceRaw(_ image: PixelData) throws -> UInt64 {
-        
+
         let uuid = genId()
         Task {
             do {
@@ -263,7 +258,7 @@ public class RendererClient: IDraw, IResourceContainer {
         }
         return uuid
     }
-    
+
     //MARK: - UNLOADING
     public func unloadResource(_ id: ImageResource) {
         Task { await server.unloadResource(id) }
@@ -272,17 +267,17 @@ public class RendererClient: IDraw, IResourceContainer {
     public func unloadResources(_ idList: [ImageResource]) {
         Task { await server.unloadResources(idList) }
     }
-    
+
     public func unloadResourceDelayed(_ id:ImageResource, _ ticks:Int) {
         _toUnload.append(QueuedUnload(resource: id, ticks: ticks))
     }
-    
+
     public func unloadResourcesDelayed(_ idList:[ImageResource], _ ticks:Int) {
         for eachItem in idList {
             _toUnload.append(QueuedUnload(resource: eachItem, ticks: ticks))
         }
     }
-    
+
     //MARK: - Conversions
     public func updateImage(_ image: EditedImage) async throws -> ReadOnlyImage {
         return try await server.updateImage(image)
@@ -295,24 +290,11 @@ public class RendererClient: IDraw, IResourceContainer {
     public func toEditableImage(_ id: ImageFlyWeight) async throws -> ReadOnlyImage {
         return try await server.toEditableImage(id)
     }
-    
+
     //MARK: -
     public func keepAliveAfterDeath(_ milliseconds: Int) {
-        
+
     }
-    
-    /*
-    public func pinResource(_ id:UInt64) -> Bool {
-        let (contained, _) = _pinnedIDs.insert(id)
-        _lastUsed[id] = nil
-        return !contained
-    }
-    
-    public func unpinResource(_ id:UInt64) -> Bool {
-        let contained = _pinnedIDs.remove(id)
-        _lastUsed[id] = 0
-        return contained != nil
-    }*/
 
     //MARK: -
     public func clearCommands() {
@@ -323,58 +305,10 @@ public class RendererClient: IDraw, IResourceContainer {
         guard cmdList.count > 0 else { return }
         Task { await server.receiveCmds(self.cmdList) }
     }
-    
+
     public func createImage(_ block:(_ context:IDraw) throws -> (), size:Size<DValue>) throws -> UInt64 {
         let builder = ImageBuilder(client: self)
         try block(builder)
         return builder.finalize()
     }
-    /*
-    func createAndDrawToTexture(_ block:(_ context:RendererClient, _ frame:Rect<DValue>) throws -> (), size:Size<DValue>) throws -> AtlasImage {
-        let atlas = imageManager.atlas
-        let subTexture = try atlas.saveBlankImage(size)
-        let targetImage = AtlasImage(texture: subTexture, atlas: atlas)
-        //we must use the correct texture
-        let pageIndex = subTexture.texturePageIndex
-        let texture = rollingTextureForPage[pageIndex] ?? atlas.listPages[pageIndex].texture
-        
-        //let previousBlendmode = blendMode
-        let previousTarget = try renderer.swapTarget(texture)
-        let targetFrame = targetImage.sourceRect.to(Int16.self)
-        currentWindowFrame.append(targetFrame)
-        let lastClip = currentClipRect
-        try setClipRect(targetFrame)
-        destinationPage.append(pageIndex)
-        //blendMode = .none
-        
-        try block(self, targetFrame)
-        
-        usingNewPage = false
-        destinationPage.removeLast()
-        currentWindowFrame.removeLast()
-        //blendMode = previousBlendmode
-        
-        try setClipRect(lastClip)
-        
-        if let tempImage = rollingTextureForPage[pageIndex] {
-            let old = atlas.listPages[pageIndex].texture
-            let newPage = TexturePage(texture: tempImage, allocator: atlas.listPages[pageIndex].allocator)
-            atlas.listPages[pageIndex] = newPage
-            atlas.returnTexture(old)
-            rollingTextureForPage[pageIndex] = nil
-        }
-        
-        let prevPageIndex = destinationPage.last!
-        if (prevPageIndex == -1) {
-            try renderer.setTarget(previousTarget)
-        } else if let target = rollingTextureForPage[prevPageIndex] {
-            try renderer.setTarget(target)
-            usingNewPage = true
-        } else {
-            let target = atlas.listPages[prevPageIndex].texture
-            try renderer.setTarget(target)
-        }
-        
-        return targetImage
-    }*/
 }
