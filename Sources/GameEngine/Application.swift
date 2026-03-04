@@ -22,7 +22,7 @@ public protocol IEventListener : AnyObject {
 
 
 extension IUpdate {
-    static func == (lhs: IUpdate, rhs: IUpdate) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs === rhs
     }
 }
@@ -212,6 +212,24 @@ open class Application {
             }
         }
     }
+    /*
+    func logicTick() {
+        _tickBank.setCurrentTime(time: SDL_GetTicks64())
+        var count = _tickBank.withdrawAll()
+        while (count > 0) {
+            gameWorld.fixedStep(_tickBank._timePerTick)
+            count -= 1
+        }
+    }
+    
+    func animationTick() {
+        let currentTick = SDL_GetTicks64()
+        let deltaTicks = currentTick - _lastTick
+        if (deltaTicks > 0) {
+            gameWorld.step(deltaTicks)
+            _lastTick = currentTick
+        }
+    }*/
     
     public func runLoop() throws {
         

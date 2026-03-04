@@ -35,9 +35,78 @@ public class RendererServer {
         try? renderer.draw(image, rect.sdlRect(), color)
     }
     
-    public func receiveCmds(_ list:[DrawCmdImage]) {
+    public func receiveCmds(_ list: [DrawCmdImage]) {
         resourceStore.increaseTicks()
         drawingInterpolator.receiveCmds(list)
+    }
+}
+
+// MARK: - IRendererServer
+extension RendererServer: IRendererServer {
+    public func loadResource(_ url: VDUrl) async throws -> Image {
+        try await MainActor.run() {
+            try resourceStore.loadResource(url)
+        }
+    }
+    public func loadResourceAsEditable(_ url: VDUrl) async throws -> ReadOnlyImage {
+        try await MainActor.run() {
+            try resourceStore.loadResourceAsEditable(url)
+        }
+    }
+    public func loadResource(_ image: PixelData) async throws -> ReadOnlyImage {
+        try await MainActor.run() {
+            try resourceStore.loadResource(image)
+        }
+    }
+    public func loadResources(_ urlList: [VDUrl]) async -> [Result<Image, Error>] {
+        await MainActor.run() {
+            resourceStore.loadResources(urlList)
+        }
+    }
+    public func loadResource(_ url: VDUrl, _ choosenId: UInt64) async throws -> Image {
+        try await MainActor.run() {
+            try resourceStore.loadResource(url, choosenId)
+        }
+    }
+    public func loadResourceAsEditable(_ url: VDUrl, _ choosenId: UInt64) async throws -> ReadOnlyImage {
+        try await MainActor.run() {
+            try resourceStore.loadResourceAsEditable(url, choosenId)
+        }
+    }
+    public func loadResource(_ image: PixelData, _ choosenId: UInt64) async throws -> ReadOnlyImage {
+        try await MainActor.run() {
+            try resourceStore.loadResource(image, choosenId)
+        }
+    }
+    public func loadResources(_ urlList: [VDUrl], _ choosenId: [UInt64]) async -> [Result<Image, Error>] {
+        await MainActor.run() {
+            resourceStore.loadResources(urlList, choosenId)
+        }
+    }
+    public func unloadResource(_ id: ImageResource) async {
+        await MainActor.run() {
+            resourceStore.unloadResource(id)
+        }
+    }
+    public func unloadResources(_ idList: [ImageResource]) async {
+        await MainActor.run() {
+            resourceStore.unloadResources(idList)
+        }
+    }
+    public func updateImage(_ image: EditedImage) async throws -> ReadOnlyImage {
+        try await MainActor.run() {
+            try resourceStore.updateImage(image)
+        }
+    }
+    public func toImage(_ id: ImageFlyWeight) async throws -> Image {
+        try await MainActor.run() {
+            try resourceStore.toImage(id)
+        }
+    }
+    public func toEditableImage(_ id: ImageFlyWeight) async throws -> ReadOnlyImage {
+        try await MainActor.run() {
+            try resourceStore.toEditableImage(id)
+        }
     }
 
     //TODO: Use texture atlas

@@ -1,6 +1,6 @@
 {
-    "lldb.library": "C:\\Library\\Developer\\Toolchains\\unknown-Asserts-development.xctoolchain\\usr\\bin\\liblldb.dll",
-    "sourcekit-lsp.serverArguments": [
+    /*
+    "swift.sourcekit-lsp.serverArguments": [
         "-Xcc",
         "-IC:\\Users\\Isaac\\Documents\\Projects\\swift\\Mopix\\windows_bin\\include",
         "-Xlinker",
@@ -13,7 +13,7 @@
         "-LC:\\Users\\Isaac\\Documents\\Projects\\swift\\Mopix\\windows_bin\\lib\\x64",
         "-Xlinker",
         "-debug:dwarf"
-    ],
+    ],*/
     //"swift.diagnostics": true,
     //"lldb.verboseLogging": true,
     //"lldb.launch.terminal": "integrated",

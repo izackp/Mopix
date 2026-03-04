@@ -104,7 +104,7 @@ public class DrawCmdInterpolator {
                 do {
                     try drawCmd(eachItem)
                 } catch {
-                    print("Unable to draw drawCmd: \(eachItem.animationId) : \(error)")
+                    print("Unable to draw drawCmd: \(eachItem.animationId) : \(error.localizedDescription)")
                 }
             }
             try renderer.setClipRect(previousRect)

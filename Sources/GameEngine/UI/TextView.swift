@@ -10,7 +10,7 @@ import SDL2
 
 
 //TODO: limit amount of possible lines
-@available(macOS 12, *)
+//@available(macOS 12, *)
 public class TextView : View {
     
     private var _text:String = ""

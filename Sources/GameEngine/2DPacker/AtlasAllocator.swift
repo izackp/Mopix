@@ -226,7 +226,8 @@ public class AtlasAllocator : Sequence {
         var selected_item = ItemIndex.NONE
         var shelf_idx = self.first_shelf
         while shelf_idx.is_some() {
-            let shelf = self.shelves[shelf_idx.index()] //TODO: Possible copy?
+            let shelfIndex = shelf_idx.index()
+            let shelf = self.shelves[shelfIndex] //TODO: Possible copy?
 
             if shelf.height < height
                 || shelf.height >= selected_shelf_height
@@ -538,7 +539,8 @@ public class AtlasAllocator : Sequence {
         var shelf_idx = self.first_shelf
         var shelf_x:UInt16 = 0
         while shelf_idx.is_some() {
-            let shelf = self.shelves[shelf_idx.index()] //TODO: Unintended copy
+            let index = shelf_idx.index()
+            let shelf = self.shelves[index] //TODO: Unintended copy
             let new_column = shelf_x != shelf.x;
             if new_column {
                 assert(Int32(accum_h) == self.size.height)

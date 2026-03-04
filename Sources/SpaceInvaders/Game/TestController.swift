@@ -8,12 +8,12 @@
 import Foundation
 import GameEngine
 
-@available(macOS 12.0, *)
+//@available(macOS 12.0, *)
 public class TestController : ViewController {
     
     let _source:VDUrl
 
-    static public func build(_ imageManager:SimpleImageManager) throws -> TestController {
+    static public func build(_ imageManager:ImageManager) throws -> TestController {
         let vd = Application.shared().vd //TODO: So do we make application shared?
         guard let vcUrl = vd.searchByName("ViewBuilder.json5")?.url else { throw GenericError("No file") }
         guard let data = try vd.readFile(vcUrl) else { throw GenericError("No Data") }
@@ -22,7 +22,8 @@ public class TestController : ViewController {
         decoder.userInfo[CodingUserInfoKey(rawValue: "instanceCache")!] = InstanceCache()
         decoder.userInfo[CodingUserInfoKey(rawValue: "imageManager")!] = imageManager
         decoder.userInfo[CodingUserInfoKey(rawValue: "labeledColors")!] = LabeledColorMap.standard
-        let content = try decoder.decode(ResolverInterface<Any>.self, from: data)
+        let dataWrapper = Data(data)
+        let content = try decoder.decode(ResolverInterface<Any>.self, from: dataWrapper)
         guard let myView = content.result.first(where: { (item:Any) in
             guard let view = item as? View else { return false }
             if (view._id == "viewRoot") { return true }

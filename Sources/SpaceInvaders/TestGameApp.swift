@@ -104,11 +104,11 @@ func printMemoryInfo<T>(_ item:T.Type) {
 class TestGameApp : Application {
     
     let commandRepeater = CommandRepeater()
-    let scene:SIScene
+    var scene:SIScene! = nil
     static var shared:TestGameApp! = nil
     
     override init() throws {
-        
+        try super.init()
         let newWindow = try FullWindow(parent: self, title: "My Test Game", options:[Renderer.Option.presentVsync])
         addWindow(newWindow)
         
@@ -118,7 +118,6 @@ class TestGameApp : Application {
         
         let testVC = try TestController.build(newWindow.imageManager)
         scene = SIScene(testVC: testVC)
-        try super.init()
 
         let engine = EngineWrapped(scene: scene)
         

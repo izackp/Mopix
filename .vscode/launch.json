@@ -1,56 +1,86 @@
 {
     "configurations": [
         {
-            "type": "lldb",
+            "type": "swift",
             "request": "launch",
             "sourceLanguages": [
                 "swift"
             ],
             "name": "Debug ParticleTweenTest",
-            "program": "${workspaceFolder:Mopix}\\.build/debug/ParticleTweenTest",
             "args": [],
-            "cwd": "${workspaceFolder:Mopix}",
+            "cwd": "${workspaceFolder:GameEngine}",
             "console": "internalConsole",
-            "preLaunchTask": "swift: Build Debug ParticleTweenTest"
+            "preLaunchTask": "swift: Build Debug ParticleTweenTest",
+            "target": "ParticleTweenTest",
+            "configuration": "debug"
         },
         {
-            "type": "lldb",
+            "type": "swift",
             "request": "launch",
             "sourceLanguages": [
                 "swift"
             ],
             "name": "Release ParticleTweenTest",
-            "program": "${workspaceFolder:Mopix}\\.build/release/ParticleTweenTest",
             "args": [],
-            "cwd": "${workspaceFolder:Mopix}",
+            "cwd": "${workspaceFolder:GameEngine}",
             "console": "internalConsole",
-            "preLaunchTask": "swift: Build Release ParticleTweenTest"
+            "preLaunchTask": "swift: Build Release ParticleTweenTest",
+            "target": "ParticleTweenTest",
+            "configuration": "release"
         },
         {
-            "type": "lldb",
+            "type": "swift",
             "request": "launch",
             "sourceLanguages": [
                 "swift"
             ],
             "name": "Debug SpaceInvaders",
-            "program": "${workspaceFolder:Mopix}\\.build/debug/SpaceInvaders",
             "args": [],
-            "cwd": "${workspaceFolder:Mopix}",
+            "cwd": "${workspaceFolder:GameEngine}",
             "console": "internalConsole",
-            "preLaunchTask": "swift: Build Debug SpaceInvaders"
+            "preLaunchTask": "swift: Build Debug SpaceInvaders",
+            "target": "SpaceInvaders",
+            "configuration": "debug"
         },
         {
-            "type": "lldb",
+            "type": "swift",
             "request": "launch",
             "sourceLanguages": [
                 "swift"
             ],
             "name": "Release SpaceInvaders",
-            "program": "${workspaceFolder:Mopix}\\.build/release/SpaceInvaders",
             "args": [],
-            "cwd": "${workspaceFolder:Mopix}",
+            "cwd": "${workspaceFolder:GameEngine}",
             "console": "internalConsole",
-            "preLaunchTask": "swift: Build Release SpaceInvaders"
+            "preLaunchTask": "swift: Build Release SpaceInvaders",
+            "target": "SpaceInvaders",
+            "configuration": "release"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:GameEngine}",
+            "name": "Debug UITest",
+            "preLaunchTask": "swift: Build Debug UITest",
+            "target": "UITest",
+            "configuration": "debug"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:GameEngine}",
+            "name": "Release UITest",
+            "preLaunchTask": "swift: Build Release UITest",
+            "target": "UITest",
+            "configuration": "release"
         }
     ]
 }

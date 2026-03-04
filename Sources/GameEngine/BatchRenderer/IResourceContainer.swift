@@ -43,7 +43,7 @@
  */
 
 /*
- init(SimpleImageManager)
+ init(ImageManager)
  didLoseImageContext()
  loadResourceRaw(VDUrl) throws -> UInt64
  loadResourceRaw(PixelData) throws -> UInt64
@@ -78,7 +78,7 @@ public protocol IResourceContainer {
     
     func keepAliveAfterDeath(_ milliseconds:Int)
     
-    func updateImage(_ image:EditedImage) throws -> ReadOnlyImage
+    func updateImage(_ image:EditedImage) async throws -> ReadOnlyImage
     
     //~~I cant remember why we need this.~~ My other idea was to never call unload. So if we did something like unload a level we could call softDrop so the client doesn't have to wait to drop.
     //This is for unpinned resources as pinned resources are never dropped.

@@ -47,7 +47,7 @@ enum ResourceError : Error {
 public class RendererClient: IDraw, IResourceContainer {
     
     var cmdList:[DrawCmdImage] = []
-    let server:RendererServer
+    let server:any IRendererServer
     public var defaultTime:UInt64 = 0
     public var maxTicksForRollback = 10
     var cacheList = WeakArray<IResourceCache>()
@@ -65,7 +65,7 @@ public class RendererClient: IDraw, IResourceContainer {
         }
     }
 
-    public init(_ cmdList: [DrawCmdImage] = [], _ server:RendererServer) {
+    public init(_ cmdList: [DrawCmdImage] = [], _ server: any IRendererServer) {
         self.cmdList = cmdList
         self.server = server
     }
@@ -93,10 +93,13 @@ public class RendererClient: IDraw, IResourceContainer {
     }
     
     func idExists(_ id:UInt64) -> Bool {
-        if (id != 0 && _resourceForId[id] != nil) {
-            return false
+        if (id == 0) {
+            return true
         }
-        return true
+        if (_resourceForId[id] != nil) {
+            return true
+        }
+        return false
     }
     
     func genId() -> UInt64 {
@@ -155,41 +158,35 @@ public class RendererClient: IDraw, IResourceContainer {
     //MARK: - LOADING
     
     public func loadResourceAsync(_ url: VDUrl) async throws -> Image {
-        let image = try server.resourceStore.loadResource(url)
-        return image
+        return try await server.loadResource(url)
     }
-    
+
     public func loadResourceWithPixelDataAsync(_ url: VDUrl) async throws -> ReadOnlyImage {
-        let image = try server.resourceStore.loadResourceAsEditable(url)
-        return image
+        return try await server.loadResourceAsEditable(url)
     }
-    
+
     public func loadResourceAsync(_ image: PixelData) async throws -> ReadOnlyImage {
-        let id = try server.resourceStore.loadResource(image)
-        return id
+        return try await server.loadResource(image)
     }
-    
+
     public func loadResourcesAsync(_ urlList: [VDUrl]) async -> [Result<Image, Error>] {
-        return server.resourceStore.loadResources(urlList)
+        return await server.loadResources(urlList)
     }
-    
+
     public func loadResourceAsync(_ url: VDUrl, _ choosenId: UInt64) async throws -> Image {
-        let image = try server.resourceStore.loadResource(url, choosenId)
-        return image
+        return try await server.loadResource(url, choosenId)
     }
-    
+
     public func loadResourceWithPixelDataAsync(_ url: VDUrl, _ choosenId: UInt64) async throws -> ReadOnlyImage {
-        let image = try server.resourceStore.loadResourceAsEditable(url, choosenId)
-        return image
+        return try await server.loadResourceAsEditable(url, choosenId)
     }
-    
+
     public func loadResourceAsync(_ image: PixelData, _ choosenId: UInt64) async throws -> ReadOnlyImage {
-        let id = try server.resourceStore.loadResource(image, choosenId)
-        return id
+        return try await server.loadResource(image, choosenId)
     }
-    
+
     public func loadResourcesAsync(_ urlList: [VDUrl], _ choosenId: [UInt64]) async -> [Result<Image, Error>] {
-        return server.resourceStore.loadResources(urlList, choosenId)
+        return await server.loadResources(urlList, choosenId)
     }
     
     public func loadResource(_ url:VDUrl) -> ImageFlyWeight {
@@ -197,13 +194,15 @@ public class RendererClient: IDraw, IResourceContainer {
         let flyWeight = ImageFlyWeight(id: uuid)
         Task {
             do {
-                let serverImg = try await loadResourceAsync(url)
+                let serverImg = try await loadResourceAsync(url, uuid)
                 //if (result.id != uuid) { errorForId[uuid] = ResourceError.newId(result.id) }
                 if (serverImg.id != uuid) {
                     flyWeight._id = uuid //shouldn't happen
                 }
             } catch {
-                errorForId[uuid] = error
+                await MainActor.run() {
+                    errorForId[uuid] = error
+                }
             }
         }
         return flyWeight
@@ -215,13 +214,15 @@ public class RendererClient: IDraw, IResourceContainer {
         _resourceForId[uuid] = img
         Task {
             do {
-                let serverImg = try await loadResourceAsync(data)
+                let serverImg = try await loadResourceAsync(data, uuid)
                 //if (result.id != uuid) { errorForId[uuid] = ResourceError.newId(result.id) }
                 if (serverImg.id != uuid) {
                     img.id = uuid //shouldn't happen
                 }
             } catch {
-                errorForId[uuid] = error
+                await MainActor.run() {
+                    errorForId[uuid] = error
+                }
             }
         }
         return img
@@ -236,10 +237,12 @@ public class RendererClient: IDraw, IResourceContainer {
         let uuid = genId()
         Task {
             do {
-                let serverImg = try await loadResourceAsync(url)
+                let serverImg = try await loadResourceAsync(url, uuid)
                 if (serverImg.id != uuid) { errorForId[uuid] = ResourceError.newId(serverImg.id) }
             } catch {
-                errorForId[uuid] = error
+                await MainActor.run() {
+                    errorForId[uuid] = error
+                }
             }
         }
         return uuid
@@ -250,27 +253,24 @@ public class RendererClient: IDraw, IResourceContainer {
         let uuid = genId()
         Task {
             do {
-                let serverImg = try await loadResourceAsync(image)
+                let serverImg = try await loadResourceAsync(image, uuid)
                 if (serverImg.id != uuid) { errorForId[uuid] = ResourceError.newId(serverImg.id) }
             } catch {
-                errorForId[uuid] = error
+                await MainActor.run() {
+                    errorForId[uuid] = error
+                }
             }
         }
         return uuid
     }
     
     //MARK: - UNLOADING
-    public func unloadResource(_ id:ImageResource) {
-        //_lastUsed[id.id] = nil
-        Task {
-            server.resourceStore.unloadResource(id) //permanent
-        }
+    public func unloadResource(_ id: ImageResource) {
+        Task { await server.unloadResource(id) }
     }
-    
-    public func unloadResources(_ idList:[ImageResource]) {
-        Task {
-            server.resourceStore.unloadResources(idList)
-        }
+
+    public func unloadResources(_ idList: [ImageResource]) {
+        Task { await server.unloadResources(idList) }
     }
     
     public func unloadResourceDelayed(_ id:ImageResource, _ ticks:Int) {
@@ -284,16 +284,16 @@ public class RendererClient: IDraw, IResourceContainer {
     }
     
     //MARK: - Conversions
-    public func updateImage(_ image:EditedImage) throws -> ReadOnlyImage {
-        return try server.resourceStore.updateImage(image)
+    public func updateImage(_ image: EditedImage) async throws -> ReadOnlyImage {
+        return try await server.updateImage(image)
     }
-    
+
     public func toImage(_ id: ImageFlyWeight) async throws -> Image {
-        return try server.resourceStore.toImage(id)
+        return try await server.toImage(id)
     }
-    
+
     public func toEditableImage(_ id: ImageFlyWeight) async throws -> ReadOnlyImage {
-        return try server.resourceStore.toEditableImage(id)
+        return try await server.toEditableImage(id)
     }
     
     //MARK: -
@@ -320,9 +320,8 @@ public class RendererClient: IDraw, IResourceContainer {
     }
 
     public func sendCommands() {
-        if (cmdList.count > 0) {
-            server.drawingInterpolator.receiveCmds(cmdList)
-        }
+        guard cmdList.count > 0 else { return }
+        Task { await server.receiveCmds(self.cmdList) }
     }
     
     public func createImage(_ block:(_ context:IDraw) throws -> (), size:Size<DValue>) throws -> UInt64 {

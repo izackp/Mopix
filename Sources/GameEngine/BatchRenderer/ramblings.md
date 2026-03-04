@@ -3,7 +3,7 @@
  I have some interesting ideas when it comes to this rendering server:
  Problems to solve:
  * Jitter due to ticks per second not matching fps
- * Rollback. Pointers and references are difficult to recreate when reserialing the game state.
+ * Rollback. Pointers and references are difficult to recreate when reserializing the game state.
  So using references to 'images' might prove difficult over using handles.
  * Alternative rendering engines. Lets say I want to use Godot or unity for rendering. All I have to do is reimplement
  the api in that engine... as well as the resource retrieval mechanisms

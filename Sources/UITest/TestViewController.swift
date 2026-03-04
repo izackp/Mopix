@@ -12,7 +12,7 @@ public class TestViewController : ViewController, PackageChangeListener {
     
     let _source:VDUrl
 
-    static public func build(_ imageManager:SimpleImageManager) throws -> TestViewController {
+    static public func build(_ imageManager:ImageManager) throws -> TestViewController {
         let vd = UITestApp.shared.vd //TODO: So do we make application shared?
         
         guard let vcUrl = vd.searchByName("TestViewController.json5")?.url else { throw GenericError("No file") }
@@ -27,7 +27,8 @@ public class TestViewController : ViewController, PackageChangeListener {
         decoder.userInfo[CodingUserInfoKey(rawValue: "imageManager")!] = imageManager
         decoder.userInfo[CodingUserInfoKey(rawValue: "labeledColors")!] = LabeledColorMap.standard
         //context[CodingUserInfoKey(rawValue: "labeledColors")!] as? LabeledColorMa
-        let content = try decoder.decode(ResolverInterface<Any>.self, from: data)
+        let dataWrapper = Data(data)
+        let content = try decoder.decode(ResolverInterface<Any>.self, from: dataWrapper)
         guard let myView = content.result.first as? View else { throw GenericError("Unexpected type")}
         let mountedDir = vd.packages.first(where: {$0.path == vcUrl})
         let result = TestViewController(myView, vcUrl)

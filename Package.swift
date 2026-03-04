@@ -10,7 +10,7 @@ let optimize:[SwiftSetting] = []//[SwiftSetting.unsafeFlags(["-cross-module-opti
 let package = Package(
     name: "GameEngine",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v12),
         .iOS(.v13)
     ],
     products: [
@@ -23,10 +23,10 @@ let package = Package(
     ],
     dependencies: [
         //.package(path: "/Users/isaacpaul/Projects/swift-projects/SDL"),
-        //.package(path: "/Users/isaacpaul/Projects/swift-projects/icu-swift"),
+        .package(path: "/Users/isaacpaul/Projects/swift-projects/icu-swift"),
         .package(url: "https://github.com/izackp/SDL.git", branch: "master"),
         .package(url: "https://github.com/eonil/FSEvents.git", from:"0.1.7"),
-        .package(url: "https://github.com/izackp/icu-swift.git", branch: "master"),
+        //.package(url: "https://github.com/izackp/icu-swift.git", branch: "master"),
         .package(url: "https://github.com/t-ae/xorswift", from: "3.0.0"),
     ],
     targets: [

@@ -31,7 +31,7 @@ public final class FullWindow: LiteWindow {
                                   frame: (SDLWindow.Position.point(0), SDLWindow.Position.point(0), 0, 0),
                                    options: [.fullscreen])
 #else
-        let sdlWindow = try SDLWindow(title: title,
+        let sdlWindow: SDLWindow = try SDLWindow(title: title,
                                   frame: frame.toSDLTuple(),
                                    options: windowOptions)
 #endif

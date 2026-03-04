@@ -19,12 +19,15 @@ public class ResourceStore {
     var _urlEditableImageCache:[String:ReadOnlyImage] = [:] //TODO: FIX: Also cached in image manager
     var _editableImageHashToId:[UInt64:UInt64] = [:]
     
-    //TODO: Inline
+    //TODO: Inline; Copy from RendererClient
     func idExists(_ id:UInt64) -> Bool {
-        if (id != 0 && _idImageCache[id] != nil) {
-            return false
+        if (id == 0) {
+            return true
         }
-        return true
+        if (_idImageCache[id] != nil) {
+            return true
+        }
+        return false
     }
     
     func genId() -> UInt64 {
@@ -43,7 +46,9 @@ public class ResourceStore {
     }
     
     public func fetchResource(_ id:UInt64) throws -> AtlasImage {
-        guard let resource = _idImageCache[id] else { throw GenericError("No resource with id: \(id)") }
+        guard let resource = _idImageCache[id] else { 
+            throw GenericError("No resource with id: \(id)")
+        }
         resource.ticksSinceLastUse = 0
         return resource
     }
