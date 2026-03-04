@@ -20,7 +20,8 @@ let package = Package(
             type: .static,
             targets: ["GameEngine"]),
         .executable(name: "ParticleTweenTest", targets: ["ParticleTest"]),
-        .executable(name: "SpaceInvaders", targets: ["SpaceInvaders"])
+        .executable(name: "SpaceInvaders", targets: ["SpaceInvaders"]),
+        .executable(name: "UITest", targets: ["UITest"])
     ],
     dependencies: [
         //.package(path: "/Users/isaacpaul/Projects/swift-projects/SDL"),

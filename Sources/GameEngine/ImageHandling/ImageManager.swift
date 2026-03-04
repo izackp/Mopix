@@ -40,7 +40,7 @@ public class ImageManager {
         do {
             //TODO: This is pretty extra.. I would perfer to use something lighter than SDLFont
             //I would also prefer to have more infomation (available styles, sizes, etc)
-            var file = try _dataSource.fetch(url)
+            let file = try _dataSource.fetch(url)
             let font = try SDLFont(data: file, ptSize: 14)
             guard let name = font.faceFamilyName() else {
                 print("Couldn't load font. No name.")
@@ -76,6 +76,8 @@ public class ImageManager {
     }
     
     #if os(macOS)
+    //NOTE: https://gitlab.freedesktop.org/freetype/freetype/-/issues/1281
+    // Apple is now using a propietary hvgl table for some of there fonts and it has not been implemented in freetype
     func fromCGFont(_ name:String, desc:FontDesc) throws -> Font? {
         let cgFont = CGFont(name as CFString)
         guard let data = fontDataForCGFont(cgFont) else { return nil }

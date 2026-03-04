@@ -96,7 +96,6 @@ extension Renderer {
         try texture.setColorModulation(color)
         try texture.setAlphaModulation(UInt8(255*alpha))
         try copy(texture, source: src, destination: dest)
-        //try renderer.copy(sdlTexture.texture, source: test, destination: test)
     }
     
     func draw(_ imageSrc:SDLTextureSlice, _ dest:SDL_Rect, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1, _ angle:Double = 0, _ center:SDL_Point = SDL_Point(x: 0, y: 0), _ flip:BitMaskOptionSet<RendererFlip> = [.none]) throws {

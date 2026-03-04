@@ -54,11 +54,11 @@ class UITestApp : Application {
         try super.init()
         UITestApp.shared = self
         
-        let newWindow = try FullWindow(parent: self, title: "My Test App", options:[Renderer.Option.presentVsync])
-        addWindow(newWindow)
         let resources = URL(fileURLWithPath: Bundle.UITest.resourcePath!).appendingPathComponent("ExternalFiles")
         print("Mounting: \(resources)")
         try vd.mountPath(path: resources)
+        let newWindow = try FullWindow(parent: self, title: "My Test App", options:[Renderer.Option.presentVsync])
+        addWindow(newWindow)
         if #available(macOS 12, *) {
             let vc = try UIBuilderVC.build()
             newWindow.setRootViewController(vc)
