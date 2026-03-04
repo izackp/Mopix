@@ -19,13 +19,14 @@ let package = Package(
             name: "GameEngineLib",
             type: .static,
             targets: ["GameEngine"]),
-        .executable(name: "ParticleTweenTest", targets: ["ParticleTest"])
+        .executable(name: "ParticleTweenTest", targets: ["ParticleTest"]),
+        .executable(name: "SpaceInvaders", targets: ["SpaceInvaders"])
     ],
     dependencies: [
         //.package(path: "/Users/isaacpaul/Projects/swift-projects/SDL"),
         .package(path: "/Users/isaacpaul/Projects/swift-projects/icu-swift"),
-        .package(url: "https://github.com/izackp/SDL.git", branch: "master"),
-        .package(url: "https://github.com/eonil/FSEvents.git", from:"0.1.7"),
+        .package(url: "https://github.com/izackp/SDL2-Swift.git", branch: "master"),
+        .package(url: "https://github.com/izackp/EonilFSEvents.git", from:"0.1.7"),
         //.package(url: "https://github.com/izackp/icu-swift.git", branch: "master"),
         .package(url: "https://github.com/t-ae/xorswift", from: "3.0.0"),
     ],
@@ -37,9 +38,9 @@ let package = Package(
             dependencies: [
                 .byName(name: "SystemFonts", condition: .when(platforms: [.macOS])),
                 "AniTween",
-                .product(name: "SDL2Swift", package: "SDL"),
-                .product(name: "SDL2_TTFSwift", package: "SDL"),
-                .product(name: "EonilFSEvents", package: "FSEvents", condition: .when(platforms: [.macOS])),
+                .product(name: "SDL2Swift", package: "SDL2-Swift"),
+                .product(name: "SDL2_TTFSwift", package: "SDL2-Swift"),
+                .product(name: "EonilFSEvents", package: "EonilFSEvents", condition: .when(platforms: [.macOS])),
                 .product(name: "ICU", package: "icu-swift"),
             ],
             cSettings: [.headerSearchPath("include"),],
