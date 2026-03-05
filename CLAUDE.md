@@ -104,3 +104,6 @@ Extended `Codable` with support for:
 - `Rect`, `Point`, `Size`, `Vector` are generic structs in `Geometry/`; SDL bridging is in `Geometry+SDL.swift`.
 - The engine uses `SDL_GetTicks64()` for all timing (milliseconds as `UInt64`).
 - `LabeledColor` / `LabeledColorMap` are named, serializable color references.
+
+### Extra
+Ignore the .build folder
