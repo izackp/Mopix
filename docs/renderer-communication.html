@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RendererClient ↔ RendererServer — Mopixs</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #fff;
+      color: #1a1a1a;
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 32px 80px;
+    }
+
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+    h1 span { color: #555; font-weight: 400; }
+    .subtitle { color: #777; font-size: 13px; margin-bottom: 28px; }
+
+    nav { margin-bottom: 36px; padding: 12px 0; border-top: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5; }
+    nav ol { display: flex; flex-wrap: wrap; gap: 4px 18px; padding-left: 18px; }
+    nav li { font-size: 12.5px; color: #555; }
+    nav a { color: #333; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 36px 0 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    h3 { font-size: 0.875rem; font-weight: 700; color: #333; margin: 18px 0 6px; }
+
+    p { margin-bottom: 10px; color: #222; }
+
+    a { color: #1a6fc4; }
+
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', Menlo, monospace;
+      font-size: 12px;
+    }
+
+    p code, li code, td code {
+      background: #f4f4f4;
+      border: 1px solid #e0e0e0;
+      border-radius: 3px;
+      padding: 0 4px;
+    }
+
+    pre {
+      background: #f8f8f8;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      margin: 8px 0 14px;
+      line-height: 1.55;
+    }
+
+    pre code { font-size: 12px; }
+
+    .cm   { color: #888; font-style: italic; }
+    .kw   { color: #7d1fa2; }
+    .ty   { color: #1a6fc4; }
+    .fn   { color: #116329; }
+    .prop { color: #b05a00; }
+
+    /* ---- Flow diagram ---- */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 14px 0;
+      overflow-x: auto;
+      padding: 16px;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      background: #fafafa;
+    }
+
+    .flow-box {
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 10px 14px;
+      min-width: 140px;
+      background: #fff;
+    }
+
+    .flow-box .name { font-weight: 700; font-size: 12.5px; margin-bottom: 5px; }
+    .flow-box ul { list-style: none; padding: 0; }
+    .flow-box ul li { font-size: 11.5px; color: #555; padding: 1px 0; }
+    .flow-box ul li::before { content: "· "; color: #bbb; }
+
+    .flow-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 10px;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .flow-arrow .label { font-size: 10.5px; color: #777; text-align: center; white-space: nowrap; }
+    .flow-arrow .line  { width: 48px; height: 1px; background: #bbb; position: relative; }
+    .flow-arrow .line::after {
+      content: '';
+      position: absolute;
+      right: -1px; top: -4px;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 7px solid #bbb;
+    }
+
+    /* ---- Sequence list ---- */
+    .seq { margin: 10px 0 14px; border-left: 2px solid #ddd; padding-left: 16px; }
+
+    .seq-item { margin-bottom: 12px; position: relative; padding-left: 0; }
+    .seq-item::before {
+      content: '';
+      position: absolute;
+      left: -20px; top: 5px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #ddd;
+      border: 2px solid #fff;
+      outline: 1px solid #ddd;
+    }
+
+    .seq-who {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #555;
+      background: #f0f0f0;
+      border-radius: 2px;
+      padding: 1px 6px;
+      margin-bottom: 2px;
+    }
+
+    .seq-title { font-size: 13px; font-weight: 600; margin-bottom: 1px; }
+    .seq-desc  { font-size: 12.5px; color: #555; }
+    .seq-file  { font-size: 11px; color: #999; font-family: monospace; margin-top: 2px; }
+
+    /* ---- Note ---- */
+    .note {
+      border-left: 3px solid #bbb;
+      padding: 8px 12px;
+      background: #fafafa;
+      margin: 10px 0 14px;
+      font-size: 12.5px;
+      color: #444;
+    }
+
+    .note strong { color: #1a1a1a; }
+
+    /* ---- Table ---- */
+    table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 12.5px; }
+    thead th {
+      text-align: left;
+      padding: 6px 10px;
+      border-bottom: 1px solid #ddd;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #777;
+    }
+    tbody td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* ---- Two-column layout ---- */
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 10px 0; }
+    @media (max-width: 600px) { .cols { grid-template-columns: 1fr; } }
+
+    .col-item { border: 1px solid #e5e5e5; border-radius: 3px; padding: 12px 14px; }
+    .col-item h4 { font-size: 12.5px; font-weight: 700; margin-bottom: 4px; }
+    .col-item p  { font-size: 12px; color: #555; margin: 0; }
+
+    ul.plain { padding-left: 18px; margin-bottom: 10px; }
+    ul.plain li { font-size: 13px; color: #333; margin-bottom: 3px; }
+
+    ol.plain { padding-left: 20px; margin-bottom: 10px; }
+    ol.plain li { font-size: 13px; color: #333; margin-bottom: 3px; }
+
+    .files { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px; padding: 0; list-style: none; }
+    .files li {
+      font-family: monospace;
+      font-size: 11.5px;
+      color: #444;
+      background: #f4f4f4;
+      border: 1px solid #e0e0e0;
+      border-radius: 3px;
+      padding: 2px 8px;
+    }
+
+    hr { border: none; border-top: 1px solid #e5e5e5; margin: 32px 0 0; }
+  </style>
+</head>
+<body>
+
+<h1>RendererClient ↔ RendererServer <span>Communication</span></h1>
+<p class="subtitle">Mopixs Engine · Draw-command pipeline, interpolation, and resource management</p>
+
+<nav>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#actors">Actors</a></li>
+    <li><a href="#drawcmd">DrawCmd</a></li>
+    <li><a href="#per-frame">Per-Frame Sequence</a></li>
+    <li><a href="#async">Async Send &amp; Receive</a></li>
+    <li><a href="#interpolation">Interpolation</a></li>
+    <li><a href="#resources">Resource Lifecycle</a></li>
+    <li><a href="#ui-path">UI Path</a></li>
+    <li><a href="#summary">Summary</a></li>
+  </ol>
+</nav>
+
+<!-- ====================================================================== -->
+<h2 id="overview">1. Overview</h2>
+
+<p>Rendering intent is separated from rendering execution. Each frame, game and UI code produces a flat list of <code>DrawCmd</code> structs describing what to draw. That list is sent to <code>RendererServer</code>, which owns the SDL renderer and decides how and when to put pixels on screen.</p>
+
+<ul class="plain">
+  <li><strong>Smooth visuals at any frame rate.</strong> The server keeps the last two command lists and lerps between them, so the display runs at monitor refresh rate while game logic ticks at a fixed slower rate.</li>
+  <li><strong>Determinism / rollback friendliness.</strong> Commands are plain value types — diffable, replayable, and snapshotable independently of SDL state.</li>
+</ul>
+
+<div class="flow">
+  <div class="flow-box">
+    <div class="name">RendererClient</div>
+    <ul>
+      <li>Collects DrawCmds</li>
+      <li>clearCommands()</li>
+      <li>sendCommands()</li>
+      <li>Loads resources</li>
+    </ul>
+  </div>
+  <div class="flow-arrow">
+    <div class="label">[DrawCmd]<br>async send</div>
+    <div class="line"></div>
+  </div>
+  <div class="flow-box">
+    <div class="name">RendererServer</div>
+    <ul>
+      <li>receiveCmds()</li>
+      <li>ResourceStore</li>
+      <li>ImageManager</li>
+      <li>→ Interpolator</li>
+    </ul>
+  </div>
+  <div class="flow-arrow">
+    <div class="label">double-buffered<br>lerp</div>
+    <div class="line"></div>
+  </div>
+  <div class="flow-box">
+    <div class="name">DrawCmdInterpolator</div>
+    <ul>
+      <li>_lastCmdList</li>
+      <li>_futureCmdList</li>
+      <li>draw(_ time:)</li>
+      <li>→ SDL Renderer</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<h2 id="actors">2. Actors</h2>
+
+<div class="cols">
+  <div class="col-item">
+    <h4>RendererClient</h4>
+    <p>Accumulates <code>DrawCmd</code> values in <code>cmdList: [DrawCmd]</code> during <code>draw()</code>. Holds an <code>IRendererServer</code> reference and dispatches commands at frame-end via an async <code>Task</code>.<br><br><em>BatchRenderer/RendererClient.swift</em></p>
+  </div>
+  <div class="col-item">
+    <h4>RendererServer</h4>
+    <p>Owns the SDL <code>Renderer</code>, <code>ImageManager</code>, <code>ResourceStore</code>, and <code>DrawCmdInterpolator</code>. Receives batches on the main actor and forwards to the interpolator.<br><br><em>BatchRenderer/RendererServer.swift</em></p>
+  </div>
+  <div class="col-item">
+    <h4>DrawCmdInterpolator</h4>
+    <p>Keeps two command-list snapshots (<em>last</em> and <em>future</em>) and interpolates between them at draw time for smooth motion regardless of logic tick rate.<br><br><em>BatchRenderer/DrawCmdInterpolator.swift</em></p>
+  </div>
+  <div class="col-item">
+    <h4>FullWindow</h4>
+    <p>The orchestrator. Calls <code>clearCommands()</code>, drives game/UI drawing, calls <code>sendCommands()</code>, then immediately calls <code>drawingInterpolator.draw()</code> to flush to screen.<br><br><em>Windowing/FullWindow.swift</em></p>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<h2 id="drawcmd">3. DrawCmd</h2>
+
+<p><code>DrawCmd</code> is the sole unit of communication — a plain struct with no references or SDL handles.</p>
+
+<pre><code><span class="cm">// BatchRenderer/DrawCmd.swift</span>
+<span class="kw">public struct</span> <span class="ty">DrawCmd</span> {
+    <span class="kw">public let</span> <span class="prop">animationId</span>: <span class="ty">UInt64</span>       <span class="cm">// identity key for lerp matching</span>
+    <span class="kw">public let</span> <span class="prop">parentAnimationId</span>: <span class="ty">UInt64</span> <span class="cm">// coordinate-space parent</span>
+    <span class="kw">public let</span> <span class="prop">dest</span>: <span class="ty">Rect&lt;Int&gt;</span>
+    <span class="kw">public let</span> <span class="prop">color</span>: <span class="ty">SDLColor</span>
+    <span class="kw">public let</span> <span class="prop">alpha</span>: <span class="ty">Float</span>
+    <span class="kw">public let</span> <span class="prop">z</span>: <span class="ty">Int</span>                     <span class="cm">// draw order</span>
+    <span class="kw">public let</span> <span class="prop">rotation</span>: <span class="ty">Float</span>
+    <span class="kw">public let</span> <span class="prop">rotationPoint</span>: <span class="ty">Point&lt;Int&gt;</span>
+    <span class="kw">public let</span> <span class="prop">clippingRect</span>: <span class="ty">Rect&lt;Int&gt;</span>
+    <span class="kw">public let</span> <span class="prop">flip</span>: <span class="ty">BitMaskOptionSet&lt;Renderer.RendererFlip&gt;</span>
+    <span class="kw">public var</span> <span class="prop">time</span>: <span class="ty">UInt64</span>              <span class="cm">// timestamp used during lerp</span>
+    <span class="kw">public let</span> <span class="prop">type</span>: <span class="ty">DrawCmdType</span>
+}</code></pre>
+
+<table>
+  <thead><tr><th>DrawCmdType</th><th>Payload</th><th>Renders</th></tr></thead>
+  <tbody>
+    <tr><td><code>.image(resourceId:)</code></td><td><code>UInt64</code> → <code>ResourceStore</code> key</td><td>Textured quad from atlas</td></tr>
+    <tr><td><code>.fill</code></td><td>—</td><td>Solid-color rectangle</td></tr>
+    <tr><td><code>.view(borderColor:borderWidth:)</code></td><td>Border color + width</td><td>View background with optional border</td></tr>
+    <tr><td><code>.rtt</code></td><td>—</td><td>Render-to-texture (reserved)</td></tr>
+  </tbody>
+</table>
+
+<h3>lerp()</h3>
+<p>Only <code>.image</code> commands are interpolated. <code>DrawCmd.lerp()</code> blends two snapshots given a timestamp:</p>
+
+<pre><code><span class="cm">// DrawCmd.swift — simplified</span>
+<span class="kw">func</span> <span class="fn">lerp</span>(_ <span class="prop">other</span>: <span class="ty">DrawCmd</span>, <span class="prop">time</span>: <span class="ty">UInt64</span>) -> <span class="ty">DrawCmd</span> {
+    <span class="kw">let</span> t = <span class="fn">calcT</span>(from: self.time, to: other.time, current: time)
+    <span class="kw">return</span> <span class="ty">DrawCmd</span>(dest: <span class="fn">lerp</span>(self.dest, other.dest, t),
+                    alpha: <span class="fn">lerp</span>(self.alpha, other.alpha, t), <span class="cm">/* … */</span>)
+}</code></pre>
+
+<!-- ====================================================================== -->
+<h2 id="per-frame">4. Per-Frame Sequence</h2>
+
+<p>Everything is orchestrated from <code>FullWindow.draw(time:)</code>.</p>
+
+<div class="seq">
+  <div class="seq-item">
+    <div class="seq-who">RendererClient</div>
+    <div class="seq-title">clearCommands()</div>
+    <div class="seq-desc">Empties <code>cmdList</code> from the previous frame.</div>
+    <div class="seq-file">RendererClient.swift:291 · FullWindow.swift:195</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">RendererClient</div>
+    <div class="seq-title">drawable?.draw(time, renderClient)</div>
+    <div class="seq-desc">Game objects call <code>renderClient.draw(…)</code> or <code>renderClient.drawCmd(cmd)</code>. Synchronous, on the game-loop thread.</div>
+    <div class="seq-file">FullWindow.swift:196</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">RendererClient</div>
+    <div class="seq-title">view.draw(context, frame)</div>
+    <div class="seq-desc">UI views emit commands through <code>UICommandContext</code>, which calls <code>client.drawCmd(cmd)</code>. All commands land in the same <code>cmdList</code>.</div>
+    <div class="seq-file">FullWindow.swift:199 · UICommandContext.swift:52</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">RendererClient</div>
+    <div class="seq-title">sendCommands()</div>
+    <div class="seq-desc">Fires an async <code>Task { await server.receiveCmds(self.cmdList) }</code>. The client does not wait — the loop continues immediately.</div>
+    <div class="seq-file">RendererClient.swift:295 · FullWindow.swift:201</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">RendererServer</div>
+    <div class="seq-title">receiveCmds(_ list:) — async, @MainActor</div>
+    <div class="seq-desc">Marshals to main actor, increments resource tick counters, forwards to <code>DrawCmdInterpolator.receiveCmds()</code>.</div>
+    <div class="seq-file">RendererServer.swift:40–118</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">DrawCmdInterpolator</div>
+    <div class="seq-title">receiveCmds(_ list:) — double-buffer swap</div>
+    <div class="seq-desc">Filters <code>.image</code> commands into an indexed list, rotates <code>_futureCmdList</code> → <code>_lastCmdList</code>, stores new batch as <code>_futureCmdList</code>, sorts all commands by <code>z</code>.</div>
+    <div class="seq-file">DrawCmdInterpolator.swift:43–67</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">DrawCmdInterpolator</div>
+    <div class="seq-title">draw(_ time: totalDrawTime − 100)</div>
+    <div class="seq-desc">Called immediately after <code>sendCommands()</code>. Iterates <code>_futureAllCmds</code> by <code>z</code>. For each <code>.image</code> cmd: looks up its <code>animationId</code> in <code>_lastCmdList</code>, lerps the two, resolves parent-relative coords, issues SDL draw calls. Fill/view/rtt drawn without interpolation.</div>
+    <div class="seq-file">DrawCmdInterpolator.swift:69–143 · FullWindow.swift:204</div>
+  </div>
+</div>
+
+<div class="note"><strong>Why − 100 ms?</strong> Rendering a point 100 ms in the past guarantees two bracketing snapshots always exist, so motion is never extrapolated under jitter.</div>
+
+<!-- ====================================================================== -->
+<h2 id="async">5. Async Send &amp; Receive</h2>
+
+<p><code>IRendererServer</code> defines the protocol boundary:</p>
+
+<pre><code><span class="cm">// IRendererServer.swift</span>
+<span class="kw">protocol</span> <span class="ty">IRendererServer</span>: <span class="ty">AnyObject</span> {
+    <span class="kw">func</span> <span class="fn">receiveCmds</span>(_ list: [<span class="ty">DrawCmd</span>]) <span class="kw">async</span>
+    <span class="cm">// … resource loading / unloading methods …</span>
+}</code></pre>
+
+<pre><code><span class="cm">// RendererClient.swift</span>
+<span class="kw">public func</span> <span class="fn">sendCommands</span>() {
+    <span class="ty">Task</span> { <span class="kw">await</span> server.<span class="fn">receiveCmds</span>(self.cmdList) }  <span class="cm">// fire-and-forget</span>
+}
+
+<span class="cm">// RendererServer.swift</span>
+<span class="kw">func</span> <span class="fn">receiveCmds</span>(_ list: [<span class="ty">DrawCmd</span>]) <span class="kw">async</span> {
+    <span class="kw">await</span> <span class="ty">MainActor</span>.<span class="fn">run</span> { self.<span class="fn">receiveCmdsSync</span>(list) }
+}
+
+<span class="kw">func</span> <span class="fn">receiveCmdsSync</span>(_ list: [<span class="ty">DrawCmd</span>]) {
+    resourceStore.<span class="fn">increaseTicks</span>()          <span class="cm">// age all resource counters</span>
+    drawingInterpolator.<span class="fn">receiveCmds</span>(list)  <span class="cm">// buffer swap</span>
+}</code></pre>
+
+<div class="note"><strong>Fire-and-forget.</strong> The client does not await delivery. The server runs on the main actor, so in practice the batch is processed before the next frame's <code>draw()</code> under normal conditions.</div>
+
+<!-- ====================================================================== -->
+<h2 id="interpolation">6. Interpolation</h2>
+
+<p><code>DrawCmdInterpolator</code> maintains four collections:</p>
+
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Contents</th></tr></thead>
+  <tbody>
+    <tr><td><code>_lastCmdList</code></td><td><code>IndexedOrderedList&lt;DrawCmd&gt;</code></td><td>Previous frame's image-only commands, indexed by <code>animationId</code> for O(1) lookup</td></tr>
+    <tr><td><code>_futureCmdList</code></td><td><code>IndexedOrderedList&lt;DrawCmd&gt;</code></td><td>Current frame's image commands</td></tr>
+    <tr><td><code>_lastAllCmds</code></td><td><code>[DrawCmd]</code></td><td>Previous frame's full command list</td></tr>
+    <tr><td><code>_futureAllCmds</code></td><td><code>[DrawCmd]</code></td><td>Current frame's full command list, sorted by <code>z</code></td></tr>
+  </tbody>
+</table>
+
+<h3>Buffer swap — receiveCmds()</h3>
+<pre><code><span class="cm">// DrawCmdInterpolator.swift:43–67 — simplified</span>
+<span class="kw">func</span> <span class="fn">receiveCmds</span>(_ list: [<span class="ty">DrawCmd</span>]) {
+    <span class="kw">let</span> imageOnly = list.<span class="fn">filter</span> { $0.type.<span class="fn">isImage</span>() }
+
+    _lastCmdList  = _futureCmdList                                       <span class="cm">// rotate</span>
+    _lastAllCmds  = _futureAllCmds
+
+    _futureCmdList = <span class="ty">IndexedOrderedList</span>(imageOnly, keyPath: \.animationId)
+    _futureAllCmds = list.<span class="fn">sorted</span> { $0.z < $1.z }
+}</code></pre>
+
+<h3>Lerp draw — draw()</h3>
+<pre><code><span class="cm">// DrawCmdInterpolator.swift:69–143 — simplified</span>
+<span class="kw">func</span> <span class="fn">draw</span>(_ time: <span class="ty">UInt64</span>) {
+    <span class="kw">var</span> resolvedPositions: [<span class="ty">UInt64</span>: <span class="ty">Rect&lt;Int&gt;</span>] = [:]
+
+    <span class="kw">for</span> cmd <span class="kw">in</span> _futureAllCmds {                            <span class="cm">// sorted by z</span>
+        <span class="kw">switch</span> cmd.type {
+        <span class="kw">case</span> .image(<span class="kw">let</span> resourceId):
+            <span class="kw">let</span> previous    = _lastCmdList[cmd.animationId]
+            <span class="kw">let</span> interpolated = previous.<span class="fn">map</span> { cmd.<span class="fn">lerp</span>($0, time: time) } ?? cmd
+            <span class="kw">let</span> absolute     = <span class="fn">resolvePosition</span>(interpolated, resolvedPositions)
+            resolvedPositions[cmd.animationId] = absolute.dest
+            <span class="fn">drawImageCmd</span>(absolute, resourceId: resourceId)
+        <span class="kw">case</span> .fill:  <span class="fn">drawFillCmd</span>(cmd)
+        <span class="kw">case</span> .view:  <span class="fn">drawViewCmd</span>(cmd)
+        <span class="kw">case</span> .rtt:   <span class="kw">break</span>  <span class="cm">// reserved</span>
+        }
+    }
+}</code></pre>
+
+<div class="note">If no matching <code>animationId</code> exists in <code>_lastCmdList</code> (newly spawned entity), the current frame's command is used as-is — no interpolation artifact.</div>
+
+<!-- ====================================================================== -->
+<h2 id="resources">7. Resource Lifecycle</h2>
+
+<p>Images are referenced in <code>DrawCmd</code> by a <code>resourceId: UInt64</code>. All texture memory lives in <code>RendererServer</code> — the client never touches SDL textures.</p>
+
+<h3>Loading</h3>
+<pre><code><span class="cm">// Caller — async</span>
+<span class="kw">let</span> image = <span class="kw">try await</span> renderClient.<span class="fn">loadImage</span>(url: myVdUrl)
+<span class="cm">// image.resourceId is valid; embed in DrawCmd.type = .image(resourceId:)</span></code></pre>
+
+<ol class="plain">
+  <li><code>RendererClient.loadImage()</code> calls <code>await server.loadImage(url:)</code>.</li>
+  <li><code>RendererServer</code> asks <code>ImageManager</code> to decode and pack into the texture atlas.</li>
+  <li><code>ResourceStore.registerAtlasImage()</code> assigns a unique <code>UInt64</code> ID and stores the <code>AtlasImage</code>.</li>
+  <li>The ID is returned and embedded in subsequent <code>DrawCmd</code> values.</li>
+</ol>
+
+<h3>Unloading &amp; LRU eviction</h3>
+<ul class="plain">
+  <li><strong>Explicit:</strong> <code>renderClient.unloadResource(id)</code> → async <code>server.unloadResource(id)</code>.</li>
+  <li><strong>Delayed:</strong> <code>unloadResourceDelayed(id, ticks:)</code> queues removal until the tick counter expires.</li>
+  <li><strong>Tick aging:</strong> each <code>receiveCmdsSync()</code> call increments <code>ticksSinceLastUse</code> on every cached <code>AtlasImage</code>. <code>fetchResource()</code> resets it. <code>cleanUnusedResources()</code> evicts least-used entries when VRAM budget is exceeded.</li>
+</ul>
+
+<!-- ====================================================================== -->
+<h2 id="ui-path">8. UI Rendering Path</h2>
+
+<p>UI views do not call <code>RendererClient</code> directly. They receive a <code>UICommandContext</code>, which bridges the view tree into the same <code>DrawCmd</code> pipeline.</p>
+
+<pre><code><span class="cm">// FullWindow.swift — inside draw(time:)</span>
+<span class="kw">let</span> context = <span class="ty">UICommandContext</span>(
+    client:       renderClient,  <span class="cm">// IDraw — accumulates DrawCmds</span>
+    fontProvider: imageManager,  <span class="cm">// IFontProvider — resolves TTF glyphs</span>
+    rttAllocator: renderServer   <span class="cm">// IRTTAllocator — allocates atlas regions</span>
+)
+<span class="kw">try</span> rootView.<span class="fn">draw</span>(context, rootView.frame)</code></pre>
+
+<table>
+  <thead><tr><th>Method</th><th>Emits</th></tr></thead>
+  <tbody>
+    <tr><td><code>emit(_ cmd:)</code></td><td>Forwards to <code>client.drawCmd(cmd)</code> (or RTT stack)</td></tr>
+    <tr><td><code>drawSquare(…)</code></td><td><code>DrawCmd</code> with type <code>.fill</code></td></tr>
+    <tr><td><code>drawText(…)</code></td><td>One <code>DrawCmd(.image(resourceId:))</code> per glyph</td></tr>
+    <tr><td><code>createAndDrawToTexture(…)</code></td><td>Allocates atlas region, renders into it, emits <code>.rtt</code> cmd</td></tr>
+  </tbody>
+</table>
+
+<div class="note"><strong>UIRenderContext is preserved.</strong> The original direct-SDL drawing class is kept alongside <code>UICommandContext</code>. When adding new draw paths, create a new class — do not modify <code>UIRenderContext</code>.</div>
+
+<!-- ====================================================================== -->
+<h2 id="summary">9. Summary</h2>
+
+<div class="cols">
+  <div class="col-item">
+    <h4>Value-type commands</h4>
+    <p><code>DrawCmd</code> is a struct. The full frame intent is a plain array — serializable, diffable, independent of SDL state.</p>
+  </div>
+  <div class="col-item">
+    <h4>Double-buffered lerp</h4>
+    <p>Two command snapshots decouple display refresh from the fixed game-logic tick rate.</p>
+  </div>
+  <div class="col-item">
+    <h4>Parent-relative coords</h4>
+    <p><code>parentAnimationId</code> lets commands express position relative to another entity. The interpolator resolves to screen coords at draw time.</p>
+  </div>
+  <div class="col-item">
+    <h4>Resource ownership</h4>
+    <p>All SDL textures live in the server. The client holds only opaque <code>UInt64</code> IDs.</p>
+  </div>
+</div>
+
+<h3>Source files</h3>
+<ul class="files">
+  <li>BatchRenderer/RendererClient.swift</li>
+  <li>BatchRenderer/RendererServer.swift</li>
+  <li>BatchRenderer/IRendererServer.swift</li>
+  <li>BatchRenderer/DrawCmd.swift</li>
+  <li>BatchRenderer/DrawCmdInterpolator.swift</li>
+  <li>BatchRenderer/ResourceStore.swift</li>
+  <li>UI/UICommandContext.swift</li>
+  <li>Windowing/FullWindow.swift</li>
+  <li>Util/IndexedOrderedList.swift</li>
+</ul>
+
+<hr>
+
+</body>
+</html>
