@@ -107,3 +107,8 @@ Extended `Codable` with support for:
 
 ### Extra
 Ignore the .build folder
+
+## Claude Workflow Rules
+
+- **Commit after every change.** Make a git commit immediately before reporting a task as done.
+- **Never modify branches that do not begin with `claude`.** If the current branch does not start with `claude`, stop and ask the user before making any changes.
