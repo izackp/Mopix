@@ -10,23 +10,23 @@ import SDL2
 import SDL2Swift
 
 public class UIRenderContext {
-    public init(client: IDraw, imageManager: ImageManager) {
-        self.client = client
-        self.imageManager = imageManager
+    public init(renderer: Renderer, imageManger:ImageManager) {
+        self.renderer = renderer
+        self.imageManager = imageManger
     }
 
-    let client: IDraw
-    public let imageManager: ImageManager
+    let renderer:Renderer
+    let imageManager:ImageManager
+    private var _lastTexture:Int = 0
+    //var lastOffset:Point<Int16> = .zero //TODO: This feels hacky
+    var currentClipRect:Rect<DValue>? = nil
+    ///Needed to preserve clipping
+    var currentWindowFrame:[Rect<DValue>] = [.zero]
 
-    var currentClipRect: Rect<DValue>? = nil
-    // Tracks the animationId of the view currently being drawn into.
-    // Child commands use this as their parentAnimationId.
-    var currentParentAnimationId: UInt64 = 0
-    // Monotonically increasing z counter; each emitted command increments this.
-    var currentZ: Int = 0
-
-    // Sub-command buffer stack for RTT support
-    private var _rttStack: [[DrawCmd]] = []
+    var usingNewPage:Bool = false
+    var destinationPage:[Int] = [-1]
+    var rollingTextureForPage:[Int:Texture] = [:]
+    var blendMode:BlendMode = .alpha
 
     func fetchFont(_ fontDesc:FontDesc) throws -> Font {
         guard let font = try imageManager.fetchFont(desc: fontDesc) else {
@@ -35,67 +35,77 @@ public class UIRenderContext {
         return font
     }
 
-    // MARK: - Command emission helpers
+    func createAndDrawToTexture(_ block:(_ context:UIRenderContext, _ frame:Rect<DValue>) throws -> (), size:Size<DValue>) throws -> AtlasImage {
+        let atlas = imageManager.atlas
+        let subTexture = try atlas.saveBlankImage(size)
+        let targetImage = AtlasImage(texture: subTexture, atlas: atlas)
+        //we must use the correct texture
+        let pageIndex = subTexture.texturePageIndex
+        let texture = rollingTextureForPage[pageIndex] ?? atlas.listPages[pageIndex].texture
 
-    /// Append a command to the current active buffer (RTT sub-commands or the main client).
-    func emit(_ cmd: DrawCmd) {
-        if _rttStack.isEmpty {
-            client.drawCmd(cmd)
-        } else {
-            _rttStack[_rttStack.count - 1].append(cmd)
+        //let previousBlendmode = blendMode
+        let previousTarget = try renderer.swapTarget(texture)
+        let targetFrame = targetImage.sourceRect.to(Int16.self)
+        currentWindowFrame.append(targetFrame)
+        let lastClip = currentClipRect
+        try setClipRect(targetFrame)
+        destinationPage.append(pageIndex)
+        //blendMode = .none
+
+        try block(self, targetFrame)
+
+        usingNewPage = false
+        destinationPage.removeLast()
+        currentWindowFrame.removeLast()
+        //blendMode = previousBlendmode
+
+        try setClipRect(lastClip)
+
+        if let tempImage = rollingTextureForPage[pageIndex] {
+            let old = atlas.listPages[pageIndex].texture
+            let newPage = TexturePage(texture: tempImage, allocator: atlas.listPages[pageIndex].allocator)
+            atlas.listPages[pageIndex] = newPage
+            atlas.returnTexture(old)
+            rollingTextureForPage[pageIndex] = nil
         }
+
+        let prevPageIndex = destinationPage.last!
+        if (prevPageIndex == -1) {
+            try renderer.setTarget(previousTarget)
+        } else if let target = rollingTextureForPage[prevPageIndex] {
+            try renderer.setTarget(target)
+            usingNewPage = true
+        } else {
+            let target = atlas.listPages[prevPageIndex].texture
+            try renderer.setTarget(target)
+        }
+
+        return targetImage
     }
 
-    private func nextZ() -> Int {
-        let z = currentZ
-        currentZ += 1
-        return z
+    /*
+    func pushOffset(_ point:Point<Int16>) {
+        lastOffset = Point(lastOffset.x + point.x, lastOffset.y + point.y)
     }
 
-    // MARK: - Clip rect
+    func popOffset(_ point:Point<Int16>) {
+        lastOffset = Point(lastOffset.x - point.x, lastOffset.y - point.y)
+    }
+    func setClipRectRelative(_ frame:Rect<DValue>) throws {
+        var newFrame = frame.offset(lastOffset)
+        newFrame.clip(currentWindowFrame) //Metal crashes when clipping area exceeds window size
+        try renderer.setClipRect(newFrame.sdlRect())
+    }*/
 
     func setClipRect(_ frame:Rect<DValue>?) throws {
-        currentClipRect = frame
+        var newFrame = frame
+        newFrame?.clip(currentWindowFrame.last!)
+        try renderer.setClipRect(newFrame?.sdlRect())
+        currentClipRect = newFrame
     }
 
-    // MARK: - Draw methods
-
-    func drawSquare(_ dest:Rect<Int16>, _ color:SDLColor, _ alpha:Float = 1) throws {
-        let clipRect = clipRectAsInt()
-        let fillCmd = DrawCmdFill(
-            animationId: 0,
-            parentAnimationId: currentParentAnimationId,
-            dest: dest.to(Int.self),
-            color: color,
-            alpha: alpha,
-            z: nextZ(),
-            clippingRect: clipRect
-        )
-        emit(.fill(fillCmd))
-    }
-
-    func drawImage(_ image:AtlasImage, _ dest:Rect<Int16>, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1) throws {
-        guard let resourceId = resourceId(for: image) else {
-            print("UIRenderContext.drawImage: no resource ID for AtlasImage — image will not be drawn")
-            return
-        }
-        let clipRect = clipRectAsInt()
-        let imgCmd = DrawCmdImage(
-            animationId: 0,
-            parentAnimationId: currentParentAnimationId,
-            resourceId: resourceId,
-            dest: dest.to(Int.self),
-            z: nextZ(),
-            alpha: alpha,
-            rotation: 0,
-            rotationPoint: .zero,
-            clippingRect: clipRect,
-            time: 0
-        )
-        emit(.image(imgCmd))
-    }
-
-    func drawText(_ text:Substring, _ font:Font, _ pos:Point<Int16>, _ color:SDLColor, _ alpha:Float = 1, spacing:Int = 0) throws {
+    func drawText( _ text:Substring, _ font:Font, _ pos:Point<Int16>, _ color:SDLColor, _ alpha:Float = 1, spacing:Int = 0) throws {
+        //let bounds = currentWindowFrame.last!
         var dest = Rect<Int16>(x: pos.x, y: pos.y, width: 0, height: 0)
         for c in text {
             do {
@@ -104,24 +114,7 @@ public class UIRenderContext {
                 let imageSize = image.size.to(Int16.self)
                 dest.width = imageSize.width
                 dest.height = imageSize.height
-                guard let resourceId = font.resourceId(for: c) else {
-                    dest.x += Int16(metrics.advance) + Int16(spacing)
-                    continue
-                }
-                let clipRect = clipRectAsInt()
-                let imgCmd = DrawCmdImage(
-                    animationId: 0,
-                    parentAnimationId: currentParentAnimationId,
-                    resourceId: resourceId,
-                    dest: dest.to(Int.self),
-                    z: nextZ(),
-                    alpha: alpha,
-                    rotation: 0,
-                    rotationPoint: .zero,
-                    clippingRect: clipRect,
-                    time: 0
-                )
-                emit(.image(imgCmd))
+                try renderer.draw(image, dest.sdlRect(), color)
                 dest.x += Int16(metrics.advance) + Int16(spacing)
             } catch {
                 print("Error couldn't draw character '\(c)': \(error.localizedDescription)")
@@ -129,112 +122,76 @@ public class UIRenderContext {
         }
     }
 
-    func drawTextLine(_ text:ArraySlice<RenderableCharacter>, _ pos:Point<Int16>, _ alpha:Float = 1) throws {
+    func drawTextLine( _ text:ArraySlice<RenderableCharacter>, _ pos:Point<Int16>, _ alpha:Float = 1) throws {
         var dest = Rect<Int16>(x: pos.x, y: pos.y, width: 0, height: 0)
         for c in text {
             dest.width = Int16(c.size.width)
             dest.height = Int16(c.size.height)
 
-            // Background fill for this character
             if let bgColor = c.background {
                 try drawSquare(dest, bgColor.sdlColor())
             }
-
-            // Glyph image
             if let image = c.img {
                 dest.height = Int16(image.size.height)
-                guard let resourceId = resourceId(for: image) else {
-                    dest.x += Int16(c.size.width)
-                    continue
-                }
-                let clipRect = clipRectAsInt()
-                let imgCmd = DrawCmdImage(
-                    animationId: 0,
-                    parentAnimationId: currentParentAnimationId,
-                    resourceId: resourceId,
-                    dest: dest.to(Int.self),
-                    z: nextZ(),
-                    alpha: alpha,
-                    rotation: 0,
-                    rotationPoint: .zero,
-                    clippingRect: clipRect,
-                    time: 0
-                )
-                emit(.image(imgCmd))
+                try renderer.draw(image, dest.sdlRect(), c.foreground.sdlColor())
             }
             dest.x += Int16(c.size.width)
         }
     }
 
-    /// Render-to-texture: collect sub-commands, then wrap in DrawCmdRTT.
-    func createAndDrawToTexture(_ block:(_ context:UIRenderContext, _ frame:Rect<DValue>) throws -> (), size:Size<DValue>) throws -> AtlasImage {
+    func drawSquare(_ dest:Rect<Int16>, _ color:SDLColor, _ alpha:Float = 1) throws {
+        //let newFrame = frame.offset(lastOffset)
+        //TODO: we can probably just return sdl texture and source
+        //var newFrame = frame
+        //newFrame.clip(currentWindowFrame)
         let atlas = imageManager.atlas
-        let subTexture = try atlas.saveBlankImage(size)
-        let targetImage = AtlasImage(texture: subTexture, atlas: atlas)
+        let blankSubTexture = try atlas.blankTextureIndex(_lastTexture)
+        let texturePage = atlas.listPages[blankSubTexture.texturePageIndex]
+        let source = blankSubTexture.sourceRect.sdlRect()
+        let texture = texturePage.texture
+        try drawImage2(dest, color, 1, imgSrc: SDLTextureSlice(texture: texture, rect: source), texturePageIndex: blankSubTexture.texturePageIndex)
+    }
 
-        // Register the blank target region as a resource
-        let resourceId: UInt64
-        if let store = imageManager.resourceStore {
-            resourceId = store.registerAtlasImage(targetImage)
-        } else {
-            // Fallback: use 0 (won't draw correctly but won't crash)
-            resourceId = 0
+    private func copyAndSetTargetPage(_ index:Int) throws {
+        let atlas = imageManager.atlas
+        let texturePage = atlas.listPages[index]
+        let newTexture = try atlas.createTexture()
+        try renderer.setTarget(newTexture)
+        //TODO: Why below int32 and above int??
+        let textureFrame = SDL_Rect(x: 0, y: 0, w: Int32(atlas.textureSize.width), h: Int32(atlas.textureSize.height))
+        let texture = texturePage.texture
+        try texture.setColorModulation(SDLColor.white)
+        try texture.setAlphaModulation(255)
+        let previousBlendMode = try texture.blendMode()
+        try texture.setBlendMode([BlendMode.none])
+        try renderer.copy(texture, source: textureFrame, destination: textureFrame)
+        //destinationPage[destinationPage.count - 1] = -1
+        usingNewPage = true
+        rollingTextureForPage[index] = newTexture
+        try newTexture.setBlendMode(previousBlendMode)
+    }
+
+    func drawImage(_ image:AtlasImage, _ dest:Rect<Int16>, _ color:SDLColor = SDLColor.white, _ alpha:Float = 1) throws {
+        let src = image.getTextureSlice()
+        try drawImage2(dest, color, alpha, imgSrc: src, texturePageIndex: image.subTextureIndex.texturePageIndex)
+    }
+
+    func drawImage2(_ dest:Rect<Int16>, _ color:SDLColor, _ alpha:Float, imgSrc:SDLTextureSlice, texturePageIndex:Int) throws {
+        _lastTexture = texturePageIndex
+        if (!usingNewPage && destinationPage.last == _lastTexture) {
+            try copyAndSetTargetPage(_lastTexture)
         }
-
-        let targetFrame = targetImage.sourceRect.to(Int16.self)
-        let clipRect = clipRectAsInt()
-        let z = nextZ()
-        let rttAnimId: UInt64 = 0
-
-        // Push sub-command buffer
-        _rttStack.append([])
-
-        // Execute drawing block — all draw calls go into the sub-command buffer
-        let savedParent = currentParentAnimationId
-        currentParentAnimationId = 0 // RTT sub-commands use absolute positions
-        try block(self, targetFrame)
-        currentParentAnimationId = savedParent
-
-        // Pop sub-command buffer
-        let subCommands = _rttStack.removeLast()
-
-        let rttCmd = DrawCmdRTT(
-            animationId: rttAnimId,
-            parentAnimationId: currentParentAnimationId,
-            targetResourceId: resourceId,
-            targetRect: targetFrame.to(Int.self),
-            z: z,
-            clippingRect: clipRect,
-            subCommands: subCommands
-        )
-        emit(.rtt(rttCmd))
-
-        return targetImage
+        if (try imgSrc.texture.blendMode().contains(blendMode) == false) {
+            try imgSrc.texture.setBlendMode([blendMode])//TODO: wth why optionset
+        }
+        try renderer.draw(imgSrc, dest.sdlRect(), color, alpha)
     }
 
     func drawAtlas(_ x:Int, _ y:Int, index:Int = 0) throws {
-        // Not routing through command pipeline — debug/diagnostic only.
-        // Silently no-op in the new pipeline.
-    }
-
-    // MARK: - Private helpers
-
-    private func clipRectAsInt() -> Rect<Int> {
-        guard let clip = currentClipRect else { return .zero }
-        return clip.to(Int.self)
-    }
-
-    /// Look up the stable resource ID for an AtlasImage in the ResourceStore.
-    private func resourceId(for image: AtlasImage) -> UInt64? {
-        guard let store = imageManager.resourceStore else { return nil }
-        // Scan _idImageCache for this AtlasImage instance
-        for (id, cached) in store._idImageCache {
-            if cached === image {
-                return id
-            }
-        }
-        // Not yet registered — register it now (eager fallback)
-        let id = store.registerAtlasImage(image)
-        return id
+        let listPages = imageManager.atlas.listPages
+        if (index >= listPages.count) { return }
+        let texture = listPages[index].texture
+        try texture.setColorModulation(255, 255, 255)
+        try renderer.copy(texture, source: SDL_Rect(x: 0, y: 0, w: 1024, h: 1024), destination: SDL_Rect(x: Int32(x), y: Int32(y), w: 1024, h: 1024))
     }
 }

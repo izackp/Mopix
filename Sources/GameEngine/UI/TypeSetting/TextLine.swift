@@ -618,7 +618,7 @@ struct RunIterator : ThrowingIteratorProtocol {
     
     let str:AttributedString
     var runIterator:IndexingIterator<AttributedString.Runs>
-    let renderContext:UIRenderContext
+    let renderContext:UICommandContext
     let textContext:TextContext
 }
 
@@ -859,7 +859,7 @@ extension TextLine2 {
      0.245ms 1.923ms 0.008ms 0.011ms - stepLast - build lines
      */
     
-    static func buildFrom(_ str:AttributedString, renderContext:UIRenderContext, context:TextContext, maxWidthPxs:Int? = nil) throws -> [TextLine2] {
+    static func buildFrom(_ str:AttributedString, renderContext:UICommandContext, context:TextContext, maxWidthPxs:Int? = nil) throws -> [TextLine2] {
         
         var i = 0
         var lineIterator = try buildLineIterator(str, renderContext: renderContext, context: context, maxWidthPxs: maxWidthPxs)
@@ -882,7 +882,7 @@ extension TextLine2 {
         return linesCopy
     }
     
-    static func buildLineIterator(_ str:AttributedString, renderContext:UIRenderContext, context:TextContext, maxWidthPxs:Int? = nil) throws -> LineIterator {
+    static func buildLineIterator(_ str:AttributedString, renderContext:UICommandContext, context:TextContext, maxWidthPxs:Int? = nil) throws -> LineIterator {
         
         let stats = Application._shared.stats
         //var time = SDL_GetPerformanceCounter()

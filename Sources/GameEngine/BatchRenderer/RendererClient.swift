@@ -30,9 +30,9 @@ import SDL2Swift
  * Remove images that are no longer needed
  */
 public enum DrawItem {
-    case image(cmd:DrawCmdImage)
-    case atlas(x:Int, y:Int, index:Int)
-    case square(_ dest:Rect<Int16>, _ color:SDLColor, _ alpha:Float = 1)
+    case image(cmd: DrawCmd)
+    case atlas(x: Int, y: Int, index: Int)
+    case square(_ dest: Rect<Int16>, _ color: SDLColor, _ alpha: Float = 1)
 }
 
 public struct QueuedUnload {
@@ -114,31 +114,22 @@ public class RendererClient: IDraw, IResourceContainer {
     }
 
     //MARK: -
-    public func draw(_ id:UInt64,
-                     _ resourceId:UInt64,
-                     _ rect:Rect<Int>,
-                     _ color:SDLColor = SDLColor.white,
-                     _ z:Int = 1,
-                     _ rotation:Float = 0,
-                     _ rotationPoint:Point<Int> = .zero,
-                     _ alpha:Float = 1,
-                     _ clipping:Rect<Int> = Rect.zero,
-                     _ relTime:UInt64 = 0) {
-       // _lastUsed[resourceId] = 0
+    public func draw(_ id: UInt64,
+                     _ resourceId: UInt64,
+                     _ rect: Rect<Int>,
+                     _ color: SDLColor = SDLColor.white,
+                     _ z: Int = 1,
+                     _ rotation: Float = 0,
+                     _ rotationPoint: Point<Int> = .zero,
+                     _ alpha: Float = 1,
+                     _ clipping: Rect<Int> = Rect.zero,
+                     _ relTime: UInt64 = 0) {
         let time = relTime + defaultTime
-        let cmd = DrawCmdImage(animationId: id, resourceId: resourceId, dest: rect, z: z, alpha:alpha, rotation:rotation, rotationPoint:rotationPoint, clippingRect: clipping, time:time)
-        cmdList.append(.image(cmd))
+        let cmd = DrawCmd(animationId: id, parentAnimationId: 0, dest: rect, color: color, alpha: alpha, z: z, rotation: rotation, rotationPoint: rotationPoint, clippingRect: clipping, flip: [], time: time, type: .image(resourceId: resourceId))
+        cmdList.append(cmd)
     }
 
-    public func draw(_ image:DrawCmdImage) {
-        //_lastUsed[image.resourceId] = 0
-        let time = image.time + defaultTime
-        var imgCopy = image
-        imgCopy.time = time
-        cmdList.append(.image(imgCopy))
-    }
-
-    public func drawCmd(_ cmd:DrawCmd) {
+    public func drawCmd(_ cmd: DrawCmd) {
         cmdList.append(cmd)
     }
 

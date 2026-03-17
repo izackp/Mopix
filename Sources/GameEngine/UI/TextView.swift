@@ -121,18 +121,18 @@ public class TextView : View {
         }
     }
     
-    func fetchFont(_ context:UIRenderContext) throws -> Font  {
+    func fetchFont(_ context:UICommandContext) throws -> Font  {
         if let font = _cachedFont {
             return font
         }
-        guard let font = try context.imageManager.fetchFont(desc: fontDesc) else {
+        guard let font = try context.fontProvider.fetchFont(desc: fontDesc) else {
             throw GenericError("No font for desc: \(fontDesc.family)")
         }
         _cachedFont = font
         return font
     }
-    
-    open override func drawContent(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
+
+    open override func drawContent(_ context:UICommandContext, _ rect:Rect<DValue>) throws {
         //stats.printStats()
         if (text.count == 0) { return }
         //let font = try fetchFont(context)

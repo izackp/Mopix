@@ -87,17 +87,12 @@ extension String {
 public class Font {
     //let _fileUrl:URL
     var _glyphs:[Character:AtlasImage] = [:] //TODO: Array or dictionary?
-    /// Stable resource IDs for each glyph, registered with ResourceStore.
-    var _glyphIds:[Character:UInt64] = [:]
     let _atlas:ImageAtlas
     let _font:SDLFont
-    /// Reference to the resource store for registering glyph images.
-    weak var _resourceStore: ResourceStore?
 
-    public init(atlas: ImageAtlas, font:SDL2_TTFSwift.Font, resourceStore: ResourceStore? = nil) {
+    public init(atlas: ImageAtlas, font:SDL2_TTFSwift.Font) {
         _atlas = atlas
         _font = font
-        _resourceStore = resourceStore
     }
 
     deinit {
@@ -137,16 +132,6 @@ public class Font {
         let image = AtlasImage(texture: texture, atlas: _atlas)
         //assert(height == texture.sourceRect.height)
         _glyphs[c] = image
-        // Register with resource store for pipeline rendering
-        if let store = _resourceStore {
-            let id = store.registerAtlasImage(image)
-            _glyphIds[c] = id
-        }
         return image
-    }
-
-    /// Returns the stable resource ID for the given glyph character, if registered.
-    public func resourceId(for c: Character) -> UInt64? {
-        return _glyphIds[c]
     }
 }

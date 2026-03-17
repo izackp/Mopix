@@ -81,7 +81,7 @@ public class ImageView : View {
         }
     }
     
-    open override func drawContent(_ context: UIRenderContext, _ rect: Rect<DValue>) throws {
+    open override func drawContent(_ context: UICommandContext, _ rect: Rect<DValue>) throws {
         
         if let image = image {
             let destFrame:Rect<DValue>

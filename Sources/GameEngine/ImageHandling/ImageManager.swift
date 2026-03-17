@@ -14,7 +14,7 @@ public struct ImageResult {
     let data:PixelData
 }
 
-public class ImageManager {
+public class ImageManager: IFontProvider {
     let atlas:ImageAtlas
     public init(atlas: ImageAtlas, dataSources:[IDataSource]) {
         self.atlas = atlas
@@ -102,7 +102,9 @@ public class ImageManager {
             }
             let subTexture = try atlas.save(preFormatSurface)
             let image = AtlasImage(texture: subTexture, atlas: atlas)
-            //_imageCache[path] = image
+            if let store = resourceStore {
+                image.resourceId = store.registerAtlasImage(image)
+            }
             return image
         } catch {
             print("Couldn't load sprite: \(error.localizedDescription)")

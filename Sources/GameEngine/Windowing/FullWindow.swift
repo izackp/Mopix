@@ -195,7 +195,7 @@ public final class FullWindow: LiteWindow {
         renderClient.clearCommands()
         drawable?.draw(time, renderClient)
         if let view = rootView {
-            let context = UIRenderContext(client: renderClient, imageManager: imageManager)
+            let context = UICommandContext(client: renderClient, fontProvider: imageManager, rttAllocator: renderServer)
             try view.draw(context, view.frame)
         }
         renderClient.sendCommands()

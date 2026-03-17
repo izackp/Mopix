@@ -18,11 +18,7 @@ public class ImageBuilder: IDraw {
     private var _clipRect:Rect<DValue>? = nil
     private var _offset:Point<DValue> = .zero
 
-    public func draw(_ image:DrawCmdImage) {
-        cmdList.append(.image(image))
-    }
-
-    public func drawCmd(_ cmd:DrawCmd) {
+    public func drawCmd(_ cmd: DrawCmd) {
         cmdList.append(cmd)
     }
 

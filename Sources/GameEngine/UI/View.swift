@@ -229,11 +229,11 @@ open class View: Codable {
         }
     }
     
-    open func drawContent(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
+    open func drawContent(_ context:UICommandContext, _ rect:Rect<DValue>) throws {
 
     }
 
-    private func drawOrRaster(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
+    private func drawOrRaster(_ context:UICommandContext, _ rect:Rect<DValue>) throws {
         if (alpha == 0) { return }
         let requiresComposition = (alpha != 1 && (children.count > 0 || !backgroundColor.isClear()))
         let requireRaster = (shouldRasterize || requiresComposition)
@@ -257,7 +257,7 @@ open class View: Codable {
         }
     }
 
-    open func draw(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
+    open func draw(_ context:UICommandContext, _ rect:Rect<DValue>) throws {
         if (alpha == 0) { return }
         let offsetFrame = frame.offset(rect.origin)
         if let image = cachedImage, shouldRedraw == false {
@@ -265,25 +265,28 @@ open class View: Codable {
             return
         }
 
-        // Emit a single DrawCmdView for this view's background and borders.
+        // Emit a single DrawCmd (.view) for this view's background and borders.
         let myAnimId = animationId
         let parentAnimId = context.currentParentAnimationId
         let bgColor = backgroundColor.sdlColor()
         let bdColor = borderColor.sdlColor()
         let clipRect = context.currentClipRect.map { $0.to(Int.self) } ?? .zero
-        let viewCmd = DrawCmdView(
+        let viewCmd = DrawCmd(
             animationId: myAnimId,
             parentAnimationId: parentAnimId,
             dest: offsetFrame.to(Int.self),
-            backgroundColor: bgColor,
-            backgroundAlpha: alpha,
-            borderColor: bdColor,
-            borderWidth: Int(borderWidth),
+            color: bgColor,
+            alpha: alpha,
             z: context.currentZ,
-            clippingRect: clipRect
+            rotation: 0,
+            rotationPoint: .zero,
+            clippingRect: clipRect,
+            flip: [],
+            time: 0,
+            type: .view(borderColor: bdColor, borderWidth: Int(borderWidth))
         )
         context.currentZ += 1
-        context.emit(.view(viewCmd))
+        context.emit(viewCmd)
 
         // Children use this view's animationId as their parent.
         let savedParentAnimId = context.currentParentAnimationId
@@ -306,18 +309,40 @@ open class View: Codable {
 
         // Restore parent animationId
         context.currentParentAnimationId = savedParentAnimId
+        
+        /*
+        try context.drawSquare(offsetFrame, backgroundColor.sdlColor())
+        let clip = clipBounds
+        var lastClipRect:Rect<DValue>? = nil
+        if (clip) {
+            lastClipRect = context.currentClipRect
+            try context.setClipRect(offsetFrame)
+        }
+        try drawContent(context, offsetFrame)
+        for eachChild in children {
+            try eachChild.drawOrRaster(context, offsetFrame)
+        }
+        
+        if (borderWidth > 0 && borderColor.isClear() == false) {
+            var line:Rect<DValue> = offsetFrame
+            line.height = borderWidth
+            let borderColorSdl = borderColor.sdlColor()
+            try context.drawSquare(line, borderColorSdl)
+            line.y = offsetFrame.bottom - borderWidth
+            try context.drawSquare(line, borderColorSdl)
+            line.y = offsetFrame.y + borderWidth
+            line.width = borderWidth
+            line.height = offsetFrame.height - (borderWidth * 2)
+            try context.drawSquare(line, borderColorSdl)
+            line.x = offsetFrame.right - borderWidth
+            try context.drawSquare(line, borderColorSdl)
+        }
+        
+        if (clip) {
+            try context.setClipRect(lastClipRect)
+        }*/
     }
 
-    open func draw(_ context:IDraw) throws {
-        if (alpha == 0) { return }
-        let offsetFrame = frame
-        let img:UInt64 = 0 //image
-        if let image = cachedImage, shouldRedraw == false {
-            context.draw(DrawCmdImage(animationId: 0, resourceId: img, dest: offsetFrame.to(Int.self), z: 0, alpha: alpha, rotation: 0, rotationPoint: Point.zero, clippingRect: Rect.zero, time: 0))
-            return
-        }
-    }
-    
     public func viewForId(_ id:String) -> View? {
         for eachView in children {
             if (eachView._id == id) {

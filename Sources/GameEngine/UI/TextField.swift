@@ -54,11 +54,11 @@ public class TextField : TextView {
         }
     }
     
-    func fetchPlaceHolderFont(_ context:UIRenderContext) throws -> Font  {
+    func fetchPlaceHolderFont(_ context:UICommandContext) throws -> Font  {
         if let font = _placeHolderFont {
             return font
         }
-        guard let font = try context.imageManager.fetchFont(desc: placeHolderFont) else {
+        guard let font = try context.fontProvider.fetchFont(desc: placeHolderFont) else {
             throw GenericError("No font for desc: \(fontDesc.family)")
         }
         _placeHolderFont = font
@@ -70,7 +70,7 @@ public class TextField : TextView {
         //
     }
     
-    open override func drawContent(_ context:UIRenderContext, _ rect:Rect<DValue>) throws {
+    open override func drawContent(_ context:UICommandContext, _ rect:Rect<DValue>) throws {
         try super.drawContent(context, rect)
         //return
         if (text.count != 0 || placeHolder.count == 0) { return }

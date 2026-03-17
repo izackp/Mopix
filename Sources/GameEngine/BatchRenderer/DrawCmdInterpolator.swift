@@ -9,28 +9,28 @@ import SDL2Swift
 import SDL2
 
 public class DrawCmdInterpolator {
-    public init(renderer: Renderer, resourceStore: ResourceStore, _lastCmdList: [DrawCmdImage] = [], _futureCmdList: [DrawCmdImage] = []) {
+    public init(renderer: Renderer, resourceStore: ResourceStore, _lastCmdList: [DrawCmd] = [], _futureCmdList: [DrawCmd] = []) {
         self.renderer = renderer
         self.resourceStore = resourceStore
-        self._lastCmdList = IndexedOrderedList(list: _lastCmdList, getId: DrawCmdImage.getId)
-        self._futureCmdList = IndexedOrderedList(list: _futureCmdList, getId: DrawCmdImage.getId)
+        self._lastCmdList = IndexedOrderedList(list: _lastCmdList, getId: DrawCmd.getId)
+        self._futureCmdList = IndexedOrderedList(list: _futureCmdList, getId: DrawCmd.getId)
     }
 
-    let renderer:Renderer
-    let resourceStore:ResourceStore
+    let renderer: Renderer
+    let resourceStore: ResourceStore
 
-    var _lastCmdList:IndexedOrderedList<DrawCmdImage> = IndexedOrderedList()
-    var _futureCmdList:IndexedOrderedList<DrawCmdImage> = IndexedOrderedList()
+    var _lastCmdList: IndexedOrderedList<DrawCmd> = IndexedOrderedList()
+    var _futureCmdList: IndexedOrderedList<DrawCmd> = IndexedOrderedList()
 
-    // Full sorted command list for the next frame (all types)
-    var _futureAllCmds:[DrawCmd] = []
-    var _lastAllCmds:[DrawCmd] = []
+    var _futureAllCmds: [DrawCmd] = []
+    var _lastAllCmds: [DrawCmd] = []
 
-    //MARK: -
-    func drawImageCmd(_ command:DrawCmdImage, dest: Rect<Int>) throws {
-        let image = try resourceStore.fetchResource(command.resourceId)
+    // MARK: -
+
+    func drawImageCmd(_ command: DrawCmd, resourceId: UInt64, dest: Rect<Int>) throws {
+        let image = try resourceStore.fetchResource(resourceId)
         let source = image.getTextureSlice()
-        if (command.rotation != 0 || command.flip.hasValue()) {
+        if command.rotation != 0 || command.flip.hasValue() {
             try renderer.draw(source, dest.sdlRect(), command.color, command.alpha, Double(command.rotation), command.rotationPoint.sdlPoint(), command.flip)
         } else {
             try renderer.draw(source, dest.sdlRect(), command.color, command.alpha)
@@ -40,14 +40,11 @@ public class DrawCmdInterpolator {
     //TODO: What if this is sent multiple times?
     //TODO: Try flattening z values to reduce texture switching;
     //Sort by z then sort by collision
-    //Not sure if as fast as previous method but it is easier to read
-    public func receiveCmds(_ list:[DrawCmd]) {
+    public func receiveCmds(_ list: [DrawCmd]) {
         // Extract image commands for interpolation tracking
-        var imageCmds:[DrawCmdImage] = []
-        for cmd in list {
-            if case .image(let imgCmd) = cmd {
-                imageCmds.append(imgCmd)
-            }
+        let imageCmds = list.filter {
+            if case .image = $0.type { return true }
+            return false
         }
 
         let oldList = _lastCmdList
@@ -56,7 +53,7 @@ public class DrawCmdInterpolator {
         let sorted = imageCmds.sorted { (cmd:DrawCmdImage, other:DrawCmdImage) in
             return cmd.compare(other) == .orderedAscending
         }
-        oldList.updateList(sorted, getId: DrawCmdImage.getId)
+        oldList.updateList(sorted, getId: DrawCmd.getId)
         _futureCmdList = oldList
 
         // Sort all commands by z for rendering
@@ -64,12 +61,12 @@ public class DrawCmdInterpolator {
         _lastAllCmds = _futureAllCmds
         _futureAllCmds = sortedAll
 
-        for eachReasource in resourceStore._idImageCache.values {
-            eachReasource.ticksSinceLastUse += 1
+        for eachResource in resourceStore._idImageCache.values {
+            eachResource.ticksSinceLastUse += 1
         }
     }
 
-    public func draw(_ time:UInt64) {
+    public func draw(_ time: UInt64) {
         let previousRect = renderer.getClipRect()
         do {
             try renderer.setClipRect(nil)
@@ -77,36 +74,26 @@ public class DrawCmdInterpolator {
 
             // Resolve parent-relative positions to absolute screen coords
             // keyed by animationId
-            var resolvedPositions:[UInt64:Rect<Int>] = [:]
+            var resolvedPositions: [UInt64:Rect<Int>] = [:]
 
             for eachCmd in _futureAllCmds {
-                // Apply clipping if needed
-                let cmdClipRect:Rect<Int>
-                switch eachCmd {
-                case .image(let c): cmdClipRect = c.clippingRect
-                case .fill(let c):  cmdClipRect = c.clippingRect
-                case .view(let c):  cmdClipRect = c.clippingRect
-                case .rtt(let c):   cmdClipRect = c.clippingRect
-                }
-
-                if cmdClipRect != currentClip {
-                    currentClip = cmdClipRect
+                if eachCmd.clippingRect != currentClip {
+                    currentClip = eachCmd.clippingRect
                     if currentClip == .zero {
-                        try renderer.setClipRect(nil) // 0 width/height == nil clip
+                        try renderer.setClipRect(nil)
                     } else {
                         try renderer.setClipRect(currentClip.sdlRect())
                     }
                 }
 
-                switch eachCmd {
-                case .image(let imgCmd):
-                    // Interpolate with last frame
-                    let id = Int(Int64(bitPattern: imgCmd.animationId))
-                    let interpolated: DrawCmdImage
+                switch eachCmd.type {
+                case .image(let resourceId):
+                    let id = Int(Int64(bitPattern: eachCmd.animationId))
+                    let interpolated: DrawCmd
                     if id != 0, let matching = _lastCmdList[id] {
-                        interpolated = imgCmd.lerp(matching, time)
+                        interpolated = eachCmd.lerp(matching, time)
                     } else {
-                        interpolated = imgCmd
+                        interpolated = eachCmd
                     }
                     // Resolve absolute position
                     let resolved = resolvedDest(interpolated.dest, parentId: interpolated.parentAnimationId, positions: &resolvedPositions)
@@ -114,40 +101,39 @@ public class DrawCmdInterpolator {
                         resolvedPositions[interpolated.animationId] = resolved
                     }
                     do {
-                        try drawImageCmd(interpolated, dest: resolved)
+                        try drawImageCmd(interpolated, resourceId: resourceId, dest: resolved)
                     } catch {
-                        print("Unable to draw drawCmd: \(imgCmd.animationId) : \(error.localizedDescription)")
+                        print("Unable to draw drawCmd: \(eachCmd.animationId) : \(error.localizedDescription)")
                     }
 
-                case .fill(let fillCmd):
-                    let resolved = resolvedDest(fillCmd.dest, parentId: fillCmd.parentAnimationId, positions: &resolvedPositions)
-                    if fillCmd.animationId != 0 {
-                        resolvedPositions[fillCmd.animationId] = resolved
+                case .fill:
+                    let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
+                    if eachCmd.animationId != 0 {
+                        resolvedPositions[eachCmd.animationId] = resolved
                     }
                     do {
-                        try drawFillCmd(fillCmd, dest: resolved)
+                        try drawFillCmd(eachCmd, dest: resolved)
                     } catch {
                         print("Unable to draw fill cmd: \(error.localizedDescription)")
                     }
 
-                case .view(let viewCmd):
-                    let resolved = resolvedDest(viewCmd.dest, parentId: viewCmd.parentAnimationId, positions: &resolvedPositions)
-                    if viewCmd.animationId != 0 {
-                        resolvedPositions[viewCmd.animationId] = resolved
+                case .view(let borderColor, let borderWidth):
+                    let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
+                    if eachCmd.animationId != 0 {
+                        resolvedPositions[eachCmd.animationId] = resolved
                     }
                     do {
-                        try drawViewCmd(viewCmd, dest: resolved)
+                        try drawViewCmd(eachCmd, borderColor: borderColor, borderWidth: borderWidth, dest: resolved)
                     } catch {
                         print("Unable to draw view cmd: \(error.localizedDescription)")
                     }
 
-                case .rtt(let rttCmd):
-                    // Stub: RTT recursive render-to-texture not yet fully implemented
-                    let resolved = resolvedDest(rttCmd.targetRect, parentId: rttCmd.parentAnimationId, positions: &resolvedPositions)
-                    if rttCmd.animationId != 0 {
-                        resolvedPositions[rttCmd.animationId] = resolved
+                case .rtt:
+                    let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
+                    if eachCmd.animationId != 0 {
+                        resolvedPositions[eachCmd.animationId] = resolved
                     }
-                    print("DrawCmdRTT stub — not yet rendered")
+                    print("DrawCmd.rtt stub — not yet rendered")
                 }
             }
             try renderer.setClipRect(previousRect)
@@ -182,23 +168,22 @@ public class DrawCmdInterpolator {
         return (r, g, b, modifiedAlpha)
     }
 
-    private func drawFillCmd(_ cmd: DrawCmdFill, dest: Rect<Int>) throws {
+    private func drawFillCmd(_ cmd: DrawCmd, dest: Rect<Int>) throws {
         let (r, g, b, a) = sdlColorComponents(cmd.color, alpha: cmd.alpha)
         try renderer.setDrawColor(red: r, green: g, blue: b, alpha: a)
         try renderer.fill(rect: dest.sdlRect())
     }
 
-    private func drawViewCmd(_ cmd: DrawCmdView, dest: Rect<Int>) throws {
-        // Draw background
-        let (bgR, bgG, bgB, bgA) = sdlColorComponents(cmd.backgroundColor, alpha: cmd.backgroundAlpha)
+    private func drawViewCmd(_ cmd: DrawCmd, borderColor: SDLColor, borderWidth: Int, dest: Rect<Int>) throws {
+        let (bgR, bgG, bgB, bgA) = sdlColorComponents(cmd.color, alpha: cmd.alpha)
         if bgA > 0 {
             try renderer.setDrawColor(red: bgR, green: bgG, blue: bgB, alpha: bgA)
             try renderer.fill(rect: dest.sdlRect())
         }
         // Draw borders
-        if cmd.borderWidth > 0 {
-            let bw = cmd.borderWidth
-            let (bdR, bdG, bdB, bdA) = sdlColorComponents(cmd.borderColor, alpha: 1.0)
+        if borderWidth > 0 {
+            let bw = borderWidth
+            let (bdR, bdG, bdB, bdA) = sdlColorComponents(borderColor, alpha: 1.0)
             try renderer.setDrawColor(red: bdR, green: bdG, blue: bdB, alpha: bdA)
             // Top
             try renderer.fill(rect: Rect<Int>(x: dest.x, y: dest.y, width: dest.width, height: bw).sdlRect())

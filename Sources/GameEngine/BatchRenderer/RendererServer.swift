@@ -43,8 +43,8 @@ public class RendererServer {
     }
 }
 
-// MARK: - IRendererServer
-extension RendererServer: IRendererServer {
+// MARK: - IRendererServer + IRTTAllocator
+extension RendererServer: IRendererServer, IRTTAllocator {
     public func loadResource(_ url: VDUrl) async throws -> Image {
         try await MainActor.run() {
             try resourceStore.loadResource(url)
@@ -115,6 +115,18 @@ extension RendererServer: IRendererServer {
         await MainActor.run() {
             receiveCmdsSync(list)
         }
+    }
+
+    // MARK: - IRTTAllocator
+
+    /// Allocates a blank atlas region and registers it with the ResourceStore.
+    /// Called by UICommandContext.createAndDrawToTexture.
+    public func allocate(size: Size<DValue>) throws -> AtlasImage {
+        let subTexture = try imageManager.atlas.saveBlankImage(size)
+        let image = AtlasImage(texture: subTexture, atlas: imageManager.atlas)
+        let id = resourceStore.registerAtlasImage(image)
+        image.resourceId = id
+        return image
     }
 
     //TODO: Use texture atlas
