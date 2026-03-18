@@ -238,6 +238,7 @@
     <li><a href="#virtualdrive">VirtualDrive &amp; VDUrl</a></li>
     <li><a href="#mounteddir">MountedDir</a></li>
     <li><a href="#idatasource">IDataSource</a></li>
+    <li><a href="#fonts">Font System</a></li>
     <li><a href="#per-frame">Per-Frame Sequence</a></li>
     <li><a href="#interpolation">Interpolation Detail</a></li>
     <li><a href="#summary">Summary</a></li>
@@ -727,6 +728,111 @@
     <tr><td><code>canHandle(_ url:) -> Bool</code></td><td>Always <code>true</code> (catch-all)</td></tr>
   </tbody>
 </table>
+
+<!-- ====================================================================== -->
+<h2 id="fonts">Font System</h2>
+
+<p class="section-meta">ImageHandling/Font.swift · ImageHandling/ImageManager.swift · UI/TypeSetting/TextLine.swift · UI/UICommandContext.swift</p>
+
+<p>The font system predates the client/server architecture. <code>Font</code> owns both the SDL TTF object and the glyph cache, and is handed directly to layout code via <code>IFontProvider</code>. There is no separation between layout metadata (client concern) and atlas rasterization (server concern).</p>
+
+<h3>FontDesc</h3>
+
+<p class="section-meta">UI/FontDesc.swift · <code>public struct FontDesc: Codable, Hashable</code></p>
+
+<table class="prop-table">
+  <thead><tr><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>family</code></td><td><code>String</code></td><td>Font family name</td></tr>
+    <tr><td><code>weight</code></td><td><code>UInt16</code></td><td>Font weight (e.g. 100)</td></tr>
+    <tr><td><code>size</code></td><td><code>Float</code></td><td>Point size</td></tr>
+    <tr><td><code>_hash</code></td><td><code>Int</code></td><td>Cached hash for use as dictionary key</td></tr>
+    <tr><td><code>defaultFont</code></td><td><code>FontDesc</code></td><td><code>static let</code> — "Alibaba PuHuiTi", weight 100, size 18</td></tr>
+  </tbody>
+</table>
+
+<h3>Font</h3>
+
+<p class="section-meta">ImageHandling/Font.swift · <code>public class Font</code></p>
+
+<p>Holds a live SDL TTF font handle and lazily rasterizes glyphs into the shared <code>ImageAtlas</code>. Glyphs are cached by <code>Character</code>. There is no resource ID tracking — <code>AtlasImage</code> values are stored directly and handed to layout and drawing code.</p>
+
+<table class="prop-table">
+  <thead><tr><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>_glyphs</code></td><td><code>[Character: AtlasImage]</code></td><td>Lazily populated glyph cache</td></tr>
+    <tr><td><code>_atlas</code></td><td><code>ImageAtlas</code></td><td>Shared texture atlas; glyphs are packed here</td></tr>
+    <tr><td><code>_font</code></td><td><code>SDLFont</code></td><td>SDL2_TTFSwift font handle; provides <code>glyphMetrics()</code>, <code>height()</code>, <code>ascent()</code>, <code>descent()</code></td></tr>
+  </tbody>
+</table>
+
+<table>
+  <thead><tr><th>Method</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>init(atlas: ImageAtlas, font: SDLFont)</code></td><td>Note: <code>ImageManager</code> calls this with a third <code>resourceStore</code> argument that this init does not accept — a WIP mismatch</td></tr>
+    <tr><td><code>glyph(_ c: Character) throws -> AtlasImage</code></td><td>Returns cached <code>AtlasImage</code> or rasterizes via <code>font.renderGlyphBlended()</code> and packs into atlas. Does not register with <code>ResourceStore</code></td></tr>
+    <tr><td><code>widthOfText(_ text: Substring, maxWidthPxs: Int) -> MeasureResult</code></td><td>Measures text width character-by-character using <code>glyphMetrics()</code></td></tr>
+  </tbody>
+</table>
+
+<div class="note"><strong>Incomplete stubs.</strong> <code>ImageManager.fetchFont()</code> calls <code>Font(atlas:, font:, resourceStore:)</code> but <code>Font.init</code> only accepts two parameters. <code>UICommandContext.drawText()</code> calls <code>font.resourceId(for: c)</code> which does not exist on <code>Font</code>. <code>AtlasImage.resourceId</code> is assigned in <code>RendererServer.allocate()</code> and read in <code>UICommandContext.drawTextLine()</code> but is not declared on <code>AtlasImage</code>. These stubs reflect intended wiring that has not been implemented.</div>
+
+<h3>IFontProvider</h3>
+
+<p class="section-meta">UI/UICommandContext.swift</p>
+
+<pre><code><span class="kw">public protocol</span> <span class="ty">IFontProvider</span> {
+    <span class="kw">func</span> <span class="fn">fetchFont</span>(desc: <span class="ty">FontDesc</span>) <span class="kw">throws</span> -> <span class="ty">Font</span>?
+}</code></pre>
+
+<p><code>ImageManager</code> conforms to this protocol. <code>UICommandContext</code> holds an <code>IFontProvider</code> and calls it during text drawing. Because <code>Font</code> is a server-side object (holds <code>SDLFont</code> and <code>ImageAtlas</code>), this protocol crosses the client/server boundary — <code>UICommandContext</code> receives a server-owned object directly.</p>
+
+<h3>RenderableCharacter</h3>
+
+<p class="section-meta">UI/TypeSetting/TextLine.swift · <code>public struct RenderableCharacter</code></p>
+
+<p>The output of the text layout pipeline. Built by <code>RenderableCharacterIterator</code>, which calls <code>font.glyph(c)</code> to rasterize each character and stores the resulting <code>AtlasImage</code> directly in the struct. <code>TextLine2</code> holds an array of these.</p>
+
+<table class="prop-table">
+  <thead><tr><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>img</code></td><td><code>AtlasImage?</code></td><td><code>nil</code> for whitespace; holds the server-side atlas region directly</td></tr>
+    <tr><td><code>size</code></td><td><code>Size&lt;Int&gt;</code></td><td>Advance width + font height (from <code>glyphMetrics</code> + <code>font.height()</code>)</td></tr>
+    <tr><td><code>baseLine</code></td><td><code>Int</code></td><td>Font descent value; used to align glyphs to baseline</td></tr>
+    <tr><td><code>foreground</code></td><td><code>LabeledColor</code></td><td>Glyph tint color</td></tr>
+    <tr><td><code>background</code></td><td><code>LabeledColor?</code></td><td>Optional character background fill</td></tr>
+    <tr><td><code>lineBreak</code></td><td><code>LineBreak?</code></td><td>Line-breaking hint from ICU cursor</td></tr>
+  </tbody>
+</table>
+
+<h3>Text draw path (current)</h3>
+
+<div class="seq">
+  <div class="seq-item">
+    <div class="seq-who">IFontProvider</div>
+    <div class="seq-title">fetchFont(desc:) → Font</div>
+    <div class="seq-desc"><code>ImageManager.fetchFont()</code> loads or returns a cached <code>Font</code>. The <code>Font</code> object — which holds <code>SDLFont</code> and <code>ImageAtlas</code> — is handed directly to calling code.</div>
+    <div class="seq-file">ImageManager.swift:58</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">RenderableCharacterIterator</div>
+    <div class="seq-title">font.glyph(c) → AtlasImage</div>
+    <div class="seq-desc">For each character: rasterizes via <code>SDLFont.renderGlyphBlended()</code>, packs into <code>ImageAtlas</code>, caches in <code>Font._glyphs</code>. Returns <code>AtlasImage</code> directly. Metrics (advance, height) read from <code>font._font.glyphMetrics()</code>.</div>
+    <div class="seq-file">TextLine.swift:681 · Font.swift:126</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">RenderableCharacterIterator</div>
+    <div class="seq-title">builds RenderableCharacter { img: AtlasImage?, size, baseLine }</div>
+    <div class="seq-desc"><code>AtlasImage</code> is stored directly in <code>RenderableCharacter.img</code>. The struct carries a live server-side object.</div>
+    <div class="seq-file">TextLine.swift:683</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">UICommandContext</div>
+    <div class="seq-title">drawTextLine — reads image.resourceId (stub)</div>
+    <div class="seq-desc">For each character, reads <code>c.img.resourceId</code> to emit <code>DrawCmd(.image(resourceId:))</code>. <code>AtlasImage.resourceId</code> is not declared — this is an unresolved stub left from the pipeline migration.</div>
+    <div class="seq-file">UICommandContext.swift:130</div>
+  </div>
+</div>
 
 <!-- ====================================================================== -->
 <h2 id="per-frame">Per-Frame Sequence</h2>
