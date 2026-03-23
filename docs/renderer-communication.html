@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RendererClient ↔ RendererServer — Mopixs</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #fff;
+      color: #1a1a1a;
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 32px 80px;
+    }
+
+    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 2px; }
+    h1 span { color: #666; font-weight: 400; }
+    .subtitle { color: #888; font-size: 12.5px; margin-bottom: 28px; }
+
+    nav { margin-bottom: 32px; padding: 10px 0; border-top: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5; }
+    nav ol { display: flex; flex-wrap: wrap; gap: 3px 16px; padding-left: 18px; margin: 0; }
+    nav li { font-size: 12px; color: #666; }
+    nav a { color: #333; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+
+    h2 { font-size: 0.95rem; font-weight: 700; margin: 34px 0 10px; padding-bottom: 4px; border-bottom: 1px solid #e5e5e5; }
+    h3 { font-size: 0.875rem; font-weight: 700; color: #222; margin: 16px 0 6px; }
+    h4 { font-size: 0.825rem; font-weight: 700; color: #444; margin: 12px 0 4px; }
+
+    p { margin-bottom: 8px; color: #222; font-size: 13.5px; }
+
+    a { color: #1a6fc4; }
+
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', Menlo, monospace;
+      font-size: 11.5px;
+    }
+
+    p code, li code, td code, th code {
+      background: #f4f4f4;
+      border: 1px solid #e0e0e0;
+      border-radius: 3px;
+      padding: 0 4px;
+    }
+
+    pre {
+      background: #f8f8f8;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      margin: 6px 0 12px;
+      line-height: 1.5;
+    }
+
+    pre code { font-size: 11.5px; }
+
+    .cm   { color: #999; font-style: italic; }
+    .kw   { color: #7d1fa2; }
+    .ty   { color: #1a6fc4; }
+    .fn   { color: #116329; }
+    .prop { color: #b05a00; }
+
+    /* ---- Flow diagram ---- */
+    .flow {
+      display: flex;
+      align-items: center;
+      margin: 12px 0 16px;
+      overflow-x: auto;
+      padding: 14px;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      background: #fafafa;
+      gap: 0;
+    }
+
+    .flow-box {
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 8px 12px;
+      min-width: 130px;
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .flow-box .name { font-weight: 700; font-size: 12px; margin-bottom: 4px; }
+    .flow-box ul { list-style: none; padding: 0; }
+    .flow-box ul li { font-size: 11px; color: #666; padding: 1px 0; }
+    .flow-box ul li::before { content: "· "; color: #ccc; }
+
+    .flow-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 8px;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .flow-arrow .label { font-size: 10px; color: #888; text-align: center; white-space: nowrap; }
+    .flow-arrow .line  { width: 44px; height: 1px; background: #bbb; position: relative; }
+    .flow-arrow .line::after {
+      content: '';
+      position: absolute;
+      right: -1px; top: -4px;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 7px solid #bbb;
+    }
+
+    /* ---- Sequence list ---- */
+    .seq { margin: 8px 0 12px; border-left: 2px solid #e0e0e0; padding-left: 14px; }
+    .seq-item { margin-bottom: 10px; position: relative; }
+    .seq-item::before {
+      content: '';
+      position: absolute;
+      left: -18px; top: 5px;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #e0e0e0;
+    }
+
+    .seq-who {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #666;
+      background: #f0f0f0;
+      border-radius: 2px;
+      padding: 1px 5px;
+      margin-bottom: 1px;
+    }
+
+    .seq-title { font-size: 12.5px; font-weight: 600; }
+    .seq-desc  { font-size: 12px; color: #555; }
+    .seq-file  { font-size: 10.5px; color: #aaa; font-family: monospace; margin-top: 1px; }
+
+    /* ---- Note ---- */
+    .note {
+      border-left: 3px solid #ccc;
+      padding: 7px 10px;
+      background: #fafafa;
+      margin: 8px 0 12px;
+      font-size: 12.5px;
+      color: #444;
+    }
+    .note strong { color: #1a1a1a; }
+
+    /* ---- Tables ---- */
+    table { width: 100%; border-collapse: collapse; margin: 6px 0 14px; font-size: 12px; }
+    thead th {
+      text-align: left;
+      padding: 5px 10px;
+      border-bottom: 1px solid #ddd;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #888;
+      white-space: nowrap;
+    }
+    tbody td { padding: 5px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #fafafa; }
+
+    /* property table: name col narrower */
+    .prop-table td:first-child { white-space: nowrap; }
+    .prop-table td:nth-child(2) { color: #555; }
+    .prop-table td:nth-child(3) { color: #444; font-size: 11.5px; }
+
+    .access-pub  { color: #116329; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .access-int  { color: #888;    font-size: 10px; font-weight: 700; text-transform: uppercase; }
+
+    /* ---- Two-column ---- */
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 8px 0 14px; }
+    @media (max-width: 600px) { .cols { grid-template-columns: 1fr; } }
+    .col-item { border: 1px solid #e5e5e5; border-radius: 3px; padding: 10px 12px; }
+    .col-item h4 { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+    .col-item p  { font-size: 11.5px; color: #555; margin: 0; }
+
+    /* ---- File list ---- */
+    .files { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 12px; padding: 0; list-style: none; }
+    .files li {
+      font-family: monospace;
+      font-size: 11px;
+      color: #444;
+      background: #f4f4f4;
+      border: 1px solid #e0e0e0;
+      border-radius: 3px;
+      padding: 2px 7px;
+    }
+
+    ul.plain { padding-left: 16px; margin-bottom: 8px; }
+    ul.plain li { font-size: 13px; color: #333; margin-bottom: 3px; }
+    ol.plain { padding-left: 18px; margin-bottom: 8px; }
+    ol.plain li { font-size: 13px; color: #333; margin-bottom: 3px; }
+
+    hr { border: none; border-top: 1px solid #e5e5e5; margin: 32px 0 0; }
+
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      background: #f0f0f0;
+      border: 1px solid #e0e0e0;
+      border-radius: 3px;
+      padding: 1px 6px;
+      color: #555;
+      font-family: monospace;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .section-meta { font-size: 11.5px; color: #888; margin-bottom: 10px; font-family: monospace; }
+  </style>
+</head>
+<body>
+
+<h1>RendererClient ↔ RendererServer <span>Communication</span></h1>
+<p class="subtitle">Mopixs Engine · Draw-command pipeline, interpolation, resource management, and virtual filesystem</p>
+
+<nav>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#rendererclient">RendererClient</a></li>
+    <li><a href="#rendererserver">RendererServer</a></li>
+    <li><a href="#irendererserver">IRendererServer</a></li>
+    <li><a href="#drawcmd">DrawCmd</a></li>
+    <li><a href="#interpolator">DrawCmdInterpolator</a></li>
+    <li><a href="#resourcestore">ResourceStore</a></li>
+    <li><a href="#fullwindow">FullWindow</a></li>
+    <li><a href="#uicommandcontext">UICommandContext</a></li>
+    <li><a href="#virtualdrive">VirtualDrive &amp; VDUrl</a></li>
+    <li><a href="#mounteddir">MountedDir</a></li>
+    <li><a href="#idatasource">IDataSource</a></li>
+    <li><a href="#fonts">Font &amp; Glyph Loading</a></li>
+    <li><a href="#per-frame">Per-Frame Sequence</a></li>
+    <li><a href="#interpolation">Interpolation Detail</a></li>
+    <li><a href="#summary">Summary</a></li>
+  </ol>
+</nav>
+
+<!-- ====================================================================== -->
+<h2 id="overview">Overview</h2>
+
+<p>Rendering intent is separated from rendering execution. Each frame, game and UI code produces a flat list of <code>DrawCmd</code> structs. That list is sent asynchronously to <code>RendererServer</code>, which owns SDL and executes the actual draw calls through <code>DrawCmdInterpolator</code> — interpolating between the last two command-list snapshots for smooth motion at any display rate.</p>
+
+<ul class="plain">
+  <li><strong>Smooth display at any refresh rate.</strong> Two command snapshots allow lerp between logic ticks.</li>
+  <li><strong>Determinism / rollback friendliness.</strong> <code>DrawCmd</code> is a plain value type — serializable, diffable, replayable.</li>
+  <li><strong>Resource indirection.</strong> Textures and font glyphs live entirely in the server; the client holds opaque <code>UInt64</code> IDs. Glyphs are loaded by UID just like images — no new <code>DrawCmd</code> type needed.</li>
+</ul>
+
+<div class="flow">
+  <div class="flow-box">
+    <div class="name">RendererClient</div>
+    <ul><li>IDraw, IResourceContainer</li><li>Collects DrawCmds</li><li>clearCommands()</li><li>sendCommands()</li></ul>
+  </div>
+  <div class="flow-arrow">
+    <div class="label">[DrawCmd]<br>async Task</div>
+    <div class="line"></div>
+  </div>
+  <div class="flow-box">
+    <div class="name">RendererServer</div>
+    <ul><li>IRendererServer, IRTTAllocator</li><li>receiveCmds()</li><li>ResourceStore</li><li>ImageManager</li></ul>
+  </div>
+  <div class="flow-arrow">
+    <div class="label">double-buffer<br>lerp</div>
+    <div class="line"></div>
+  </div>
+  <div class="flow-box">
+    <div class="name">DrawCmdInterpolator</div>
+    <ul><li>_lastCmdList</li><li>_futureCmdList</li><li>draw(_ time:)</li><li>→ SDL Renderer</li></ul>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<h2 id="rendererclient">RendererClient</h2>
+
+<p class="section-meta">BatchRenderer/RendererClient.swift · <code>public class RendererClient: IDraw, IResourceContainer</code></p>
+
+<p>Accumulates <code>DrawCmd</code> values during each frame and dispatches them to the server at frame-end. Also the primary interface for async resource loading.</p>
+
+<h4>Properties</h4>
+<table class="prop-table">
+  <thead><tr><th>Access</th><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><span class="access-pub">pub</span></td><td><code>defaultTime</code></td><td><code>UInt64</code></td><td>Base timestamp used when emitting commands without a relative time offset</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>maxTicksForRollback</code></td><td><code>Int</code></td><td>Reserved for future rollback support</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>windowSize</code></td><td><code>Size&lt;Int16&gt;</code></td><td>Computed; reads <code>_windowSize</code></td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>cmdList</code></td><td><code>[DrawCmd]</code></td><td>Accumulates commands each frame; cleared by <code>clearCommands()</code></td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>server</code></td><td><code>any IRendererServer</code></td><td>Target for <code>sendCommands()</code></td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>cacheList</code></td><td><code>WeakArray&lt;IResourceCache&gt;</code></td><td>Registered resource caches</td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>errorForId</code></td><td><code>[UInt64: Error]</code></td><td>Stores load errors keyed by resource ID</td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>_windowSize</code></td><td><code>Size&lt;Int16&gt;</code></td><td>Backing store for <code>windowSize</code></td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>_toUnload</code></td><td><code>[QueuedUnload]</code></td><td>Deferred unload queue with tick counters</td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>_resourceForId</code></td><td><code>[UInt64: ImageResource]</code></td><td>Tracks live resource handles by ID</td></tr>
+  </tbody>
+</table>
+
+<h4>Key Methods</h4>
+<table>
+  <thead><tr><th>Method</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>draw(_ id:_ resourceId:_ rect:…)</code></td><td>Creates and appends a <code>DrawCmd</code> of type <code>.image</code></td></tr>
+    <tr><td><code>drawCmd(_ cmd:)</code></td><td>Appends a pre-built <code>DrawCmd</code> directly</td></tr>
+    <tr><td><code>clearCommands()</code></td><td>Empties <code>cmdList</code>; called at start of each frame</td></tr>
+    <tr><td><code>sendCommands()</code></td><td>Fires <code>Task { await server.receiveCmds(cmdList) }</code>; fire-and-forget</td></tr>
+    <tr><td><code>loadResourceAsync(_ url:)</code></td><td>Async load by <code>VDUrl</code>; returns <code>Image</code></td></tr>
+    <tr><td><code>loadResourceWithPixelDataAsync(_ url:)</code></td><td>Async load; returns <code>ReadOnlyImage</code> with pixel access</td></tr>
+    <tr><td><code>loadResourceAsync(_ image: PixelData)</code></td><td>Async load from raw pixel data</td></tr>
+    <tr><td><code>loadResourcesAsync(_ urlList:)</code></td><td>Batch async load; returns <code>[Result&lt;Image, Error&gt;]</code></td></tr>
+    <tr><td><code>loadResource(_ url:)</code></td><td>Sync load; returns <code>ImageFlyWeight</code></td></tr>
+    <tr><td><code>loadResourceRaw(_ url:)</code></td><td>Sync load; returns raw <code>UInt64</code> ID</td></tr>
+    <tr><td><code>unloadResource(_ id:)</code></td><td>Immediately unloads via async task</td></tr>
+    <tr><td><code>unloadResourceDelayed(_ id: ticks:)</code></td><td>Queues unload until tick counter expires</td></tr>
+    <tr><td><code>updateImage(_ image:)</code></td><td>Async; updates pixel data of existing resource</td></tr>
+    <tr><td><code>createImage(_ block: size:)</code></td><td>Renders a block into a new atlas region; returns resource ID</td></tr>
+    <tr><td><code>keepAliveAfterDeath(_ milliseconds:)</code></td><td>Extends resource lifetime after reference drop</td></tr>
+    <tr><td><code>addResourceCache(_ cache:)</code></td><td>Registers an <code>IResourceCache</code> for cache reloading</td></tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2 id="rendererserver">RendererServer</h2>
+
+<p class="section-meta">BatchRenderer/RendererServer.swift · <code>public class RendererServer: IRendererServer, IRTTAllocator</code></p>
+
+<p>Owns the SDL <code>Renderer</code>, all texture memory, and the interpolator. Receives command batches on the main actor and drives rendering. Also implements <code>IRTTAllocator</code>, providing atlas regions for render-to-texture operations.</p>
+
+<h4>Properties</h4>
+<table class="prop-table">
+  <thead><tr><th>Access</th><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><span class="access-pub">pub</span></td><td><code>imageManager</code></td><td><code>ImageManager</code></td><td>Manages texture atlas and font rasterization</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>resourceStore</code></td><td><code>ResourceStore</code></td><td>ID-keyed registry of all loaded <code>AtlasImage</code>s</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>renderer</code></td><td><code>Renderer</code></td><td>SDL renderer; sole owner of the GPU context</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>drawingInterpolator</code></td><td><code>DrawCmdInterpolator</code></td><td>Holds frame snapshots and executes lerp+draw</td></tr>
+  </tbody>
+</table>
+
+<h4>Key Methods</h4>
+<table>
+  <thead><tr><th>Method</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>receiveCmds(_ list:) async</code></td><td>Marshals to <code>@MainActor</code>, then calls <code>receiveCmdsSync()</code></td></tr>
+    <tr><td><code>receiveCmdsSync(_ list:)</code></td><td>Calls <code>resourceStore.increaseTicks()</code> then <code>drawingInterpolator.receiveCmds()</code></td></tr>
+    <tr><td><code>allocate(size:) throws</code></td><td><code>IRTTAllocator</code> — allocates a blank atlas region, registers it in <code>ResourceStore</code>, sets <code>resourceId</code></td></tr>
+    <tr><td><code>loadResource(_ url:) async throws</code></td><td>Delegates to <code>ResourceStore.loadResource()</code></td></tr>
+    <tr><td><code>unloadResource(_ id:) async</code></td><td>Delegates to <code>ResourceStore.unloadResource()</code></td></tr>
+    <tr><td><code>updateImage(_ image:) async throws</code></td><td>Updates existing atlas region pixel data</td></tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2 id="irendererserver">IRendererServer</h2>
+
+<p class="section-meta">BatchRenderer/IRendererServer.swift · <code>public protocol IRendererServer: AnyObject</code></p>
+
+<p>The async boundary between client and server. All methods are <code>async</code>.</p>
+
+<table>
+  <thead><tr><th>Category</th><th>Method</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td>Commands</td><td><code>receiveCmds(_ list: [DrawCmd])</code></td><td>—</td></tr>
+    <tr><td rowspan="8">Load</td><td><code>loadResource(_ url: VDUrl)</code></td><td><code>Image</code></td></tr>
+    <tr><td><code>loadResourceAsEditable(_ url: VDUrl)</code></td><td><code>ReadOnlyImage</code></td></tr>
+    <tr><td><code>loadResource(_ image: PixelData)</code></td><td><code>ReadOnlyImage</code></td></tr>
+    <tr><td><code>loadResources(_ urlList: [VDUrl])</code></td><td><code>[Result&lt;Image, Error&gt;]</code></td></tr>
+    <tr><td><code>loadResource(_ url: VDUrl, _ choosenId: UInt64)</code></td><td><code>Image</code></td></tr>
+    <tr><td><code>loadResourceAsEditable(_ url: VDUrl, _ choosenId: UInt64)</code></td><td><code>ReadOnlyImage</code></td></tr>
+    <tr><td><code>loadResource(_ image: PixelData, _ choosenId: UInt64)</code></td><td><code>ReadOnlyImage</code></td></tr>
+    <tr><td><code>loadResources(_ urlList: [VDUrl], _ choosenId: [UInt64])</code></td><td><code>[Result&lt;Image, Error&gt;]</code></td></tr>
+    <tr><td rowspan="2">Unload</td><td><code>unloadResource(_ id: ImageResource)</code></td><td>—</td></tr>
+    <tr><td><code>unloadResources(_ idList: [ImageResource])</code></td><td>—</td></tr>
+    <tr><td rowspan="3">Convert</td><td><code>updateImage(_ image: EditedImage)</code></td><td><code>ReadOnlyImage</code></td></tr>
+    <tr><td><code>toImage(_ id: ImageFlyWeight)</code></td><td><code>Image</code></td></tr>
+    <tr><td><code>toEditableImage(_ id: ImageFlyWeight)</code></td><td><code>ReadOnlyImage</code></td></tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2 id="drawcmd">DrawCmd</h2>
+
+<p class="section-meta">BatchRenderer/DrawCmd.swift · <code>public struct DrawCmd</code></p>
+
+<p>The sole unit of communication — a plain value type with no references or SDL handles. Supports linear interpolation between two snapshots via <code>lerp()</code>.</p>
+
+<h4>DrawCmdType</h4>
+<table>
+  <thead><tr><th>Case</th><th>Payload</th><th>Renders</th><th>Interpolated</th></tr></thead>
+  <tbody>
+    <tr><td><code>.image(resourceId: UInt64)</code></td><td>Key into <code>ResourceStore</code></td><td>Textured quad from atlas</td><td>Yes</td></tr>
+    <tr><td><code>.fill</code></td><td>—</td><td>Solid-color rect (uses <code>color</code>/<code>alpha</code>)</td><td>No</td></tr>
+    <tr><td><code>.view(borderColor: SDLColor, borderWidth: Int)</code></td><td>Border params</td><td>View background + optional border</td><td>No</td></tr>
+    <tr><td><code>.rtt</code></td><td>—</td><td>Render-to-texture (reserved)</td><td>No</td></tr>
+  </tbody>
+</table>
+
+<h4>Properties</h4>
+<table class="prop-table">
+  <thead><tr><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>animationId</code></td><td><code>UInt64</code></td><td>Identity key; matched across frames for lerp</td></tr>
+    <tr><td><code>parentAnimationId</code></td><td><code>UInt64</code></td><td>If non-zero, <code>dest</code> is relative to this command's resolved rect</td></tr>
+    <tr><td><code>dest</code></td><td><code>Rect&lt;Int&gt;</code></td><td>Target screen rectangle (absolute or parent-relative)</td></tr>
+    <tr><td><code>color</code></td><td><code>SDLColor</code></td><td>Tint color for <code>.image</code>; fill color for <code>.fill</code>/<code>.view</code></td></tr>
+    <tr><td><code>alpha</code></td><td><code>Float</code></td><td>Opacity 0–1; lerped for <code>.image</code> commands</td></tr>
+    <tr><td><code>z</code></td><td><code>Int</code></td><td>Draw order; commands sorted ascending before render</td></tr>
+    <tr><td><code>rotation</code></td><td><code>Float</code></td><td>Degrees; lerped for <code>.image</code> commands</td></tr>
+    <tr><td><code>rotationPoint</code></td><td><code>Point&lt;Int&gt;</code></td><td>Pivot relative to <code>dest</code> origin</td></tr>
+    <tr><td><code>clippingRect</code></td><td><code>Rect&lt;Int&gt;</code></td><td>SDL clip rect applied before draw</td></tr>
+    <tr><td><code>flip</code></td><td><code>BitMaskOptionSet&lt;Renderer.RendererFlip&gt;</code></td><td>Horizontal / vertical flip flags</td></tr>
+    <tr><td><code>time</code></td><td><code>UInt64</code></td><td><code>var</code>; timestamp stamped at emit time; used as lerp anchor</td></tr>
+    <tr><td><code>type</code></td><td><code>DrawCmdType</code></td><td>Determines render path and interpolation eligibility</td></tr>
+  </tbody>
+</table>
+
+<h4>Methods</h4>
+<table>
+  <thead><tr><th>Method</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>lerp(_ oldCmd: DrawCmd, _ currentTime: UInt64) -> DrawCmd</code></td><td>Returns interpolated command blending <code>self</code> (future) and <code>oldCmd</code> (past) at <code>currentTime</code>; interpolates <code>dest</code>, <code>alpha</code>, <code>rotation</code>, <code>z</code></td></tr>
+    <tr><td><code>static getId(_ cmd: DrawCmd) -> Int</code></td><td>Converts <code>animationId</code> to <code>Int</code> for use as a collection key</td></tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2 id="interpolator">DrawCmdInterpolator</h2>
+
+<p class="section-meta">BatchRenderer/DrawCmdInterpolator.swift · <code>public class DrawCmdInterpolator</code></p>
+
+<p>Maintains two command-list snapshots and interpolates between them on each <code>draw()</code> call. Resolves parent-relative positions, issues SDL draw calls.</p>
+
+<h4>Properties</h4>
+<table class="prop-table">
+  <thead><tr><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>renderer</code></td><td><code>Renderer</code></td><td>SDL renderer used for all draw calls</td></tr>
+    <tr><td><code>resourceStore</code></td><td><code>ResourceStore</code></td><td>Fetches <code>AtlasImage</code> by resource ID for <code>.image</code> commands</td></tr>
+    <tr><td><code>_lastCmdList</code></td><td><code>IndexedOrderedList&lt;DrawCmd&gt;</code></td><td>Previous frame's image-only commands; indexed by <code>animationId</code> for O(1) lookup</td></tr>
+    <tr><td><code>_futureCmdList</code></td><td><code>IndexedOrderedList&lt;DrawCmd&gt;</code></td><td>Current frame's image-only commands</td></tr>
+    <tr><td><code>_lastAllCmds</code></td><td><code>[DrawCmd]</code></td><td>Previous frame's full command list (all types)</td></tr>
+    <tr><td><code>_futureAllCmds</code></td><td><code>[DrawCmd]</code></td><td>Current frame's full command list, sorted by <code>z</code></td></tr>
+  </tbody>
+</table>
+
+<h4>Methods</h4>
+<table>
+  <thead><tr><th>Method</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>receiveCmds(_ list: [DrawCmd])</code></td><td>Filters image cmds, swaps <code>_futureCmdList</code> → <code>_lastCmdList</code>, sorts all by <code>z</code>, increments resource ticks</td></tr>
+    <tr><td><code>draw(_ time: UInt64)</code></td><td>Iterates <code>_futureAllCmds</code>; lerps image commands against <code>_lastCmdList</code>; resolves parent coords; dispatches SDL draw calls</td></tr>
+    <tr><td><code>drawImageCmd(_ command: dest: resourceId:)</code></td><td>SDL texture draw with rotation and flip support</td></tr>
+    <tr><td><code>drawFillCmd(_ cmd: dest:)</code></td><td>SDL fill rect</td></tr>
+    <tr><td><code>drawViewCmd(_ cmd: borderColor: borderWidth: dest:)</code></td><td>Background fill + border lines</td></tr>
+    <tr><td><code>resolvedDest(_ dest: parentId: positions:)</code></td><td>Offsets <code>dest</code> by parent's resolved rect; builds <code>positions</code> map for child lookups</td></tr>
+    <tr><td><code>sdlColorComponents(_ color: alpha:)</code></td><td>Extracts ARGB bytes from <code>SDLColor</code> raw value, applies alpha</td></tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2 id="resourcestore">ResourceStore</h2>
+
+<p class="section-meta">BatchRenderer/ResourceStore.swift · <code>public class ResourceStore</code></p>
+
+<p>ID-keyed registry of all loaded textures. Tracks usage via tick counters and performs LRU eviction against a 32 MB budget.</p>
+
+<h4>Properties</h4>
+<table class="prop-table">
+  <thead><tr><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>imageManager</code></td><td><code>ImageManager</code></td><td>Used to load and pack images into the atlas</td></tr>
+    <tr><td><code>cacheSize</code></td><td><code>UInt</code></td><td>LRU budget; default 32 MB (<code>1000 * 1000 * 32</code>)</td></tr>
+    <tr><td><code>_idImageCache</code></td><td><code>[UInt64: AtlasImage]</code></td><td>Primary lookup for loaded atlas images</td></tr>
+    <tr><td><code>_idDroppableImageTbl</code></td><td><code>[UInt64: AtlasImage]</code></td><td>Images eligible for LRU eviction</td></tr>
+    <tr><td><code>_idDataCache</code></td><td><code>[UInt64: ReadOnlyImage]</code></td><td>Pixel-data copies for editable images</td></tr>
+    <tr><td><code>_urlImageCache</code></td><td><code>[String: UInt64]</code></td><td>Deduplicates loads by URL string</td></tr>
+    <tr><td><code>_urlEditableImageCache</code></td><td><code>[String: ReadOnlyImage]</code></td><td>Editable image cache by URL</td></tr>
+    <tr><td><code>_editableImageHashToId</code></td><td><code>[UInt64: UInt64]</code></td><td>Content-hash → resource ID for editable images</td></tr>
+  </tbody>
+</table>
+
+<h4>Key Methods</h4>
+<table>
+  <thead><tr><th>Method</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>fetchResource(_ id:) throws -> AtlasImage</code></td><td>Retrieves image by ID; resets <code>ticksSinceLastUse</code>; throws if not found</td></tr>
+    <tr><td><code>registerAtlasImage(_ image:) -> UInt64</code></td><td>Assigns generated ID; stores in <code>_idImageCache</code></td></tr>
+    <tr><td><code>registerAtlasImage(_ image: id:) -> UInt64</code></td><td>Registers with requested ID; generates new ID on collision</td></tr>
+    <tr><td><code>increaseTicks()</code></td><td>Increments <code>ticksSinceLastUse</code> on all cached images; called each frame</td></tr>
+    <tr><td><code>cleanUnusedResources()</code></td><td>LRU eviction when total exceeds <code>cacheSize</code></td></tr>
+    <tr><td><code>loadResource(_ url:) throws -> Image</code></td><td>Load from <code>VDUrl</code>; deduplicated via <code>_urlImageCache</code></td></tr>
+    <tr><td><code>loadResourceRaw(_ url:) throws -> UInt64</code></td><td>Load and return raw ID without wrapping in <code>Image</code></td></tr>
+    <tr><td><code>loadResourceAsEditable(_ url:) throws -> ReadOnlyImage</code></td><td>Load with pixel-data access; stored in <code>_idDataCache</code></td></tr>
+    <tr><td><code>unloadResource(_ id:)</code></td><td>Removes from all caches</td></tr>
+    <tr><td><code>updateImage(_ image: EditedImage) throws -> ReadOnlyImage</code></td><td>Replaces pixel data if ID exists in <code>_idDataCache</code></td></tr>
+    <tr><td><code>toImage(_ id: ImageFlyWeight) throws -> Image</code></td><td>Wraps a fly-weight ID in a full <code>Image</code> handle</td></tr>
+    <tr><td><code>didLoseImageContext()</code></td><td>Called on graphics context loss; clears cached GPU data</td></tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2 id="fullwindow">FullWindow</h2>
+
+<p class="section-meta">Windowing/FullWindow.swift · <code>public final class FullWindow: LiteWindow</code></p>
+
+<p>The orchestrator. Extends <code>LiteWindow</code> with the full rendering stack. Drives the per-frame cycle: clear → game draw → UI draw → send → interpolate → present.</p>
+
+<h4>Properties</h4>
+<table class="prop-table">
+  <thead><tr><th>Access</th><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><span class="access-pub">pub</span></td><td><code>renderClient</code></td><td><code>RendererClient</code></td><td>Accumulates draw commands each frame</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>imageManager</code></td><td><code>ImageManager</code></td><td>Manages texture atlas and fonts</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>atlas</code></td><td><code>ImageAtlas</code></td><td>Bin-packed texture atlas</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>drawable</code></td><td><code>IDrawable?</code></td><td>Game scene; receives <code>draw(time:, client:)</code> each frame</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>rootViewController</code></td><td><code>ViewController?</code></td><td>Optional UI view controller; calls <code>drawStart()</code> each frame</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>rootView</code></td><td><code>View?</code></td><td>If set, drawn via <code>UICommandContext</code> each frame</td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>renderServer</code></td><td><code>RendererServer</code></td><td>SDL renderer owner; receives command batches</td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>drawCount</code></td><td><code>Int</code></td><td>Frame counter; reset in <code>drawStart()</code></td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>totalDrawTime</code></td><td><code>UInt64</code></td><td>Accumulated elapsed ms; passed − 100 to interpolator</td></tr>
+  </tbody>
+</table>
+
+<h4>draw(time:) — core loop</h4>
+<pre><code><span class="cm">// FullWindow.swift:193–205</span>
+<span class="kw">public override func</span> <span class="fn">draw</span>(time: <span class="ty">UInt64</span>) <span class="kw">throws</span> {
+    totalDrawTime += time
+    renderClient.<span class="fn">clearCommands</span>()                        <span class="cm">// 1. reset list</span>
+    drawable?.<span class="fn">draw</span>(time, renderClient)                    <span class="cm">// 2. game draws</span>
+    <span class="kw">if let</span> view = rootView {
+        <span class="kw">let</span> ctx = <span class="ty">UICommandContext</span>(client: renderClient,
+                      fontProvider: imageManager,
+                      rttAllocator: renderServer)
+        <span class="kw">try</span> view.<span class="fn">draw</span>(ctx, view.frame)                    <span class="cm">// 3. UI draws</span>
+    }
+    renderClient.<span class="fn">sendCommands</span>()                          <span class="cm">// 4. async send</span>
+    renderServer.drawingInterpolator.<span class="fn">draw</span>(totalDrawTime - <span class="num">100</span>)  <span class="cm">// 5. present</span>
+}</code></pre>
+
+<!-- ====================================================================== -->
+<h2 id="uicommandcontext">UICommandContext</h2>
+
+<p class="section-meta">UI/UICommandContext.swift · <code>public class UICommandContext</code></p>
+
+<p>Bridges the UIKit-like view tree into the <code>DrawCmd</code> pipeline. Views call its methods instead of SDL directly; all output is <code>DrawCmd</code> values appended to the client's <code>cmdList</code>.</p>
+
+<h4>Properties</h4>
+<table class="prop-table">
+  <thead><tr><th>Access</th><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><span class="access-pub">pub</span></td><td><code>fontProvider</code></td><td><code>IFontProvider</code></td><td>Resolves <code>FontDesc</code> → <code>Font</code>; implemented by <code>ImageManager</code></td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>client</code></td><td><code>IDraw</code></td><td>Target for <code>emit()</code>; typically <code>RendererClient</code></td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>rttAllocator</code></td><td><code>IRTTAllocator?</code></td><td>Allocates atlas regions for RTT; implemented by <code>RendererServer</code></td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>currentClipRect</code></td><td><code>Rect&lt;DValue&gt;?</code></td><td>Active scissor rect applied to emitted commands</td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>currentParentAnimationId</code></td><td><code>UInt64</code></td><td>Propagated to emitted commands for parent-relative positioning</td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>currentZ</code></td><td><code>Int</code></td><td>Auto-incrementing z; assigned to each emitted command</td></tr>
+    <tr><td><span class="access-int">int</span></td><td><code>_rttStack</code></td><td><code>[[DrawCmd]]</code></td><td>Stack of command buffers used during RTT recording</td></tr>
+  </tbody>
+</table>
+
+<h4>Methods</h4>
+<table>
+  <thead><tr><th>Method</th><th>Emits</th></tr></thead>
+  <tbody>
+    <tr><td><code>emit(_ cmd: DrawCmd)</code></td><td>Routes to <code>client.drawCmd()</code> or top of <code>_rttStack</code></td></tr>
+    <tr><td><code>drawSquare(_ dest: _ color: _ alpha:)</code></td><td><code>DrawCmd</code> type <code>.fill</code></td></tr>
+    <tr><td><code>drawText(_ text: _ font: _ pos: _ color: _ alpha: spacing:)</code></td><td>One <code>DrawCmd(.image)</code> per glyph</td></tr>
+    <tr><td><code>drawTextLine(_ text: _ pos: _ alpha:)</code></td><td>Batch draw of pre-rendered <code>RenderableCharacter</code> array</td></tr>
+    <tr><td><code>createAndDrawToTexture(_ block: size:) -> AtlasImage</code></td><td>Allocates region via <code>rttAllocator</code>, records commands into <code>_rttStack</code>, emits <code>.rtt</code></td></tr>
+    <tr><td><code>setClipRect(_ frame:)</code></td><td>Updates <code>currentClipRect</code>; subsequent commands carry the new scissor rect</td></tr>
+    <tr><td><code>nextZ()</code></td><td>Returns and post-increments <code>currentZ</code></td></tr>
+    <tr><td><code>fetchFont(_ fontDesc:)</code></td><td>Delegates to <code>fontProvider.fetchFont()</code></td></tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2 id="virtualdrive">VirtualDrive &amp; VDUrl</h2>
+
+<p class="section-meta">Resources/VirtualDrive.swift · <code>public class VirtualDrive: IFileSystem, IDataSource</code></p>
+
+<h3>VDUrl</h3>
+
+<pre><code><span class="kw">public typealias</span> <span class="ty">VDUrl</span> = <span class="ty">URL</span></code></pre>
+
+<p><code>VDUrl</code> is a type alias for <code>Foundation.URL</code>. URLs using the <code>vd://</code> scheme are routed through <code>VirtualDrive</code>; the virtual path after the scheme is resolved against the mounted package list. Standard <code>file://</code> URLs bypass the virtual drive entirely.</p>
+
+<p>Example forms:</p>
+<table>
+  <thead><tr><th>URL</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>vd://sprites/player.png</code></td><td>Resolved by <code>VirtualDrive</code> against all mounted packages</td></tr>
+    <tr><td><code>vd://fonts/Arial.ttf</code></td><td>TTF loaded from any mounted dir containing that relative path</td></tr>
+    <tr><td><code>file:///abs/path/img.png</code></td><td>Loaded directly from disk; not routed through VD</td></tr>
+  </tbody>
+</table>
+
+<h3>VirtualDrive</h3>
+
+<p><code>VirtualDrive.shared</code> is the global singleton. It aggregates any number of <code>MountedDir</code> packages into a unified virtual namespace. Resource lookups traverse packages in registration order; the first match wins.</p>
+
+<h4>Properties</h4>
+<table class="prop-table">
+  <thead><tr><th>Access</th><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><span class="access-pub">pub</span></td><td><code>shared</code></td><td><code>VirtualDrive</code></td><td><code>static let</code> — global singleton</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>packages</code></td><td><code>[MountedDir]</code></td><td>Ordered list of mounted directories; searched front-to-back</td></tr>
+  </tbody>
+</table>
+
+<h4>Methods</h4>
+<table>
+  <thead><tr><th>Method</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>mountPath(path: URL, mountDir: Substring) throws</code></td><td>Registers a directory as a new <code>MountedDir</code>. Throws if the URL is not a <code>file://</code> URL or is already mounted. <code>mountDir</code> defaults to <code>"/"</code></td></tr>
+    <tr><td><code>allItems(_ relPath: String, _ recursive: Bool) -> AnyIterator&lt;VDItem&gt;</code></td><td>Aggregates all items across all packages; recursive enumeration optional</td></tr>
+    <tr><td><code>searchByName(_ fileName: String) -> VDItem?</code></td><td>Searches all indexed packages for an item with the given filename</td></tr>
+    <tr><td><code>searchItemByName(_ name: String) -> URL?</code></td><td><code>IDataSource</code> — returns <code>vd://</code> URL for the first name match</td></tr>
+    <tr><td><code>itemAt(_ path: String) -> VDItem?</code></td><td>Looks up a specific relative path across packages</td></tr>
+    <tr><td><code>itemAt(_ url: URL) -> VDItem?</code></td><td>Resolves a <code>vd://</code> URL to a <code>VDItem</code></td></tr>
+    <tr><td><code>fetch(_ url: URL) throws -> [UInt8]</code></td><td><code>IDataSource</code> — reads file bytes; routes <code>vd://</code> through packages</td></tr>
+    <tr><td><code>readFile(_ url: VDUrl) throws -> [UInt8]?</code></td><td>Returns <code>nil</code> if not found (non-throwing variant)</td></tr>
+    <tr><td><code>readFile(_ path: String) -> [UInt8]?</code></td><td>Path-string variant; returns <code>nil</code> if not found</td></tr>
+    <tr><td><code>writeFile(_ data: [UInt8], _ url: VDUrl) throws</code></td><td>Writes to the first writable mounted package that contains the path</td></tr>
+    <tr><td><code>resolveToDirectUrl(_ item: VDItem) throws -> URL?</code></td><td>Converts a <code>vd://</code> item to a <code>file://</code> URL if the backing package is a real directory</td></tr>
+    <tr><td><code>canHandle(_ url: URL) -> Bool</code></td><td><code>IDataSource</code> — returns <code>true</code> for <code>vd://</code> scheme</td></tr>
+    <tr><td><code>removeWatcher(_ listener:)</code></td><td>Removes a <code>PackageChangeListener</code> from all packages</td></tr>
+  </tbody>
+</table>
+
+<h4>VDItem</h4>
+<pre><code><span class="kw">public struct</span> <span class="ty">VDItem</span> {
+    <span class="kw">public let</span> <span class="prop">url</span>: <span class="ty">URL</span>      <span class="cm">// vd:// URL for this item</span>
+    <span class="kw">public let</span> <span class="prop">isFile</span>: <span class="ty">Bool</span>
+    <span class="kw">public let</span> <span class="prop">isDir</span>: <span class="ty">Bool</span>
+}</code></pre>
+
+<h4>MountedDir array extensions</h4>
+<table>
+  <thead><tr><th>Method</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>[MountedDir].withName(_ name:) -> MountedDir?</code></td><td>Find package by name</td></tr>
+    <tr><td><code>[MountedDir].expectName(_ name:) throws -> MountedDir</code></td><td>Throwing variant</td></tr>
+    <tr><td><code>[MountedDir].contains(_ url: VDUrl) -> MountedDir?</code></td><td>Find the package owning a given <code>vd://</code> URL</td></tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2 id="mounteddir">MountedDir</h2>
+
+<p class="section-meta">Resources/MountedDir.swift · <code>public class MountedDir: IFileSystem</code></p>
+
+<p>Represents a single real directory mounted into the virtual drive. Handles file enumeration, read/write, and optional file-system watching (macOS via <code>EonilFSEventStream</code>).</p>
+
+<h4>PackageMeta</h4>
+<p>Parsed from the directory name at mount time. Encodes the package's name, version, and whether it is read-only.</p>
+
+<h4>Properties</h4>
+<table class="prop-table">
+  <thead><tr><th>Access</th><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><span class="access-pub">pub</span></td><td><code>meta</code></td><td><code>PackageMeta</code></td><td>Name/version metadata parsed from directory name</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>path</code></td><td><code>URL</code></td><td>Absolute <code>file://</code> URL to the directory</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>virtualPath</code></td><td><code>String</code></td><td>Mount point in the virtual namespace, e.g. <code>"/"</code></td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>isReadOnly</code></td><td><code>Bool</code></td><td>Prevents writes if <code>true</code></td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>isIndexed</code></td><td><code>Bool</code></td><td>Whether this package participates in name searches</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>isDirectory</code></td><td><code>Bool</code></td><td>Distinguishes directory mounts from single-file mounts</td></tr>
+    <tr><td><span class="access-pub">pub</span></td><td><code>fileWatchers</code></td><td><code>WeakArray&lt;PackageChangeListener&gt;</code></td><td>Computed from <code>_fileWatchers</code>; notified on file changes</td></tr>
+  </tbody>
+</table>
+
+<h4>Methods</h4>
+<table>
+  <thead><tr><th>Method</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>static newMountedDir(path: isDirectory: mountDir:) throws</code></td><td>Factory; parses <code>PackageMeta</code> from directory name, creates instance</td></tr>
+    <tr><td><code>allItems(_ relPath: _ recursive:) -> AnyIterator&lt;VDItem&gt;</code></td><td>Enumerates via <code>FileManager</code></td></tr>
+    <tr><td><code>searchByName(_ fileName:) -> VDItem?</code></td><td>Walks directory tree looking for a matching filename</td></tr>
+    <tr><td><code>itemAt(_ relPath:) -> VDItem?</code></td><td>Resolves a relative path within this package</td></tr>
+    <tr><td><code>readFile(_ relPath:) throws -> [UInt8]</code></td><td>Reads bytes from a relative path</td></tr>
+    <tr><td><code>writeFile(_ bytes: _ relPath:) throws</code></td><td>Writes bytes and notifies all <code>PackageChangeListener</code>s</td></tr>
+    <tr><td><code>startWatching(_ listener:) throws</code></td><td>macOS: starts <code>EonilFSEventStream</code>; fires <code>fileChanges()</code> on modifications</td></tr>
+    <tr><td><code>stopWatching(_ listener:)</code></td><td>Removes listener; tears down event stream when empty</td></tr>
+    <tr><td><code>resolveToDirectUrl(_ filePath:) -> URL?</code></td><td>Converts relative path to absolute <code>file://</code> URL; <code>nil</code> if not a directory mount</td></tr>
+  </tbody>
+</table>
+
+<h4>PackageChangeListener</h4>
+<pre><code><span class="kw">public protocol</span> <span class="ty">PackageChangeListener</span>: <span class="ty">AnyObject</span> {
+    <span class="kw">func</span> <span class="fn">fileChanges</span>(_ files: [<span class="ty">VDItem</span>])
+}</code></pre>
+
+<!-- ====================================================================== -->
+<h2 id="idatasource">IDataSource &amp; CombinedDataSource</h2>
+
+<p class="section-meta">BatchRenderer/CombinedDataSource.swift</p>
+
+<p><code>IDataSource</code> is the protocol that abstracts byte-level file access. Both <code>VirtualDrive</code> and individual loaders conform to it, allowing <code>ImageManager</code> to be given any data source without coupling to the VD.</p>
+
+<h4>IDataSource</h4>
+<pre><code><span class="kw">public protocol</span> <span class="ty">IDataSource</span> {
+    <span class="kw">func</span> <span class="fn">fetch</span>(_ url: <span class="ty">URL</span>) <span class="kw">throws</span> -> [<span class="ty">UInt8</span>]          <span class="cm">// read file bytes</span>
+    <span class="kw">func</span> <span class="fn">searchItemByName</span>(_ name: <span class="ty">String</span>) -> <span class="ty">URL</span>?      <span class="cm">// find URL by filename</span>
+    <span class="kw">func</span> <span class="fn">canHandle</span>(_ url: <span class="ty">URL</span>) -> <span class="ty">Bool</span>                 <span class="cm">// scheme check</span>
+}</code></pre>
+
+<h4>CombinedDataSource</h4>
+<p>Wraps multiple <code>IDataSource</code>s and fans out requests to the first source that can handle a given URL. Used to compose the VD with other sources (e.g. bundled assets, network loaders).</p>
+
+<table class="prop-table">
+  <thead><tr><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>sources</code></td><td><code>[IDataSource]</code></td><td>Ordered list; searched front-to-back per request</td></tr>
+  </tbody>
+</table>
+
+<table>
+  <thead><tr><th>Method</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>fetch(_ url:) throws -> [UInt8]</code></td><td>Delegates to first source where <code>canHandle(url)</code> returns <code>true</code></td></tr>
+    <tr><td><code>searchItemByName(_ name:) -> URL?</code></td><td>Returns first non-nil result across all sources</td></tr>
+    <tr><td><code>canHandle(_ url:) -> Bool</code></td><td>Always <code>true</code> (catch-all)</td></tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2 id="fonts">Font &amp; Glyph Loading</h2>
+
+<p class="section-meta">BatchRenderer/IRendererServer.swift · BatchRenderer/RendererServer.swift · ImageHandling/Font.swift · UI/TypeSetting/TextLine.swift · UI/UICommandContext.swift</p>
+
+<p>Font and glyph loading follows the same pattern as image loading: the server owns all SDL resources; the client holds opaque <code>UInt64</code> IDs. <code>Font</code> (SDL TTF + atlas) never crosses to the client — clients receive a lightweight <code>FontResource</code> instead.</p>
+
+<h3>FontDesc</h3>
+
+<p class="section-meta">UI/FontDesc.swift · <code>public struct FontDesc: Codable, Hashable</code></p>
+
+<table class="prop-table">
+  <thead><tr><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>family</code></td><td><code>String</code></td><td>Font family name</td></tr>
+    <tr><td><code>weight</code></td><td><code>UInt16</code></td><td>Font weight (e.g. 100)</td></tr>
+    <tr><td><code>size</code></td><td><code>Float</code></td><td>Point size</td></tr>
+    <tr><td><code>_hash</code></td><td><code>Int</code></td><td>Cached hash for use as dictionary key</td></tr>
+    <tr><td><code>defaultFont</code></td><td><code>FontDesc</code></td><td><code>static let</code> — "Alibaba PuHuiTi", weight 100, size 18</td></tr>
+  </tbody>
+</table>
+
+<h3>Font (server-side)</h3>
+
+<p class="section-meta">ImageHandling/Font.swift · <code>public class Font</code></p>
+
+<p>Holds a live SDL TTF font handle and lazily rasterizes glyphs into the shared <code>ImageAtlas</code>. Stored in <code>RendererServer._fontCache</code> keyed by <code>UInt64</code>. Clients never receive a <code>Font</code> object directly.</p>
+
+<table class="prop-table">
+  <thead><tr><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>_glyphs</code></td><td><code>[Character: AtlasImage]</code></td><td>Lazily populated glyph cache; each entry is also registered in <code>ResourceStore</code></td></tr>
+    <tr><td><code>_atlas</code></td><td><code>ImageAtlas</code></td><td>Shared texture atlas; glyphs are packed here</td></tr>
+    <tr><td><code>_font</code></td><td><code>SDLFont</code></td><td>SDL2_TTFSwift font handle; provides <code>glyphMetrics()</code>, <code>height()</code>, <code>ascent()</code>, <code>descent()</code></td></tr>
+  </tbody>
+</table>
+
+<table>
+  <thead><tr><th>Method</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>init(atlas: ImageAtlas, font: SDLFont, resourceStore: ResourceStore)</code></td><td>Accepts a <code>ResourceStore</code> so newly rasterized glyphs can be registered on creation</td></tr>
+    <tr><td><code>glyph(_ c: Character) throws -> AtlasImage</code></td><td>Returns cached <code>AtlasImage</code> or rasterizes via <code>font.renderGlyphBlended()</code>, packs into atlas, registers with <code>ResourceStore</code></td></tr>
+    <tr><td><code>resourceId(for c: Character) -> UInt64?</code></td><td>Returns the <code>ResourceStore</code> ID for a previously rasterized glyph</td></tr>
+    <tr><td><code>widthOfText(_ text: Substring, maxWidthPxs: Int) -> MeasureResult</code></td><td>Measures text width character-by-character using <code>glyphMetrics()</code></td></tr>
+  </tbody>
+</table>
+
+<h3>FontMetrics · GlyphInfo · FontResource (client-side)</h3>
+
+<p>Three lightweight value types live on the client only — no SDL, no atlas references.</p>
+
+<pre><code><span class="kw">struct</span> <span class="ty">FontMetrics</span> {
+    <span class="kw">var</span> lineHeight: <span class="ty">Int</span>
+    <span class="kw">var</span> ascender:   <span class="ty">Int</span>
+    <span class="kw">var</span> descender:  <span class="ty">Int</span>
+}
+
+<span class="kw">struct</span> <span class="ty">GlyphInfo</span> {
+    <span class="kw">var</span> resourceId: <span class="ty">UInt64</span>   <span class="cm">// key into ResourceStore — same as image IDs</span>
+    <span class="kw">var</span> advance:    <span class="ty">Int</span>
+    <span class="kw">var</span> width:      <span class="ty">Int</span>
+    <span class="kw">var</span> height:     <span class="ty">Int</span>
+    <span class="kw">var</span> bearingY:   <span class="ty">Int</span>
+}
+
+<span class="kw">class</span> <span class="ty">FontResource</span> {
+    <span class="kw">var</span> fontId:  <span class="ty">UInt64</span>
+    <span class="kw">var</span> desc:    <span class="ty">FontDesc</span>
+    <span class="kw">var</span> metrics: <span class="ty">FontMetrics</span>
+    <span class="kw">private var</span> _glyphs: [<span class="ty">Character</span>: <span class="ty">GlyphInfo</span>] = [:]
+
+    <span class="kw">func</span> <span class="fn">glyphInfo</span>(<span class="kw">for</span> c: <span class="ty">Character</span>) -> <span class="ty">GlyphInfo</span>?
+    <span class="kw">func</span> <span class="fn">cacheGlyph</span>(_ info: <span class="ty">GlyphInfo</span>, <span class="kw">for</span> c: <span class="ty">Character</span>)
+}</code></pre>
+
+<h3>IRendererServer — font API</h3>
+
+<p class="section-meta">BatchRenderer/IRendererServer.swift</p>
+
+<pre><code><span class="kw">func</span> <span class="fn">loadFont</span>(_ url: <span class="ty">VDUrl</span>) <span class="kw">async throws</span> -> <span class="ty">FontResource</span>
+<span class="kw">func</span> <span class="fn">loadFont</span>(_ url: <span class="ty">VDUrl</span>, _ choosenId: <span class="ty">UInt64</span>) <span class="kw">async throws</span> -> <span class="ty">FontResource</span>
+<span class="kw">func</span> <span class="fn">loadGlyph</span>(fontId: <span class="ty">UInt64</span>, character: <span class="ty">Character</span>) <span class="kw">async throws</span> -> <span class="ty">GlyphInfo</span>
+<span class="kw">func</span> <span class="fn">loadGlyph</span>(fontId: <span class="ty">UInt64</span>, character: <span class="ty">Character</span>, choosenId: <span class="ty">UInt64</span>) <span class="kw">async throws</span> -> <span class="ty">GlyphInfo</span></code></pre>
+
+<h3>RendererServer — font storage</h3>
+
+<p class="section-meta">BatchRenderer/RendererServer.swift</p>
+
+<table class="prop-table">
+  <thead><tr><th>Addition</th><th>Type</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>_fontCache</code></td><td><code>[UInt64: Font]</code></td><td>Server-side font store keyed by fontId; <code>Font</code> never leaves this cache</td></tr>
+    <tr><td><code>loadFont</code></td><td>method</td><td>Loads TTF via <code>ImageManager</code>, extracts <code>FontMetrics</code> from SDL TTF (<code>height()</code>, <code>ascent()</code>, <code>descent()</code>), stores <code>Font</code> in <code>_fontCache</code>, returns <code>FontResource</code></td></tr>
+    <tr><td><code>loadGlyph</code></td><td>method</td><td>Fetches <code>Font</code> from <code>_fontCache</code>, rasterizes glyph via <code>font.glyph(c)</code> (registers in <code>ResourceStore</code>), returns <code>GlyphInfo</code> with <code>resourceId</code> + layout metrics</td></tr>
+  </tbody>
+</table>
+
+<h3>IFontProvider</h3>
+
+<p class="section-meta">UI/UICommandContext.swift</p>
+
+<pre><code><span class="kw">public protocol</span> <span class="ty">IFontProvider</span> {
+    <span class="kw">func</span> <span class="fn">fetchFont</span>(desc: <span class="ty">FontDesc</span>) <span class="kw">throws</span> -> <span class="ty">Font</span>?
+}</code></pre>
+
+<p><code>ImageManager</code> conforms to this protocol. <code>UICommandContext</code> holds an <code>IFontProvider</code> for legacy text-drawing paths that still pass through a <code>Font</code> reference. The <code>loadFont</code>/<code>loadGlyph</code> API is the primary loading path; <code>IFontProvider</code> is retained for compatibility.</p>
+
+<h3>RenderableCharacter</h3>
+
+<p class="section-meta">UI/TypeSetting/TextLine.swift · <code>public struct RenderableCharacter</code></p>
+
+<p>The output of the text layout pipeline. Built by <code>RenderableCharacterIterator</code> using <code>FontResource.glyphInfo(for: c)</code> — no SDL calls, no atlas access. <code>TextLine2</code> holds an array of these.</p>
+
+<table class="prop-table">
+  <thead><tr><th>Name</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>glyphResourceId</code></td><td><code>UInt64?</code></td><td><code>nil</code> for whitespace; opaque ID into <code>ResourceStore</code> — same pattern as image resources</td></tr>
+    <tr><td><code>size</code></td><td><code>Size&lt;Int&gt;</code></td><td>Advance width + font height from <code>GlyphInfo</code></td></tr>
+    <tr><td><code>baseLine</code></td><td><code>Int</code></td><td>Font descent value; used to align glyphs to baseline</td></tr>
+    <tr><td><code>foreground</code></td><td><code>LabeledColor</code></td><td>Glyph tint color</td></tr>
+    <tr><td><code>background</code></td><td><code>LabeledColor?</code></td><td>Optional character background fill</td></tr>
+    <tr><td><code>lineBreak</code></td><td><code>LineBreak?</code></td><td>Line-breaking hint from ICU cursor</td></tr>
+  </tbody>
+</table>
+
+<h3>Text draw path</h3>
+
+<div class="seq">
+  <div class="seq-item">
+    <div class="seq-who">RendererClient</div>
+    <div class="seq-title">await loadFont(url:) → FontResource</div>
+    <div class="seq-desc">Server loads TTF via <code>ImageManager</code>, stores <code>Font</code> in <code>_fontCache</code>, returns <code>FontResource</code> with <code>fontId</code> + <code>FontMetrics</code>. Client caches the <code>FontResource</code>. Must complete before layout.</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">RendererClient</div>
+    <div class="seq-title">await loadGlyph(fontId:, character:) → GlyphInfo</div>
+    <div class="seq-desc">For each character in the expected set: server rasterizes glyph into atlas, registers <code>AtlasImage</code> in <code>ResourceStore</code>, returns <code>GlyphInfo</code>. Client calls <code>fontResource.cacheGlyph(info, for: c)</code>. Must complete before layout.</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">RenderableCharacterIterator</div>
+    <div class="seq-title">fontResource.glyphInfo(for: c) → GlyphInfo</div>
+    <div class="seq-desc">Reads advance, width, height, bearingY from the cached <code>FontResource</code>. Builds <code>RenderableCharacter { glyphResourceId: info.resourceId, size, baseLine }</code>. No SDL calls.</div>
+    <div class="seq-file">TextLine.swift</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">UICommandContext</div>
+    <div class="seq-title">drawTextLine — emits DrawCmd(.image(resourceId:))</div>
+    <div class="seq-desc">Reads <code>c.glyphResourceId</code>, emits <code>DrawCmd(.image(resourceId:))</code>. Identical to sprite rendering — no special glyph handling in <code>UICommandContext</code> or downstream.</div>
+    <div class="seq-file">UICommandContext.swift:130</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">DrawCmdInterpolator</div>
+    <div class="seq-title">draw() — fetchResource(id) → AtlasImage</div>
+    <div class="seq-desc">Resolves <code>resourceId</code> from <code>ResourceStore</code>, draws via SDL renderer. Glyphs and sprites share the same code path. No new cases in <code>DrawCmdInterpolator</code>.</div>
+    <div class="seq-file">DrawCmdInterpolator.swift</div>
+  </div>
+</div>
+
+<div class="note"><strong>RTT note.</strong> The current <code>.rtt</code> DrawCmdType has no payload — sub-commands are captured but discarded. A future implementation would use <code>.rtt(commands: [DrawCmd], targetResourceId: UInt64)</code> targeting the allocated atlas region. Glyphs inside RTT work without changes once their IDs are registered. RTT frames are not stable across logic ticks; the interpolator would need to treat RTT targets as non-lerp-able. RTT design is deferred.</div>
+
+<!-- ====================================================================== -->
+<h2 id="per-frame">Per-Frame Sequence</h2>
+
+<p>Orchestrated by <code>FullWindow.draw(time:)</code>.</p>
+
+<div class="seq">
+  <div class="seq-item">
+    <div class="seq-who">RendererClient</div>
+    <div class="seq-title">clearCommands()</div>
+    <div class="seq-desc">Empties <code>cmdList</code> from the previous frame.</div>
+    <div class="seq-file">RendererClient.swift:291 · FullWindow.swift:195</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">RendererClient</div>
+    <div class="seq-title">drawable?.draw(time, renderClient)</div>
+    <div class="seq-desc">Game objects call <code>renderClient.draw(…)</code> or <code>drawCmd(cmd)</code>. Synchronous.</div>
+    <div class="seq-file">FullWindow.swift:196</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">UICommandContext</div>
+    <div class="seq-title">view.draw(context, frame)</div>
+    <div class="seq-desc">Views call <code>context.drawSquare()</code>, <code>drawText()</code>, <code>drawTextLine()</code>, etc. Each emits <code>DrawCmd</code>s via <code>context.emit()</code> → <code>client.drawCmd()</code>. <code>drawTextLine</code> reads <code>c.glyphResourceId</code> and emits <code>DrawCmd(.image(resourceId:))</code> — same path as sprites.</div>
+    <div class="seq-file">FullWindow.swift:199 · UICommandContext.swift:52</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">RendererClient</div>
+    <div class="seq-title">sendCommands()</div>
+    <div class="seq-desc">Fires <code>Task { await server.receiveCmds(cmdList) }</code>. Fire-and-forget; game loop continues immediately.</div>
+    <div class="seq-file">RendererClient.swift:295 · FullWindow.swift:201</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">RendererServer</div>
+    <div class="seq-title">receiveCmds() — @MainActor</div>
+    <div class="seq-desc">Marshals to main actor; calls <code>resourceStore.increaseTicks()</code>; forwards to <code>drawingInterpolator.receiveCmds()</code>.</div>
+    <div class="seq-file">RendererServer.swift:40–118</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">DrawCmdInterpolator</div>
+    <div class="seq-title">receiveCmds() — buffer swap</div>
+    <div class="seq-desc">Filters image cmds into indexed list; rotates future → last; stores new batch; sorts all by <code>z</code>.</div>
+    <div class="seq-file">DrawCmdInterpolator.swift:43–67</div>
+  </div>
+  <div class="seq-item">
+    <div class="seq-who">DrawCmdInterpolator</div>
+    <div class="seq-title">draw(totalDrawTime − 100)</div>
+    <div class="seq-desc">Iterates <code>_futureAllCmds</code> by <code>z</code>. For each <code>.image</code>: looks up matching <code>animationId</code> in <code>_lastCmdList</code>; lerps; resolves parent coords; SDL draw. Fill/view/rtt drawn without interpolation.</div>
+    <div class="seq-file">DrawCmdInterpolator.swift:69–143 · FullWindow.swift:204</div>
+  </div>
+</div>
+
+<div class="note"><strong>Why − 100 ms?</strong> Rendering 100 ms behind wall clock guarantees two bracketing snapshots always exist, so motion is never extrapolated under jitter.</div>
+
+<!-- ====================================================================== -->
+<h2 id="interpolation">Interpolation Detail</h2>
+
+<h3>Buffer swap — receiveCmds()</h3>
+<pre><code><span class="cm">// DrawCmdInterpolator.swift:43–67 — simplified</span>
+<span class="kw">func</span> <span class="fn">receiveCmds</span>(_ list: [<span class="ty">DrawCmd</span>]) {
+    <span class="kw">let</span> imageOnly = list.<span class="fn">filter</span> { $0.type.<span class="fn">isImage</span>() }
+
+    _lastCmdList  = _futureCmdList
+    _lastAllCmds  = _futureAllCmds
+
+    _futureCmdList = <span class="ty">IndexedOrderedList</span>(imageOnly, keyPath: \.animationId)
+    _futureAllCmds = list.<span class="fn">sorted</span> { $0.z < $1.z }
+}</code></pre>
+
+<h3>Lerp draw — draw()</h3>
+<pre><code><span class="cm">// DrawCmdInterpolator.swift:69–143 — simplified</span>
+<span class="kw">func</span> <span class="fn">draw</span>(_ time: <span class="ty">UInt64</span>) {
+    <span class="kw">var</span> resolvedPositions: [<span class="ty">UInt64</span>: <span class="ty">Rect&lt;Int&gt;</span>] = [:]
+
+    <span class="kw">for</span> cmd <span class="kw">in</span> _futureAllCmds {                     <span class="cm">// sorted by z</span>
+        <span class="kw">switch</span> cmd.type {
+        <span class="kw">case</span> .image(<span class="kw">let</span> resourceId):
+            <span class="kw">let</span> prev         = _lastCmdList[cmd.animationId]
+            <span class="kw">let</span> interpolated  = prev.<span class="fn">map</span> { cmd.<span class="fn">lerp</span>($0, time) } ?? cmd
+            <span class="kw">let</span> absolute      = <span class="fn">resolvedDest</span>(interpolated.dest,
+                                    parentId: cmd.parentAnimationId,
+                                    positions: &amp;resolvedPositions)
+            resolvedPositions[cmd.animationId] = absolute
+            <span class="fn">drawImageCmd</span>(interpolated, resourceId: resourceId, dest: absolute)
+        <span class="kw">case</span> .fill:  <span class="fn">drawFillCmd</span>(cmd, dest: …)
+        <span class="kw">case</span> .view:  <span class="fn">drawViewCmd</span>(cmd, …)
+        <span class="kw">case</span> .rtt:   <span class="kw">break</span>
+        }
+    }
+}</code></pre>
+
+<div class="note">If <code>animationId</code> has no match in <code>_lastCmdList</code> (new entity), the current frame's command is used as-is — no interpolation artifact.</div>
+
+<!-- ====================================================================== -->
+<h2 id="summary">Summary</h2>
+
+<div class="cols">
+  <div class="col-item">
+    <h4>Value-type commands</h4>
+    <p><code>DrawCmd</code> is a struct. The full frame intent is a plain array — serializable, diffable, SDL-independent.</p>
+  </div>
+  <div class="col-item">
+    <h4>Double-buffered lerp</h4>
+    <p>Two snapshots decouple display refresh from the fixed game-logic tick rate; rendering always 100 ms behind to avoid extrapolation.</p>
+  </div>
+  <div class="col-item">
+    <h4>Parent-relative coords</h4>
+    <p><code>parentAnimationId</code> links commands in a coordinate hierarchy. The interpolator resolves absolute screen rects at draw time.</p>
+  </div>
+  <div class="col-item">
+    <h4>Resource ownership</h4>
+    <p>All SDL textures live in <code>RendererServer</code>. The client holds opaque <code>UInt64</code> IDs only. LRU eviction via tick counters.</p>
+  </div>
+  <div class="col-item">
+    <h4>Virtual filesystem</h4>
+    <p><code>VirtualDrive.shared</code> aggregates mounted directories under a unified <code>vd://</code> namespace. First-match wins across packages.</p>
+  </div>
+  <div class="col-item">
+    <h4>IDataSource abstraction</h4>
+    <p><code>ImageManager</code> accepts any <code>IDataSource</code>, allowing <code>CombinedDataSource</code> to compose VD with other loaders transparently.</p>
+  </div>
+  <div class="col-item">
+    <h4>Font/glyph ownership</h4>
+    <p>Server keeps <code>Font</code> (SDL + atlas) in <code>_fontCache</code>. Client holds <code>FontResource</code> (metrics + UID map). Glyphs flow as <code>DrawCmd(.image(resourceId:))</code> — no new infrastructure.</p>
+  </div>
+</div>
+
+<h3 style="margin-top:20px;">Source files</h3>
+<ul class="files">
+  <li>BatchRenderer/RendererClient.swift</li>
+  <li>BatchRenderer/RendererServer.swift</li>
+  <li>BatchRenderer/IRendererServer.swift</li>
+  <li>BatchRenderer/DrawCmd.swift</li>
+  <li>BatchRenderer/DrawCmdInterpolator.swift</li>
+  <li>BatchRenderer/ResourceStore.swift</li>
+  <li>BatchRenderer/CombinedDataSource.swift</li>
+  <li>UI/UICommandContext.swift</li>
+  <li>Windowing/FullWindow.swift</li>
+  <li>Resources/VirtualDrive.swift</li>
+  <li>Resources/MountedDir.swift</li>
+  <li>Util/IndexedOrderedList.swift</li>
+</ul>
+
+<hr>
+
+</body>
+</html>

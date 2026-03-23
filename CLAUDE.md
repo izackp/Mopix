@@ -107,3 +107,10 @@ Extended `Codable` with support for:
 
 ### Extra
 Ignore the .build folder
+
+## Claude Workflow Rules
+
+- **Commit after every change.** Make a git commit immediately before reporting a task as done.
+- **Push after every commit.** After every commit, push the branch to the remote immediately.
+- **Never modify branches that do not begin with `claude`.** If the current branch does not start with `claude`, stop and ask the user before making any changes.
+- **Commit footer format.** End every commit message with `Automated-By: <model name>` (no email address). Do not use `Co-Authored-By`.

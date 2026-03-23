@@ -7,6 +7,12 @@ let optCSettings = ["-Os"]
 let optimizeC = [CSetting.unsafeFlags(optCSettings)]
 let optimize:[SwiftSetting] = []//[SwiftSetting.unsafeFlags(["-cross-module-optimization", "-Ounchecked", "-g", "-debug-info-format=dwarf", "-remove-runtime-asserts", "-enforce-exclusivity=unchecked"])]
 
+#if os(Linux)
+let icuDependency: Package.Dependency = .package(url: "https://github.com/izackp/icu-swift.git", branch: "master")
+#else
+let icuDependency: Package.Dependency = .package(path: "/Users/isaacpaul/Projects/swift-projects/icu-swift")
+#endif
+
 let package = Package(
     name: "GameEngine",
     platforms: [
@@ -25,10 +31,9 @@ let package = Package(
     ],
     dependencies: [
         //.package(path: "/Users/isaacpaul/Projects/swift-projects/SDL"),
-        .package(path: "/Users/isaacpaul/Projects/swift-projects/icu-swift"),
+        icuDependency,
         .package(url: "https://github.com/izackp/SDL2-Swift.git", branch: "master"),
         .package(url: "https://github.com/izackp/EonilFSEvents.git", from:"0.1.7"),
-        //.package(url: "https://github.com/izackp/icu-swift.git", branch: "master"),
         .package(url: "https://github.com/t-ae/xorswift", from: "3.0.0"),
     ],
     targets: [

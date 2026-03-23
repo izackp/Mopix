@@ -7,7 +7,9 @@
 
 import Foundation
 import SDL2Swift
+#if os(macOS)
 import SystemFonts
+#endif
 
 public struct ImageResult {
     let image:AtlasImage
