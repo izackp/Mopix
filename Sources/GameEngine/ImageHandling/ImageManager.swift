@@ -11,7 +11,7 @@ import SDL2Swift
 import SystemFonts
 #endif
 
-public struct ImageResult {
+public struct AtlasRefAndData {
     let image:AtlasImage
     let data:PixelData
 }
@@ -116,7 +116,7 @@ public class AtlasLoader: IFontProvider {
         return image(url)
     }
     
-    public func imageAndPixels(_ url:URL) -> ImageResult? {
+    public func imageAndPixels(_ url:URL) -> AtlasRefAndData? {
         let path = url.absoluteString //TODO: probably doesn't include host
         let existingImage:AtlasImage? = nil//_imageCache[path] //TODO: Weird because we don't cache the pixels..
         do {
@@ -134,7 +134,7 @@ public class AtlasLoader: IFontProvider {
             }
             //_imageCache[path] = image
             let pixelData: PixelData = PixelData(preFormatSurface)
-            return ImageResult(image: image, data: pixelData) //Not sure if the best idea to use preformat
+            return AtlasRefAndData(image: image, data: pixelData) //Not sure if the best idea to use preformat
         } catch {
             print("Couldn't load sprite: \(error.localizedDescription)")
         }
