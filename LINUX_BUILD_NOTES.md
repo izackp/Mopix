@@ -35,4 +35,4 @@ Without this, `memcmp` is not in scope on Linux, causing a compile error in `Uni
 ## Other Linux-Specific Changes (already committed)
 
 - `Package.swift`: Uses URL-based `icu-swift` dependency on Linux via `#if os(Linux)` variable, local path on macOS.
-- `Sources/GameEngine/ImageHandling/ImageManager.swift`: `import SystemFonts` is guarded with `#if os(macOS)`.
+- `Sources/GameEngine/ImageHandling/AtlasLoader.swift`: `import SystemFonts` is guarded with `#if os(macOS)`.

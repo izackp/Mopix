@@ -3,7 +3,7 @@
 //  GameEngine
 //
 //  Routes UI rendering through the RendererClient command pipeline.
-//  This class emits DrawCmd values through IDraw and does NOT hold ImageManager.
+//  This class emits DrawCmd values through IDraw and does NOT hold AtlasLoader.
 //
 
 import Foundation
@@ -12,8 +12,8 @@ import SDL2Swift
 
 // MARK: - Protocols
 
-/// Provides font objects for text rendering. ImageManager conforms to this.
-/// UICommandContext depends on this protocol rather than ImageManager directly,
+/// Provides font objects for text rendering. AtlasLoader conforms to this.
+/// UICommandContext depends on this protocol rather than AtlasLoader directly,
 /// keeping the client side free of server-side resource management.
 public protocol IFontProvider {
     func fetchFont(desc: FontDesc) throws -> Font?

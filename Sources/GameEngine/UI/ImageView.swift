@@ -51,7 +51,7 @@ public class ImageView : View {
         try super.init(from: decoder, clipBoundsDefault: true)
         let container = try decoder.container(keyedBy: CodingKeys.self)
         if
-            let imageManager = decoder.userInfo[CodingUserInfoKey(rawValue: "imageManager")!] as? ImageManager,
+            let imageManager = decoder.userInfo[CodingUserInfoKey(rawValue: "imageManager")!] as? AtlasLoader,
             let imageName = try container.decodeIfPresent(String.self, forKey: .image) {
             self._imageSrc = imageName
             if let url = URL(string: imageName) {

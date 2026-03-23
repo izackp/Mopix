@@ -10,13 +10,13 @@ import SDL2
 import SDL2Swift
 
 public class UIRenderContext {
-    public init(renderer: Renderer, imageManger:ImageManager) {
+    public init(renderer: Renderer, imageManger:AtlasLoader) {
         self.renderer = renderer
         self.imageManager = imageManger
     }
 
     let renderer:Renderer
-    let imageManager:ImageManager
+    let imageManager:AtlasLoader
     private var _lastTexture:Int = 0
     //var lastOffset:Point<Int16> = .zero //TODO: This feels hacky
     var currentClipRect:Rect<DValue>? = nil

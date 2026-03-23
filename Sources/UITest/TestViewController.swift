@@ -12,7 +12,7 @@ public class TestViewController : ViewController, PackageChangeListener {
     
     let _source:VDUrl
 
-    static public func build(_ imageManager:ImageManager) throws -> TestViewController {
+    static public func build(_ imageManager:AtlasLoader) throws -> TestViewController {
         let vd = UITestApp.shared.vd //TODO: So do we make application shared?
         
         guard let vcUrl = vd.searchByName("TestViewController.json5")?.url else { throw GenericError("No file") }

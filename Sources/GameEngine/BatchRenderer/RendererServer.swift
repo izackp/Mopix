@@ -17,17 +17,17 @@ extension BitMaskOptionSet<Renderer.RendererFlip> {
 
 public class RendererServer {
 
-    public init(renderer: Renderer, imageManager:ImageManager) {
+    public init(renderer: Renderer, imageManager:AtlasLoader) {
         self.renderer = renderer
         self.imageManager = imageManager
         let resourceStore = ResourceStore(imageManager)
         self.resourceStore = resourceStore
         self.drawingInterpolator = DrawCmdInterpolator(renderer: renderer, resourceStore: resourceStore)
-        // Wire ResourceStore into ImageManager so newly created Fonts can register glyphs
+        // Wire ResourceStore into AtlasLoader so newly created Fonts can register glyphs
         imageManager.resourceStore = resourceStore
     }
 
-    let imageManager:ImageManager
+    let imageManager:AtlasLoader
     let resourceStore:ResourceStore
     let renderer:Renderer
     let drawingInterpolator:DrawCmdInterpolator
@@ -43,8 +43,8 @@ public class RendererServer {
     }
 }
 
-// MARK: - IRendererServer + IRTTAllocator
-extension RendererServer: IRendererServer, IRTTAllocator {
+// MARK: - IRendererServer
+extension RendererServer: IRendererServer {
     public func loadResource(_ url: VDUrl) async throws -> Image {
         try await MainActor.run() {
             try resourceStore.loadResource(url)
@@ -115,18 +115,6 @@ extension RendererServer: IRendererServer, IRTTAllocator {
         await MainActor.run() {
             receiveCmdsSync(list)
         }
-    }
-
-    // MARK: - IRTTAllocator
-
-    /// Allocates a blank atlas region and registers it with the ResourceStore.
-    /// Called by UICommandContext.createAndDrawToTexture.
-    public func allocate(size: Size<DValue>) throws -> AtlasImage {
-        let subTexture = try imageManager.atlas.saveBlankImage(size)
-        let image = AtlasImage(texture: subTexture, atlas: imageManager.atlas)
-        let id = resourceStore.registerAtlasImage(image)
-        image.resourceId = id
-        return image
     }
 
     //TODO: Use texture atlas

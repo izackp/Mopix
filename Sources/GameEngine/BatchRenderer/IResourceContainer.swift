@@ -43,7 +43,7 @@
  */
 
 /*
- init(ImageManager)
+ init(AtlasLoader)
  didLoseImageContext()
  loadResourceRaw(VDUrl) throws -> UInt64
  loadResourceRaw(PixelData) throws -> UInt64

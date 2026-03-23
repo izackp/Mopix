@@ -15,7 +15,7 @@ public final class FullWindow: LiteWindow {
     public var rootViewController:ViewController? = nil
     public var rootView:View? = nil
     public let atlas:ImageAtlas
-    public let imageManager:ImageManager
+    public let imageManager:AtlasLoader
     public var drawable:IDrawable? = nil
     
     //TODO: Replace options with features; Allow driver to change
@@ -38,7 +38,7 @@ public final class FullWindow: LiteWindow {
         
         let renderer = try Renderer(window: sdlWindow, driver: driver, options: options)
         atlas = ImageAtlas(renderer)
-        imageManager = ImageManager(atlas: atlas, dataSources: [parent.vd])
+        imageManager = AtlasLoader(atlas: atlas, dataSources: [parent.vd])
         imageManager.loadSystemFonts()
         let results = parent.vd.allItemsWithExt("ttf")
         for eachItem in results {

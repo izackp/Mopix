@@ -50,7 +50,7 @@ public class DrawCmdInterpolator {
         let oldList = _lastCmdList
         _lastCmdList = _futureCmdList
         // In Swift 5 sort() uses stable implementation
-        let sorted = imageCmds.sorted { (cmd:DrawCmdImage, other:DrawCmdImage) in
+        let sorted = imageCmds.sorted { (cmd:DrawCmd, other:DrawCmd) in
             return cmd.compare(other) == .orderedAscending
         }
         oldList.updateList(sorted, getId: DrawCmd.getId)

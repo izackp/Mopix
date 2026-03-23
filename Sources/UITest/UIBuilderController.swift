@@ -61,7 +61,7 @@ public class UIBuilderController : ViewController, PackageChangeListener {
     
     let _source:VDUrl
 
-    static public func build(_ imageManager:ImageManager) throws -> UIBuilderController {
+    static public func build(_ imageManager:AtlasLoader) throws -> UIBuilderController {
         let vd = Application.shared().vd //TODO: So do we make application shared?
         guard let vcUrl = vd.searchByName("ViewBuilder.json5")?.url else { throw GenericError("No file") }
         guard let data = try vd.readFile(vcUrl) else { throw GenericError("No Data") }

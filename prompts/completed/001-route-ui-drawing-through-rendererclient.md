@@ -125,9 +125,9 @@ Update throughout the pipeline:
 Every glyph that UIRenderContext will draw needs a stable `UInt64` resource ID registered with `ResourceStore` before any drawing occurs. Register eagerly at font load time.
 
 - When a `Font` is loaded and its glyphs are rasterised into the atlas, register each glyph's `AtlasImage` with `ResourceStore` and store the resource ID alongside the glyph in the `Font`'s glyph table.
-- Atlas images loaded via `ImageManager.image(_:)` (used by `drawImage`) must already have gone through `RendererClient.loadResource` — verify this is the case.
+- Atlas images loaded via `AtlasLoader.image(_:)` (used by `drawImage`) must already have gone through `RendererClient.loadResource` — verify this is the case.
 - `drawSquare` becomes `DrawCmdFill` — no texture or resource ID needed, remove the blank texture lookup entirely.
-- Add a lookup helper (e.g. on `Font` or `ImageManager`) so `UIRenderContext` can retrieve a resource ID for any glyph it needs to draw.
+- Add a lookup helper (e.g. on `Font` or `AtlasLoader`) so `UIRenderContext` can retrieve a resource ID for any glyph it needs to draw.
 
 **Phase 3: Update UIRenderContext to emit commands**
 
@@ -237,7 +237,7 @@ Before declaring complete:
 1. `swift build` compiles without errors
 2. `FullWindow.draw()` no longer constructs `UIRenderContext` with a raw `Renderer`
 3. `UIRenderContext` has no references to `renderer` — no `renderer.draw()`, `renderer.copy()`, `renderer.setClipRect()`, `renderer.setTarget()`, or `renderer.swapTarget()`
-4. `RendererServer` has no new references to the view tree, layout, or `ImageManager` beyond what it already held
+4. `RendererServer` has no new references to the view tree, layout, or `AtlasLoader` beyond what it already held
 5. All View subclasses compile unchanged
 6. `swift build --product UITest && .build/debug/UITest` renders visually without regression
 </verification>

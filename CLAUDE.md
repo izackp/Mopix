@@ -54,7 +54,7 @@ swift test --filter GameEngineTests.<TestName>
 
 `FullWindow` extends `LiteWindow` with the full rendering stack:
 - `RendererServer` + `RendererClient` — decoupled draw command pipeline
-- `ImageManager` + `ImageAtlas` — texture atlas and font management
+- `AtlasLoader` + `ImageAtlas` — texture atlas and font management
 - `rootViewController`/`rootView` — optional UI tree
 
 ### Rendering: `RendererClient` / `RendererServer`
@@ -64,11 +64,11 @@ Rendering is separated into a client/server model to support determinism and fut
 - The **server** (`RendererServer` → `DrawCmdInterpolator`) stores command lists and interpolates between them for smooth display even with a fixed-step logic tick.
 - `DrawCmdImage.lerp()` provides per-command linear interpolation between frames.
 
-### Resource System: `VirtualDrive` + `ImageManager`
+### Resource System: `VirtualDrive` + `AtlasLoader`
 
 `VirtualDrive` (singleton `VirtualDrive.shared`) is a virtual filesystem that aggregates `MountedDir` packages. Resources are addressed with `vd://` URLs. Call `vd.mountPath(path:)` to register a directory. `VirtualDrive` implements `IDataSource`.
 
-`ImageManager` wraps an `ImageAtlas` (bin-packed texture atlas using `EtagerePacker`). It resolves fonts via TTF files in the VD and macOS system fonts via `SystemFonts`.
+`AtlasLoader` wraps an `ImageAtlas` (bin-packed texture atlas using `EtagerePacker`). It resolves fonts via TTF files in the VD and macOS system fonts via `SystemFonts`.
 
 ### UI System
 

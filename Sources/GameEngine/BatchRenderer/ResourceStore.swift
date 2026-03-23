@@ -6,10 +6,10 @@
 //
 
 public class ResourceStore {
-    public init(_ imageManager:ImageManager) {
+    public init(_ imageManager:AtlasLoader) {
         self.imageManager = imageManager
     }
-    let imageManager:ImageManager
+    let imageManager:AtlasLoader
     
     
     var _idImageCache:[UInt64:AtlasImage] = [:] //Not a cache but a lookup table
@@ -53,28 +53,6 @@ public class ResourceStore {
         return resource
     }
 
-    /// Register an already-loaded AtlasImage under a new stable resource ID.
-    /// Returns the assigned resource ID.
-    public func registerAtlasImage(_ image: AtlasImage) -> UInt64 {
-        let uuid = genId()
-        _idImageCache[uuid] = image
-        return uuid
-    }
-
-    /// Register an already-loaded AtlasImage under a specific resource ID.
-    /// If the ID is already taken a new ID is generated. Returns the actual ID used.
-    @discardableResult
-    public func registerAtlasImage(_ image: AtlasImage, id: UInt64) -> UInt64 {
-        let uuid: UInt64
-        if idExists(id) {
-            uuid = genId()
-        } else {
-            uuid = id
-        }
-        _idImageCache[uuid] = image
-        return uuid
-    }
-    
     public func increaseTicks() {
         for eachResource in _idImageCache.values {
             eachResource.ticksSinceLastUse += 1

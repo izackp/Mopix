@@ -13,7 +13,7 @@ public class TestController : ViewController {
     
     let _source:VDUrl
 
-    static public func build(_ imageManager:ImageManager) throws -> TestController {
+    static public func build(_ imageManager:AtlasLoader) throws -> TestController {
         let vd = Application.shared().vd //TODO: So do we make application shared?
         guard let vcUrl = vd.searchByName("ViewBuilder.json5")?.url else { throw GenericError("No file") }
         guard let data = try vd.readFile(vcUrl) else { throw GenericError("No Data") }

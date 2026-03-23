@@ -24,7 +24,7 @@
 
 ### Decision 3: Resource IDs for atlas images/glyphs → eager registration at load time
 
-Each glyph and atlas image gets a stable `UInt64` resource ID registered at load time (font load, image load). By the time `UIRenderContext` draws anything, all resource IDs are pre-registered and stable. A lookup table (e.g. on `Font` or `ImageManager`) maps `AtlasImage`/glyph → resource ID.
+Each glyph and atlas image gets a stable `UInt64` resource ID registered at load time (font load, image load). By the time `UIRenderContext` draws anything, all resource IDs are pre-registered and stable. A lookup table (e.g. on `Font` or `AtlasLoader`) maps `AtlasImage`/glyph → resource ID.
 
 Stable IDs are a hard requirement — the pipeline is designed for eventual networked rendering where IDs must be consistent and durable.
 

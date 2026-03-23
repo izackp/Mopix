@@ -1,5 +1,5 @@
 //
-//  ImageManager.swift
+//  AtlasLoader.swift
 //  TestGame
 //
 //  Created by Isaac Paul on 7/2/22.
@@ -16,16 +16,16 @@ public struct ImageResult {
     let data:PixelData
 }
 
-public class ImageManager: IFontProvider {
+/// Fetches data and inserts it into an atlas. Caching should be handled by a resource store. 
+public class AtlasLoader: IFontProvider {
     let atlas:ImageAtlas
     public init(atlas: ImageAtlas, dataSources:[IDataSource]) {
         self.atlas = atlas
         self._dataSource = CombinedDataSource(dataSources)
     }
 
-
     var _dataSource:CombinedDataSource
-    var _imageCache:[String:AtlasImage] = [:]
+    //var _imageCache:[String:AtlasImage] = [:]
     var _fontList:[String:URL] = [:]
     var _fontCache:[FontDesc:Font] = [:] //TODO: Fonts should unload when no longer used
 
@@ -66,7 +66,7 @@ public class ImageManager: IFontProvider {
         if let url = _fontList[name] {
             let file = try _dataSource.fetch(url)
             let font = try SDLFont(data: file, ptSize: Int(desc.size))
-            let result = Font(atlas: atlas, font: font, resourceStore: resourceStore)
+            let result = Font(atlas: atlas, font: font)
             _fontCache[desc] = result
             return result
         }
@@ -104,9 +104,6 @@ public class ImageManager: IFontProvider {
             }
             let subTexture = try atlas.save(preFormatSurface)
             let image = AtlasImage(texture: subTexture, atlas: atlas)
-            if let store = resourceStore {
-                image.resourceId = store.registerAtlasImage(image)
-            }
             return image
         } catch {
             print("Couldn't load sprite: \(error.localizedDescription)")
@@ -123,20 +120,20 @@ public class ImageManager: IFontProvider {
         let path = url.absoluteString //TODO: probably doesn't include host
         let existingImage:AtlasImage? = nil//_imageCache[path] //TODO: Weird because we don't cache the pixels..
         do {
-            var file = try _dataSource.fetch(url)
+            var file: [UInt8] = try _dataSource.fetch(url)
         
-            let preFormatSurface = try file.withUnsafeMutableBytes { (ptr:UnsafeMutableRawBufferPointer) in
+            let preFormatSurface: Surface = try file.withUnsafeMutableBytes { (ptr:UnsafeMutableRawBufferPointer) in
                 return try Surface.init(bmpDataPtr: ptr)
             }
             let image:AtlasImage
-            if let toUse = existingImage {
+            if let toUse: AtlasImage = existingImage {
                 image = toUse
             } else {
-                let subTexture = try atlas.save(preFormatSurface)
+                let subTexture: SubTextureIndex = try atlas.save(preFormatSurface)
                 image = AtlasImage(texture: subTexture, atlas: atlas)
             }
             //_imageCache[path] = image
-            let pixelData = PixelData(preFormatSurface)
+            let pixelData: PixelData = PixelData(preFormatSurface)
             return ImageResult(image: image, data: pixelData) //Not sure if the best idea to use preformat
         } catch {
             print("Couldn't load sprite: \(error.localizedDescription)")
