@@ -76,6 +76,13 @@ that duration before the server frees them. This exists to support rollback — 
 occurs, resources the client had already released may still be needed in the frames that follow.
 A value of `0` means immediate release.
 
+### Procedural editable images maintain a command journal
+The server records every DrawCmd targeting a `procedural` editable image. On hot-reload the
+server re-copies the updated source into the image and replays the full journal on top. The
+journal resets when `copyToEditable` or `createEditableImage` is called again for that handle.
+`userGenerated` editable images are never recorded or affected by hot-reload — the client
+explicitly opts out of server-managed regeneration to preserve user data exactly as drawn.
+
 ### Pack re-upload is a hot-reload
 When a pack is re-uploaded with the same name, the server remounts it. Existing handles that
 refer to resources still present in the new pack update to the new content. Resources removed
@@ -126,9 +133,15 @@ struct WindowConfig {
 }
 
 /// Processed before DrawCmds in sendFrame. Client generates the handle upfront.
+/// Fails with a compositionError event if the handle is already in use — server logs and continues.
 enum CompositionCmd {
-    case createEditableImage(handle: ResHandle, size: Size<Int>)
-    case copyToEditable(handle: ResHandle, source: ResHandle)
+    case createEditableImage(handle: ResHandle, size: Size<Int>, kind: EditableImageKind)
+    case copyToEditable(handle: ResHandle, source: ResHandle, kind: EditableImageKind)
+}
+
+enum EditableImageKind {
+    case procedural     // server records DrawCmd journal; re-copies source + replays on hot-reload
+    case userGenerated  // server does not record; never affected by hot-reload
 }
 ```
 
@@ -349,6 +362,15 @@ enum ServerEvent {
         reason: String
     )
 
+    /// A CompositionCmd failed (e.g. handle already in use). Catastrophic programmer error.
+    /// Server logs and continues; the handle retains its existing content.
+    case compositionError(
+        clientTick: UInt64,
+        compositionIndex: Int,
+        handle: ResHandle,
+        reason: String
+    )
+
     /// Natural playback end, or stop-with-fade completed.
     case soundFinished(handle: SoundHandle)
 }
@@ -513,6 +535,42 @@ Client                              Server
 
 If the linger window expires before a rollback re-uses the resource, the next `sendFrame`
 referencing it will produce a `drawError` event — the client must re-load or re-upload.
+
+---
+
+### User Draws Over a Read-Only Image
+
+The client creates a procedural editable copy of a pack sprite. User strokes are DrawCmds
+targeting that image — the server records them in the journal. On hot-reload the server
+re-copies the updated sprite and replays all strokes automatically. No client intervention needed.
+
+```
+Client                              Server
+  |                                   |
+  |-- sendFrame(tick:1,             →|
+  |     compositions:[               |
+  |       .copyToEditable(           |
+  |         handle:0xCANVAS,         |
+  |         source:0xSPRITE,         |
+  |         kind:.procedural)],      |  ← server copies sprite; starts recording journal
+  |     cmds:[                       |
+  |       DrawCmd(target:0xCANVAS,   |  ← user stroke; server records in journal
+  |         type:.line(…))])         |
+  |                                   |
+  |-- sendFrame(tick:2, cmds:[      →|
+  |     DrawCmd(target:0xCANVAS,     |  ← another stroke; appended to journal
+  |       type:.line(…)),            |
+  |     DrawCmd(target:0,            |  ← draw result to viewport
+  |       type:.image(0xCANVAS))])   |
+  |                                   |
+  |        [pack hot-reloaded]        |
+  |                                   |   ← server re-copies updated sprite into 0xCANVAS
+  |                                   |   ← server replays both strokes from journal
+  |                                   |
+  |-- sendFrame(tick:3, cmds:[      →|  ← client unaware; result is correct automatically
+  |     DrawCmd(target:0,            |
+  |       type:.image(0xCANVAS))])   |
+```
 
 ---
 
