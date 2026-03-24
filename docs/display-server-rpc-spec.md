@@ -301,7 +301,7 @@ enum ResponseBody {
     case font(handle: ResHandle, family: String)
     case pixelData(handle: ResHandle, size: Size<Int>, data: [UInt8])  // raw RGBA, row-major
     case soundStarted(handle: SoundHandle)
-    // non-200 responses carry a plain string body; no typed error case
+    case errorDetail(String)                                           // non-200 responses
 }
 
 // ── Events ───────────────────────────────────────────────────────────────────
