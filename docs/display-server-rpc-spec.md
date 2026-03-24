@@ -69,8 +69,9 @@ the same load/upload/release lifecycle as image and font resources.
 
 ### Resource linger duration is set by the client
 When a client connects it declares a `resourceLingerMs` value. Released resources are held for
-that duration before the server frees them. This gives rollback-capable engines a window to
-re-render old frames without reloading. A value of `0` means immediate release.
+that duration before the server frees them. This exists to support rollback — when a rollback
+occurs, resources the client had already released may still be needed in the frames that follow.
+A value of `0` means immediate release.
 
 ### Pack re-upload is a hot-reload
 When a pack is re-uploaded with the same name, the server remounts it. Existing handles that
