@@ -8,13 +8,16 @@ are implementation details.
 
 ## Supported Features
 
-- **Rendering** — images, solid fills, UI views, text
+- **Rendering** — images, solid fills, UI views, text, shapes
+- **Image composition** — draw commands can target an editable image instead of the viewport; supports RTT, palette swaps, dynamic textures
 - **Audio** — play, stop, pause, resume, live parameter updates (volume, pan, pitch)
+- **Screenshot** — client requests pixel data of the current composed frame
+- **Window configuration** — fullscreen, vsync, window title
 - **Multi-client split screen** — automatic viewport assignment and rebalancing
-- **Client-controlled scale** — client sets its own logical-to-physical scale, typically in response to a `viewportChanged` event
+- **Client-controlled scale** — client sets its own logical-to-physical scale
 - **Resource packs** — client uploads a bundle; server mounts it as a VirtualDrive package
-- **Resource management** — load from mounted pack by VDUrl, upload individual assets, release, linger
-- **Image derivation** — client requests pixel data for a server-composed resource, modifies locally, uploads result as a new resource
+- **Resource management** — load from mounted pack (read-only, hot-reloadable), upload individual assets (client-owned), create editable images, release, linger
+- **Image derivation** — client requests pixel data for a server-held resource, modifies locally, uploads result as a new resource
 - **Rollback support** — released resources linger for a client-configured duration before the server frees them
 
 ---
@@ -115,17 +118,30 @@ struct Rect<T>    { let x: T; let y: T; let width: T; let height: T }
 struct EdgeInsets { let top, right, bottom, left: Int }
 
 enum ResourceKind { case image, sound, font }
+
+struct WindowConfig {
+    var title: String
+    var fullscreen: Bool
+    var vsync: Bool
+}
+
+/// Processed before DrawCmds in sendFrame. Client generates the handle upfront.
+enum CompositionCmd {
+    case createEditableImage(handle: ResHandle, size: Size<Int>)
+    case copyToEditable(handle: ResHandle, source: ResHandle)
+}
 ```
 
 ---
 
 ## Draw Commands
 
-Extends the existing `DrawCmd` / `DrawCmdType` with a `text` case.
-The server implicitly targets the submitting client's viewport — there is no viewport field.
+`DrawCmd` gains a `target` field and new shape types. `target` is a `UInt64` where `0` means
+the client's viewport and any other value is the `ResHandle` of an editable image.
 
 ```swift
 struct DrawCmd {
+    let target: UInt64              // 0 = viewport; non-zero = editable image ResHandle
     let animationId: UInt64
     let parentAnimationId: UInt64
     let dest: Rect<Int>
@@ -145,7 +161,9 @@ enum DrawCmdType {
     case fill
     case view(borderColor: SDLColor, borderWidth: Int)
     case text(fontHandle: ResHandle, content: String, size: Float, align: TextAlignment)
-    case rtt  // reserved
+    case line(to: Point<Int>, thickness: Int)     // color from DrawCmd.color
+    case circle(radius: Int, filled: Bool)         // centered on DrawCmd.dest origin
+    case rect(filled: Bool)                        // uses DrawCmd.dest
 }
 
 enum TextAlignment { case left, center, right }
@@ -181,6 +199,10 @@ enum ClientMessage {
         logicalSize: Size<Int>,
         scale: Float
     )
+
+    /// Update window properties.
+    /// → Response (body: none) | Response (error)
+    case setWindowConfig(requestId: RequestId, config: WindowConfig)
 
 
     // ── Resource Packs ───────────────────────────────────────────────────────
@@ -229,13 +251,18 @@ enum ClientMessage {
 
     // ── Render ───────────────────────────────────────────────────────────────
 
-    /// Submit one frame's draw commands. Fire-and-forget.
-    /// Implicitly targets this client's viewport.
+    /// Submit one frame. Fire-and-forget.
+    /// compositions are processed first in order, then cmds are executed.
+    /// DrawCmds with target=0 draw to the viewport; non-zero targets draw to an editable image.
     /// Commands referencing unloaded resources are skipped; server emits drawError event.
     case sendFrame(
         clientTick: UInt64,
+        compositions: [CompositionCmd],
         cmds: [DrawCmd]
     )
+
+    /// → Response (body: pixelData) | Response (error)
+    case screenshot(requestId: RequestId)
 
 
     // ── Audio ─────────────────────────────────────────────────────────────────
@@ -299,7 +326,7 @@ enum ResponseBody {
     case image(handle: ResHandle, size: Size<Int>)          // logical pixels at density 1.0
     case sound(handle: ResHandle, durationMs: UInt32, channels: UInt8)
     case font(handle: ResHandle, family: String)
-    case pixelData(handle: ResHandle, size: Size<Int>, data: [UInt8])  // raw RGBA, row-major
+    case pixelData(handle: ResHandle, size: Size<Int>, data: [UInt8])  // raw RGBA, row-major; for requestPixelData and screenshot
     case soundStarted(handle: SoundHandle)
     case errorDetail(String)                                           // non-200 responses
 }
@@ -394,6 +421,34 @@ Client                              Server
   |     scale:2.0)                    |
   |                                   |
   |-- disconnect                    →|
+```
+
+---
+
+### Server-Side Image Composition
+
+The client creates an editable image, draws onto it within the same frame, then uses the
+result as a source in subsequent frames.
+
+```
+Client                              Server
+  |                                   |
+  |  [client generates handle 0xCAFE] |
+  |                                   |
+  |-- sendFrame(tick:N,             →|
+  |     compositions:[               |
+  |       .copyToEditable(           |
+  |          handle:0xCAFE,          |
+  |          source:0xABCD)],        |  ← copy read-only sprite into editable image
+  |     cmds:[                       |
+  |       DrawCmd(target:0xCAFE,     |  ← draw a tint onto the editable image
+  |         type:.fill, color:red),  |
+  |       DrawCmd(target:0,          |  ← draw the original to viewport as normal
+  |         type:.image(0xABCD))])   |
+  |                                   |
+  |-- sendFrame(tick:N+1, cmds:[    →|  ← use the composed result
+  |     DrawCmd(target:0,            |
+  |       type:.image(0xCAFE))])     |
 ```
 
 ---
