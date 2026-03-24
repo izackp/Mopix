@@ -85,9 +85,9 @@ raw bytes deserialized by the caller into the appropriate type based on the requ
 Unsolicited server messages (events) are a separate category with no `requestId`.
 Wire layout is an implementation detail.
 
-### Error codes are strings in MVP
-`reason` fields are human-readable strings for MVP. A future revision should replace them with
-a typed enum to avoid stringly-typed error handling across language boundaries.
+### Error body is a string
+When a response has a non-200 status code, the body is a human-readable string describing the
+error. No further structure is defined.
 
 ---
 
@@ -301,7 +301,7 @@ enum ResponseBody {
     case font(handle: ResHandle, family: String)
     case pixelData(handle: ResHandle, size: Size<Int>, data: [UInt8])  // raw RGBA, row-major
     case soundStarted(handle: SoundHandle)
-    case errorDetail(reason: String)                        // additional context on non-200
+    // non-200 responses carry a plain string body; no typed error case
 }
 
 // ── Events ───────────────────────────────────────────────────────────────────
@@ -339,18 +339,17 @@ enum ServerEvent {
 | 409 | Name conflict |
 | 500 | Server error |
 
-## Error Reasons
+## Error Body
 
-Strings for MVP; replace with a typed enum in a future revision.
+When a response has a non-200 status code, the body is a human-readable string. Examples:
 
-| Reason | Situation |
+| Status | Example string |
 |---|---|
-| `"resource_not_found"` | URL not present in any mounted pack |
-| `"unsupported_format"` | File format not supported |
-| `"atlas_full"` | Texture atlas has no space remaining |
-| `"resource_not_loaded"` | DrawCmd references a handle that was never loaded |
-| `"unknown_client"` | Message received from an unrecognised ClientId |
-| `"version_mismatch"` | Client and server protocol versions are incompatible |
+| 404 | `"resource not found in any mounted pack"` |
+| 400 | `"unsupported format"` |
+| 500 | `"atlas full"` |
+| 400 | `"unknown client"` |
+| 400 | `"version mismatch"` |
 
 ---
 
