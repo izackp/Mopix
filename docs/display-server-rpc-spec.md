@@ -39,9 +39,9 @@ Both values are always required together to keep serialization simple. Scale is 
 The server applies whatever the client specifies — it does not compute or impose either value.
 
 ### Camera / game world scaling is the client's problem
-The server scales a fixed logical canvas. Whether to scale up or reveal more game world when
-the viewport changes is a game design decision — the client's camera does that transform before
-submitting draw commands. The server never knows about world space.
+The client submits draw commands in logical coordinates. Whether to scale up or reveal more
+game world when the viewport changes is a game design decision — the client's camera does that
+transform before submitting draw commands. The server never knows about world space.
 
 ### Viewport assignment is a server implementation detail
 The server assigns physical screen regions to clients internally. How it divides the screen
