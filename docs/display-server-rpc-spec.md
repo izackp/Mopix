@@ -76,12 +76,12 @@ that duration before the server frees them. This exists to support rollback — 
 occurs, resources the client had already released may still be needed in the frames that follow.
 A value of `0` means immediate release.
 
-### Procedural editable images maintain a command journal
-The server records every DrawCmd targeting a `procedural` editable image. On hot-reload the
-server re-copies the updated source into the image and replays the full journal on top. The
-journal resets when `copyToEditable` or `createEditableImage` is called again for that handle.
-`userGenerated` editable images are never recorded or affected by hot-reload — the client
-explicitly opts out of server-managed regeneration to preserve user data exactly as drawn.
+### Procedural images maintain a command journal
+The server records every DrawCmd targeting a `createProceduralImage` or `copyToProceduralImage`
+handle. On hot-reload the server re-copies the updated source into the image and replays the
+full journal on top. The journal resets when the same handle is re-initialized via another
+composition command. Images created via `createEditableImage` or `copyToEditable` are never
+recorded or affected by hot-reload — the client explicitly opts out to preserve user data.
 
 ### Pack re-upload is a hot-reload
 When a pack is re-uploaded with the same name, the server remounts it. Existing handles that
@@ -135,13 +135,10 @@ struct WindowConfig {
 /// Processed before DrawCmds in sendFrame. Client generates the handle upfront.
 /// Fails with a compositionError event if the handle is already in use — server logs and continues.
 enum CompositionCmd {
-    case createEditableImage(handle: ResHandle, size: Size<Int>, kind: EditableImageKind)
-    case copyToEditable(handle: ResHandle, source: ResHandle, kind: EditableImageKind)
-}
-
-enum EditableImageKind {
-    case procedural     // server records DrawCmd journal; re-copies source + replays on hot-reload
-    case userGenerated  // server does not record; never affected by hot-reload
+    case createEditableImage(handle: ResHandle, size: Size<Int>)      // userGenerated; not affected by hot-reload
+    case createProceduralImage(handle: ResHandle, size: Size<Int>)    // server records journal; regenerated on hot-reload
+    case copyToEditable(handle: ResHandle, source: ResHandle)         // userGenerated; not affected by hot-reload
+    case copyToProceduralImage(handle: ResHandle, source: ResHandle)  // server records journal; regenerated on hot-reload
 }
 ```
 
@@ -461,7 +458,7 @@ Client                              Server
   |     compositions:[               |
   |       .copyToEditable(           |
   |          handle:0xCAFE,          |
-  |          source:0xABCD)],        |  ← copy read-only sprite into editable image
+  |          source:0xABCD)],        |  ← copy sprite into editable image (userGenerated)
   |     cmds:[                       |
   |       DrawCmd(target:0xCAFE,     |  ← draw a tint onto the editable image
   |         type:.fill, color:red),  |
@@ -549,10 +546,9 @@ Client                              Server
   |                                   |
   |-- sendFrame(tick:1,             →|
   |     compositions:[               |
-  |       .copyToEditable(           |
+  |       .copyToProceduralImage(   |
   |         handle:0xCANVAS,         |
-  |         source:0xSPRITE,         |
-  |         kind:.procedural)],      |  ← server copies sprite; starts recording journal
+  |         source:0xSPRITE)],       |  ← server copies sprite; starts recording journal
   |     cmds:[                       |
   |       DrawCmd(target:0xCANVAS,   |  ← user stroke; server records in journal
   |         type:.line(…))])         |
