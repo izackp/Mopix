@@ -46,8 +46,8 @@ transform before submitting draw commands. The server never knows about world sp
 ### Viewport assignment is a server implementation detail
 The server assigns physical screen regions to clients internally. How it divides the screen
 (e.g. split screen policy) is not part of this spec. When the assignment changes, the server
-emits a `viewportChanged` event with the new physical size. The client responds by calling
-`setScale` with whatever scale it chooses.
+emits a `viewportChanged` event with the new physical size. The client may call
+`setDisplayConfig` in response, but is not required to.
 
 ### Fixed tick + interpolation
 The server runs a fixed-tick loop with interpolation for smooth display, mirroring the existing
@@ -174,7 +174,6 @@ enum ClientMessage {
     case ping(requestId: RequestId, clientTick: UInt64)
 
     /// Update logical canvas size and scale together.
-    /// Typically called on connect response and again on viewportChanged.
     /// → Response (body: none) | Response (error)
     case setDisplayConfig(
         requestId: RequestId,
@@ -309,7 +308,6 @@ enum ResponseBody {
 enum ServerEvent {
 
     /// Sent to all affected clients when their physical viewport region changes.
-    /// The client should respond with setScale to update its rendering scale.
     case viewportChanged(
         physicalSize: Size<Int>,
         safeArea: EdgeInsets
