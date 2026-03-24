@@ -33,9 +33,10 @@ The server never pulls.
 
 ### Logical coordinates, client sets scale
 Each client declares a `logicalSize` at connect time (e.g. 320×240). All draw commands are
-submitted in that coordinate space. The client explicitly sets the scale via `setScale`,
-typically in response to a `viewportChanged` event. The server applies whatever scale the
-client specifies — it does not compute or impose one.
+submitted in that coordinate space. The client may update both `logicalSize` and `scale`
+at runtime via `setDisplayConfig`, typically in response to a `viewportChanged` event.
+Both values are always required together to keep serialization simple. Scale is fractional.
+The server applies whatever the client specifies — it does not compute or impose either value.
 
 ### Camera / game world scaling is the client's problem
 The server scales a fixed logical canvas. Whether to scale up or reveal more game world when
@@ -172,10 +173,14 @@ enum ClientMessage {
     /// → Response (body: pong)
     case ping(requestId: RequestId, clientTick: UInt64)
 
-    /// Set the logical-to-physical scale the server applies when rendering this client.
-    /// Typically called in response to a viewportChanged event.
+    /// Update logical canvas size and scale together.
+    /// Typically called on connect response and again on viewportChanged.
     /// → Response (body: none) | Response (error)
-    case setScale(requestId: RequestId, scale: Float)
+    case setDisplayConfig(
+        requestId: RequestId,
+        logicalSize: Size<Int>,
+        scale: Float
+    )
 
 
     // ── Resource Packs ───────────────────────────────────────────────────────
@@ -362,7 +367,9 @@ Client                              Server
   |←-- response(200, body:none)       |  ← connected; clientId assigned
   |←-- event(.viewportChanged(        |  ← server reports initial physical size
   |     physicalSize:1280×720, …))    |
-  |-- setScale(scale:4.0)           →|  ← client sets scale (1280/320 = 4.0)
+  |-- setDisplayConfig(             →|  ← client sets logical size + scale
+  |     logicalSize:320×240,          |
+  |     scale:4.0)                    |
   |←-- response(200, body:none)       |
   |                                   |
   |-- uploadPack(name:"Assets", …)  →|
@@ -384,7 +391,9 @@ Client                              Server
   |                                   |
   |             [client 2 connects — layout rebalances]
   |←-- event(.viewportChanged(physicalSize:640×720, …))
-  |-- setScale(scale:2.0)           →|  ← client adapts to new physical size
+  |-- setDisplayConfig(             →|  ← client adapts to new physical size
+  |     logicalSize:320×240,          |
+  |     scale:2.0)                    |
   |                                   |
   |-- disconnect                    →|
 ```
