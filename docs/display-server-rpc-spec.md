@@ -11,22 +11,11 @@ are implementation details.
 - **Rendering** — images, solid fills, UI views, text
 - **Audio** — play, stop, pause, resume, live parameter updates (volume, pan, pitch)
 - **Multi-client split screen** — automatic viewport assignment and rebalancing
+- **Client-controlled scale** — client sets its own logical-to-physical scale, typically in response to a `viewportChanged` event
 - **Resource packs** — client uploads a bundle; server mounts it as a VirtualDrive package
 - **Resource management** — load from mounted pack by VDUrl, upload individual assets, release, linger
 - **Image derivation** — client requests pixel data for a server-composed resource, modifies locally, uploads result as a new resource
 - **Rollback support** — released resources linger for a client-configured duration before the server frees them
-
-### Split Screen Layout Policy
-
-The server automatically assigns and rebalances viewports; clients have no layout API.
-
-| Clients | Layout |
-|---|---|
-| 1 | Full screen |
-| 2 | 50/50 horizontal split |
-| 3 | Left half (client 1) + right half split vertically (clients 2 & 3) |
-| 4 | Quadrants |
-| 5+ | Uniform grid (TBD) |
 
 ---
 
@@ -42,21 +31,22 @@ Atlas packing is a server implementation detail. Either side can compose images 
 rasterization); the client may retrieve server-composed results via `requestPixelData`.
 The server never pulls.
 
-### Logical coordinates, server scales
+### Logical coordinates, client sets scale
 Each client declares a `logicalSize` at connect time (e.g. 320×240). All draw commands are
-submitted in that coordinate space. The server scales to fit the client's physical viewport.
-The client never thinks about physical pixels unless it explicitly reads `scaleFactor` from the
-connection response (e.g. to select a higher-density asset variant).
+submitted in that coordinate space. The client explicitly sets the scale via `setScale`,
+typically in response to a `viewportChanged` event. The server applies whatever scale the
+client specifies — it does not compute or impose one.
 
 ### Camera / game world scaling is the client's problem
 The server scales a fixed logical canvas. Whether to scale up or reveal more game world when
 the viewport changes is a game design decision — the client's camera does that transform before
 submitting draw commands. The server never knows about world space.
 
-### Viewports are automatic, not an API
-Clients do not request or configure viewports. The server assigns screen regions automatically
-based on how many clients are connected and rebalances when they join or leave. All affected
-clients receive a `viewportChanged` event and adapt their own camera/UI layout.
+### Viewport assignment is a server implementation detail
+The server assigns physical screen regions to clients internally. How it divides the screen
+(e.g. split screen policy) is not part of this spec. When the assignment changes, the server
+emits a `viewportChanged` event with the new physical size. The client responds by calling
+`setScale` with whatever scale it chooses.
 
 ### Fixed tick + interpolation
 The server runs a fixed-tick loop with interpolation for smooth display, mirroring the existing
@@ -181,6 +171,11 @@ enum ClientMessage {
 
     /// → Response (body: pong)
     case ping(requestId: RequestId, clientTick: UInt64)
+
+    /// Set the logical-to-physical scale the server applies when rendering this client.
+    /// Typically called in response to a viewportChanged event.
+    /// → Response (body: none) | Response (error)
+    case setScale(requestId: RequestId, scale: Float)
 
 
     // ── Resource Packs ───────────────────────────────────────────────────────
@@ -308,10 +303,10 @@ enum ResponseBody {
 
 enum ServerEvent {
 
-    /// Sent to all affected clients when layout rebalances (client joins or leaves).
+    /// Sent to all affected clients when their physical viewport region changes.
+    /// The client should respond with setScale to update its rendering scale.
     case viewportChanged(
         physicalSize: Size<Int>,
-        scaleFactor: Float,
         safeArea: EdgeInsets
     )
 
@@ -365,6 +360,10 @@ Client                              Server
   |-- connect(logicalSize:320×240,  →|
   |     resourceLingerMs:500)         |
   |←-- response(200, body:none)       |  ← connected; clientId assigned
+  |←-- event(.viewportChanged(        |  ← server reports initial physical size
+  |     physicalSize:1280×720, …))    |
+  |-- setScale(scale:4.0)           →|  ← client sets scale (1280/320 = 4.0)
+  |←-- response(200, body:none)       |
   |                                   |
   |-- uploadPack(name:"Assets", …)  →|
   |←-- response(200, body:none)       |  ← pack mounted as vd://Assets/…
@@ -385,6 +384,7 @@ Client                              Server
   |                                   |
   |             [client 2 connects — layout rebalances]
   |←-- event(.viewportChanged(physicalSize:640×720, …))
+  |-- setScale(scale:2.0)           →|  ← client adapts to new physical size
   |                                   |
   |-- disconnect                    →|
 ```
