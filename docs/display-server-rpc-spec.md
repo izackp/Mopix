@@ -1,7 +1,8 @@
 # Display Server RPC Specification — MVP
 
 A network-capable display server supporting rendering, audio, and multi-client split screen.
-The spec defines the abstraction layer only; serialization format and transport are implementation details.
+The spec defines the abstraction layer only; serialization format, wire layout, and transport
+are implementation details.
 
 ---
 
@@ -10,9 +11,10 @@ The spec defines the abstraction layer only; serialization format and transport 
 - **Rendering** — images, solid fills, UI views, text
 - **Audio** — play, stop, pause, resume, live parameter updates (volume, pan, pitch)
 - **Multi-client split screen** — automatic viewport assignment and rebalancing
-- **Resource management** — declare (server-side VD), upload (client push), release, linger
-- **Image derivation** — client can request pixel data for an existing resource, modify it locally, and upload the result as a new resource
-- **Rollback support** — released resources linger for a client-configured duration before the server frees them, ensuring prior frames can still be re-rendered during a rollback window
+- **Resource packs** — client uploads a bundle; server mounts it as a VirtualDrive package
+- **Resource management** — load from mounted pack by VDUrl, upload individual assets, release, linger
+- **Image derivation** — client requests pixel data for a server-composed resource, modifies locally, uploads result as a new resource
+- **Rollback support** — released resources linger for a client-configured duration before the server frees them
 
 ### Split Screen Layout Policy
 
@@ -30,10 +32,15 @@ The server automatically assigns and rebalances viewports; clients have no layou
 
 ## Key Decisions
 
-### Clients own resource metadata, server owns resources
-When a resource is loaded, the server returns metadata (image size, sound duration, font family)
-to the client. The client caches this locally and can answer queries like "how wide is this sprite?"
-without round-tripping the server. The server holds the actual texture/audio data.
+> These are decisions made by the project owner. They represent intentional design choices,
+> not defaults or suggestions.
+
+### The client always initiates and is the source of all resources
+The client produces resource packs and uploads them for the server to mount. Individual
+resources are loaded from a mounted pack by VDUrl, or uploaded directly as raw bytes.
+Atlas packing is a server implementation detail. Either side can compose images (RTT, text
+rasterization); the client may retrieve server-composed results via `requestPixelData`.
+The server never pulls.
 
 ### Logical coordinates, server scales
 Each client declares a `logicalSize` at connect time (e.g. 320×240). All draw commands are
@@ -49,7 +56,7 @@ submitting draw commands. The server never knows about world space.
 ### Viewports are automatic, not an API
 Clients do not request or configure viewports. The server assigns screen regions automatically
 based on how many clients are connected and rebalances when they join or leave. All affected
-clients receive a `viewportChanged` notification and adapt their own camera/UI layout.
+clients receive a `viewportChanged` event and adapt their own camera/UI layout.
 
 ### Fixed tick + interpolation
 The server runs a fixed-tick loop with interpolation for smooth display, mirroring the existing
@@ -57,23 +64,34 @@ The server runs a fixed-tick loop with interpolation for smooth display, mirrori
 `clientTick`. The server interpolates between the last two received batches.
 
 ### Fire-and-forget frames, async resource responses
-`sendFrame` is fire-and-forget for MVP — no per-frame ack. Resource operations
-(`declareResource`, `uploadResource`) are matched by `requestId` so clients can track load state
-asynchronously.
+`sendFrame` is fire-and-forget for MVP — no per-frame ack. Resource operations are matched by
+`requestId` so clients can track load state asynchronously.
 
 ### Missing resource: skip + error
 If a `DrawCmd` references a resource that hasn't been loaded yet, the server silently skips
-that command and emits a `drawError` response. The client is responsible for ensuring resources
+that command and emits a `drawError` event. The client is responsible for ensuring resources
 are ready before drawing.
 
 ### Audio is part of the same server
 Sound playback is handled by the display server, not a separate service. Audio resources follow
-the same declare/upload/release lifecycle as image and font resources.
+the same load/upload/release lifecycle as image and font resources.
 
 ### Resource linger duration is set by the client
 When a client connects it declares a `resourceLingerMs` value. Released resources are held for
 that duration before the server frees them. This gives rollback-capable engines a window to
 re-render old frames without reloading. A value of `0` means immediate release.
+
+### Pack re-upload is a hot-reload
+When a pack is re-uploaded with the same name, the server remounts it. Existing handles that
+refer to resources still present in the new pack update to the new content. Resources removed
+from the pack stay in memory while handles reference them, but new `loadResource` calls for
+those URLs will fail.
+
+### Responses use HTTP-inspired status codes with an opaque body
+All request responses share a single envelope: a status code and an optional body. The body is
+raw bytes deserialized by the caller into the appropriate type based on the request kind.
+Unsolicited server messages (events) are a separate category with no `requestId`.
+Wire layout is an implementation detail.
 
 ### Error codes are strings in MVP
 `reason` fields are human-readable strings for MVP. A future revision should replace them with
@@ -83,12 +101,12 @@ a typed enum to avoid stringly-typed error handling across language boundaries.
 
 ## Conventions
 
-- All messages are fire-and-forget unless marked `// → response`.
-  The server sends responses asynchronously; clients match them by `requestId`.
+- All client messages are fire-and-forget unless they carry a `requestId`, in which case the
+  server sends a `Response` asynchronously.
 - `ResHandle` and `SoundHandle` IDs are random and client-generated (mirrors existing `genId()`
   pattern), except `ClientId` which is server-assigned on connect.
 - Draw commands referencing an unloaded resource are silently skipped; the server emits a
-  `drawError` response.
+  `drawError` event.
 
 ---
 
@@ -150,7 +168,7 @@ enum ClientMessage {
 
     // ── Session ──────────────────────────────────────────────────────────────
 
-    /// → Connected | ErrorResponse
+    /// → Response (body: none) | Response (error)
     case connect(
         requestId: RequestId,
         name: String,
@@ -161,23 +179,35 @@ enum ClientMessage {
 
     case disconnect
 
-    /// → Pong
+    /// → Response (body: pong)
     case ping(requestId: RequestId, clientTick: UInt64)
+
+
+    // ── Resource Packs ───────────────────────────────────────────────────────
+
+    /// Upload a resource pack for the server to mount as a VirtualDrive package.
+    /// Re-uploading the same name remounts with new content (hot-reload).
+    /// → Response (body: none) | Response (error)
+    case uploadPack(
+        requestId: RequestId,
+        name: String,               // becomes the vd:// host, e.g. vd://Assets/…
+        data: [UInt8]               // complete pack bundle
+    )
 
 
     // ── Resources ────────────────────────────────────────────────────────────
 
-    /// Server loads from its own VirtualDrive.
-    /// → ImageReady | SoundReady | FontReady | ResourceError
-    case declareResource(
+    /// Load a resource from a mounted pack by VDUrl.
+    /// → Response (body: image | sound | font) | Response (error)
+    case loadResource(
         requestId: RequestId,
         url: VDUrl,
         kind: ResourceKind,
         density: Float = 1.0        // for selecting @2x/@4x asset variants
     )
 
-    /// Client pushes raw bytes to the server.
-    /// → ImageReady | SoundReady | FontReady | ResourceError
+    /// Upload a single resource as raw bytes.
+    /// → Response (body: image | sound | font) | Response (error)
     case uploadResource(
         requestId: RequestId,
         url: VDUrl,
@@ -186,15 +216,14 @@ enum ClientMessage {
         data: [UInt8]
     )
 
-    /// Request raw pixel data for an existing image resource.
-    /// Used to derive a new image by reading, modifying, then uploading.
-    /// → PixelData | ResourceError
+    /// Request raw pixel data for a server-held resource (e.g. a server-composed image).
+    /// → Response (body: pixelData) | Response (error)
     case requestPixelData(
         requestId: RequestId,
         handle: ResHandle
     )
 
-    /// Releases the resource. Server holds it for resourceLingerMs before freeing.
+    /// Release the resource. Server holds it for resourceLingerMs before freeing.
     case releaseResource(handle: ResHandle)
 
 
@@ -202,7 +231,7 @@ enum ClientMessage {
 
     /// Submit one frame's draw commands. Fire-and-forget.
     /// Implicitly targets this client's viewport.
-    /// Commands referencing unloaded resources are skipped; server emits DrawError.
+    /// Commands referencing unloaded resources are skipped; server emits drawError event.
     case sendFrame(
         clientTick: UInt64,
         cmds: [DrawCmd]
@@ -211,7 +240,7 @@ enum ClientMessage {
 
     // ── Audio ─────────────────────────────────────────────────────────────────
 
-    /// → SoundStarted | ErrorResponse
+    /// → Response (body: soundStarted) | Response (error)
     case playSound(
         requestId: RequestId,
         handle: ResHandle,
@@ -241,18 +270,43 @@ struct SoundParams {
 
 ## Server → Client Messages
 
+Server messages are either **responses** (tied to a `requestId`) or **events** (unsolicited).
+
 ```swift
 enum ServerMessage {
+    case response(Response)   // always tied to a requestId
+    case event(ServerEvent)   // unsolicited
+}
 
-    // ── Session ───────────────────────────────────────────────────────────────
+// ── Responses ────────────────────────────────────────────────────────────────
 
-    case connected(
-        requestId: RequestId,
-        clientId: ClientId,
-        physicalSize: Size<Int>,    // actual pixels assigned to this client's viewport
-        scaleFactor: Float,         // physical pixels per logical point
-        safeArea: EdgeInsets        // margins for notch / overscan
-    )
+struct Response {
+    let requestId: RequestId
+    let status: ResponseStatus
+    let body: ResponseBody?   // nil for ack-only success; wire layout is implementation detail
+}
+
+enum ResponseStatus: UInt16 {
+    case ok          = 200
+    case badRequest  = 400    // malformed message
+    case notFound    = 404    // resource URL not found in mounted pack
+    case conflict    = 409    // e.g. name collision
+    case serverError = 500
+}
+
+enum ResponseBody {
+    case pong(serverTick: UInt64)
+    case image(handle: ResHandle, size: Size<Int>)          // logical pixels at density 1.0
+    case sound(handle: ResHandle, durationMs: UInt32, channels: UInt8)
+    case font(handle: ResHandle, family: String)
+    case pixelData(handle: ResHandle, size: Size<Int>, data: [UInt8])  // raw RGBA, row-major
+    case soundStarted(handle: SoundHandle)
+    case errorDetail(reason: String)                        // additional context on non-200
+}
+
+// ── Events ───────────────────────────────────────────────────────────────────
+
+enum ServerEvent {
 
     /// Sent to all affected clients when layout rebalances (client joins or leaves).
     case viewportChanged(
@@ -261,48 +315,7 @@ enum ServerMessage {
         safeArea: EdgeInsets
     )
 
-    case pong(requestId: RequestId, serverTick: UInt64)
-
-
-    // ── Resources ─────────────────────────────────────────────────────────────
-
-    case imageReady(
-        requestId: RequestId,
-        handle: ResHandle,
-        size: Size<Int>             // logical pixels at density 1.0
-    )
-
-    case soundReady(
-        requestId: RequestId,
-        handle: ResHandle,
-        durationMs: UInt32,
-        channels: UInt8             // 1 = mono, 2 = stereo
-    )
-
-    case fontReady(
-        requestId: RequestId,
-        handle: ResHandle,
-        family: String
-    )
-
-    /// Response to requestPixelData. Raw RGBA bytes, row-major.
-    case pixelData(
-        requestId: RequestId,
-        handle: ResHandle,
-        size: Size<Int>,
-        data: [UInt8]
-    )
-
-    case resourceError(
-        requestId: RequestId,
-        url: VDUrl,
-        reason: String
-    )
-
-
-    // ── Render ────────────────────────────────────────────────────────────────
-
-    /// Emitted when a DrawCmd references a resource that is not loaded.
+    /// A DrawCmd was skipped because its resource handle was not loaded.
     /// clientTick identifies which frame the skipped command came from.
     case drawError(
         clientTick: UInt64,
@@ -310,22 +323,22 @@ enum ServerMessage {
         reason: String
     )
 
-
-    // ── Audio ─────────────────────────────────────────────────────────────────
-
-    case soundStarted(requestId: RequestId, handle: SoundHandle)
-
-    /// Emitted on natural playback end or after a stop-with-fade completes.
+    /// Natural playback end, or stop-with-fade completed.
     case soundFinished(handle: SoundHandle)
-
-
-    // ── Errors ────────────────────────────────────────────────────────────────
-
-    case errorResponse(requestId: RequestId, reason: String)
 }
 ```
 
 ---
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| 200 | Success |
+| 400 | Malformed message |
+| 404 | Resource URL not found in any mounted pack |
+| 409 | Name conflict |
+| 500 | Server error |
 
 ## Error Reasons
 
@@ -333,7 +346,7 @@ Strings for MVP; replace with a typed enum in a future revision.
 
 | Reason | Situation |
 |---|---|
-| `"resource_not_found"` | URL not present in server's VirtualDrive |
+| `"resource_not_found"` | URL not present in any mounted pack |
 | `"unsupported_format"` | File format not supported |
 | `"atlas_full"` | Texture atlas has no space remaining |
 | `"resource_not_loaded"` | DrawCmd references a handle that was never loaded |
@@ -351,22 +364,27 @@ Client                              Server
   |                                   |
   |-- connect(logicalSize:320×240,  →|
   |     resourceLingerMs:500)         |
-  |←-- connected(clientId:1, physicalSize:1280×720, scaleFactor:2.0, safeArea:…)
+  |←-- response(200, body:none)       |  ← connected; clientId assigned
   |                                   |
-  |-- declareResource(player.bmp)   →|
-  |←-- imageReady(handle:0xABCD, size:16×16)
+  |-- uploadPack(name:"Assets", …)  →|
+  |←-- response(200, body:none)       |  ← pack mounted as vd://Assets/…
   |                                   |
-  |-- declareResource(jump.wav)     →|
-  |←-- soundReady(handle:0xEF01, durationMs:400, channels:1)
+  |-- loadResource(vd://Assets/      →|
+  |     player.bmp, .image)           |
+  |←-- response(200, body:.image(handle:0xABCD, size:16×16))
+  |                                   |
+  |-- loadResource(vd://Assets/      →|
+  |     jump.wav, .sound)             |
+  |←-- response(200, body:.sound(handle:0xEF01, durationMs:400, channels:1))
   |                                   |
   |-- sendFrame(tick:1, cmds:[…])   →|   ← fire and forget each tick
   |-- sendFrame(tick:2, cmds:[…])   →|
   |                                   |
   |-- playSound(0xEF01, …)          →|
-  |←-- soundStarted(handle:0x0002)
+  |←-- response(200, body:.soundStarted(handle:0x0002))
   |                                   |
-  |                  [client 2 connects — layout rebalances]
-  |←-- viewportChanged(physicalSize:640×720, scaleFactor:2.0, safeArea:…)
+  |             [client 2 connects — layout rebalances]
+  |←-- event(.viewportChanged(physicalSize:640×720, …))
   |                                   |
   |-- disconnect                    →|
 ```
@@ -375,8 +393,8 @@ Client                              Server
 
 ### Client Creating an Image from Another Image
 
-The client reads pixel data from an existing resource, modifies it locally (e.g. palette swap,
-procedural overlay, masking), then uploads the result as a new independent resource.
+The client reads pixel data for a server-composed resource, modifies it locally
+(e.g. palette swap, procedural overlay, masking), then uploads the result as a new resource.
 
 ```
 Client                              Server
@@ -384,22 +402,21 @@ Client                              Server
   |  [handle 0xABCD already loaded]   |
   |                                   |
   |-- requestPixelData(0xABCD)      →|
-  |←-- pixelData(handle:0xABCD, size:16×16, data:[…raw RGBA bytes…])
+  |←-- response(200, body:.pixelData(handle:0xABCD, size:16×16, data:[…]))
   |                                   |
   |  [client modifies pixels locally] |
   |                                   |
-  |-- uploadResource(                →|
-  |     url: vd://derived/player_hurt.bmp,
-  |     kind: .image,
-  |     data: […modified bytes…])     |
-  |←-- imageReady(handle:0xDEAD, size:16×16)
+  |-- uploadResource(               →|
+  |     vd://derived/player_hurt.bmp, |
+  |     .image, data:[…])             |
+  |←-- response(200, body:.image(handle:0xDEAD, size:16×16))
   |                                   |
-  |-- sendFrame(tick:N, cmds:[       →|
-  |     .image(resourceId:0xDEAD) …]) |
+  |-- sendFrame(tick:N, cmds:[      →|
+  |     .image(resourceId:0xDEAD)…])  |
 ```
 
-The source handle (`0xABCD`) is unaffected. The derived handle (`0xDEAD`) is a fully independent
-resource with its own lifecycle.
+The source handle (`0xABCD`) is unaffected. The derived handle (`0xDEAD`) is a fully
+independent resource with its own lifecycle.
 
 ---
 
@@ -413,18 +430,18 @@ those resources are still present without a reload round-trip.
 Client                              Server
   |                                   |
   |-- connect(resourceLingerMs:2000)→|   ← 2 second linger window
-  |←-- connected(…)
+  |←-- response(200, body:none)
   |                                   |
-  |-- declareResource(explosion.bmp)→|
-  |←-- imageReady(handle:0xBEEF, …)
+  |-- loadResource(explosion.bmp)   →|
+  |←-- response(200, body:.image(handle:0xBEEF, …))
   |                                   |
   |-- sendFrame(tick:100, …)        →|
   |-- sendFrame(tick:101, …)        →|
-  |-- releaseResource(0xBEEF)       →|   ← client thinks it's done with this
-  |                                   |     server holds it for 2000ms
+  |-- releaseResource(0xBEEF)       →|   ← server holds for 2000ms
+  |                                   |
   |  [rollback to tick 99 detected]   |
   |                                   |
-  |-- sendFrame(tick:99, cmds:[      →|   ← 0xBEEF still valid; server draws fine
+  |-- sendFrame(tick:99, cmds:[     →|   ← 0xBEEF still valid; server draws fine
   |     .image(resourceId:0xBEEF)…])  |
   |-- sendFrame(tick:100, …)        →|
   |                                   |
@@ -433,4 +450,31 @@ Client                              Server
 ```
 
 If the linger window expires before a rollback re-uses the resource, the next `sendFrame`
-referencing it will produce a `drawError` — the client must re-declare or re-upload.
+referencing it will produce a `drawError` event — the client must re-load or re-upload.
+
+---
+
+### Pack Hot-Reload
+
+The client re-uploads a pack with the same name. Existing handles update to reflect new
+content. Resources removed from the pack linger in memory while handles reference them,
+but new `loadResource` calls for those URLs will fail with 404.
+
+```
+Client                              Server
+  |                                   |
+  |-- uploadPack(name:"Assets", v1) →|
+  |←-- response(200, body:none)
+  |                                   |
+  |-- loadResource(vd://Assets/     →|
+  |     player.bmp, .image)           |
+  |←-- response(200, body:.image(handle:0xABCD, …))
+  |                                   |
+  |  [assets updated on disk]         |
+  |                                   |
+  |-- uploadPack(name:"Assets", v2) →|   ← remounts; 0xABCD updates to new content
+  |←-- response(200, body:none)
+  |                                   |
+  |-- sendFrame(tick:N, cmds:[      →|   ← draws updated player.bmp automatically
+  |     .image(resourceId:0xABCD)…])  |
+```

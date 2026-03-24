@@ -296,10 +296,4 @@ public class RendererClient: IDraw, IResourceContainer {
         guard cmdList.count > 0 else { return }
         Task { await server.receiveCmds(self.cmdList) }
     }
-
-    public func createImage(_ block:(_ context:IDraw) throws -> (), size:Size<DValue>) throws -> UInt64 {
-        let builder = ImageBuilder(client: self)
-        try block(builder)
-        return builder.finalize()
-    }
 }
