@@ -5,6 +5,29 @@ The spec defines the abstraction layer only; serialization format and transport 
 
 ---
 
+## Supported Features
+
+- **Rendering** — images, solid fills, UI views, text
+- **Audio** — play, stop, pause, resume, live parameter updates (volume, pan, pitch)
+- **Multi-client split screen** — automatic viewport assignment and rebalancing
+- **Resource management** — declare (server-side VD), upload (client push), release, linger
+- **Image derivation** — client can request pixel data for an existing resource, modify it locally, and upload the result as a new resource
+- **Rollback support** — released resources linger for a client-configured duration before the server frees them, ensuring prior frames can still be re-rendered during a rollback window
+
+### Split Screen Layout Policy
+
+The server automatically assigns and rebalances viewports; clients have no layout API.
+
+| Clients | Layout |
+|---|---|
+| 1 | Full screen |
+| 2 | 50/50 horizontal split |
+| 3 | Left half (client 1) + right half split vertically (clients 2 & 3) |
+| 4 | Quadrants |
+| 5+ | Uniform grid (TBD) |
+
+---
+
 ## Key Decisions
 
 ### Clients own resource metadata, server owns resources
@@ -28,15 +51,6 @@ Clients do not request or configure viewports. The server assigns screen regions
 based on how many clients are connected and rebalances when they join or leave. All affected
 clients receive a `viewportChanged` notification and adapt their own camera/UI layout.
 
-### Split screen layout policy
-| Clients | Layout |
-|---|---|
-| 1 | Full screen |
-| 2 | 50/50 horizontal split |
-| 3 | Left half (client 1) + right half split vertically (clients 2 & 3) |
-| 4 | Quadrants |
-| 5+ | Uniform grid (TBD) |
-
 ### Fixed tick + interpolation
 The server runs a fixed-tick loop with interpolation for smooth display, mirroring the existing
 `RendererClient` / `DrawCmdInterpolator` pattern. Clients tag each frame batch with their
@@ -56,10 +70,10 @@ are ready before drawing.
 Sound playback is handled by the display server, not a separate service. Audio resources follow
 the same declare/upload/release lifecycle as image and font resources.
 
-### Resource handles on disconnect
-When a client disconnects ungracefully (connection lost), its resources are held briefly to
-support reconnection. On clean `disconnect`, resources are released. This is an implementation
-detail not exposed in the protocol.
+### Resource linger duration is set by the client
+When a client connects it declares a `resourceLingerMs` value. Released resources are held for
+that duration before the server frees them. This gives rollback-capable engines a window to
+re-render old frames without reloading. A value of `0` means immediate release.
 
 ### Error codes are strings in MVP
 `reason` fields are human-readable strings for MVP. A future revision should replace them with
@@ -141,7 +155,8 @@ enum ClientMessage {
         requestId: RequestId,
         name: String,
         version: UInt32,
-        logicalSize: Size<Int>      // client's coordinate space, e.g. 320×240
+        logicalSize: Size<Int>,     // client's coordinate space, e.g. 320×240
+        resourceLingerMs: UInt32    // how long released resources are held before freeing
     )
 
     case disconnect
@@ -171,6 +186,15 @@ enum ClientMessage {
         data: [UInt8]
     )
 
+    /// Request raw pixel data for an existing image resource.
+    /// Used to derive a new image by reading, modifying, then uploading.
+    /// → PixelData | ResourceError
+    case requestPixelData(
+        requestId: RequestId,
+        handle: ResHandle
+    )
+
+    /// Releases the resource. Server holds it for resourceLingerMs before freeing.
     case releaseResource(handle: ResHandle)
 
 
@@ -261,6 +285,14 @@ enum ServerMessage {
         family: String
     )
 
+    /// Response to requestPixelData. Raw RGBA bytes, row-major.
+    case pixelData(
+        requestId: RequestId,
+        handle: ResHandle,
+        size: Size<Int>,
+        data: [UInt8]
+    )
+
     case resourceError(
         requestId: RequestId,
         url: VDUrl,
@@ -310,12 +342,15 @@ Strings for MVP; replace with a typed enum in a future revision.
 
 ---
 
-## Session Flow Example
+## Supported Cases and Flows
+
+### Basic Session
 
 ```
 Client                              Server
   |                                   |
-  |-- connect(logicalSize: 320×240) →|
+  |-- connect(logicalSize:320×240,  →|
+  |     resourceLingerMs:500)         |
   |←-- connected(clientId:1, physicalSize:1280×720, scaleFactor:2.0, safeArea:…)
   |                                   |
   |-- declareResource(player.bmp)   →|
@@ -335,3 +370,67 @@ Client                              Server
   |                                   |
   |-- disconnect                    →|
 ```
+
+---
+
+### Client Creating an Image from Another Image
+
+The client reads pixel data from an existing resource, modifies it locally (e.g. palette swap,
+procedural overlay, masking), then uploads the result as a new independent resource.
+
+```
+Client                              Server
+  |                                   |
+  |  [handle 0xABCD already loaded]   |
+  |                                   |
+  |-- requestPixelData(0xABCD)      →|
+  |←-- pixelData(handle:0xABCD, size:16×16, data:[…raw RGBA bytes…])
+  |                                   |
+  |  [client modifies pixels locally] |
+  |                                   |
+  |-- uploadResource(                →|
+  |     url: vd://derived/player_hurt.bmp,
+  |     kind: .image,
+  |     data: […modified bytes…])     |
+  |←-- imageReady(handle:0xDEAD, size:16×16)
+  |                                   |
+  |-- sendFrame(tick:N, cmds:[       →|
+  |     .image(resourceId:0xDEAD) …]) |
+```
+
+The source handle (`0xABCD`) is unaffected. The derived handle (`0xDEAD`) is a fully independent
+resource with its own lifecycle.
+
+---
+
+### Rollback Support
+
+The client sets `resourceLingerMs` at connect time. Released resources remain available on the
+server for that duration. If the client rolls back to a prior tick and re-renders old frames,
+those resources are still present without a reload round-trip.
+
+```
+Client                              Server
+  |                                   |
+  |-- connect(resourceLingerMs:2000)→|   ← 2 second linger window
+  |←-- connected(…)
+  |                                   |
+  |-- declareResource(explosion.bmp)→|
+  |←-- imageReady(handle:0xBEEF, …)
+  |                                   |
+  |-- sendFrame(tick:100, …)        →|
+  |-- sendFrame(tick:101, …)        →|
+  |-- releaseResource(0xBEEF)       →|   ← client thinks it's done with this
+  |                                   |     server holds it for 2000ms
+  |  [rollback to tick 99 detected]   |
+  |                                   |
+  |-- sendFrame(tick:99, cmds:[      →|   ← 0xBEEF still valid; server draws fine
+  |     .image(resourceId:0xBEEF)…])  |
+  |-- sendFrame(tick:100, …)        →|
+  |                                   |
+  |  [2000ms elapses since release]   |
+  |                                   |   ← server frees 0xBEEF
+```
+
+If the linger window expires before a rollback re-uses the resource, the next `sendFrame`
+referencing it will produce a `drawError` — the client must re-declare or re-upload.
