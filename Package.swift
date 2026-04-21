@@ -44,6 +44,7 @@ let package = Package(
             dependencies: [
                 .byName(name: "SystemFonts", condition: .when(platforms: [.macOS])),
                 "AniTween",
+                .byName(name: "ICUAliases", condition: .when(platforms: [.linux])),
                 .product(name: "SDL2Swift", package: "SDL2-Swift"),
                 .product(name: "SDL2_TTFSwift", package: "SDL2-Swift"),
                 .product(name: "EonilFSEvents", package: "EonilFSEvents", condition: .when(platforms: [.macOS])),
@@ -69,6 +70,15 @@ let package = Package(
         .target(
             name: "ChunkedPool",
             swiftSettings: optimize
+        ),
+        .target(
+            name: "ICUAliases",
+            path: "Sources/ICUAliases",
+            publicHeadersPath: "include",
+            linkerSettings: [
+                .linkedLibrary("icui18n", .when(platforms: [.linux])),
+                .linkedLibrary("icuuc", .when(platforms: [.linux])),
+            ]
         ),
         .executableTarget(
             name: "ParticleTest",
