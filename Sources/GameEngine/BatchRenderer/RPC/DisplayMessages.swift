@@ -46,14 +46,14 @@ public enum ClientMessage {
         requestId: RequestId,
         url: VDUrl,
         kind: ResourceKind,
-        density: Float
+        density: Float = 1.0
     )
 
     case uploadResource(
         requestId: RequestId,
         url: VDUrl,
         kind: ResourceKind,
-        density: Float,
+        density: Float = 1.0,
         data: [UInt8]
     )
 
@@ -82,7 +82,7 @@ public enum ClientMessage {
         params: SoundParams
     )
 
-    case stopSound(handle: SoundHandle, fadeOutMs: UInt32)
+    case stopSound(handle: SoundHandle, fadeOutMs: UInt32 = 0)
     case pauseSound(handle: SoundHandle)
     case resumeSound(handle: SoundHandle)
 
