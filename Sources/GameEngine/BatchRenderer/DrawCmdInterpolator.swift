@@ -134,6 +134,10 @@ public class DrawCmdInterpolator {
                         resolvedPositions[eachCmd.animationId] = resolved
                     }
                     print("DrawCmd.rtt stub — not yet rendered")
+
+                case .text, .line, .circle, .rect:
+                    // New shape/text cases — rendering handled in a later prompt.
+                    break
                 }
             }
             try renderer.setClipRect(previousRect)

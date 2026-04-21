@@ -13,10 +13,15 @@ public enum DrawCmdType {
     case image(resourceId: UInt64)
     case fill                                                    // color/alpha from DrawCmd base
     case view(borderColor: SDLColor, borderWidth: Int)          // base color = backgroundColor
-    case rtt                                                     // stub; redesigned separately
+    case text(fontHandle: UInt64, content: String, size: Float, align: TextAlignment)
+    case line(to: Point<Int>, thickness: Int)                   // color/alpha from DrawCmd base
+    case circle(radius: Int, filled: Bool)                      // centered on DrawCmd.dest origin
+    case rect(filled: Bool)                                     // uses DrawCmd.dest
+    case rtt                                                     // stub; to be removed
 }
 
 public struct DrawCmd {
+    public let target: UInt64                                   // 0 = viewport; non-zero = editable image ResHandle
     public let animationId: UInt64
     public let parentAnimationId: UInt64
     public let dest: Rect<Int>
@@ -29,6 +34,36 @@ public struct DrawCmd {
     public let flip: BitMaskOptionSet<Renderer.RendererFlip>
     public var time: UInt64
     public let type: DrawCmdType
+
+    public init(
+        target: UInt64 = 0,
+        animationId: UInt64,
+        parentAnimationId: UInt64,
+        dest: Rect<Int>,
+        color: SDLColor,
+        alpha: Float,
+        z: Int,
+        rotation: Float,
+        rotationPoint: Point<Int>,
+        clippingRect: Rect<Int>,
+        flip: BitMaskOptionSet<Renderer.RendererFlip>,
+        time: UInt64,
+        type: DrawCmdType
+    ) {
+        self.target = target
+        self.animationId = animationId
+        self.parentAnimationId = parentAnimationId
+        self.dest = dest
+        self.color = color
+        self.alpha = alpha
+        self.z = z
+        self.rotation = rotation
+        self.rotationPoint = rotationPoint
+        self.clippingRect = clippingRect
+        self.flip = flip
+        self.time = time
+        self.type = type
+    }
 }
 
 public extension DrawCmd {
@@ -49,6 +84,7 @@ public extension DrawCmd {
         }
 
         return DrawCmd(
+            target: target,
             animationId: animationId,
             parentAnimationId: parentAnimationId,
             dest: dest.lerp(oldCmd.dest, percent),
