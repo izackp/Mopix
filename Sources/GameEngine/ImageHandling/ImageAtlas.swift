@@ -116,7 +116,7 @@ public class ImageAtlas {
     var _blankImageCache:[SubTextureIndex] = [] //index matches page
     var textureCache:[Texture] = [] //Object pool to avoid creating/deleting
     
-    init(_ renderer:Renderer) {
+    public init(_ renderer:Renderer) {
         self.renderer = renderer
     }
     

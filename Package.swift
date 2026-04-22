@@ -27,7 +27,8 @@ let package = Package(
             targets: ["GameEngine"]),
         .executable(name: "ParticleTweenTest", targets: ["ParticleTest"]),
         .executable(name: "SpaceInvaders", targets: ["SpaceInvaders"]),
-        .executable(name: "UITest", targets: ["UITest"])
+        .executable(name: "UITest", targets: ["UITest"]),
+        .executable(name: "HeadlessRenderer", targets: ["HeadlessRenderer"])
     ],
     dependencies: [
         //.package(path: "/Users/isaacpaul/Projects/swift-projects/SDL"),
@@ -107,6 +108,15 @@ let package = Package(
             ],
             resources: [
                 .copy("ExternalFiles")
+            ],
+            swiftSettings: optimize
+        ),
+        .executableTarget(
+            name: "HeadlessRenderer",
+            dependencies: [
+                "GameEngine",
+                .product(name: "SDL2Swift", package: "SDL2-Swift"),
+                .product(name: "SDL2_TTFSwift", package: "SDL2-Swift"),
             ],
             swiftSettings: optimize
         ),

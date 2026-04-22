@@ -896,6 +896,9 @@ private extension DisplayServer {
     }
 
     func screenshotBody() throws -> ResponseBody {
+        try rendererServer.renderer.setDrawColor(red: 0, green: 0, blue: 0, alpha: 255)
+        try rendererServer.renderer.clear()
+        rendererServer.drawingInterpolator.draw(SDL_GetTicks64())
         let format = try PixelFormat(format: .argb8888)
         let surface = try rendererServer.renderer.readPixels(format: format)
         let pixelData = PixelData(surface)
