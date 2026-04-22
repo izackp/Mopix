@@ -87,7 +87,7 @@ Task { @MainActor in
         let logicalSize = Size<Int>(scene.logicalWidth, scene.logicalHeight)
 
         let (clientEnd, serverEnd) = InProcessTransport.makePair()
-        let displayServer = DisplayServer(rendererServer: window.renderServer, window: window.sdlWindow)
+        let displayServer = DisplayServer(rendererServer: window.renderServer)
         displayServer.bind(serverEnd)
         let displayClient = DisplayClient(transport: clientEnd, logicalSize: logicalSize)
 
