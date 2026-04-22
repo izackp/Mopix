@@ -42,6 +42,10 @@ public class AtlasImage {
     let subTextureIndex:SubTextureIndex
     private let atlas:ImageAtlas
     var ticksSinceLastUse:Int = 0
+
+    /// Optional resource ID if this AtlasImage has been registered with a ResourceStore.
+    /// Used by the command pipeline to reference the image in DrawCmds.
+    public var resourceId: UInt64? = nil
     
     var size:Size<Int32> {
         get { return subTextureIndex.sourceRect.size }

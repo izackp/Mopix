@@ -89,10 +89,12 @@ public class Font {
     var _glyphs:[Character:AtlasImage] = [:] //TODO: Array or dictionary?
     let _atlas:ImageAtlas
     let _font:SDLFont
+    weak var _resourceStore: ResourceStore?
 
-    public init(atlas: ImageAtlas, font:SDL2_TTFSwift.Font) {
+    public init(atlas: ImageAtlas, font:SDL2_TTFSwift.Font, resourceStore: ResourceStore? = nil) {
         _atlas = atlas
         _font = font
+        _resourceStore = resourceStore
     }
 
     deinit {
@@ -130,8 +132,19 @@ public class Font {
         let surface = try _font.renderGlyphBlended(c, foregroundColor: SDL_Color(r: 255, g: 255, b: 255, a: 255))
         let texture = try _atlas.save(surface)
         let image = AtlasImage(texture: texture, atlas: _atlas)
+        if let store = _resourceStore {
+            image.resourceId = store.registerAtlasImage(image)
+        }
         //assert(height == texture.sourceRect.height)
         _glyphs[c] = image
         return image
+    }
+
+    public func resourceId(for c: Character) -> UInt64? {
+        if let image = _glyphs[c], let id = image.resourceId {
+            return id
+        }
+        guard let image = try? glyph(c) else { return nil }
+        return image.resourceId
     }
 }

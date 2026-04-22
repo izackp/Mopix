@@ -100,6 +100,11 @@ extension RendererServer: IRendererServer {
             try resourceStore.updateImage(image)
         }
     }
+    public func updateImage(_ id: UInt64, _ data: PixelData) async throws {
+        try await MainActor.run() {
+            try resourceStore.updateImage(id, data)
+        }
+    }
     public func toImage(_ id: ImageFlyWeight) async throws -> Image {
         try await MainActor.run() {
             try resourceStore.toImage(id)
@@ -115,6 +120,17 @@ extension RendererServer: IRendererServer {
         await MainActor.run() {
             receiveCmdsSync(list)
         }
+    }
+}
+
+// MARK: - IRTTAllocator
+extension RendererServer: IRTTAllocator {
+    public func allocate(size: Size<DValue>) throws -> AtlasImage {
+        let surface = try Surface(rgb: (0, 0, 0, 0), size: (Int(size.width), Int(size.height)))
+        let subTexture = try imageManager.atlas.save(surface)
+        let image = AtlasImage(texture: subTexture, atlas: imageManager.atlas)
+        image.resourceId = resourceStore.registerAtlasImage(image)
+        return image
     }
 
     //TODO: Use texture atlas

@@ -103,4 +103,10 @@ public extension DrawCmd {
     static func getId(_ cmd: DrawCmd) -> Int {
         Int(Int64(bitPattern: cmd.animationId))
     }
+
+    func compare(_ other: DrawCmd) -> ComparisonResult {
+        if animationId < other.animationId { return .orderedAscending }
+        if animationId > other.animationId { return .orderedDescending }
+        return .orderedSame
+    }
 }

@@ -133,6 +133,12 @@ public class RendererClient: IDraw, IResourceContainer {
         cmdList.append(cmd)
     }
 
+    public func createImage(_ block: (_ context: IDraw) throws -> (), size: Size<DValue>) throws -> UInt64 {
+        let builder = ImageBuilder(client: self)
+        try block(builder)
+        return builder.finalize()
+    }
+
     public func finishDrawing() {
         _toUnload.forEachUncheckedMut { (eachItem:inout QueuedUnload, index:Int) in
             eachItem.ticks -= 1
@@ -272,6 +278,31 @@ public class RendererClient: IDraw, IResourceContainer {
     //MARK: - Conversions
     public func updateImage(_ image: EditedImage) async throws -> ReadOnlyImage {
         return try await server.updateImage(image)
+    }
+
+    public func loadResource(_ image: EditableImage) throws -> UInt64 {
+        let uuid = genId()
+        image.id = uuid
+        let data = image.getPixelData()
+        Task {
+            do {
+                _ = try await server.loadResource(data, uuid)
+            } catch {
+                await MainActor.run() { errorForId[uuid] = error }
+            }
+        }
+        return uuid
+    }
+
+    public func updateImage(_ id: UInt64, _ image: EditableImage) throws {
+        let data = image.getPixelData()
+        Task {
+            do {
+                try await server.updateImage(id, data)
+            } catch {
+                await MainActor.run() { errorForId[id] = error }
+            }
+        }
     }
 
     public func toImage(_ id: ImageFlyWeight) async throws -> Image {

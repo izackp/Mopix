@@ -25,7 +25,7 @@ public protocol IFontProvider {
 /// Used by View and its subclasses when routing UI through RendererClient.
 public class UICommandContext {
 
-    public init(client: IDraw, fontProvider: IFontProvider) {
+    public init(client: IDraw, fontProvider: IFontProvider, rttAllocator: IRTTAllocator? = nil) {
         self.client = client
         self.fontProvider = fontProvider
         self.rttAllocator = rttAllocator
@@ -33,6 +33,7 @@ public class UICommandContext {
 
     let client: IDraw
     public let fontProvider: IFontProvider
+    public let rttAllocator: IRTTAllocator?
 
     var currentClipRect: Rect<DValue>? = nil
     var currentParentAnimationId: UInt64 = 0
@@ -70,6 +71,28 @@ public class UICommandContext {
     }
 
     // MARK: - Draw methods
+
+    func drawImage(_ image: AtlasImage, _ dest: Rect<DValue>, _ color: SDLColor = .white, _ alpha: Float = 1) throws {
+        guard let resourceId = image.resourceId else {
+            throw GenericError("UICommandContext: AtlasImage has no resourceId — register it with a ResourceStore before drawing")
+        }
+        let clipRect = clipRectAsInt()
+        let cmd = DrawCmd(
+            animationId: 0,
+            parentAnimationId: currentParentAnimationId,
+            dest: dest.to(Int.self),
+            color: color,
+            alpha: alpha,
+            z: nextZ(),
+            rotation: 0,
+            rotationPoint: .zero,
+            clippingRect: clipRect,
+            flip: [],
+            time: 0,
+            type: .image(resourceId: resourceId)
+        )
+        emit(cmd)
+    }
 
     func drawSquare(_ dest: Rect<Int16>, _ color: SDLColor, _ alpha: Float = 1) throws {
         let clipRect = clipRectAsInt()

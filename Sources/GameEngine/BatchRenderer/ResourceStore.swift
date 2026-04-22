@@ -45,6 +45,18 @@ public class ResourceStore {
         
     }
     
+    /// Register an AtlasImage directly (used by glyph caches and RTT allocators).
+    /// Returns the generated resource ID; also sets image.resourceId.
+    public func registerAtlasImage(_ image: AtlasImage) -> UInt64 {
+        if let existing = image.resourceId, _idImageCache[existing] != nil {
+            return existing
+        }
+        let uuid = genId()
+        _idImageCache[uuid] = image
+        image.resourceId = uuid
+        return uuid
+    }
+
     public func fetchResource(_ id:UInt64) throws -> AtlasImage {
         guard let resource = _idImageCache[id] else {
             throw GenericError("No resource with id: \(id)")
@@ -249,6 +261,13 @@ public class ResourceStore {
     //Also to support editable image we need to return a readonly version so we don't have duplicate images in memory, but we also have a way to recover
     
     //Problem 2: We have 2 ways to use this.. as a single source of truth or as if we copied and created a new image
+    public func updateImage(_ id: UInt64, _ data: PixelData) throws {
+        guard let existing = _idImageCache[id] else {
+            throw GenericError("Image id \(id) doesn't exist")
+        }
+        try imageManager.updateImage(existing, data)
+    }
+
     public func updateImage(_ image:EditedImage) throws -> ReadOnlyImage {
         let id = image.id
         if let existing = _idImageCache[id], let existingROI = _idDataCache[id] {

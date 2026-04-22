@@ -27,6 +27,7 @@ public protocol IRendererServer: AnyObject {
 
     // MARK: - Convert / Update
     func updateImage(_ image: EditedImage) async throws -> ReadOnlyImage
+    func updateImage(_ id: UInt64, _ data: PixelData) async throws
     func toImage(_ id: ImageFlyWeight) async throws -> Image
     func toEditableImage(_ id: ImageFlyWeight) async throws -> ReadOnlyImage
 
