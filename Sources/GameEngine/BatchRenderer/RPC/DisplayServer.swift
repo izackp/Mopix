@@ -377,13 +377,10 @@ private extension DisplayServer {
             throw DisplayServerError.badRequest("pack name cannot be empty")
         }
 
-        if let mounted = mountedPacks[name], mounted.ownerClientId != client.clientId {
-            throw DisplayServerError.conflict("pack name already in use")
-        }
-
-        let extractedRoot = try extractPack(named: name, data: data, clientId: client.clientId)
+        let meta = (try? PackageMeta.parseMetaFromName(name)) ?? PackageMeta(name: name, version: .zero)
+        let extractedRoot = try extractPack(named: name, data: data)
         let mountedDir = MountedDir(
-            meta: PackageMeta(name: name, version: .zero),
+            meta: meta,
             path: extractedRoot,
             virtualPath: String(OS.defaultPathSeparator),
             isReadOnly: false,
@@ -391,7 +388,7 @@ private extension DisplayServer {
         )
 
         if let previous = mountedPacks[name] {
-            virtualDrive.packages.removeAll { $0.meta.name == name }
+            virtualDrive.packages.removeAll { $0.meta.name == meta.name }
             try? FileManager.default.removeItem(at: previous.rootURL)
         }
 
@@ -402,12 +399,14 @@ private extension DisplayServer {
         hotReloadPack(named: name)
     }
 
-    func extractPack(named name: String, data: [UInt8], clientId: ClientId) throws -> URL {
+    func extractPack(named name: String, data: [UInt8]) throws -> URL {
         let contentURL = tempDirectory
             .appendingPathComponent("DisplayServerPacks", isDirectory: true)
-            .appendingPathComponent("client-\(clientId)", isDirectory: true)
-            .appendingPathComponent("\(sanitizeFileName(name))-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent(sanitizeFileName(name), isDirectory: true)
 
+        if FileManager.default.fileExists(atPath: contentURL.path) {
+            try FileManager.default.removeItem(at: contentURL)
+        }
         try FileManager.default.createDirectory(at: contentURL, withIntermediateDirectories: true)
         try PackArchive.decode(data: data, into: contentURL)
         return contentURL

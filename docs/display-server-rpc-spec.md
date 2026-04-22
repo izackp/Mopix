@@ -83,6 +83,13 @@ full journal on top. The journal resets when the same handle is re-initialized v
 composition command. Images created via `createEditableImage` or `copyToEditable` are never
 recorded or affected by hot-reload — the client explicitly opts out to preserve user data.
 
+### Pack names include version and are globally unique
+Pack names follow the format `name_major.minor.patch` (e.g. `basegame_1.1.0`). The name is the
+unique key for the pack. The server stores each pack in a deterministic location derived from
+the name — no UUID or client-scoped path. If two clients upload the same pack name, the last
+upload wins (same as hot-reload). Clients track which pack names they own for cleanup on
+disconnect; ownership does not block another client from uploading the same name.
+
 ### Pack re-upload is a hot-reload
 When a pack is re-uploaded with the same name, the server remounts it. Existing handles that
 refer to resources still present in the new pack update to the new content. Resources removed
