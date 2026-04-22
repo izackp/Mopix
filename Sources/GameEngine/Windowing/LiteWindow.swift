@@ -36,7 +36,7 @@ public struct Controller {
 
 open class LiteWindow : IUpdate, IEventListener {
 
-    internal let sdlWindow:SDLWindow
+    public internal(set) var sdlWindow:SDLWindow
     internal let renderer:Renderer
     private var _needsDisplay:Bool = false
     public let parentApp:Application

@@ -48,8 +48,19 @@ func parseArgs() throws -> Args {
         Set(str.components(separatedBy: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) })
     } ?? []
     let outputDir = URL(fileURLWithPath: outputDirStr)
-
     return Args(scenePath: scenePath, inputCommands: inputCmds, screenshotTicks: ticks, outputDir: outputDir)
+}
+
+// MARK: - HeadlessApp
+
+final class HeadlessApp: Application {
+    var window: FullWindow!
+
+    override init() throws {
+        try super.init()
+        window = try FullWindow(parent: self, title: "HeadlessRenderer", windowOptions: [])
+        addWindow(window)
+    }
 }
 
 // MARK: - Main
@@ -66,16 +77,6 @@ Task { @MainActor in
             exit(1)
         }
 
-        // Must be set before SDL_Init
-        setenv("SDL_VIDEODRIVER", "offscreen", 1)
-        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software")
-
-        try SDL.initialize([.video])
-        defer { SDL.quit() }
-        try TTF.initialize()
-        defer { TTF.quit() }
-
-        // Load scene
         let scene: SceneFile
         do {
             scene = try SceneFile.load(from: args.scenePath)
@@ -84,44 +85,21 @@ Task { @MainActor in
             exit(1)
         }
 
+        // Must be set before Application.init() calls SDL.initialize()
+        setenv("SDL_VIDEODRIVER", "offscreen", 1)
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software")
+
+        let app = try HeadlessApp()
         let logicalSize = Size<Int>(scene.logicalWidth, scene.logicalHeight)
-        let physicalWidth = Int((Float(scene.logicalWidth) * scene.scale).rounded())
-        let physicalHeight = Int((Float(scene.logicalHeight) * scene.scale).rounded())
-
-        // Create offscreen SDL window + renderer
-        let sdlWindow = try SDLWindow(
-            title: "HeadlessRenderer",
-            frame: (SDLWindow.Position.point(0), SDLWindow.Position.point(0), physicalWidth, physicalHeight),
-            options: []
-        )
-        let renderer = try Renderer(window: sdlWindow, driver: .default, options: [])
-        let atlas = ImageAtlas(renderer)
-        let vd = VirtualDrive.shared
-
-        // Mount scene pack if specified
-        if let packName = scene.packName {
-            let packURL = args.scenePath.deletingLastPathComponent().appendingPathComponent("\(packName).mopx")
-            if FileManager.default.fileExists(atPath: packURL.path) {
-                let data = try [UInt8](Data(contentsOf: packURL))
-                try vd.mountPath(path: packURL.deletingLastPathComponent())
-                _ = data // pack will be uploaded via DisplayClient below
-            }
-        }
-
-        let imageManager = AtlasLoader(atlas: atlas, dataSources: [vd])
-        imageManager.loadSystemFonts()
-        let rendererServer = RendererServer(renderer: renderer, imageManager: imageManager)
 
         let (clientEnd, serverEnd) = InProcessTransport.makePair()
-        let displayServer = DisplayServer(rendererServer: rendererServer, window: sdlWindow)
+        let displayServer = DisplayServer(rendererServer: app.window.renderServer, window: app.window.sdlWindow)
         displayServer.bind(serverEnd)
-
         let displayClient = DisplayClient(transport: clientEnd, logicalSize: logicalSize)
 
         try await displayClient.connect(name: "HeadlessRenderer", version: 1, logicalSize: logicalSize, resourceLingerMs: 0)
         try await displayClient.setDisplayConfig(logicalSize: logicalSize, scale: scene.scale)
 
-        // Upload pack if specified
         if let packName = scene.packName {
             let packURL = args.scenePath.deletingLastPathComponent().appendingPathComponent("\(packName).mopx")
             if FileManager.default.fileExists(atPath: packURL.path) {
@@ -130,18 +108,14 @@ Task { @MainActor in
             }
         }
 
-        // Create output directory
         try FileManager.default.createDirectory(at: args.outputDir, withIntermediateDirectories: true)
 
-        // Build per-tick input timeline
         let inputTimeline = buildTimeline(from: args.inputCommands)
-
-        let maxTick = (args.screenshotTicks.max() ?? 0)
+        let maxTick = args.screenshotTicks.max() ?? 0
         let lastInputTick = inputTimeline.keys.max() ?? 0
         let totalTicks = max(maxTick, lastInputTick, 1)
 
         for tick in 1...totalTicks {
-            // Inject SDL events for this tick
             if let cmds = inputTimeline[tick] {
                 for cmd in cmds {
                     var sdlEvent = SDL_Event()
@@ -173,7 +147,7 @@ Task { @MainActor in
                         sdlEvent.button.state = down ? UInt8(SDL_PRESSED) : UInt8(SDL_RELEASED)
                         SDL_PushEvent(&sdlEvent)
                     case .wait:
-                        break // wait is pre-processed into the timeline; should not appear here
+                        break
                     }
                 }
             }
@@ -188,7 +162,7 @@ Task { @MainActor in
                     try writePNG(rgba: rgba, size: size, to: outURL)
                     print("Saved \(outURL.path)")
                 } catch {
-                    fputs("Screenshot failed at tick \(tick): \(error.localizedDescription)\n", stderr)
+                    fputs("Screenshot at tick \(tick) failed: \(error.localizedDescription)\n", stderr)
                 }
             }
         }

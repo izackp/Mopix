@@ -9,7 +9,7 @@ import SDL2
 import SDL2Swift
 
 public final class FullWindow: LiteWindow {
-    let renderServer:RendererServer
+    public let renderServer:RendererServer
     public let renderClient:RendererClient
     
     public var rootViewController:ViewController? = nil
