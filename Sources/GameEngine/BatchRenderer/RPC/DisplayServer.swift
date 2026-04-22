@@ -402,7 +402,7 @@ private extension DisplayServer {
     func extractPack(named name: String, data: [UInt8]) throws -> URL {
         let contentURL = tempDirectory
             .appendingPathComponent("DisplayServerPacks", isDirectory: true)
-            .appendingPathComponent(sanitizeFileName(name), isDirectory: true)
+            .appendingPathComponent(name, isDirectory: true)
 
         if FileManager.default.fileExists(atPath: contentURL.path) {
             try FileManager.default.removeItem(at: contentURL)

@@ -65,7 +65,7 @@ A class that:
 - `setWindowConfig` — apply window title/fullscreen/vsync via SDL, respond 200
 
 **Resource Packs:**
-- `uploadPack` — decode pack data via `PackArchive` and store to a deterministic temp path keyed by the sanitized pack name (no UUID, no client-id prefix). Mount via VirtualDrive and respond 200. On re-upload with the same name, replace and remount (hot-reload).
+- `uploadPack` — decode pack data via `PackArchive` and store to a deterministic temp path keyed by the pack name (no UUID, no client-id prefix). Mount via VirtualDrive and respond 200. On re-upload with the same name, replace and remount (hot-reload).
 
 **Resources:**
 - `loadResource` — delegate to ResourceStore, respond with image/sound/font body. Track handle→client ownership.
