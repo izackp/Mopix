@@ -403,47 +403,14 @@ private extension DisplayServer {
     }
 
     func extractPack(named name: String, data: [UInt8], clientId: ClientId) throws -> URL {
-        let root = tempDirectory
+        let contentURL = tempDirectory
             .appendingPathComponent("DisplayServerPacks", isDirectory: true)
             .appendingPathComponent("client-\(clientId)", isDirectory: true)
             .appendingPathComponent("\(sanitizeFileName(name))-\(UUID().uuidString)", isDirectory: true)
 
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-
-        let archiveURL = root.appendingPathComponent("bundle.zip")
-        let contentURL = root.appendingPathComponent("contents", isDirectory: true)
-        try Data(data).write(to: archiveURL, options: [.atomic])
         try FileManager.default.createDirectory(at: contentURL, withIntermediateDirectories: true)
-
-        if try extractArchive(at: archiveURL, to: contentURL) {
-            return contentURL
-        }
-        throw DisplayServerError.server("unsupported pack bundle format")
-    }
-
-    func extractArchive(at archiveURL: URL, to destinationURL: URL) throws -> Bool {
-        if FileManager.default.isExecutableFile(atPath: "/usr/bin/unzip") {
-            return try runProcess(
-                executable: URL(fileURLWithPath: "/usr/bin/unzip"),
-                arguments: ["-qq", archiveURL.path, "-d", destinationURL.path]
-            )
-        }
-        if FileManager.default.isExecutableFile(atPath: "/usr/bin/bsdtar") {
-            return try runProcess(
-                executable: URL(fileURLWithPath: "/usr/bin/bsdtar"),
-                arguments: ["-xf", archiveURL.path, "-C", destinationURL.path]
-            )
-        }
-        return false
-    }
-
-    func runProcess(executable: URL, arguments: [String]) throws -> Bool {
-        let process = Process()
-        process.executableURL = executable
-        process.arguments = arguments
-        try process.run()
-        process.waitUntilExit()
-        return process.terminationStatus == 0
+        try PackArchive.decode(data: data, into: contentURL)
+        return contentURL
     }
 
     func loadResource(url: VDUrl, kind: ResourceKind, density: Float, client: ClientState) throws -> ResponseBody {
