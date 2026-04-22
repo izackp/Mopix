@@ -35,6 +35,7 @@ let package = Package(
         .package(url: "https://github.com/izackp/SDL2-Swift.git", branch: "master"),
         .package(url: "https://github.com/izackp/EonilFSEvents.git", from:"0.1.7"),
         .package(url: "https://github.com/t-ae/xorswift", from: "3.0.0"),
+        .package(url: "https://github.com/facebook/zstd", from: "1.5.7")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -49,6 +50,7 @@ let package = Package(
                 .product(name: "SDL2_TTFSwift", package: "SDL2-Swift"),
                 .product(name: "EonilFSEvents", package: "EonilFSEvents", condition: .when(platforms: [.macOS])),
                 .product(name: "ICU", package: "icu-swift"),
+                .product(name: "libzstd", package: "zstd")
             ],
             cSettings: [.headerSearchPath("include"),],
 	        swiftSettings: optimize//,
@@ -74,7 +76,7 @@ let package = Package(
         .target(
             name: "ICUAliases",
             path: "Sources/ICUAliases",
-            publicHeadersPath: "include",
+            publicHeadersPath: ".",
             linkerSettings: [
                 .linkedLibrary("icui18n", .when(platforms: [.linux])),
                 .linkedLibrary("icuuc", .when(platforms: [.linux])),
