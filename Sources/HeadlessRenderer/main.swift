@@ -53,15 +53,7 @@ func parseArgs() throws -> Args {
 
 // MARK: - HeadlessApp
 
-final class HeadlessApp: Application {
-    var window: FullWindow!
-
-    override init() throws {
-        try super.init()
-        window = try FullWindow(parent: self, title: "HeadlessRenderer", windowOptions: [])
-        addWindow(window)
-    }
-}
+final class HeadlessApp: Application {}
 
 // MARK: - Main
 
@@ -90,10 +82,12 @@ Task { @MainActor in
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software")
 
         let app = try HeadlessApp()
+        let window = try FullWindow(parent: app, title: "HeadlessRenderer", windowOptions: [])
+        app.addWindow(window)
         let logicalSize = Size<Int>(scene.logicalWidth, scene.logicalHeight)
 
         let (clientEnd, serverEnd) = InProcessTransport.makePair()
-        let displayServer = DisplayServer(rendererServer: app.window.renderServer, window: app.window.sdlWindow)
+        let displayServer = DisplayServer(rendererServer: window.renderServer, window: window.sdlWindow)
         displayServer.bind(serverEnd)
         let displayClient = DisplayClient(transport: clientEnd, logicalSize: logicalSize)
 
