@@ -191,7 +191,7 @@ public final class FullWindow: LiteWindow {
 
     public func screenshot() throws -> (Size<Int>, [UInt8]) {
         try drawStart()
-        try draw(time: totalDrawTime)
+        renderServer.drawingInterpolator.draw(totalDrawTime)
         let format = try PixelFormat(format: .argb8888)
         let surface = try renderer.readPixels(format: format)
         let (w, h) = (Int(surface.width), Int(surface.height))
@@ -225,7 +225,7 @@ public final class FullWindow: LiteWindow {
         renderClient.sendCommands()
         let drawingInterp = renderServer.drawingInterpolator
         drawCount = drawingInterp._futureAllCmds.count
-        drawingInterp.draw(totalDrawTime > 100 ? totalDrawTime - 100 : 0)
+        drawingInterp.draw(totalDrawTime &- min(totalDrawTime, 100))
     }
 }
 
