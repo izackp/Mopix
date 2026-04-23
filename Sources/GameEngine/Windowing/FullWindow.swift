@@ -225,7 +225,9 @@ public final class FullWindow: LiteWindow {
         renderClient.sendCommands()
         let drawingInterp = renderServer.drawingInterpolator
         drawCount = drawingInterp._futureAllCmds.count
-        drawingInterp.draw(totalDrawTime &- min(totalDrawTime, 100))
+        if totalDrawTime >= 100 {
+            drawingInterp.draw(totalDrawTime - 100)
+        }
     }
 }
 

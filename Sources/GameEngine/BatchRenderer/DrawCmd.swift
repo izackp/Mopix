@@ -71,6 +71,7 @@ public extension DrawCmd {
     func lerp(_ oldCmd: DrawCmd, _ currentTime: UInt64) -> DrawCmd {
         let diff = time - oldCmd.time
         if (diff == 0) { return self }
+        guard currentTime >= oldCmd.time else { return self }
         let offset = currentTime - oldCmd.time
         if (offset == 0) { return oldCmd }
 
