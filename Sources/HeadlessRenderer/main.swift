@@ -55,7 +55,6 @@ func parseArgs() throws -> Args {
 
 final class HeadlessApp: Application {
     override init() throws {
-        setenv("SDL_VIDEODRIVER", "dummy", 1)
         try super.init()
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software")
     }
@@ -82,7 +81,7 @@ Task { @MainActor in
         }
 
         let app = try HeadlessApp()
-        let window = try FullWindow(parent: app, title: "HeadlessRenderer", windowOptions: [])
+        let window = try FullWindow(parent: app, title: "HeadlessRenderer", windowOptions: [.hidden])
         app.addWindow(window)
         let logicalSize = Size<Int>(scene.logicalWidth, scene.logicalHeight)
 
