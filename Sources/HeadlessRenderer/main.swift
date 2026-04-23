@@ -53,11 +53,15 @@ func parseArgs() throws -> Args {
 
 // MARK: - HeadlessApp
 
-final class HeadlessApp: Application {}
+final class HeadlessApp: Application {
+    override init() throws {
+        setenv("SDL_VIDEODRIVER", "dummy", 1)
+        try super.init()
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software")
+    }
+}
 
 // MARK: - Main
-
-let sema = DispatchSemaphore(value: 0)
 
 Task { @MainActor in
     do {
@@ -76,10 +80,6 @@ Task { @MainActor in
             fputs("Failed to load scene: \(error.localizedDescription)\n", stderr)
             exit(1)
         }
-
-        // Must be set before Application.init() calls SDL.initialize()
-        setenv("SDL_VIDEODRIVER", "offscreen", 1)
-        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software")
 
         let app = try HeadlessApp()
         let window = try FullWindow(parent: app, title: "HeadlessRenderer", windowOptions: [])
@@ -162,12 +162,11 @@ Task { @MainActor in
         }
 
         await displayClient.disconnect()
+        exit(0)
     } catch {
         fputs("Fatal error: \(error.localizedDescription)\n", stderr)
-        sema.signal()
         exit(1)
     }
-    sema.signal()
 }
 
-sema.wait()
+RunLoop.main.run()
