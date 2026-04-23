@@ -245,6 +245,20 @@ open class Application {
             }
         }
     }
+
+    private func logicHeadless(simTime: UInt64) {
+        listFixedUpdate.applyChanges()
+        for eachUpdateListener in listFixedUpdate.metaData {
+            let regulator = eachUpdateListener.tickBank
+            regulator.setCurrentTime(time: simTime)
+            var count = regulator.withdrawAll()
+            while (count > 0) {
+                readEvents()
+                eachUpdateListener.listener.step(regulator._timePerTick)
+                count -= 1
+            }
+        }
+    }
     /*
     func logicTick() {
         _tickBank.setCurrentTime(time: SDL_GetTicks64())
@@ -385,15 +399,19 @@ open class Application {
     private func runHeadlessLoop(_ config: HeadlessConfig) throws {
         let maxTick = config.screenshotTicks.max() ?? 1
         try FileManager.default.createDirectory(at: config.outputDir, withIntermediateDirectories: true)
+        var simTime: UInt64 = 0
+        var previousSimTime: UInt64 = 0
         for tick in 1...maxTick {
+            simTime += 16
             SDL_PumpEvents()
             readEvents()
-            logic()
+            logicHeadless(simTime: simTime)
             listUpdate.applyChanges()
             for eachUpdateListener in listUpdate.metaData {
-                eachUpdateListener.listener.step(16)
-                eachUpdateListener.lastTick = SDL_GetTicks64()
+                eachUpdateListener.listener.step(simTime - previousSimTime)
+                eachUpdateListener.lastTick = simTime
             }
+            previousSimTime = simTime
             if config.screenshotTicks.contains(tick) {
                 for window in listWindows {
                     guard let fullWindow = window as? FullWindow else { continue }
