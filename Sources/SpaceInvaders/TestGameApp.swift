@@ -109,7 +109,7 @@ class TestGameApp : Application {
     
     override init() throws {
         try super.init()
-        let newWindow = try FullWindow(parent: self, title: "My Test Game", options:[Renderer.Option.presentVsync])
+        let newWindow = try FullWindow(parent: self, title: "My Test Game", windowOptions: headlessWindowOptions, options: isHeadless ? [] : [Renderer.Option.presentVsync])
         addWindow(newWindow)
         
         let resources = URL(fileURLWithPath: Bundle.SpaceInvaders.resourcePath!).appendingPathComponent("ExternalFiles")

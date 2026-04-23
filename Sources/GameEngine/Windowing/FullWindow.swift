@@ -189,6 +189,30 @@ public final class FullWindow: LiteWindow {
         super.drawFinish()
     }
 
+    public func screenshot() throws -> (Size<Int>, [UInt8]) {
+        try drawStart()
+        try draw(time: totalDrawTime)
+        let format = try PixelFormat(format: .argb8888)
+        let surface = try renderer.readPixels(format: format)
+        let (w, h) = (Int(surface.width), Int(surface.height))
+        var rgba = [UInt8](repeating: 0, count: w * h * 4)
+        try surface.withPixelData { raw in
+            let pitch = raw.pitch
+            for row in 0..<h {
+                for col in 0..<w {
+                    let src = row * pitch + col * 4
+                    let dst = (row * w + col) * 4
+                    // ARGB → RGBA
+                    rgba[dst + 0] = raw.ptr[src + 1] // R
+                    rgba[dst + 1] = raw.ptr[src + 2] // G
+                    rgba[dst + 2] = raw.ptr[src + 3] // B
+                    rgba[dst + 3] = raw.ptr[src + 0] // A
+                }
+            }
+        }
+        return (Size(w, h), rgba)
+    }
+
     var totalDrawTime:UInt64 = 0
     public override func draw(time: UInt64) throws {
         totalDrawTime += time
@@ -201,7 +225,7 @@ public final class FullWindow: LiteWindow {
         renderClient.sendCommands()
         let drawingInterp = renderServer.drawingInterpolator
         drawCount = drawingInterp._futureAllCmds.count
-        drawingInterp.draw(totalDrawTime - 100)
+        drawingInterp.draw(totalDrawTime > 100 ? totalDrawTime - 100 : 0)
     }
 }
 

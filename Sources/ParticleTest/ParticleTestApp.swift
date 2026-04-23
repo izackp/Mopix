@@ -24,7 +24,9 @@ class ParticleTestApp : Application {
             let options:BitMaskOptionSet<SDLWindow.Option> = []
         #endif
 
-        let newWindow = try FullWindow(parent: self, title: "My Test Game", frame: frame, windowOptions: options)
+        var windowOptions = options
+        if isHeadless { windowOptions.insert(.hidden) }
+        let newWindow = try FullWindow(parent: self, title: "My Test Game", frame: frame, windowOptions: windowOptions)
         addWindow(newWindow)
         
         //addFixedListener(emitter, msPerTick: 16)

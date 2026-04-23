@@ -59,37 +59,70 @@ struct EventListener : Equatable {
     let listener:IEventListener
 }
 
+public struct HeadlessConfig {
+    public let screenshotTicks: Set<Int>
+    public let outputDir: URL
+
+    public static func parse() -> HeadlessConfig? {
+        var args = CommandLine.arguments.dropFirst()
+        var screenshotsStr: String?
+        var outputDirStr: String?
+        while !args.isEmpty {
+            let flag = args.removeFirst()
+            switch flag {
+            case "--screenshots":
+                screenshotsStr = args.isEmpty ? nil : String(args.removeFirst())
+            case "--output-dir":
+                outputDirStr = args.isEmpty ? nil : String(args.removeFirst())
+            default:
+                break
+            }
+        }
+        guard screenshotsStr != nil || outputDirStr != nil else { return nil }
+        let ticks: Set<Int> = screenshotsStr.map { str in
+            Set(str.components(separatedBy: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) })
+        } ?? []
+        let outputDir = URL(fileURLWithPath: outputDirStr ?? "./")
+        return HeadlessConfig(screenshotTicks: ticks, outputDir: outputDir)
+    }
+}
+
 open class Application {
     var listWindows: [LiteWindow] = []
-    
+
     var listFixedUpdate = MutableIteratableArray<IUpdate, FixedUpdatedListener>()
     var listUpdate = MutableIteratableArray<IUpdate, UpdatedListener>()
     var listEvent = MutableIteratableArray<IEventListener, EventListener>()
-    
-    
+
+
     public let vd = VirtualDrive.shared
     public let eventLogger = EventTimeline()
     //var engine:IEngine? = nil
     //var delegate:LGAppDelegate
     public var isRunning = true
     public var stats = Stats()
-    
+
     public var everySecond:Double = 0
     public var skippedFrames = 0
     public var skippedTime:Int = 0
     public var lastStats:String = ""
-    
+
+    public let headlessConfig: HeadlessConfig?
+    public var isHeadless: Bool { headlessConfig != nil }
+    public var headlessWindowOptions: BitMaskOptionSet<SDLWindow.Option> { isHeadless ? [.hidden] : [] }
+
     static weak var _shared:Application!
     public static func shared() -> Application {
         return _shared!
     }
-    
+
     public init() throws {
+        headlessConfig = HeadlessConfig.parse()
         CodableTypeResolver.resolve = { try TypeMap.customDecodeSwitch($0) }
         //Note: automatically initializes the Event Handling, File I/O and Threading subsystems
         //NOTE: Present via metal is .. slow? taking 32+ms
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl")
-        
+
         try SDL.initialize([.video])
         try TTF.initialize()
         //engine.start()
@@ -232,7 +265,11 @@ open class Application {
     }*/
     
     public func runLoop() throws {
-        
+        if let config = headlessConfig {
+            try runHeadlessLoop(config)
+            return
+        }
+
         //var allImmediateUseEvents:[SDL_Event] = []
 
         while isRunning {
@@ -341,6 +378,34 @@ open class Application {
                 try eventLogger.writeToFile(namedFile)
             } catch let error {
                 print("Error saving timeline: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func runHeadlessLoop(_ config: HeadlessConfig) throws {
+        let maxTick = config.screenshotTicks.max() ?? 1
+        try FileManager.default.createDirectory(at: config.outputDir, withIntermediateDirectories: true)
+        for tick in 1...maxTick {
+            SDL_PumpEvents()
+            readEvents()
+            logic()
+            listUpdate.applyChanges()
+            for eachUpdateListener in listUpdate.metaData {
+                eachUpdateListener.listener.step(16)
+                eachUpdateListener.lastTick = SDL_GetTicks64()
+            }
+            if config.screenshotTicks.contains(tick) {
+                for window in listWindows {
+                    guard let fullWindow = window as? FullWindow else { continue }
+                    do {
+                        let (size, rgba) = try fullWindow.screenshot()
+                        let outURL = config.outputDir.appendingPathComponent("frame_\(tick).png")
+                        try writePNG(rgba: rgba, size: size, to: outURL)
+                        print("Saved \(outURL.path)")
+                    } catch {
+                        fputs("Screenshot at tick \(tick) failed: \(error.localizedDescription)\n", stderr)
+                    }
+                }
             }
         }
     }
