@@ -24,6 +24,7 @@ Feature to support after removeing sdl2:
  3d and affine transformations
  
 */
+@MainActor
 open class View: Codable {
 
     public var _id:String? = nil
@@ -215,9 +216,9 @@ open class View: Codable {
         for eachItem in listLayouts {
             eachItem.updateFrame(self)
         }
-        
+
         layoutChildren()
-        
+
         for eachItem in listLayoutChildren {
             eachItem.updateChildren(self)
         }

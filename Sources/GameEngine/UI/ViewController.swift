@@ -8,7 +8,7 @@
 import Foundation
 
 protocol ViewFactory {
-    func loadView() throws -> View
+    @MainActor func loadView() throws -> View
 }
 
 class VirtualDriveView : ViewFactory {
@@ -18,21 +18,21 @@ class VirtualDriveView : ViewFactory {
         _path = path
         _drive = drive
     }
-    
-    func loadView() -> View {
+
+    @MainActor func loadView() -> View {
         let data = _drive.readFile(_path)
         return data!.toView()
     }
 }
 
 extension Array where Element == UInt8 {
-    func toView() -> View {
+    @MainActor func toView() -> View {
         return View()
     }
 }
 
 extension URL: ViewFactory {
-    func loadView() throws -> View {
+    @MainActor func loadView() throws -> View {
         let data = try self.readFile()
         return data.toView()
     }
@@ -50,6 +50,7 @@ extension URL: ViewFactory {
 //If we need more memory then we would not only want to remove the view but also the view controller.
 //If we can't remove the view (visible).. we can't remove the controller.
 //Hence, we tie them together.
+@MainActor
 open class ViewController {
     
     /*

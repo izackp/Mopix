@@ -10,7 +10,7 @@ import Foundation
 public typealias DValue = Int16
 
 public protocol LayoutElement : Codable {
-    func updateFrame(_ view:View)
+    @MainActor func updateFrame(_ view:View)
 }
 
 public struct LEInset : LayoutElement, Codable {

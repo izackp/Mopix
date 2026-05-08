@@ -36,19 +36,25 @@ if isRunningTests {
 #endif
 
 public func wrapperMain(argc:Int32, argv:UnsafeMutablePointer<UnsafeMutablePointer<Int8>?>?) -> Int32 {
-    do {
-        let app = try TestGameApp()
-        try app.runLoop()
+    var exitCode: Int32 = EXIT_SUCCESS
+    let sema = DispatchSemaphore(value: 0)
+    Task { @MainActor in
+        do {
+            let app = try TestGameApp()
+            try await app.runLoop()
+        } catch let error as SDLError {
+            fputs("Error: \(error.debugDescription)\n", stderr)
+            exitCode = EXIT_FAILURE
+        } catch {
+            fputs("Error: \(error.localizedDescription)\n", stderr)
+            exitCode = EXIT_FAILURE
+        }
+        sema.signal()
     }
-    catch let error as SDLError {
-        print("Error: \(error.debugDescription)")
-        exit(EXIT_FAILURE)
+    while sema.wait(timeout: .now()) == .timedOut {
+        RunLoop.main.run(mode: .default, before: Date(timeIntervalSinceNow: 0.001))
     }
-    catch {
-        print("Error: \(error.localizedDescription)")
-        exit(EXIT_FAILURE)
-    }
-    return 0
+    return exitCode
 }
 
 #if os(macOS)

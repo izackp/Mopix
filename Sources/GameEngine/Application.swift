@@ -11,8 +11,6 @@ import SDL2Swift
 import SDL2_TTFSwift
 
 public protocol IUpdate : AnyObject {
-    //Fixed step also takes a delta. There could be a case were we want to change
-    //ticks per second or simulate multiple ticks at once
     func step(_ delta:UInt64)
 }
 
@@ -87,6 +85,7 @@ public struct HeadlessConfig {
     }
 }
 
+@MainActor
 open class Application {
     var listWindows: [LiteWindow] = []
 
@@ -254,12 +253,12 @@ open class Application {
         readEvents()
     }
 
-    func captureScreenshots(for tick: Int, outputDir: URL) throws {
+    func captureScreenshots(for tick: Int, outputDir: URL) async throws {
         try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
         for window in listWindows {
             guard let fullWindow = window as? FullWindow else { continue }
             do {
-                let (size, rgba) = try fullWindow.screenshot()
+                let (size, rgba) = try await fullWindow.screenshot()
                 let outURL = outputDir.appendingPathComponent("frame_\(tick).png")
                 try writePNG(rgba: rgba, size: size, to: outURL)
                 print("Saved \(outURL.path)")
@@ -298,13 +297,13 @@ open class Application {
         }
     }*/
     
-    public func runLoop() throws {
+    public func runLoop() async throws {
         let loopDriver: ApplicationLoopDriver
         if let config = headlessConfig {
             loopDriver = HeadlessApplicationLoopDriver(config: config)
         } else {
             loopDriver = RealtimeApplicationLoopDriver()
         }
-        try loopDriver.run(application: self)
+        try await loopDriver.run(application: self)
     }
 }

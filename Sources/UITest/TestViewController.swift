@@ -9,8 +9,9 @@ import GameEngine
 import Foundation
 
 public class TestViewController : ViewController, PackageChangeListener {
-    
+
     let _source:VDUrl
+    let _vd: VirtualDrive
 
     static public func build(_ imageManager:AtlasLoader) throws -> TestViewController {
         let vd = UITestApp.shared.vd //TODO: So do we make application shared?
@@ -31,19 +32,19 @@ public class TestViewController : ViewController, PackageChangeListener {
         let content = try decoder.decode(ResolverInterface<Any>.self, from: dataWrapper)
         guard let myView = content.result.first as? View else { throw GenericError("Unexpected type")}
         let mountedDir = vd.packages.first(where: {$0.path == vcUrl})
-        let result = TestViewController(myView, vcUrl)
+        let result = TestViewController(myView, vcUrl, vd)
         try mountedDir?.startWatching(result)
         return result
     }
     
-    init(_ view: View, _ source:VDUrl) {
+    init(_ view: View, _ source:VDUrl, _ vd: VirtualDrive) {
         _source = source
+        _vd = vd
         super.init(view)
     }
-    
+
     deinit {
-        let vd = Application.shared().vd
-        vd.removeWatcher(self)
+        _vd.removeWatcher(self)
     }
     
     public func fileChanges(_ files: [VDItem]) {

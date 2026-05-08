@@ -58,8 +58,9 @@ public class UIBuilderView: View {
 
 @available(macOS 12.0, *)
 public class UIBuilderController : ViewController, PackageChangeListener {
-    
+
     let _source:VDUrl
+    let _vd: VirtualDrive
 
     static public func build(_ imageManager:AtlasLoader) throws -> UIBuilderController {
         let vd = Application.shared().vd //TODO: So do we make application shared?
@@ -78,7 +79,7 @@ public class UIBuilderController : ViewController, PackageChangeListener {
             return false
         }) as? View else { throw GenericError("Unexpected type")}
         let mountedDir = vd.packages.first(where: {$0.path == vcUrl})
-        let result = try UIBuilderController(myView, vcUrl)
+        let result = try UIBuilderController(myView, vcUrl, vd)
         try mountedDir?.startWatching(result)
         return result
     }
@@ -91,8 +92,9 @@ public class UIBuilderController : ViewController, PackageChangeListener {
     public var lblStats:TextView
     public var scrollView:ScrollView
     
-    init(_ view: View, _ source:VDUrl) throws {
+    init(_ view: View, _ source:VDUrl, _ vd: VirtualDrive) throws {
         _source = source
+        _vd = vd
         viewLeftHeirachy = view.viewForId("viewLeftHeirachy")!
         viewContent = view.viewForId("viewContent")!
         viewRightInfo = view.viewForId("viewRightInfo")!
@@ -114,8 +116,7 @@ public class UIBuilderController : ViewController, PackageChangeListener {
     }
     
     deinit {
-        let vd = Application.shared().vd
-        vd.removeWatcher(self)
+        _vd.removeWatcher(self)
     }
     
     var lastFrames = 0

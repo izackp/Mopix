@@ -1,12 +1,14 @@
 import Foundation
 import SDL2
 
+@MainActor
 protocol ApplicationLoopDriver {
-    func run(application: Application) throws
+    func run(application: Application) async throws
 }
 
+@MainActor
 final class RealtimeApplicationLoopDriver: ApplicationLoopDriver {
-    func run(application: Application) throws {
+    func run(application: Application) async throws {
         while application.isRunning {
             application.readEvents()
 
@@ -27,6 +29,7 @@ final class RealtimeApplicationLoopDriver: ApplicationLoopDriver {
     }
 }
 
+@MainActor
 final class HeadlessApplicationLoopDriver: ApplicationLoopDriver {
     private let config: HeadlessConfig
     private let millisecondsPerTick: UInt64
@@ -36,7 +39,7 @@ final class HeadlessApplicationLoopDriver: ApplicationLoopDriver {
         self.millisecondsPerTick = millisecondsPerTick
     }
 
-    func run(application: Application) throws {
+    func run(application: Application) async throws {
         let maxTick = config.screenshotTicks.max() ?? 1
         var simulatedTime: UInt64 = 0
 
@@ -48,7 +51,7 @@ final class HeadlessApplicationLoopDriver: ApplicationLoopDriver {
             application.runDeltaUpdatesHeadless(simTime: simulatedTime, delta: millisecondsPerTick)
 
             if config.screenshotTicks.contains(tick) {
-                try application.captureScreenshots(for: tick, outputDir: config.outputDir)
+                try await application.captureScreenshots(for: tick, outputDir: config.outputDir)
             }
         }
     }

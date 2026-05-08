@@ -901,9 +901,22 @@ private extension DisplayServer {
         rendererServer.drawingInterpolator.draw(SDL_GetTicks64())
         let format = try PixelFormat(format: .argb8888)
         let surface = try rendererServer.renderer.readPixels(format: format)
-        let pixelData = PixelData(surface)
-        let data = try bytes(from: pixelData)
-        return .pixelData(handle: 0, size: pixelData.size(), data: data)
+        let (w, h) = (Int(surface.width), Int(surface.height))
+        var rgba = [UInt8](repeating: 0, count: w * h * 4)
+        try surface.withPixelData { raw in
+            let pitch = raw.pitch
+            for row in 0..<h {
+                for col in 0..<w {
+                    let src = row * pitch + col * 4
+                    let dst = (row * w + col) * 4
+                    rgba[dst + 0] = raw.ptr[src + 2] // R
+                    rgba[dst + 1] = raw.ptr[src + 1] // G
+                    rgba[dst + 2] = raw.ptr[src + 0] // B
+                    rgba[dst + 3] = raw.ptr[src + 3] // A
+                }
+            }
+        }
+        return .pixelData(handle: 0, size: Size(w, h), data: rgba)
     }
 
     func sanitizeFileName(_ name: String) -> String {

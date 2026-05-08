@@ -583,8 +583,8 @@ protocol ThrowingIteratorProtocol : IteratorProtocol where Element == Result<Inn
 extension ThrowingIteratorProtocol {
     mutating func next() -> Self.Element? {
         do {
-            let stats = Application._shared.stats
-            
+            let stats = MainActor.assumeIsolated { Application._shared.stats }
+
             //var time = CFAbsoluteTimeGetCurrent()
             let result = try self.nextInner()
             //var elapsed = CFAbsoluteTimeGetCurrent() - time
@@ -884,7 +884,7 @@ extension TextLine2 {
     
     static func buildLineIterator(_ str:AttributedString, renderContext:UICommandContext, context:TextContext, maxWidthPxs:Int? = nil) throws -> LineIterator {
         
-        let stats = Application._shared.stats
+        let stats = MainActor.assumeIsolated { Application._shared.stats }
         //var time = SDL_GetPerformanceCounter()
         let allCharacters = String(str.characters[...]) //https://forums.swift.org/t/attributedstring-to-string/61667
         

@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol LayoutChild: Codable {
-    func updateChildren(_ view:View)
+    @MainActor func updateChildren(_ view:View)
 }
 
 public struct LCInset : LayoutChild, Codable {

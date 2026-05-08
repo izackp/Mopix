@@ -34,6 +34,7 @@ public struct Controller {
  }
  */
 
+@MainActor
 open class LiteWindow : IUpdate, IEventListener {
 
     internal let sdlWindow:SDLWindow
@@ -137,17 +138,17 @@ open class LiteWindow : IUpdate, IEventListener {
         try renderer.setDrawColor(red: 0x00, green: 0x00, blue: 0x00, alpha: 0xFF)
         try renderer.clear()
     }
-    
+
     open func draw(time:UInt64) throws {
 
     }
-    
+
     open func drawFinish() {
         parentApp.stats.measure("Present", 0.01666666) {
             renderer.present()
         }
     }
-    
+
     func close() {
         parentApp.removeWindow(self)
     }

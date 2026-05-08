@@ -11,7 +11,10 @@ import SDL2Swift
 public final class FullWindow: LiteWindow {
     public let renderServer:RendererServer
     public let renderClient:RendererClient
-    
+    public let displayServer:DisplayServer
+    public let displayClient:DisplayClient
+    private var connectTask: Task<Void, Error>?
+
     public var rootViewController:ViewController? = nil
     public var rootView:View? = nil
     public let atlas:ImageAtlas
@@ -46,12 +49,28 @@ public final class FullWindow: LiteWindow {
         }
         renderServer = RendererServer(renderer: renderer, imageManager: imageManager)
         renderClient = RendererClient([], renderServer)
-        
+
+        let rs = renderServer
+        let (clientEnd, serverEnd) = InProcessTransport.makePair()
+        displayServer = MainActor.assumeIsolated {
+            let ds = DisplayServer(rendererServer: rs, window: sdlWindow)
+            ds.bind(serverEnd)
+            return ds
+        }
+        displayClient = DisplayClient(
+            transport: clientEnd,
+            logicalSize: Size(frame.size.width, frame.size.height)
+        )
+
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
         if let size = sdlWindow.rendererSize {
             renderClient._windowSize = Size(Int16(size.width), Int16(size.height))
         } else {
             renderClient._windowSize = Size<Int16>(Int16(frame.size.width), Int16(frame.size.height))
+        }
+        let logicalSize = Size(frame.size.width, frame.size.height)
+        connectTask = Task { [displayClient] in
+            try await displayClient.connect(name: "FullWindow", version: 1, logicalSize: logicalSize)
         }
         //let vc = try UIBuilderController.build(imageManager)
         //setRootViewController(vc)
@@ -189,28 +208,9 @@ public final class FullWindow: LiteWindow {
         super.drawFinish()
     }
 
-    public func screenshot() throws -> (Size<Int>, [UInt8]) {
-        try drawStart()
-        renderServer.drawingInterpolator.draw(totalDrawTime)
-        let format = try PixelFormat(format: .argb8888)
-        let surface = try renderer.readPixels(format: format)
-        let (w, h) = (Int(surface.width), Int(surface.height))
-        var rgba = [UInt8](repeating: 0, count: w * h * 4)
-        try surface.withPixelData { raw in
-            let pitch = raw.pitch
-            for row in 0..<h {
-                for col in 0..<w {
-                    let src = row * pitch + col * 4
-                    let dst = (row * w + col) * 4
-                    // ARGB8888 little-endian memory layout: [B][G][R][A] → RGBA
-                    rgba[dst + 0] = raw.ptr[src + 2] // R
-                    rgba[dst + 1] = raw.ptr[src + 1] // G
-                    rgba[dst + 2] = raw.ptr[src + 0] // B
-                    rgba[dst + 3] = raw.ptr[src + 3] // A
-                }
-            }
-        }
-        return (Size(w, h), rgba)
+    public func screenshot() async throws -> (Size<Int>, [UInt8]) {
+        try await connectTask?.value
+        return try await displayClient.screenshot()
     }
 
     var totalDrawTime:UInt64 = 0
