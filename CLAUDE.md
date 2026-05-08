@@ -115,3 +115,4 @@ Ignore the .build folder
 - **Never modify branches that do not begin with `claude`.** If the current branch does not start with `claude`, stop and ask the user before making any changes.
 - **Commit footer format.** End every commit message with `Automated-By: <model name>` (no email address). Do not use `Co-Authored-By`.
 - **Never spawn processes.** Do not use `Process`, `shell`, or any subprocess API. All I/O must use pure Swift/Foundation or declared package dependencies.
+- **Never view screenshots without explicit permission.** Do not use the Read tool on image files (PNG, JPG, etc.) unless the user has directly and explicitly asked you to view them. No response is not permission.
