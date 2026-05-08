@@ -222,7 +222,7 @@ public final class FullWindow: LiteWindow {
             let context = UICommandContext(client: renderClient, fontProvider: imageManager, rttAllocator: renderServer)
             try view.draw(context, view.frame)
         }
-        renderClient.sendCommands()
+        renderServer.receiveCmdsSync(renderClient.cmdList)
         let drawingInterp = renderServer.drawingInterpolator
         drawCount = drawingInterp._futureAllCmds.count
         if totalDrawTime >= 100 {
