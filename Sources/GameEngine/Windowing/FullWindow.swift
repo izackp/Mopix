@@ -202,11 +202,11 @@ public final class FullWindow: LiteWindow {
                 for col in 0..<w {
                     let src = row * pitch + col * 4
                     let dst = (row * w + col) * 4
-                    // ARGB → RGBA
-                    rgba[dst + 0] = raw.ptr[src + 1] // R
-                    rgba[dst + 1] = raw.ptr[src + 2] // G
-                    rgba[dst + 2] = raw.ptr[src + 3] // B
-                    rgba[dst + 3] = raw.ptr[src + 0] // A
+                    // ARGB8888 little-endian memory layout: [B][G][R][A] → RGBA
+                    rgba[dst + 0] = raw.ptr[src + 2] // R
+                    rgba[dst + 1] = raw.ptr[src + 1] // G
+                    rgba[dst + 2] = raw.ptr[src + 0] // B
+                    rgba[dst + 3] = raw.ptr[src + 3] // A
                 }
             }
         }
