@@ -323,8 +323,9 @@ public class RendererClient: IDraw, IResourceContainer {
         cmdList.removeAll(keepingCapacity: true)
     }
 
-    public func sendCommands() {
-        guard cmdList.count > 0 else { return }
-        Task { await server.receiveCmds(self.cmdList) }
+    @discardableResult
+    public func sendCommands() -> Task<Void, Never>? {
+        guard cmdList.count > 0 else { return nil }
+        return Task { await self.server.receiveCmds(self.cmdList) }
     }
 }

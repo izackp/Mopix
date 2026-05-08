@@ -208,8 +208,11 @@ public final class FullWindow: LiteWindow {
         super.drawFinish()
     }
 
+    private var lastSendTask: Task<Void, Never>? = nil
+
     public func screenshot() async throws -> (Size<Int>, [UInt8]) {
         try await connectTask?.value
+        await lastSendTask?.value
         return try await displayClient.screenshot()
     }
 
@@ -222,7 +225,7 @@ public final class FullWindow: LiteWindow {
             let context = UICommandContext(client: renderClient, fontProvider: imageManager, rttAllocator: renderServer)
             try view.draw(context, view.frame)
         }
-        renderServer.receiveCmdsSync(renderClient.cmdList)
+        lastSendTask = renderClient.sendCommands()
         let drawingInterp = renderServer.drawingInterpolator
         drawCount = drawingInterp._futureAllCmds.count
         if totalDrawTime >= 100 {
