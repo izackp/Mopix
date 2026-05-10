@@ -81,6 +81,26 @@
             "preLaunchTask": "swift: Build Release UITest",
             "target": "UITest",
             "configuration": "release"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:GameEngine}",
+            "name": "Debug HeadlessRenderer",
+            "target": "HeadlessRenderer",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug HeadlessRenderer"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:GameEngine}",
+            "name": "Release HeadlessRenderer",
+            "target": "HeadlessRenderer",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release HeadlessRenderer"
         }
     ]
 }

@@ -210,9 +210,12 @@ public final class FullWindow: LiteWindow {
 
     private var lastSendTask: Task<Void, Never>? = nil
 
-    public func screenshot() async throws -> (Size<Int>, [UInt8]) {
+    public func waitForConnection() async throws {
         try await connectTask?.value
-        await lastSendTask?.value
+    }
+
+    public func screenshot() async throws -> (Size<Int>, [UInt8]) {
+        await lastSendTask?.value  // drains the entire delivery chain
         return try await displayClient.screenshot()
     }
 

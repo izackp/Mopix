@@ -298,6 +298,11 @@ open class Application {
     }*/
     
     public func runLoop() async throws {
+        for window in listWindows {
+            if let fw = window as? FullWindow {
+                try await fw.waitForConnection()
+            }
+        }
         let loopDriver: ApplicationLoopDriver
         if let config = headlessConfig {
             loopDriver = HeadlessApplicationLoopDriver(config: config)

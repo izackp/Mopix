@@ -896,12 +896,15 @@ private extension DisplayServer {
     }
 
     func screenshotBody() throws -> ResponseBody {
+        let (w, h) = try rendererServer.renderer.getOutputSize()
+        let target = try Texture(renderer: rendererServer.renderer, format: .argb8888, access: .target, width: w, height: h)
+        let prevTarget = try rendererServer.renderer.swapTarget(target)
+        defer { try? rendererServer.renderer.setTarget(prevTarget) }
         try rendererServer.renderer.setDrawColor(red: 0, green: 0, blue: 0, alpha: 255)
         try rendererServer.renderer.clear()
         rendererServer.drawingInterpolator.draw(SDL_GetTicks64())
         let format = try PixelFormat(format: .argb8888)
         let surface = try rendererServer.renderer.readPixels(format: format)
-        let (w, h) = (Int(surface.width), Int(surface.height))
         var rgba = [UInt8](repeating: 0, count: w * h * 4)
         try surface.withPixelData { raw in
             let pitch = raw.pitch

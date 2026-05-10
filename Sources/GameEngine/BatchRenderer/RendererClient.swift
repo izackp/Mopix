@@ -49,6 +49,7 @@ public class RendererClient: IDraw, IResourceContainer {
     var cmdList:[DrawCmd] = []
     let server:any IRendererServer
     public var defaultTime:UInt64 = 0
+    private var deliveryChain: Task<Void, Never>? = nil
     public var maxTicksForRollback = 10
     var cacheList = WeakArray<IResourceCache>()
 
@@ -324,8 +325,16 @@ public class RendererClient: IDraw, IResourceContainer {
     }
 
     @discardableResult
-    public func sendCommands() -> Task<Void, Never>? {
-        guard cmdList.count > 0 else { return nil }
-        return Task { await self.server.receiveCmds(self.cmdList) }
+    public func sendCommands() -> Task<Void, Never> {
+        let cmds = cmdList
+        let prev = deliveryChain
+        let task = Task {
+            await prev?.value
+            if !cmds.isEmpty {
+                await self.server.receiveCmds(cmds)
+            }
+        }
+        deliveryChain = task
+        return task
     }
 }
