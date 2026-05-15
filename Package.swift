@@ -27,6 +27,7 @@ let package = Package(
             targets: ["GameEngine"]),
         .executable(name: "ParticleTweenTest", targets: ["ParticleTest"]),
         .executable(name: "SpaceInvaders", targets: ["SpaceInvaders"]),
+        .executable(name: "Tennis", targets: ["Tennis"]),
         .executable(name: "UITest", targets: ["UITest"]),
         .executable(name: "HeadlessRenderer", targets: ["HeadlessRenderer"])
     ],
@@ -98,6 +99,13 @@ let package = Package(
             ],
             resources: [
                 .copy("ExternalFiles")
+            ],
+            swiftSettings: optimize
+        ),
+        .executableTarget(
+            name: "Tennis",
+            dependencies: [
+                "GameEngine"
             ],
             swiftSettings: optimize
         ),
