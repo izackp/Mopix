@@ -5,6 +5,13 @@ repo. It is intentionally outcome-driven: the goal is not to ship a long feature
 to get from "no tennis game" to "playable, readable, and extensible tennis loop" with clear
 stages and decision gates.
 
+## Planning Note
+
+See [tennis-operational-discoveries.md](./tennis-operational-discoveries.md) for implementation
+lessons learned while executing this roadmap. In particular, use caution when defining
+milestones that can be satisfied by temporary visible shells but do not yet lock durable tennis
+runtime structure.
+
 ## Strategy Context
 
 ### Business Goals / Project Goals
@@ -35,6 +42,7 @@ stages and decision gates.
 ## Roadmap Principles
 
 - prioritize first playable speed over completeness
+- prefer vertical slices of the final runtime over disposable milestone-only artifacts
 - lock the core rally loop before investing in content breadth
 - solve ambiguity with explicit product decisions instead of carrying it forward in code
 - use placeholder art when needed to de-risk mechanics early

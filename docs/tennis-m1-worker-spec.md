@@ -6,6 +6,16 @@ It is a requirements document, not an implementation plan. It describes what wor
 deliver, what is in scope, what is out of scope, and how acceptance will be judged. It does
 not prescribe file structure, class names, rendering internals, or engine-specific tactics.
 
+## Planning Caution
+
+This milestone is intentionally scoped to visible launch-state output. That makes it useful for
+proving readability and executable setup, but it also creates a risk of one-off implementation
+work if later milestones replace rather than extend the runtime structure created here.
+
+See [tennis-operational-discoveries.md](./tennis-operational-discoveries.md) for the operating
+lesson: future milestone specs should increasingly prefer durable slices of the final tennis
+runtime over temporary acceptance-demo artifacts.
+
 ## 1. Goal
 
 Milestone 1 proves that the project can host a tennis game as a distinct playable runtime and
