@@ -200,10 +200,10 @@ public actor DisplayClient {
 
     /// Load a resource from a mounted pack by VDUrl. Returns the response body
     /// (`.image`, `.sound`, or `.font`).
-    public func loadResource(url: VDUrl, kind: ResourceKind, density: Float = 1.0) async throws -> ResponseBody {
+    public func loadResource(url: VDUrl, kind: ResourceKind, density: Float = 1.0, preferredHandle: ResHandle? = nil) async throws -> ResponseBody {
         let requestId = nextId()
         let response = try await sendRequest(
-            .loadResource(requestId: requestId, url: url, kind: kind, density: density),
+            .loadResource(requestId: requestId, url: url, kind: kind, density: density, preferredHandle: preferredHandle),
             requestId: requestId
         )
         guard response.status == .ok else { throw errorFrom(response) }
@@ -212,10 +212,10 @@ public actor DisplayClient {
     }
 
     /// Upload a single resource as raw bytes. Returns the response body.
-    public func uploadResource(url: VDUrl, kind: ResourceKind, density: Float = 1.0, data: [UInt8]) async throws -> ResponseBody {
+    public func uploadResource(url: VDUrl, kind: ResourceKind, density: Float = 1.0, data: [UInt8], preferredHandle: ResHandle? = nil) async throws -> ResponseBody {
         let requestId = nextId()
         let response = try await sendRequest(
-            .uploadResource(requestId: requestId, url: url, kind: kind, density: density, data: data),
+            .uploadResource(requestId: requestId, url: url, kind: kind, density: density, data: data, preferredHandle: preferredHandle),
             requestId: requestId
         )
         guard response.status == .ok else { throw errorFrom(response) }
@@ -274,6 +274,15 @@ public actor DisplayClient {
         compositionBuffer.removeAll(keepingCapacity: true)
         cmdBuffer.removeAll(keepingCapacity: true)
         fireAndForget(.sendFrame(clientTick: clientTick, compositions: compositions, cmds: cmds))
+    }
+
+    /// Send the buffered draw and composition commands and await transport delivery.
+    public func sendFrameAndWait(clientTick: UInt64) async {
+        let compositions = compositionBuffer
+        let cmds = cmdBuffer
+        compositionBuffer.removeAll(keepingCapacity: true)
+        cmdBuffer.removeAll(keepingCapacity: true)
+        await transport.send(.sendFrame(clientTick: clientTick, compositions: compositions, cmds: cmds))
     }
 
     /// Take a screenshot of the current composed frame. Returns (size, RGBA bytes).

@@ -122,6 +122,6 @@ let package = Package(
         ),
         .testTarget(
             name: "GameEngineTests",
-            dependencies: ["GameEngine"]),
+            dependencies: ["GameEngine", "SpaceInvaders"]),
     ]
 )

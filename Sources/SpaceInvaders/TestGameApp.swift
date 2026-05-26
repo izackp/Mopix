@@ -60,7 +60,7 @@ class NoIdea {
 */
 
 @available(macOS 12.0, *)
-class EngineWrapped : IUpdate, IDrawable {
+class EngineWrapped : IUpdate, IDrawable, IDisplayDrawable {
 
     let scene:SIScene
     var totalTime:UInt64 = 0
@@ -84,6 +84,14 @@ class EngineWrapped : IUpdate, IDrawable {
         if (changes) {
             renderer.defaultTime = totalTime
             scene.draw(delta, renderer) //16ms
+            changes = false
+        }
+    }
+
+    func draw(_ delta: UInt64, _ renderer: GameEngine.DisplayRenderClient) {
+        if (changes) {
+            renderer.defaultTime = totalTime
+            scene.draw(delta, renderer)
             changes = false
         }
     }

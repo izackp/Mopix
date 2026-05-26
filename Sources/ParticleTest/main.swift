@@ -5,6 +5,7 @@
 //  Created by Isaac Paul on 4/13/22.
 //
 
+import Foundation
 import SDL2
 import SDL2Swift
 
@@ -33,6 +34,8 @@ if isRunningTests {
     runTestsMacOs()
     //return
 }
+#else
+let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 #endif
 
 public func wrapperMain(argc:Int32, argv:UnsafeMutablePointer<UnsafeMutablePointer<Int8>?>?) -> Int32 {
@@ -57,6 +60,7 @@ public func wrapperMain(argc:Int32, argv:UnsafeMutablePointer<UnsafeMutablePoint
     return exitCode
 }
 
+if !isRunningTests {
 #if os(macOS)
     let _ = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
 #elseif os(iOS)
@@ -68,3 +72,4 @@ public func wrapperMain(argc:Int32, argv:UnsafeMutablePointer<UnsafeMutablePoint
 #else
     let result = wrapperMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
 #endif
+}

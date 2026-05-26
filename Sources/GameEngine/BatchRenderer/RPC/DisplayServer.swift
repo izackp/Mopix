@@ -156,10 +156,10 @@ public final class DisplayServer {
                 }
             }
 
-        case let .loadResource(requestId, url, kind, density):
+        case let .loadResource(requestId, url, kind, density, preferredHandle):
             await withClient(requestId: requestId, transport: transport) { client in
                 do {
-                    let body = try self.loadResource(url: url, kind: kind, density: density, client: client)
+                    let body = try self.loadResource(url: url, kind: kind, density: density, preferredHandle: preferredHandle, client: client)
                     await self.sendResponse(requestId, via: transport, status: .ok, body: body)
                 } catch let error as DisplayServerError {
                     await self.sendError(requestId, via: transport, status: error.status, detail: error.message)
@@ -168,10 +168,10 @@ public final class DisplayServer {
                 }
             }
 
-        case let .uploadResource(requestId, url, kind, _, data):
+        case let .uploadResource(requestId, url, kind, _, data, preferredHandle):
             await withClient(requestId: requestId, transport: transport) { client in
                 do {
-                    let body = try self.uploadResource(url: url, kind: kind, data: data, client: client)
+                    let body = try self.uploadResource(url: url, kind: kind, data: data, preferredHandle: preferredHandle, client: client)
                     await self.sendResponse(requestId, via: transport, status: .ok, body: body)
                 } catch let error as DisplayServerError {
                     await self.sendError(requestId, via: transport, status: error.status, detail: error.message)
@@ -412,10 +412,15 @@ private extension DisplayServer {
         return contentURL
     }
 
-    func loadResource(url: VDUrl, kind: ResourceKind, density: Float, client: ClientState) throws -> ResponseBody {
+    func loadResource(url: VDUrl, kind: ResourceKind, density: Float, preferredHandle: ResHandle?, client: ClientState) throws -> ResponseBody {
         switch kind {
         case .image:
-            let image = try rendererServer.resourceStore.loadResource(url)
+            let image: Image
+            if let preferredHandle {
+                image = try rendererServer.resourceStore.loadResource(url, preferredHandle)
+            } else {
+                image = try rendererServer.resourceStore.loadResource(url)
+            }
             track(handle: image.id, owner: client, origin: .pack(url: url, kind: kind, density: density))
             return .image(handle: image.id, size: image.size.to(Int.self))
 
@@ -432,11 +437,16 @@ private extension DisplayServer {
         }
     }
 
-    func uploadResource(url: VDUrl, kind: ResourceKind, data: [UInt8], client: ClientState) throws -> ResponseBody {
+    func uploadResource(url: VDUrl, kind: ResourceKind, data: [UInt8], preferredHandle: ResHandle?, client: ClientState) throws -> ResponseBody {
         switch kind {
         case .image:
             let pixelData = try pixelDataFromImageBytes(data)
-            let image = try rendererServer.resourceStore.loadResource(pixelData)
+            let image: ReadOnlyImage
+            if let preferredHandle {
+                image = try rendererServer.resourceStore.loadResource(pixelData, preferredHandle)
+            } else {
+                image = try rendererServer.resourceStore.loadResource(pixelData)
+            }
             track(handle: image.id, owner: client, origin: .uploaded(url: url, kind: kind))
             return .image(handle: image.id, size: image.size().to(Int.self))
 
@@ -581,7 +591,7 @@ private extension DisplayServer {
             try requireOwnership(handle: command.target, client: client)
         }
         if let handle = resourceHandle(from: command) {
-            try requireOwnership(handle: handle, client: client)
+            try requireDrawableAccess(handle: handle, client: client)
         }
     }
 
@@ -845,6 +855,19 @@ private extension DisplayServer {
         guard resourceOwners[handle] == client.clientId else {
             throw DisplayServerError.notFound("resource not found")
         }
+    }
+
+    func requireDrawableAccess(handle: ResHandle, client: ClientState) throws {
+        if resourceOwners[handle] == client.clientId {
+            return
+        }
+        if rendererServer.resourceStore._idImageCache[handle] != nil {
+            return
+        }
+        if fontResources[handle] != nil {
+            return
+        }
+        throw DisplayServerError.notFound("resource not found")
     }
 
     func handleExists(_ handle: ResHandle) -> Bool {

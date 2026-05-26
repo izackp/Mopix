@@ -46,7 +46,8 @@ public enum ClientMessage {
         requestId: RequestId,
         url: VDUrl,
         kind: ResourceKind,
-        density: Float = 1.0
+        density: Float = 1.0,
+        preferredHandle: ResHandle? = nil
     )
 
     case uploadResource(
@@ -54,7 +55,8 @@ public enum ClientMessage {
         url: VDUrl,
         kind: ResourceKind,
         density: Float = 1.0,
-        data: [UInt8]
+        data: [UInt8],
+        preferredHandle: ResHandle? = nil
     )
 
     case requestPixelData(
