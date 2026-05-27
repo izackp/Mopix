@@ -212,6 +212,12 @@ public final class FullWindow: LiteWindow {
         try await connectTask?.value
     }
 
+    public func drainDelivery() async {
+        await lastSendTask?.value
+        // Send a no-op ping so the server processes any queued messages before we read state.
+        _ = try? await displayClient.ping(clientTick: 0)
+    }
+
     public func screenshot() async throws -> (Size<Int>, [UInt8]) {
         await lastSendTask?.value  // drains the entire delivery chain
         return try await displayClient.screenshot()

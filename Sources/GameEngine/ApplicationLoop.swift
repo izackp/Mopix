@@ -40,7 +40,8 @@ final class HeadlessApplicationLoopDriver: ApplicationLoopDriver {
     }
 
     func run(application: Application) async throws {
-        let maxTick = config.screenshotTicks.max() ?? 1
+        let maxTick = config.maxTicks
+        guard maxTick > 0 else { return }
         var simulatedTime: UInt64 = 0
 
         for tick in 1...maxTick {
@@ -50,7 +51,7 @@ final class HeadlessApplicationLoopDriver: ApplicationLoopDriver {
             application.runFixedUpdates(currentTime: simulatedTime)
             application.runDeltaUpdatesHeadless(simTime: simulatedTime, delta: millisecondsPerTick)
 
-            if config.screenshotTicks.contains(tick) {
+            if config.screenshotTicks.contains(tick) || config.writeCmds {
                 try await application.captureScreenshots(for: tick, outputDir: config.outputDir)
             }
         }

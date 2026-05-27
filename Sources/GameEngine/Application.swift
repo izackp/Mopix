@@ -59,12 +59,16 @@ struct EventListener : Equatable {
 
 public struct HeadlessConfig {
     public let screenshotTicks: Set<Int>
+    public let maxTicks: Int
     public let outputDir: URL
+    public let writeCmds: Bool
 
     public static func parse() -> HeadlessConfig? {
         var args = CommandLine.arguments.dropFirst()
         var screenshotsStr: String?
         var outputDirStr: String?
+        var maxTicksStr: String?
+        var writeCmds = false
         while !args.isEmpty {
             let flag = args.removeFirst()
             switch flag {
@@ -72,16 +76,22 @@ public struct HeadlessConfig {
                 screenshotsStr = args.isEmpty ? nil : String(args.removeFirst())
             case "--output-dir":
                 outputDirStr = args.isEmpty ? nil : String(args.removeFirst())
+            case "--ticks":
+                maxTicksStr = args.isEmpty ? nil : String(args.removeFirst())
+            case "--write-commands":
+                writeCmds = true
             default:
                 break
             }
         }
-        guard screenshotsStr != nil || outputDirStr != nil else { return nil }
+        guard screenshotsStr != nil || outputDirStr != nil || writeCmds else { return nil }
         let ticks: Set<Int> = screenshotsStr.map { str in
             Set(str.components(separatedBy: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) })
         } ?? []
+        let explicitMax = maxTicksStr.flatMap { Int($0) }
+        let maxTicks = explicitMax ?? ticks.max() ?? 1
         let outputDir = URL(fileURLWithPath: outputDirStr ?? "./")
-        return HeadlessConfig(screenshotTicks: ticks, outputDir: outputDir)
+        return HeadlessConfig(screenshotTicks: ticks, maxTicks: maxTicks, outputDir: outputDir, writeCmds: writeCmds)
     }
 }
 
@@ -257,13 +267,27 @@ open class Application {
         try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
         for window in listWindows {
             guard let fullWindow = window as? FullWindow else { continue }
-            do {
-                let (size, rgba) = try await fullWindow.screenshot()
-                let outURL = outputDir.appendingPathComponent("frame_\(tick).png")
-                try writePNG(rgba: rgba, size: size, to: outURL)
-                print("Saved \(outURL.path)")
-            } catch {
-                fputs("Screenshot at tick \(tick) failed: \(error.localizedDescription)\n", stderr)
+            if headlessConfig?.screenshotTicks.contains(tick) == true {
+                do {
+                    let (size, rgba) = try await fullWindow.screenshot()
+                    let outURL = outputDir.appendingPathComponent("frame_\(tick).png")
+                    try writePNG(rgba: rgba, size: size, to: outURL)
+                    print("Saved \(outURL.path)")
+                } catch {
+                    fputs("Screenshot at tick \(tick) failed: \(error.localizedDescription)\n", stderr)
+                }
+            }
+            if headlessConfig?.writeCmds == true {
+                await fullWindow.drainDelivery()
+                let cmds = fullWindow.renderServer.drawingInterpolator._futureAllCmds
+                let outURL = outputDir.appendingPathComponent("frame_\(tick)_cmds.json")
+                do {
+                    let data = try JSONEncoder().encode(cmds)
+                    try data.write(to: outURL)
+                    print("Saved \(outURL.path) (\(cmds.count) commands)")
+                } catch {
+                    fputs("Command dump at tick \(tick) failed: \(error.localizedDescription)\n", stderr)
+                }
             }
         }
     }
@@ -312,3 +336,5 @@ open class Application {
         try await loopDriver.run(application: self)
     }
 }
+
+
