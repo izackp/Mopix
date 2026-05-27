@@ -12,7 +12,7 @@ import SDL2Swift
 public typealias SDLWindow = SDL2Swift.Window
 
 public protocol IDrawable {
-    func draw(_ delta: UInt64, _ renderer: GameEngine.RendererClient)
+    func draw(_ delta: UInt64, _ renderer: DisplayRenderClient)
 }
 
 /*

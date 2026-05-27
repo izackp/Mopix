@@ -192,6 +192,30 @@ public final class DisplayServer {
                 }
             }
 
+        case let .uploadRawPixels(requestId, url, size, data, preferredHandle):
+            await withClient(requestId: requestId, transport: transport) { client in
+                do {
+                    let body = try self.uploadRawPixels(url: url, size: size, data: data, preferredHandle: preferredHandle, client: client)
+                    await self.sendResponse(requestId, via: transport, status: .ok, body: body)
+                } catch let error as DisplayServerError {
+                    await self.sendError(requestId, via: transport, status: error.status, detail: error.message)
+                } catch {
+                    await self.sendError(requestId, via: transport, status: .serverError, detail: error.localizedDescription)
+                }
+            }
+
+        case let .updateResource(requestId, handle, size, data):
+            await withClient(requestId: requestId, transport: transport) { client in
+                do {
+                    try self.updateResource(handle: handle, size: size, data: data, client: client)
+                    await self.sendResponse(requestId, via: transport, status: .ok)
+                } catch let error as DisplayServerError {
+                    await self.sendError(requestId, via: transport, status: error.status, detail: error.message)
+                } catch {
+                    await self.sendError(requestId, via: transport, status: .serverError, detail: error.localizedDescription)
+                }
+            }
+
         case let .releaseResource(handle):
             guard let client = client(for: transport) else { return }
             releaseResource(handle: handle, client: client)
@@ -460,6 +484,33 @@ private extension DisplayServer {
         case .sound:
             throw DisplayServerError.server("audio not yet implemented")
         }
+    }
+
+    func uploadRawPixels(url: VDUrl, size: Size<Int>, data: [UInt8], preferredHandle: ResHandle?, client: ClientState) throws -> ResponseBody {
+        let pixelData = try rawBytesToPixelData(size: size, data: data)
+        let image: ReadOnlyImage
+        if let preferredHandle {
+            image = try rendererServer.resourceStore.loadResource(pixelData, preferredHandle)
+        } else {
+            image = try rendererServer.resourceStore.loadResource(pixelData)
+        }
+        track(handle: image.id, owner: client, origin: .uploaded(url: url, kind: .image))
+        return .image(handle: image.id, size: image.size().to(Int.self))
+    }
+
+    func updateResource(handle: ResHandle, size: Size<Int>, data: [UInt8], client: ClientState) throws {
+        try requireOwnership(handle: handle, client: client)
+        let pixelData = try rawBytesToPixelData(size: size, data: data)
+        try rendererServer.resourceStore.updateImage(handle, pixelData)
+    }
+
+    private func rawBytesToPixelData(size: Size<Int>, data: [UInt8]) throws -> PixelData {
+        let pixelData = try PixelData(size)
+        try pixelData.withMutablePixelData { raw in
+            let copyCount = min(data.count, raw.ptr.count)
+            raw.ptr.copyBytes(from: data.prefix(copyCount))
+        }
+        return pixelData
     }
 
     func requestPixelData(handle: ResHandle, client: ClientState) throws -> ResponseBody {

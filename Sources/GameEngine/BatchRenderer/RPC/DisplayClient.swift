@@ -223,6 +223,28 @@ public actor DisplayClient {
         return body
     }
 
+    /// Upload a resource as raw pixel bytes (same row format as `requestPixelData`).
+    public func uploadRawPixels(url: VDUrl, size: Size<Int>, data: [UInt8], preferredHandle: ResHandle? = nil) async throws -> ResponseBody {
+        let requestId = nextId()
+        let response = try await sendRequest(
+            .uploadRawPixels(requestId: requestId, url: url, size: size, data: data, preferredHandle: preferredHandle),
+            requestId: requestId
+        )
+        guard response.status == .ok else { throw errorFrom(response) }
+        guard let body = response.body else { throw DisplayClientError.unexpectedResponseBody }
+        return body
+    }
+
+    /// Update an existing image resource with new raw pixel bytes.
+    public func updateResource(handle: ResHandle, size: Size<Int>, data: [UInt8]) async throws {
+        let requestId = nextId()
+        let response = try await sendRequest(
+            .updateResource(requestId: requestId, handle: handle, size: size, data: data),
+            requestId: requestId
+        )
+        guard response.status == .ok else { throw errorFrom(response) }
+    }
+
     /// Request raw pixel data (RGBA, row-major) for a server-held resource.
     public func requestPixelData(handle: ResHandle) async throws -> ResponseBody {
         let requestId = nextId()

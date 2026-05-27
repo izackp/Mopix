@@ -9,19 +9,51 @@ import Foundation
 import SDL2
 import SDL2Swift
 
+public struct QueuedUnload {
+    let resource: ImageResource
+    var ticks: Int
+}
+
 public final class DisplayRenderClient: IDraw {
     public let displayClient: DisplayClient
     public var defaultTime: UInt64 = 0
     public var windowSize: Size<Int16>
+    public var maxTicksForRollback = 10
 
     private var cmdList: [DrawCmd] = []
     private var deliveryChain: Task<Void, Never>? = nil
     private var errorForId: [UInt64: Error] = [:]
+    private var cacheList = WeakArray<IResourceCache>()
+    private var _toUnload: [QueuedUnload] = []
 
     public init(displayClient: DisplayClient, windowSize: Size<Int16>) {
         self.displayClient = displayClient
         self.windowSize = windowSize
     }
+
+    // MARK: - IResourceCache management
+
+    public func addResourceCache(_ cache: any IResourceCache) throws {
+        cacheList.append(cache)
+        try cache.loadResources(self)
+        cacheList.clean()
+    }
+
+    public func removeResourceCache(_ cache: any IResourceCache) {
+        cacheList.remove(element: cache)
+        cache.unloadResources(self)
+        cacheList.clean()
+    }
+
+    func reloadCache() throws {
+        cacheList.clean()
+        for eachItem in cacheList {
+            eachItem?.invalidateCache(self)
+            try eachItem?.loadResources(self)
+        }
+    }
+
+    // MARK: - IDraw
 
     public func draw(
         _ id: UInt64,
@@ -61,6 +93,8 @@ public final class DisplayRenderClient: IDraw {
         try displayClient.createImage(block, size: size)
     }
 
+    // MARK: - Resource loading
+
     public func loadResource(_ url: VDUrl) throws -> ImageFlyWeight {
         let preferredHandle = Xoroshiro.shared.randomBytes()
         let flyweight = ImageFlyWeight(id: preferredHandle)
@@ -86,8 +120,52 @@ public final class DisplayRenderClient: IDraw {
     }
 
     public func loadResources(_ urls: [VDUrl]) throws -> [ImageFlyWeight] {
-        urls.map { try! loadResource($0) }
+        try urls.map { try loadResource($0) }
     }
+
+    public func loadResource(_ image: EditableImage) throws -> UInt64 {
+        let preferredHandle = Xoroshiro.shared.randomBytes()
+        image.id = preferredHandle
+        let size = image.size()
+        let bytes = try image.withPixelData { Array($0.ptr) }
+        let syntheticUrl = URL(string: "memory://editable/\(preferredHandle)")!
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                let body = try await self.displayClient.uploadRawPixels(
+                    url: syntheticUrl,
+                    size: size,
+                    data: bytes,
+                    preferredHandle: preferredHandle
+                )
+                if case let .image(handle, _) = body {
+                    image.id = handle
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorForId[preferredHandle] = error
+                }
+            }
+        }
+        return preferredHandle
+    }
+
+    public func updateImage(_ id: UInt64, _ image: EditableImage) throws {
+        let size = image.size()
+        let bytes = try image.withPixelData { Array($0.ptr) }
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                try await self.displayClient.updateResource(handle: id, size: size, data: bytes)
+            } catch {
+                await MainActor.run {
+                    self.errorForId[id] = error
+                }
+            }
+        }
+    }
+
+    // MARK: - Resource unloading
 
     public func unloadResources(_ resources: [ImageResource]) {
         for resource in resources {
@@ -97,12 +175,32 @@ public final class DisplayRenderClient: IDraw {
         }
     }
 
+    public func unloadResourceDelayed(_ id: ImageResource, _ ticks: Int) {
+        _toUnload.append(QueuedUnload(resource: id, ticks: ticks))
+    }
+
+    public func unloadResourcesDelayed(_ idList: [ImageResource], _ ticks: Int) {
+        for each in idList {
+            _toUnload.append(QueuedUnload(resource: each, ticks: ticks))
+        }
+    }
+
+    // MARK: - Frame
+
     public func clearCommands() {
         cmdList.removeAll(keepingCapacity: true)
     }
 
     @discardableResult
     public func sendCommands() -> Task<Void, Never> {
+        // Tick down delayed unloads and fire expired ones
+        _toUnload.forEachUncheckedMut { item, _ in item.ticks -= 1 }
+        let expired = _toUnload.filter { $0.ticks <= 0 }.map { $0.resource }
+        _toUnload.removeAll(where: { $0.ticks <= 0 })
+        if !expired.isEmpty {
+            unloadResources(expired)
+        }
+
         let cmds = cmdList
         let prev = deliveryChain
         let clientTick = defaultTime

@@ -64,6 +64,21 @@ public enum ClientMessage {
         handle: ResHandle
     )
 
+    case uploadRawPixels(
+        requestId: RequestId,
+        url: VDUrl,
+        size: Size<Int>,
+        data: [UInt8],
+        preferredHandle: ResHandle? = nil
+    )
+
+    case updateResource(
+        requestId: RequestId,
+        handle: ResHandle,
+        size: Size<Int>,
+        data: [UInt8]
+    )
+
     case releaseResource(handle: ResHandle)
 
     // MARK: - Render

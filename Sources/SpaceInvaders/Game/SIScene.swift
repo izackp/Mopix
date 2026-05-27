@@ -60,29 +60,8 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCach
     }
     
     
-    public func invalidateCache(_ client:RendererClient) {
+    public func invalidateCache(_ client: DisplayRenderClient) {
         resourceIds = nil
-        //resourceIds.bullet = 0
-        //resourceIds.oryx_16bit_scifi_vehicles_105 = 0
-        //resourceIds.oryx_16bit_scifi_vehicles_189 = 0
-    }
-
-    public func loadResources(_ renderer:RendererClient) throws {
-        let results = try renderer.loadResources([
-            Resources.bullet,
-            Resources.oryx_16bit_scifi_vehicles_105,
-            Resources.oryx_16bit_scifi_vehicles_189])
-        resourceIds = ResourceIds(
-            oryx_16bit_scifi_vehicles_105: results[1],
-            oryx_16bit_scifi_vehicles_189: results[2],
-            bullet: results[0])
-    }
-
-    public func unloadResources(_ renderer:RendererClient) {
-        guard let store = resourceIds else { return }
-        let items = [store.bullet, store.oryx_16bit_scifi_vehicles_105, store.oryx_16bit_scifi_vehicles_189]
-        renderer.unloadResources(items)
-        invalidateCache(renderer)
     }
 
     public func loadResources(_ renderer:DisplayRenderClient) throws {
@@ -159,33 +138,6 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCach
     //Can't use texture backed resources
     //So we use ids/strings as references.
     var didLoad = false
-    public func draw(_ delta:UInt64, _ renderer: RendererClient) {
-        if (didLoad == false) {
-            try? loadResources(renderer)
-            didLoad = true
-        }
-        guard let store = resourceIds else { return }
-        //if (state == 2) { return }
-        var dest = Rect<Int>.init(origin: .zero, size: Size(24, 24))
-        for eachBullet in bullets {
-            if (eachBullet.isAlive) {
-                dest.origin = eachBullet.pos
-                renderer.draw(eachBullet.uuid, store.bullet.id, dest)
-            }
-        }
-        enemies.forEach { (eachEnemy:inout Enemy) in
-            if (eachEnemy.isAlive) {
-                dest.origin = eachEnemy.pos
-                renderer.draw(eachEnemy.uuid, store.oryx_16bit_scifi_vehicles_189.id, dest)
-                return;
-            }
-        }
-        
-        dest.origin = player.pos
-        renderer.draw(player.uuid, store.oryx_16bit_scifi_vehicles_105.id, dest, SDLColor.white, 1, player.rot, player.size.center())
-        state = 2
-    }
-
     public func draw(_ delta:UInt64, _ renderer: DisplayRenderClient) {
         if (didLoad == false) {
             try? loadResources(renderer)

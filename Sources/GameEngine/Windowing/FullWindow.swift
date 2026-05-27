@@ -10,7 +10,6 @@ import SDL2Swift
 
 public final class FullWindow: LiteWindow {
     public let renderServer:RendererServer
-    public let renderClient:RendererClient
     public let displayServer:DisplayServer
     public let displayClient:DisplayClient
     public let displayRenderClient:DisplayRenderClient
@@ -49,7 +48,6 @@ public final class FullWindow: LiteWindow {
             imageManager.addFont(eachItem.url)
         }
         renderServer = RendererServer(renderer: renderer, imageManager: imageManager)
-        renderClient = RendererClient([], renderServer)
 
         let rs = renderServer
         let (clientEnd, serverEnd) = InProcessTransport.makePair()
@@ -68,11 +66,6 @@ public final class FullWindow: LiteWindow {
         )
 
         try super.init(parent: parent, sdlWindow: sdlWindow, renderer: renderer)
-        if let size = sdlWindow.rendererSize {
-            renderClient._windowSize = Size(Int16(size.width), Int16(size.height))
-        } else {
-            renderClient._windowSize = Size<Int16>(Int16(frame.size.width), Int16(frame.size.height))
-        }
         let logicalSize = Size(frame.size.width, frame.size.height)
         connectTask = Task { [displayClient] in
             try await displayClient.connect(name: "FullWindow", version: 1, logicalSize: logicalSize)
@@ -173,13 +166,11 @@ public final class FullWindow: LiteWindow {
                 break
             case .resized(width: let width, height: let height):
                 frame.size = Size(Int16(width), Int16(height))
-                renderClient._windowSize = frame.size
                 displayRenderClient.updateLogicalSize(frame.size)
                 self.rootView?.layout()
                 break
             case .sizeChanged(width: let width, height: let height):
                 frame.size = Size(Int16(width), Int16(height))
-                renderClient._windowSize = frame.size
                 displayRenderClient.updateLogicalSize(frame.size)
                 self.rootView?.layout()
                 break
@@ -229,23 +220,13 @@ public final class FullWindow: LiteWindow {
     var totalDrawTime:UInt64 = 0
     public override func draw(time: UInt64) throws {
         totalDrawTime += time
-        if let drawable = drawable as? any IDisplayDrawable {
-            displayRenderClient.clearCommands()
-            drawable.draw(time, displayRenderClient)
-            if let view = rootView {
-                let context = UICommandContext(client: displayRenderClient, fontProvider: imageManager, rttAllocator: renderServer)
-                try view.draw(context, view.frame)
-            }
-            lastSendTask = displayRenderClient.sendCommands()
-        } else {
-            renderClient.clearCommands()
-            drawable?.draw(time, renderClient)
-            if let view = rootView {
-                let context = UICommandContext(client: renderClient, fontProvider: imageManager, rttAllocator: renderServer)
-                try view.draw(context, view.frame)
-            }
-            lastSendTask = renderClient.sendCommands()
+        displayRenderClient.clearCommands()
+        drawable?.draw(time, displayRenderClient)
+        if let view = rootView {
+            let context = UICommandContext(client: displayRenderClient, fontProvider: imageManager, rttAllocator: renderServer)
+            try view.draw(context, view.frame)
         }
+        lastSendTask = displayRenderClient.sendCommands()
         let drawingInterp = renderServer.drawingInterpolator
         drawCount = drawingInterp._futureAllCmds.count
         if totalDrawTime >= 100 {

@@ -7,9 +7,8 @@
 
 public protocol IResourceCache {
     //Called when references go bad
-    func invalidateCache(_ client:RendererClient)
+    func invalidateCache(_ client: DisplayRenderClient)
 
-    //
-    func loadResources(_ client:RendererClient) throws
-    func unloadResources(_ client:RendererClient)
+    func loadResources(_ client: DisplayRenderClient) throws
+    func unloadResources(_ client: DisplayRenderClient)
 }

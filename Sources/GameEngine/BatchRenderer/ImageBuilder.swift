@@ -8,12 +8,12 @@
 //TODO: make cmdList use enum. Some random testing seems to suggest
 //that enum associated values will be contigous
 public class ImageBuilder: IDraw {
-    public init(client: RendererClient, cmdList: [DrawCmd] = []) {
+    public init(client: IDraw, cmdList: [DrawCmd] = []) {
         self.client = client
         self.cmdList = cmdList
     }
 
-    let client:RendererClient
+    let client: IDraw
     var cmdList:[DrawCmd] = []
     private var _clipRect:Rect<DValue>? = nil
     private var _offset:Point<DValue> = .zero

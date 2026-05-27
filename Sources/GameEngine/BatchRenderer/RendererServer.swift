@@ -43,8 +43,7 @@ public class RendererServer {
     }
 }
 
-// MARK: - IRendererServer
-extension RendererServer: IRendererServer {
+extension RendererServer {
     public func loadResource(_ url: VDUrl) async throws -> Image {
         try await MainActor.run() {
             try resourceStore.loadResource(url)

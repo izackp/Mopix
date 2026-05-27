@@ -172,7 +172,7 @@ public class Emitter : IDrawable {
     private var _existingImage:EditableImage? = nil
     private var _id:UInt64? = nil
     
-    func getEditableImage(_ size:Size<Int>, _ renderer: GameEngine.RendererClient) throws -> (EditableImage, UInt64) {
+    func getEditableImage(_ size:Size<Int>, _ renderer: GameEngine.DisplayRenderClient) throws -> (EditableImage, UInt64) {
         if let existing = _existingImage {
             return (existing, _id!)
         }
@@ -184,7 +184,7 @@ public class Emitter : IDrawable {
         return (image, id)
     }
     
-    public func draw(_ delta: UInt64, _ renderer: GameEngine.RendererClient) {
+    public func draw(_ delta: UInt64, _ renderer: GameEngine.DisplayRenderClient) {
         if (renderer.windowSize == Size.zero) {
             return
         }
