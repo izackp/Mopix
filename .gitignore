@@ -100,3 +100,4 @@ include
 lib
 *.dll
 windows_bin
+*.map
