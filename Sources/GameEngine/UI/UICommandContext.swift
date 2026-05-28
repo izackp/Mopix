@@ -171,7 +171,7 @@ public class UICommandContext {
                     animationId: 0,
                     parentAnimationId: currentParentAnimationId,
                     dest: dest.to(Int.self),
-                    color: .white,
+                    color: c.foreground.sdlColor(),
                     alpha: alpha,
                     z: nextZ(),
                     rotation: 0,
