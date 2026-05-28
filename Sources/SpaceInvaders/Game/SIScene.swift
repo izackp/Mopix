@@ -36,7 +36,7 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCach
     public init(testVC:TestController? = nil) {
         viewController = testVC
     }
-    
+
     public func awake() {
         isAwake = true
         player.scene = self

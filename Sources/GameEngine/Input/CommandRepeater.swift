@@ -15,17 +15,19 @@ public protocol IVirutalControllerListener : AnyObject {
     func onInput(_ controller:VirtualController)
 }
 //
+private struct WeakListener {
+    weak var value: IVirutalControllerListener?
+}
+
 public class CommandRepeater {
-    public init(commandListeners: [ICommandListener] = [], listeners: [UInt64 : [IVirutalControllerListener]] = [:], commandsThisTickById: [UInt64 : InputCommandList] = [:], virtualControllersById: [UInt64 : VirtualController] = [:]) {
+    public init(commandListeners: [ICommandListener] = [], commandsThisTickById: [UInt64 : InputCommandList] = [:], virtualControllersById: [UInt64 : VirtualController] = [:]) {
         self.commandListeners = commandListeners
-        self.listeners = listeners
         self.commandsThisTickById = commandsThisTickById
         self.virtualControllersById = virtualControllersById
     }
 
-    
     var commandListeners:[ICommandListener] = []
-    var listeners:[UInt64:[IVirutalControllerListener]] = [:]
+    private var listeners:[UInt64:[WeakListener]] = [:]
     var commandsThisTickById:[UInt64:InputCommandList] = [:]
     var virtualControllersById:[UInt64:VirtualController] = [:]
     
@@ -40,7 +42,7 @@ public class CommandRepeater {
         controller.pushCommandList(list)
         let allListeners = listeners[id] ?? []
         for eachListener in allListeners {
-            eachListener.onInput(controller)
+            eachListener.value?.onInput(controller)
         }
         for eachListener in commandListeners {
             eachListener.onCommandList(list)
@@ -63,7 +65,8 @@ public class CommandRepeater {
     
     public func addListener(_ id: UInt64, _ listener:IVirutalControllerListener) {
         var list = listeners[id] ?? []
-        list.append(listener)
+        list.removeAll(where: { $0.value == nil })
+        list.append(WeakListener(value: listener))
         listeners[id] = list
     }
     
@@ -74,7 +77,8 @@ public class CommandRepeater {
     
     public func removeListener(_ id: UInt64, _ listener:IVirutalControllerListener) {
         if var list = listeners[id] {
-            list.removeAll(where: { $0 === listener })
+            list.removeAll(where: { $0.value === listener || $0.value == nil })
+            listeners[id] = list
         }
     }
 }
