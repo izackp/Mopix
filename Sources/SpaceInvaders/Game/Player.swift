@@ -22,19 +22,21 @@ class Player : IVirutalControllerListener {
     var clientId:UInt32 = 0
     var deviceId:UInt32 = 0
     let uuid = Xoroshiro.shared.randomBytes()
-    weak var scene:SIScene?
-    
+    weak var scene:SIScene!
+    private weak var _commandRepeater: CommandRepeater?
+
     func onInit(_ clientId:UInt32, _ deviceId:UInt32) {
         self.clientId = clientId
         self.deviceId = deviceId
     }
-    
+
     func awake() {
-        scene?.commandRepeater.addListener(clientId, deviceId, self)
+        _commandRepeater = scene.commandRepeater
+        scene.commandRepeater.addListener(clientId, deviceId, self)
     }
 
     deinit {
-        scene?.commandRepeater.removeListener(clientId, deviceId, self)
+        _commandRepeater?.removeListener(clientId, deviceId, self)
     }
     
     func logic(_ delta:UInt64) {
@@ -76,7 +78,7 @@ class Player : IVirutalControllerListener {
                 if (button == ButtonId.action) {
                     let i = Bullet(self.pos + Point<Int>(0, -10), Vector(0, -10))
                     i.isAlive = true
-                    scene!.bullets.append(i)
+                    scene.bullets.append(i)
                 }
             }
         }
@@ -104,7 +106,7 @@ class Player : IVirutalControllerListener {
     
     func move(_ dir:Int32) {
         let targetX = pos.x + Int(dir)
-        if (targetX < 0 || targetX > scene!.bounds.right) {
+        if (targetX < 0 || targetX > scene.bounds.right) {
             return
         }
         pos.x = targetX
@@ -112,7 +114,7 @@ class Player : IVirutalControllerListener {
     
     func shoot() {
         let bullet = Bullet(pos + Point(0, -10), Vector(0, -10))
-        scene!.bullets.append(bullet)
+        scene.bullets.append(bullet)
     }
     
     func draw() {
