@@ -234,7 +234,7 @@ open class View: Codable {
 
     }
 
-    private func drawOrRaster(_ context:UICommandContext, _ rect:Rect<DValue>) throws {
+    func drawOrRaster(_ context:UICommandContext, _ rect:Rect<DValue>) throws {
         if (alpha == 0) { return }
         let requiresComposition = (alpha != 1 && (children.count > 0 || !backgroundColor.isClear()))
         let requireRaster = (shouldRasterize || requiresComposition)
@@ -260,9 +260,10 @@ open class View: Codable {
 
     open func draw(_ context:UICommandContext, _ rect:Rect<DValue>) throws {
         if (alpha == 0) { return }
-        let offsetFrame = frame.offset(rect.origin)
+        // selfDest is relative to parent's absolute position (rect.origin = content offset from parent)
+        let selfDest = frame.offset(rect.origin)
         if let image = cachedImage, shouldRedraw == false {
-            try context.drawImage(image, offsetFrame)
+            try context.drawImage(image, selfDest)
             return
         }
 
@@ -275,7 +276,7 @@ open class View: Codable {
         let viewCmd = DrawCmd(
             animationId: myAnimId,
             parentAnimationId: parentAnimId,
-            dest: offsetFrame.to(Int.self),
+            dest: selfDest.to(Int.self),
             color: bgColor,
             alpha: alpha,
             z: context.currentZ,
@@ -293,23 +294,36 @@ open class View: Codable {
         let savedParentAnimId = context.currentParentAnimationId
         context.currentParentAnimationId = myAnimId
 
+        // Track absolute origin so clip rects and content stay in screen coords.
+        let savedAbsOrigin = context.absoluteOrigin
+        context.absoluteOrigin = Point<DValue>(
+            context.absoluteOrigin.x + selfDest.origin.x,
+            context.absoluteOrigin.y + selfDest.origin.y
+        )
+
         let clip = clipBounds
         var lastClipRect:Rect<DValue>? = nil
         if (clip) {
             lastClipRect = context.currentClipRect
-            try context.setClipRect(offsetFrame)
+            let absClipRect = Rect<DValue>(
+                x: context.absoluteOrigin.x,
+                y: context.absoluteOrigin.y,
+                width: frame.width,
+                height: frame.height
+            )
+            try context.setClipRect(absClipRect)
         }
-        try drawContent(context, offsetFrame)
-        for eachChild in children {
-            try eachChild.drawOrRaster(context, offsetFrame)
-        }
+        // drawContent receives local bounds; positions within are relative to this view's origin.
+        let localBounds = Rect<DValue>(x: 0, y: 0, width: frame.width, height: frame.height)
+        try drawContent(context, localBounds)
+        try drawChildren(context)
 
         if (clip) {
             try context.setClipRect(lastClipRect)
         }
 
-        // Restore parent animationId
         context.currentParentAnimationId = savedParentAnimId
+        context.absoluteOrigin = savedAbsOrigin
         
         /*
         try context.drawSquare(offsetFrame, backgroundColor.sdlColor())
@@ -342,6 +356,12 @@ open class View: Codable {
         if (clip) {
             try context.setClipRect(lastClipRect)
         }*/
+    }
+
+    open func drawChildren(_ context: UICommandContext) throws {
+        for eachChild in children {
+            try eachChild.drawOrRaster(context, Rect<DValue>(x: 0, y: 0, width: 0, height: 0))
+        }
     }
 
     public func viewForId(_ id:String) -> View? {

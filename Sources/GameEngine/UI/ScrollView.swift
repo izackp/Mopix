@@ -207,20 +207,26 @@ open class ScrollView : View {
     }
     
     open override func draw(_ context: UICommandContext, _ rect: Rect<DValue>) throws {
-        
-        let offsetFrame = rect.offset(Point(Int16(offset.x), Int16(offset.y)))
-        try super.draw(context, offsetFrame)
-        
-        let a = rect.offset(Point(Int16(destinationOffset.x), Int16(destinationOffset.y)))
-        var offsetFrame2 = frame.offset(a.origin)
+        try super.draw(context, rect)
+        // Debug marker — dest is relative to parent (same parent animId as this view)
+        var markerDest = Rect<DValue>(
+            x: frame.x + Int16(destinationOffset.x),
+            y: frame.y + Int16(destinationOffset.y),
+            width: 10,
+            height: 10
+        )
         if let mouseOffset = mouseOffset {
-            offsetFrame2 = offsetFrame2.offset(mouseOffset)
+            markerDest = markerDest.offset(mouseOffset)
         }
-        offsetFrame2.width = 10
-        offsetFrame2.height = 10
-        try context.drawSquare(offsetFrame2, LabeledColor.red.sdlColor())
-        //Hack:
+        try context.drawSquare(markerDest, LabeledColor.red.sdlColor())
         moveToDest()
+    }
+
+    open override func drawChildren(_ context: UICommandContext) throws {
+        let scrollRect = Rect<DValue>(x: Int16(offset.x), y: Int16(offset.y), width: 0, height: 0)
+        for eachChild in children {
+            try eachChild.drawOrRaster(context, scrollRect)
+        }
     }
     
 }

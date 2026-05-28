@@ -38,6 +38,7 @@ public class UICommandContext {
     var currentClipRect: Rect<DValue>? = nil
     var currentParentAnimationId: UInt64 = 0
     var currentZ: Int = 0
+    var absoluteOrigin: Point<DValue> = .zero
 
     private var _rttStack: [[DrawCmd]] = []
 
@@ -98,7 +99,7 @@ public class UICommandContext {
         let clipRect = clipRectAsInt()
         let cmd = DrawCmd(
             animationId: 0,
-            parentAnimationId: 0,
+            parentAnimationId: currentParentAnimationId,
             dest: dest.to(Int.self),
             color: color,
             alpha: alpha,
@@ -169,7 +170,7 @@ public class UICommandContext {
                 let clipRect = clipRectAsInt()
                 let cmd = DrawCmd(
                     animationId: 0,
-                    parentAnimationId: 0,
+                    parentAnimationId: currentParentAnimationId,
                     dest: dest.to(Int.self),
                     color: c.foreground.sdlColor(),
                     alpha: alpha,
@@ -199,9 +200,12 @@ public class UICommandContext {
         _rttStack.append([])
 
         let savedParent = currentParentAnimationId
+        let savedAbsOrigin = absoluteOrigin
         currentParentAnimationId = 0
+        absoluteOrigin = .zero
         try block(self, targetFrame)
         currentParentAnimationId = savedParent
+        absoluteOrigin = savedAbsOrigin
 
         _ = _rttStack.removeLast()
 
