@@ -98,7 +98,7 @@ public class UICommandContext {
         let clipRect = clipRectAsInt()
         let cmd = DrawCmd(
             animationId: 0,
-            parentAnimationId: currentParentAnimationId,
+            parentAnimationId: 0,
             dest: dest.to(Int.self),
             color: color,
             alpha: alpha,
@@ -169,7 +169,7 @@ public class UICommandContext {
                 let clipRect = clipRectAsInt()
                 let cmd = DrawCmd(
                     animationId: 0,
-                    parentAnimationId: currentParentAnimationId,
+                    parentAnimationId: 0,
                     dest: dest.to(Int.self),
                     color: c.foreground.sdlColor(),
                     alpha: alpha,
