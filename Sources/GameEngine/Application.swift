@@ -243,12 +243,12 @@ open class Application {
             let deltaTicks = callTime - eachUpdateListener.lastTick
             if deltaTicks > 0 {
                 readEvents()
-                stats.insertSample("delta", Double(deltaTicks) / 1000)
-                eachUpdateListener.listener.step(deltaTicks)
-                eachUpdateListener.lastTick = callTime
                 skippedFrames += 1
                 skippedTime = Int(deltaTicks)
                 lastStats = stats.lastStats()
+                stats.insertSample("delta", Double(deltaTicks) / 1000)
+                eachUpdateListener.listener.step(deltaTicks)
+                eachUpdateListener.lastTick = callTime
             }
         }
     }
