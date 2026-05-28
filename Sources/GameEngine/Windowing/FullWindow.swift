@@ -13,6 +13,7 @@ public final class FullWindow: LiteWindow {
     public let displayServer:DisplayServer
     public let displayClient:DisplayClient
     public let displayRenderClient:DisplayRenderClient
+    private let serverEnd: InProcessTransport.ServerEnd
     private var connectTask: Task<Void, Error>?
 
     public var rootViewController:ViewController? = nil
@@ -50,10 +51,11 @@ public final class FullWindow: LiteWindow {
         renderServer = RendererServer(renderer: renderer, imageManager: imageManager)
 
         let rs = renderServer
-        let (clientEnd, serverEnd) = InProcessTransport.makePair()
+        let (clientEnd, se) = InProcessTransport.makePair()
+        serverEnd = se
         displayServer = MainActor.assumeIsolated {
             let ds = DisplayServer(rendererServer: rs, window: sdlWindow)
-            ds.bind(serverEnd)
+            ds.bind(se)
             return ds
         }
         displayClient = DisplayClient(
@@ -69,6 +71,17 @@ public final class FullWindow: LiteWindow {
         let logicalSize = Size(frame.size.width, frame.size.height)
         connectTask = Task { [displayClient] in
             try await displayClient.connect(name: "FullWindow", version: 1, logicalSize: logicalSize)
+        }
+
+        // Wire up sync in-process delivery: sendCommands() delivers directly to DisplayServer
+        // on the main actor, bypassing the async actor/transport stack.
+        let ds = displayServer
+        let capturedServerEnd = serverEnd
+        displayRenderClient.inProcessSendFrame = { [weak ds, weak capturedServerEnd] (clientTick, cmds) in
+            guard let ds, let capturedServerEnd else { return }
+            MainActor.assumeIsolated {
+                ds.receiveSendFrame(clientTick: clientTick, cmds: cmds, transport: capturedServerEnd)
+            }
         }
         //let vc = try UIBuilderController.build(imageManager)
         //setRootViewController(vc)

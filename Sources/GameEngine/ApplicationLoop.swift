@@ -22,6 +22,7 @@ final class RealtimeApplicationLoopDriver: ApplicationLoopDriver {
                 application.runDeltaUpdatesRealtime()
             }
 
+            await Task.yield()
             application.stats.printStats()
         }
 

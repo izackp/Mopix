@@ -20,6 +20,12 @@ public final class DisplayRenderClient: IDraw {
     public var windowSize: Size<Int16>
     public var maxTicksForRollback = 10
 
+    /// When set, `sendCommands()` delivers synchronously via this closure instead of
+    /// going through the async actor/transport stack. Set by `FullWindow` for in-process use.
+    /// Always called from the main actor; `nonisolated(unsafe)` because `DisplayRenderClient`
+    /// itself is not actor-isolated, but callers guarantee main-actor context.
+    nonisolated(unsafe) public var inProcessSendFrame: ((_ clientTick: UInt64, _ cmds: [DrawCmd]) -> Void)?
+
     private var cmdList: [DrawCmd] = []
     private var deliveryChain: Task<Void, Never>? = nil
     private var errorForId: [UInt64: Error] = [:]
@@ -202,8 +208,17 @@ public final class DisplayRenderClient: IDraw {
         }
 
         let cmds = cmdList
-        let prev = deliveryChain
         let clientTick = defaultTime
+
+        // Sync in-process path: deliver directly on the caller's (main) actor.
+        // Returns a no-op Task so callers that await the result still compile.
+        if let inProcessSendFrame {
+            inProcessSendFrame(clientTick, cmds)
+            return Task {}
+        }
+
+        // Async path for remote transport
+        let prev = deliveryChain
         let task = Task {
             await prev?.value
             guard !cmds.isEmpty else { return }

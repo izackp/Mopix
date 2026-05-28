@@ -82,6 +82,14 @@ public final class DisplayServer {
         self.tempDirectory = tempDirectory
     }
 
+    /// Direct sync delivery for in-process use. Bypasses the async transport stack.
+    /// Must be called from the main actor (same isolation as DisplayServer).
+    public func receiveSendFrame(clientTick: UInt64, cmds: [DrawCmd], transport: any DisplayTransport) {
+        guard let client = client(for: transport) else { return }
+        collectExpiredResources()
+        handleSendFrame(clientTick: clientTick, compositions: [], cmds: cmds, client: client, transport: transport)
+    }
+
     public func bind(_ transport: any DisplayTransport) {
         let key = ObjectIdentifier(transport)
         transports[key] = transport
@@ -222,7 +230,7 @@ public final class DisplayServer {
 
         case let .sendFrame(clientTick, compositions, cmds):
             guard let client = client(for: transport) else { return }
-            await handleSendFrame(clientTick: clientTick, compositions: compositions, cmds: cmds, client: client, transport: transport)
+            handleSendFrame(clientTick: clientTick, compositions: compositions, cmds: cmds, client: client, transport: transport)
 
         case let .screenshot(requestId):
             await withClient(requestId: requestId, transport: transport) { _ in
@@ -544,21 +552,24 @@ private extension DisplayServer {
         cmds: [DrawCmd],
         client: ClientState,
         transport: any DisplayTransport
-    ) async {
+    ) {
         for (index, composition) in compositions.enumerated() {
             do {
                 try applyComposition(composition, client: client)
             } catch {
                 let handle = composition.handle
-                await sendEvent(
-                    .compositionError(
-                        clientTick: clientTick,
-                        compositionIndex: index,
-                        handle: handle,
-                        reason: error.localizedDescription
-                    ),
-                    to: transport
-                )
+                Task { [weak self] in
+                    guard let self else { return }
+                    await self.sendEvent(
+                        .compositionError(
+                            clientTick: clientTick,
+                            compositionIndex: index,
+                            handle: handle,
+                            reason: error.localizedDescription
+                        ),
+                        to: transport
+                    )
+                }
             }
         }
 
@@ -579,10 +590,13 @@ private extension DisplayServer {
                 }
             } catch {
                 let handle = resourceHandle(from: cmd) ?? cmd.target
-                await sendEvent(
-                    .drawError(clientTick: clientTick, handle: handle, reason: error.localizedDescription),
-                    to: transport
-                )
+                Task { [weak self] in
+                    guard let self else { return }
+                    await self.sendEvent(
+                        .drawError(clientTick: clientTick, handle: handle, reason: error.localizedDescription),
+                        to: transport
+                    )
+                }
             }
         }
 
@@ -590,10 +604,13 @@ private extension DisplayServer {
             do {
                 try draw(commands: list, into: target)
             } catch {
-                await sendEvent(
-                    .drawError(clientTick: clientTick, handle: target, reason: error.localizedDescription),
-                    to: transport
-                )
+                Task { [weak self] in
+                    guard let self else { return }
+                    await self.sendEvent(
+                        .drawError(clientTick: clientTick, handle: target, reason: error.localizedDescription),
+                        to: transport
+                    )
+                }
             }
         }
 
