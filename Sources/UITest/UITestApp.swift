@@ -60,7 +60,7 @@ class UITestApp : Application {
         let newWindow = try FullWindow(parent: self, title: "My Test App", windowOptions: headlessWindowOptions, options: isHeadless ? [] : [Renderer.Option.presentVsync])
         addWindow(newWindow)
         if #available(macOS 12, *) {
-            let vc = try UIBuilderVC.build()
+            let vc = try UIBuilderController.build(newWindow.imageManager)
             newWindow.setRootViewController(vc)
         } else {
             // Fallback on earlier versions
