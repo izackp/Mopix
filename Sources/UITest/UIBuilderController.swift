@@ -119,16 +119,14 @@ public class UIBuilderController : ViewController, PackageChangeListener {
         _vd.removeWatcher(self)
     }
     
-    var frameCount = 0
-    var lastFrameNs: UInt64 = 0
+    var lastFrames = 0
     override public func drawStart() {
-        frameCount += 1
-        let now = DispatchTime.now().uptimeNanoseconds
-        let deltaMs = lastFrameNs == 0 ? 0 : Int((now - lastFrameNs) / 1_000_000)
-        lastFrameNs = now
         let app = UITestApp.shared!
-        lblFPS.text = "\(frameCount) frames"
-        lblFPS2.text = "\(deltaMs) ms"
+        let newFrames = app.skippedFrames
+        if (lastFrames == newFrames) { return }
+        lastFrames = newFrames
+        lblFPS.text = "\(newFrames) frames"
+        lblFPS2.text = "\(app.skippedTime) ms"
         lblStats.text = app.lastStats
     }
     

@@ -246,6 +246,9 @@ open class Application {
                 stats.insertSample("delta", Double(deltaTicks) / 1000)
                 eachUpdateListener.listener.step(deltaTicks)
                 eachUpdateListener.lastTick = callTime
+                skippedFrames += 1
+                skippedTime = Int(deltaTicks)
+                lastStats = stats.lastStats()
             }
         }
     }
