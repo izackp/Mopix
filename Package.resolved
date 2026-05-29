@@ -10,24 +10,6 @@
       }
     },
     {
-      "identity" : "icu-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/izackp/icu-swift.git",
-      "state" : {
-        "branch" : "master",
-        "revision" : "ad0ed4bca837a3c9d9f4c14ae809813e3e165921"
-      }
-    },
-    {
-      "identity" : "icu4c-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/izackp/icu4c-swift",
-      "state" : {
-        "branch" : "master",
-        "revision" : "243246c0eddcbde61f4b55e53ce28fe4c4b8adc0"
-      }
-    },
-    {
       "identity" : "sdl2-swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/izackp/SDL2-Swift.git",
