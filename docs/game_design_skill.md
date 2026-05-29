@@ -1,161 +1,290 @@
-Design Principles
-Fun is Mastery Through Problem-Solving: Core of game design = deep satisfaction of mastering problems. Mechanics pose problems within constraints (rules) player must solve. "Mastery of problems" = engine of fun — turns even terrifying in-game challenges into engaging puzzles.
+# Game Design Cheatsheet
 
-Balance with 3-5 Rule: Prevent cognitive overload — limit any single interaction or decision point to 3–5 options, steps, or clicks. Keeps focus and flow. Playtesters get lost with too many choices. BG3 presents choices in 3s or 5s for this reason.
+Principles-first — reasoning at forefront so you can internalize *why* each pattern works and apply it intelligently across any genre.
 
-Clarity Over Complexity (The "Snake" Lesson): Success built on strong, polished core mechanic — not advanced visuals or complicated systems. Snake proves simple, instantly understood gameplay loop can engage for hours. Growing snake = natural tension = emergent difficulty without scripted challenges. Make one thing feel great before adding more.
+## Core Philosophy
 
-Design from "Toy-First" Perspective: Before adding goals, points, or win state — ask if core interaction is simply fun to play with. Game passing "Lens of Toy" test invites players in before they know objective. If basic verb isn't engaging, no layered progression or narrative fixes it.
+**Fun = Mastery Through Problem-Solving** — mechanics pose problems within constraints; satisfaction comes from solving them.
 
-Leverage Visual Psychology (Gestalt Principles): Player brain hardwired to group by proximity and similarity. Use it: place related info close for clear mental models, use consistent visual styling for same-function objects. Game feels intuitive. Warning: too many elements too close = cluttered mess that hinders understanding.
+**Toy-First** — before goals/points/win state, ask: is the core interaction fun to play with alone? If basic verb isn't engaging, no progression or narrative fixes it.
 
-Player Experience
-Implement "Bushnell's Law" for Mastery: Best games "easy to learn, hard to master." Low barrier to entry + progressively revealed depth. Small early wins build confidence, then increasing skill and creativity demanded over time.
+**Depth over Complexity** — players say they want complexity but mean depth. Complexity is currency; spend wisely.
 
-View Failure as Feedback, Not Label: Games handle failure differently — dying to boss = immediate, actionable data, not final judgment. Low-stakes iteration cycle lets players persist through dozens of failures to reach mastery. Design feedback loops: clear, immediate, no permanent stigma.
+**Show something new, or something old in a new way** — final product needs fresh hook; not every mechanic must be original.
 
-Break Experience into Levels: Scaffold tasks like game levels. Simple tasks first to build skill and confidence, then complex obstacles building on what's mastered. Turns overwhelming experience into achievable, visible milestones.
+**Good ideas don't always work together** — show restraint; brilliant ideas may not gel in same game.
 
-Deepen Engagement Through Player Agency: Players lean in when active participants, not passive observers. Meaningful choices in strategy, character building, or path selection make experience personal. Player ownership over decisions deepens engagement with outcome.
+**Don't simulate everything** — create illusion of simulation. Saves dev time, preserves sense of living world.
 
-Craft Memorable Stories with Surprising Rule-Breakers: Memorable experiences come from moments breaking established rules in controlled way. Few elements that seem "too good to be true" or overturn fundamental systems excite players and create powerful, shareable stories — without breaking overall balance.
+---
 
-Art & Audio
-Establish a consistent color palette. A game can feel "off" because of poor color grading. When a palette is consistent, you don't notice it—but if it's inconsistent, it stands out like a sore thumb and breaks immersion.
+## Mechanics & Systems
 
-Consistency in art style is key. This applies to stroke width, outlines, and color usage. When the style is consistent, no one notices; when it's not, it stands out negatively.
+**Clarity Over Complexity (Snake Lesson)** — strong polished core beats advanced visuals or complicated systems. Make one thing feel great first.
 
-Player Experience
-Design for non-readers. Many players will not, or cannot, read your text. Let your UI and gameplay flow communicate as much as possible, and treat text as a bonus. A pre-reading child should be able to understand the basics.
+**3-5 Rule** — limit any decision point to 3–5 options/steps/clicks. Prevents cognitive overload, preserves flow.
 
-Respect established control standards. Buttons like 'R2' are never "Accept," and 'Select' is never "Jump." Gamers have built-in expectations; violating them creates immediate friction.
+**Bushnell's Law** — easy to learn, hard to master. Low entry barrier + progressively revealed depth. Small early wins → increasing skill demands over time.
 
-Inputs must have immediate output. As a player, "I want all of my inputs to have immediate output, otherwise there's a disconnect." This subtle annoyance can build frustration over time.
+**Teach Implicitly First** — design world so mechanics are learned through gameplay + environmental cues, not text boxes. (e.g. place gap requiring ledge-grab so player discovers it naturally.)
 
-The best tutorial is invisible. If you can't explain the game quickly, it might be too complicated. Draw the tutorial out over time in easily digestible, almost unnoticed chunks.
+**Boss Design** — each boss tests one specific skill. Design mechanics + functions to make that test clear and unique.
 
-Ergonomics matter. If a player has to constantly hold or tap a button rapidly, they'll cramp up. Ergonomics are often ignored but become a major factor a few hours into a game.
+**Reward the Victor, Don't Punish the Loser** — in player conflicts, buff the winner rather than nerf the loser. Keeps interactions positive.
 
-Always make the player aware of a goal. Even the most distracted players need to feel some pressure to pursue a clear objective. Without it, they'll just "piss about with the world" and wonder why nothing interesting is happening
+**Overlapping Events** — multiple things can happen simultaneously. Don't design events in isolated sequential silos.
 
-Design Principles
-Teach implicitly before you teach explicitly. Design your world so that mechanics are taught through gameplay and environmental cues, not just text boxes. For example, place a gap that requires a ledge-grab to cross, so the player learns naturally.
+---
 
-Depth over complexity. Players often say they want "more complexity," but what they really want is more depth. Complexity is the currency you use to buy depth, so spend it wisely.
+## Player Experience & UX
 
-Reward the victor, don't punish the loser. In player conflicts, it's always better to give the winner a buff than to nerf the loser. This keeps interactions positive and avoids a feel-bad experience.
+**Immediate Input → Output** — all inputs must have immediate feedback. Disconnect between input and response builds frustration.
 
-Show me something new, or show me something old in a new way. Your game as a whole needs a fresh hook. It doesn't mean every mechanic has to be original, but the final product should feel novel.
+**Always Show a Goal** — even distracted players need clear objective pressure. Without it, they wander and disengage.
 
-Good ideas don't always work together. You might have a lot of brilliant ideas, but that doesn't mean they'll gel in the same game. Show restraint.
+**Failure = Feedback, Not Label** — dying = immediate actionable data, not final judgment. Clear, immediate feedback loops with no permanent stigma.
 
-Don't attempt to simulate everything. Instead, create the illusion that everything is simulated. This saves immense development time while preserving the player's sense of a living world.
+**Invisible Tutorial** — best tutorial is unnoticed. Draw it out over time in digestible chunks. If you can't explain the game quickly, it may be too complicated.
 
-Design bosses with a specific test in mind. What exactly is this boss testing the player on? Design mechanics and functions to make that specific test clear and unique.
+**Design for Non-Readers** — UI and gameplay flow should communicate without text. A pre-reading child should grasp basics.
 
-Accessibility: Design for Everyone
-Accessible design expands your audience and makes the game better for all. Key principles and guidelines include:
+**Respect Control Standards** — R2 is never "Accept", Select is never "Jump". Violating established expectations creates immediate friction.
 
-Provide Options: Let players customize their experience. This includes full controller remapping, adjustable subtitle size/background, and separate volume controls for music, effects, and dialogue.
+**Ergonomics** — avoid constant button holds or rapid tapping. Cramps matter after a few hours of play.
 
-Communicate Information in Multiple Ways: Don't rely on color alone to convey information; use symbols, patterns, or text as well. Provide captions for all important sounds, not just dialogue.
+**Scaffold Like Levels** — simple tasks first to build skill/confidence, then complex obstacles that build on what's mastered.
 
-Consider Cognitive Load: Offer clear, simple UI and menu navigation. Allow players to progress at their own pace and provide clear reminders of current objectives.
+**Player Agency** — meaningful choices in strategy, character, or path make experience personal. Ownership deepens engagement.
 
-Reference Established Guidelines: The Xbox Accessibility Guidelines (XAGs) are an excellent, detailed resource for designers, developers, and testers to build more inclusive games
+---
 
-Player Psychology & Motivation
-Designing for your players means understanding their motivations. Bartle's Player Types is a foundational model for this:
+## Directing the Player
 
-Achievers: Motivated by points, levels, and completionism.
+**Focal Point** — never let player guess what to focus on. Clear primary focus at all times; secondary subjects allowed.
 
-Explorers: Motivated by discovering new areas, lore, and hidden secrets.
+**Anticipation** — give player time + cues before something happens (train sound before train, charge-up before attack).
 
-Socializers: Motivated by interacting with other players and forming relationships.
+**Announce Change** — clearly communicate game state changes (damage taken, buff received, door unlocked).
 
-Killers: Motivated by competition and imposing themselves on others.
+**Believable Behavior** — events and behaviors must follow game world rules. Consistency = credibility.
 
-Game Feel (The "Secret Ingredient")
-Game feel is the intangible, tactile sensation of controlling a virtual avatar. It's what makes a game "juicy.". Manipulate these six areas to improve feel:
+**Physics & Momentum** — apply physics (even cartoon physics) for sense of weight. Slow in + slow out: objects need time to accelerate/decelerate.
 
-Input: How the player physically controls the game. Natural mapping between a controller and on-screen action is key.
+---
 
-Response: How the game interprets and reacts to input. Low latency and high sensitivity are crucial for a responsive feel.
+## Game Feel ("Juice")
 
-Context: How the character's abilities interact with the game world. Mario's acrobatic moves are meaningless without platforms and obstacles.
+Game feel = intangible, tactile sensation of controlling a virtual avatar. What makes a game "juicy." Six levers to manipulate:
 
-Polish: The extra visual and audio effects that make actions satisfying (e.g., screen shake, particles, squash & stretch).
+| Area | What it means |
+|------|--------------|
+| **Input** | Physical control mapping. Natural mapping between controller and on-screen action. |
+| **Response** | How game interprets input. Low latency + high sensitivity = responsive feel. |
+| **Context** | How character abilities interact with world. (Mario's moves are meaningless without platforms.) |
+| **Polish** | Extra visual/audio effects that make actions satisfying: screen shake, particles, squash & stretch. |
+| **Metaphor** | Conceptual link between real-world action and in-game action. Helps players intuit controls. |
+| **Rules** | Underlying systems defining what actions are possible and their consequences. |
 
-Metaphor: The conceptual link between the player's real-world action and the in-game action, helping them intuitively understand controls.
+---
 
-Rules: The underlying systems that define what actions are possible and what consequences they have.
+## Art & Audio
 
-Leading & Directing the Player
-Focal Point: Never let the player guess what to focus on. Provide a clear primary focus at all times, while allowing for secondary subjects.
+**Consistent Color Palette** — inconsistency breaks immersion. When palette is right, players don't notice it.
 
-Anticipation: Always give the player time and cues to understand that something is about to happen. A train sound before the train appears, or a charge-up before an attack.
+**Consistent Art Style** — applies to stroke width, outlines, color usage. Inconsistency stands out negatively.
 
-Announce Change: Clearly communicate to the player when a change in game state occurs (e.g., taking damage, receiving a buff, unlocking a door).
+**Sound = Feedback + Atmosphere** — use intentionally to provide info, create atmosphere, guide the player.
 
-Behavior & Progression
-Believable Events & Behavior: Events and behaviors should follow the rules and logic of the game world to be consistent and credible.
+**Camera = Player's Eye** — frame action deliberately to guide player and evoke specific feelings.
 
-Overlapping Events & Behavior: Multiple things can happen at once, adding depth and realism. Don't design events in isolated, sequential silos.
+**Mood & Environment** — setting, lighting, color palette create atmosphere that supports narrative and emotional goals.
 
-Physics & Momentum: Apply principles of physics (even cartoon physics) to movement and objects to create a sense of weight and realism. Overlap with the principle of Game Feel below.
+**Gestalt Principles** — player brain groups by proximity + similarity. Place related info close; use consistent styling for same-function objects. Too many elements too close = clutter.
 
-Slow In & Slow Out: Movement should rarely be instantaneous. Objects and characters need time to accelerate and decelerate, which adds fluidity and realism.
+---
 
-Environment & Method
-Sound & Feedback: Use sound intentionally to provide feedback, create atmosphere, and give the player crucial information about the game world.
+## Player Psychology (Bartle's Types)
 
-Camera & Point of View: The camera is the player's eye. Use it deliberately to frame the action, guide the player, and evoke specific feelings.
+| Type | Motivation |
+|------|-----------|
+| **Achievers** | Points, levels, completionism |
+| **Explorers** | New areas, lore, hidden secrets |
+| **Socializers** | Interacting with players, forming relationships |
+| **Killers** | Competition, imposing on others |
 
-Mood & Environment: The setting, lighting, and color palette are tools to create a specific atmosphere that supports the game's narrative and emotional goals.
+**Surprising Rule-Breakers** — few elements that seem "too good to be true" or overturn systems create memorable shareable moments without breaking balance.
 
-Foundation
-Simplicity & Clarity: Simple core mechanics are easier to learn and can still lead to deep, complex gameplay.
+---
 
-Player Control & Expression: Give the player a sense of agency. The best games allow players to express themselves through their choices and playstyle.
+## Accessibility
 
-Iteration: The core of game design. Test early and often, gather feedback, and refine. The process is cyclical, not linear.
+**Options** — full controller remapping, adjustable subtitle size/background, separate volume controls (music/effects/dialogue).
 
-The MDA Framework
-This framework formalizes the relationship between a game's rules and the player's experience.
+**Multi-Modal Info** — don't rely on color alone. Use symbols, patterns, or text. Caption all important sounds, not just dialogue.
 
-Mechanics: The base components of the game—its rules, algorithms, and every basic action a player can take.
+**Cognitive Load** — clear simple UI + menus. Let players progress at own pace. Clear objective reminders.
 
-Dynamics: The run-time behavior that emerges when mechanics interact with player input.
+**Reference** — Xbox Accessibility Guidelines (XAGs) for detailed inclusive design standards.
 
-Aesthetics: The emotional responses evoked in the player.
+---
 
-A helpful way to remember this is that from the designer's view, Mechanics create Dynamics which create Aesthetics, while the player experiences it in reverse.
+## Frameworks
 
-The original MDA paper identifies eight core aesthetic goals, or "kinds of fun":
+### MDA (Mechanics → Dynamics → Aesthetics)
 
-Sensation: Game as sense-pleasure.
+- **Mechanics** — rules, algorithms, every basic action player can take
+- **Dynamics** — emergent run-time behavior from mechanics + player input
+- **Aesthetics** — emotional responses evoked in player
 
-Fantasy: Game as make-believe.
+Designer view: Mechanics → Dynamics → Aesthetics  
+Player view: Aesthetics ← Dynamics ← Mechanics (experienced in reverse)
 
-Narrative: Game as a drama.
+**8 Kinds of Fun:**
 
-Challenge: Game as an obstacle course.
+| Kind | Definition |
+|------|-----------|
+| Sensation | Game as sense-pleasure |
+| Fantasy | Game as make-believe |
+| Narrative | Game as drama |
+| Challenge | Game as obstacle course |
+| Fellowship | Game as social framework |
+| Discovery | Game as uncharted territory |
+| Expression | Game as self-discovery |
+| Submission | Game as pastime |
 
-Fellowship: Game as a social framework.
+### Four Cores
 
-Discovery: Game as uncharted territory.
+| Core | What it covers |
+|------|---------------|
+| **Mechanics** | How player interacts with game |
+| **Economy** | How player evaluates and makes decisions |
+| **Narrative** | How player assigns meaning to/from game |
+| **Aesthetics** | How player experiences and perceives game |
 
-Expression: Game as self-discovery.
+### Foundation Principles
 
-Submission: Game as a pastime.
+- **Simplicity & Clarity** — simple core mechanics easier to learn, can still yield deep gameplay
+- **Player Control & Expression** — let players express themselves through choices and playstyle
+- **Iteration** — test early and often, gather feedback, refine. Cyclical not linear.
 
-The Four Cores of Game Design
-This is another lens for understanding the key pillars of a game.
+---
 
-Mechanics: How the player interacts with the game.
+## Mathematics of Game Balance & Economy Tuning
 
-Economy: How the player evaluates and makes decisions.
+### Foundational Concepts
 
-Narrative: How the player assigns meaning to and from the game.
+**Expected Value (EV)**
+`EV = Σ (Probabilityᵢ × Valueᵢ)`
+Use to compare abilities, weapons, gold-per-hour. Variance matters — two options with equal EV may feel very different. Model full probability distribution, not just mean.
 
-Aesthetics: How the player experiences and perceives the game.
+**Variance & Standard Deviation**
+High-variance outcomes (crits, rare drops) create excitement but risk frustration. A 95% hit rate missing twice in a row feels broken — consider pseudo-random distributions (PRD) where actual chance increases after each failure to match player expectation.
+
+**Probability Distributions**
+
+| Distribution | Use case |
+|---|---|
+| Binomial | pass/fail events (hit/miss, crit) |
+| Normal | damage rolls around a mean |
+| Hypergeometric | drawing cards without replacement (deck builders) |
+| Uniform | simple random ranges, loot tables |
+
+**Utility & Diminishing Marginal Returns**
+Players perceive gains non-linearly: 100 gold when broke > 100 gold when rich. Model with `U(x) = x^(1-R) / (1-R)`. Apply to progression — reward structures must account for diminishing marginal utility to avoid inflation and boredom.
+
+---
+
+### Spreadsheet Modeling
+
+**Core Stat Database** — every character, item, ability gets a row. Columns for all numeric values. Derived stats combine base stats into metrics:
+`DPS = (Damage × (1 + CritChance×(CritMult-1))) / AttackSpeed`
+
+**Power Budgeting** — assign total "power budget" per level/item tier. `Σ (weight × stat_value) ≤ budget`. Use conditional formatting to flag over/underpowered entries instantly.
+
+**Goal Seek & Sensitivity Analysis**
+- Goal Seek: solve for input that yields desired output (e.g. what base damage yields exactly 12s TTK?)
+- Data Tables: see how changing one variable affects multiple outcomes
+
+---
+
+### Monte Carlo Simulation
+
+When systems have many interacting random elements, analytic formulas become intractable.
+
+1. Script a combat or economy loop (Python, Excel VBA)
+2. Run thousands of trials sampling from all probability distributions
+3. Track win rates, time-to-completion, bankruptcy probabilities
+
+Strategies with win rates consistently above 55% warp the meta.
+
+---
+
+### Economy Tuning
+
+**Sources & Sinks Equilibrium**
+- Source: coin drops, quest rewards, reselling
+- Sink: repairs, consumables, taxes, cosmetics
+- Maintain `Total In = Total Out` over time to control inflation
+- Add automatic stabilizers: sink rates that scale with player wealth (percentage-based taxes)
+
+**Price Elasticity of Demand**
+`Elasticity = (% change in quantity demanded) / (% change in price)`
+
+| Elasticity | Meaning | Example |
+|---|---|---|
+| >1 (elastic) | small price hike drops demand sharply | vanity skins |
+| <1 (inelastic) | demand barely moves with price | essential potions, repair |
+
+Use elastic goods to absorb excess currency without hurting core gameplay.
+
+**Velocity of Money** — how quickly currency changes hands. High velocity amplifies inflation; slow velocity stagnates economy. Tuning time-gates (cooldowns, travel times) indirectly controls velocity.
+
+---
+
+### Asymmetric Balance & Payoff Matrices
+
+**Payoff Matrix** — for each matchup assign payoff (+1 win, -1 loss, 0 draw). Find Nash equilibrium: no player can unilaterally improve by switching pure strategy. Solve via linear programming (Excel Solver or Gambit). Equilibrium gives optimal usage frequencies per faction/strategy.
+
+**Intransitive Loops** — rock-paper-scissors ensures no single option dominates. In complex systems, ensure no strategy has zero counters while preserving viability.
+
+---
+
+### Progression & Power Curves
+
+| Type | Formula | Warning |
+|---|---|---|
+| Linear | `Stat = Base + Growth × Lvl` | Simple, predictable, low power spike |
+| Polynomial | `Stat = Base + Growth × Lvl^E` (E>1) | Moderate acceleration — control E carefully |
+| Exponential | `Stat = Base × (1 + Rate)^Lvl` | Rapidly trivializes old content; use only if extreme scaling is intended |
+| Diminishing Returns | `Stat = Max × Lvl / (Lvl + K)` | Common for defense, crit chance — prevents hitting 100% caps |
+
+Model Effective Health and TTK to prevent one-shots or bullet sponges.
+
+---
+
+### Practical Tuning Process
+
+1. Define target experience: e.g. "same-level mob dies in 12–15 seconds"
+2. Build spreadsheet with all stats and derived metrics
+3. Set initial values using power budgets and simple scaling
+4. Run Monte Carlo simulations to check variance and extreme outcomes
+5. Use Goal Seek to fine-tune to exact targets
+6. Playtest with real humans — mathematical perfection ≠ fun
+7. Iterate: adjust weights, add sinks, rebalance asymmetries based on data
+
+---
+
+### Key Formulas & Tools
+
+```
+DPH  = damage per hit
+DPS  = DPH / attack interval
+EHP  = HP / (1 - damage_reduction_fraction)
+TTK  = EHP_target / DPS
+ROI  = net coin earned per hour for an activity
+```
+
+**Tools:**
+- Spreadsheets: Excel/Google Sheets — VLOOKUP, SUMPRODUCT, Goal Seek, Data Tables
+- Scripting: Python (`numpy`, `random`) for Monte Carlo; Gambit for payoff matrices
+- Machinations: visual tool for diagramming game economies and simulating flow
