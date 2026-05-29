@@ -34,16 +34,25 @@ Branch: `tennis`
 - ADR-3. VirtualDrive singleton for all assets — `vd://` URLs only
 - ADR-4. Fixed-point arithmetic: Int × 100 scale for all game logic coordinates
 
+## Signature Doc Structure
+Mirrors spec structure — one arch doc per spec domain:
+```
+docs/arch/tennis/
+  match-rules.md      # MatchScore, serve state machine, point lifecycle types
+  simulation.md       # Ball, CourtLayout, legality types
+  shot-system.md      # ShotInputBuffer, ShotDef, HitResult types
+  players.md          # TennisPlayer, HumanController, OpponentAI types
+  presentation.md     # HUD types, SurfaceDef, audio hook interfaces
+```
+
 ## Signature Doc Status
-| Subsystem | File | Status |
+| Domain | File | Status |
 |---|---|---|
-| TennisApp | docs/arch/tennis-app.md | Not created |
-| Ball | docs/arch/tennis-ball.md | Not created |
-| TennisPlayer | docs/arch/tennis-player.md | Not created |
-| HumanController | docs/arch/tennis-human-controller.md | Not created |
-| OpponentAI | docs/arch/tennis-opponent-ai.md | Not created |
-| TennisScene | docs/arch/tennis-scene.md | Not created |
-| MatchScore | docs/arch/tennis-match-score.md | Not created |
+| match-rules | docs/arch/tennis/match-rules.md | Not created |
+| simulation | docs/arch/tennis/simulation.md | Not created |
+| shot-system | docs/arch/tennis/shot-system.md | Not created |
+| players | docs/arch/tennis/players.md | Not created |
+| presentation | docs/arch/tennis/presentation.md | Not created |
 
 ## Reference Docs
 - `docs/tennis-architecture.txt` — existing architecture spec (authoritative until signature docs created)

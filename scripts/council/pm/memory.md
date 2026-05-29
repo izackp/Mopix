@@ -40,6 +40,20 @@ Next: M2 — Core Rally Simulation (movement, serve, ball physics, legality, sco
 - Release 1 (First Playable): M3 + M4 + M5
 - Release 2 (Vertical Slice Polish): M6 + art + audio pass
 
-## Spec Files
-- Feature spec: `docs/specs/tennis.md` (not yet created — open questions must be resolved first)
-- Reference docs: `docs/tennis-game-spec.md`, `docs/tennis-roadmap.md`, `docs/tennis-open-questions.md`
+## Spec File Structure
+Specs grouped by scene, domain files within:
+```
+docs/specs/tennis/
+  match-rules.md      # scoring, serve, point lifecycle, match end
+  simulation.md       # ball model, bounce, legality
+  shot-system.md      # input, shot types, timing quality
+  players.md          # movement, HumanController, AI
+  presentation.md     # HUD, surfaces, audio hooks
+docs/specs/menu/      # future
+docs/specs/shared/    # cross-scene systems
+```
+None created yet — open questions must be resolved first.
+Feedback files: `docs/specs/tennis/<domain>-feedback.md` (scratch, PM deletes after merge).
+
+## Reference Docs
+- `docs/tennis-game-spec.md`, `docs/tennis-roadmap.md`, `docs/tennis-open-questions.md`
