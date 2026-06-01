@@ -101,6 +101,26 @@
             "target": "HeadlessRenderer",
             "configuration": "release",
             "preLaunchTask": "swift: Build Release HeadlessRenderer"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:GameEngine}",
+            "name": "Debug Tennis",
+            "target": "Tennis",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug Tennis"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:GameEngine}",
+            "name": "Release Tennis",
+            "target": "Tennis",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release Tennis"
         }
     ]
 }
