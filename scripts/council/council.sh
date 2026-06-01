@@ -58,12 +58,24 @@ build_user_message() {
     echo "$MESSAGE"
 }
 
-# Sum all string-field chars in a JSONL file, divide by 4 → estimated tokens
+# Estimate tokens in current effective context: chars in response_item/event_msg
+# after last compacted event (resets on compaction), divided by 4.
+# Excludes turn_context (repeated config metadata) and session_meta.
 _codex_estimate_tokens() {
     local session_file="$1"
     [[ -f "$session_file" ]] || { echo 0; return; }
-    jq -rn '[inputs | .payload | .. | strings | length] | add // 0 | . / 4 | floor' \
-        "$session_file" 2>/dev/null || echo 0
+    jq -rn '
+      reduce inputs as $e (
+        {chars: 0};
+        if $e.type == "compacted" then
+          {chars: ($e.payload | [.. | strings | length] | add // 0)}
+        elif ($e.type == "response_item" or $e.type == "event_msg") then
+          .chars += ($e.payload | [.. | strings | length] | add // 0)
+        else
+          .
+        end
+      ) | .chars / 4 | floor
+    ' "$session_file" 2>/dev/null || echo 0
 }
 
 # Find session JSONL file by UUID
