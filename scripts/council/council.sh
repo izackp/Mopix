@@ -23,7 +23,8 @@ if [[ ! -d "$PERSONA_DIR" ]]; then
     exit 1
 fi
 
-CODEX_COMPACT_THRESHOLD=140000  # estimated tokens (text-field chars / 4)
+# Codex internal truncation_policy: compact when context exceeds this token limit
+CODEX_TRUNCATION_LIMIT=140000
 
 load_file() {
     local path="$1" label="${2:-$1}"
@@ -58,48 +59,6 @@ build_user_message() {
     echo "$MESSAGE"
 }
 
-# Estimate tokens in current effective context: chars in response_item/event_msg
-# after last compacted event (resets on compaction), divided by 4.
-# Excludes turn_context (repeated config metadata) and session_meta.
-_codex_estimate_tokens() {
-    local session_file="$1"
-    [[ -f "$session_file" ]] || { echo 0; return; }
-    jq -rn '
-      reduce inputs as $e (
-        {chars: 0};
-        if $e.type == "compacted" then
-          {chars: ($e.payload | [.. | strings | length] | add // 0)}
-        elif ($e.type == "response_item" or $e.type == "event_msg") then
-          .chars += ($e.payload | [.. | strings | length] | add // 0)
-        else
-          .
-        end
-      ) | .chars / 4 | floor
-    ' "$session_file" 2>/dev/null || echo 0
-}
-
-# Find session JSONL file by UUID
-_codex_session_file() {
-    find ~/.codex/sessions -name "*${1}*.jsonl" 2>/dev/null | head -1
-}
-
-# Ask codex to write memory.md summary then reset session
-_codex_compact() {
-    local session_id="$1" token_est="$2" resp_tmp
-    echo "[council] Context ~${token_est} tokens — compacting into memory.md" >&2
-
-    resp_tmp="$(mktemp)"
-    printf '%s' "The session context is large. Write a comprehensive summary of everything discussed, decided, and built so far into: ${PERSONA_DIR}/memory.md — include key decisions, code changes, problems solved, and current state. This file is loaded as context in future sessions." | \
-        codex exec resume "$session_id" - \
-            -C "$REPO_ROOT" \
-            -s workspace-write \
-            -o "$resp_tmp" 2>/dev/null || true
-    rm -f "$resp_tmp"
-
-    rm -f "$PERSONA_DIR/session_id"
-    echo "[council] Session reset. memory.md updated; will be loaded next run." >&2
-}
-
 _save_response() {
     local response="$1"
     printf '%s\n' "$response" > "$PERSONA_DIR/last_response.txt"
@@ -119,7 +78,7 @@ _run_cat() {
 }
 
 _run_codex() {
-    local system="$1" user_msg="$2" response resp_tmp marker_tmp session_id session_file token_est
+    local system="$1" user_msg="$2" response resp_tmp marker_tmp session_id session_file
     resp_tmp="$(mktemp)"
 
     if [[ -f "$PERSONA_DIR/session_id" ]]; then
@@ -129,6 +88,7 @@ _run_codex() {
             codex exec resume "$session_id" - \
                 -C "$REPO_ROOT" \
                 -s workspace-write \
+                -c "truncation_policy={mode=\"tokens\",limit=$CODEX_TRUNCATION_LIMIT}" \
                 -o "$resp_tmp"
     else
         # New session: bundle system + user as initial prompt
@@ -137,6 +97,7 @@ _run_codex() {
             codex exec - \
                 -C "$REPO_ROOT" \
                 -s workspace-write \
+                -c "truncation_policy={mode=\"tokens\",limit=$CODEX_TRUNCATION_LIMIT}" \
                 -o "$resp_tmp"
 
         # Find session file created after marker, extract UUID from filename
@@ -157,19 +118,6 @@ _run_codex() {
 
     response="$(cat "$resp_tmp")"
     rm -f "$resp_tmp"
-
-    # Check context size; compact if over threshold
-    if [[ -f "$PERSONA_DIR/session_id" ]]; then
-        session_id="$(cat "$PERSONA_DIR/session_id")"
-        session_file="$(_codex_session_file "$session_id")"
-        if [[ -n "$session_file" ]]; then
-            token_est="$(_codex_estimate_tokens "$session_file")"
-            if [[ $token_est -gt $CODEX_COMPACT_THRESHOLD ]]; then
-                _codex_compact "$session_id" "$token_est"
-            fi
-        fi
-    fi
-
     _save_response "$response"
 }
 
