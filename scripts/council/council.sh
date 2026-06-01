@@ -23,7 +23,7 @@ if [[ ! -d "$PERSONA_DIR" ]]; then
     exit 1
 fi
 
-CODEX_COMPACT_THRESHOLD=140000  # tokens (~560k chars in text fields)
+CODEX_COMPACT_THRESHOLD=140000  # estimated tokens (text-field chars / 4)
 
 load_file() {
     local path="$1" label="${2:-$1}"
@@ -58,31 +58,12 @@ build_user_message() {
     echo "$MESSAGE"
 }
 
-# Estimate tokens from a codex session JSONL by summing text field chars / 4
+# Sum all string-field chars in a JSONL file, divide by 4 → estimated tokens
 _codex_estimate_tokens() {
     local session_file="$1"
     [[ -f "$session_file" ]] || { echo 0; return; }
-    python3 - "$session_file" <<'PYEOF'
-import json, sys
-
-def count_chars(obj):
-    if isinstance(obj, str):
-        return len(obj)
-    if isinstance(obj, list):
-        return sum(count_chars(i) for i in obj)
-    if isinstance(obj, dict):
-        return sum(count_chars(v) for v in obj.values())
-    return 0
-
-total = 0
-with open(sys.argv[1]) as f:
-    for line in f:
-        try:
-            total += count_chars(json.loads(line).get('payload', {}))
-        except Exception:
-            pass
-print(total // 4)
-PYEOF
+    jq -rn '[inputs | .payload | .. | strings | length] | add // 0 | . / 4 | floor' \
+        "$session_file" 2>/dev/null || echo 0
 }
 
 # Find session JSONL file by UUID
@@ -90,7 +71,7 @@ _codex_session_file() {
     find ~/.codex/sessions -name "*${1}*.jsonl" 2>/dev/null | head -1
 }
 
-# Ask codex to write memory.md then reset session
+# Ask codex to write memory.md summary then reset session
 _codex_compact() {
     local session_id="$1" token_est="$2" resp_tmp
     echo "[council] Context ~${token_est} tokens — compacting into memory.md" >&2
@@ -107,23 +88,38 @@ _codex_compact() {
     echo "[council] Session reset. memory.md updated; will be loaded next run." >&2
 }
 
-run_codex() {
-    local system user_msg response resp_tmp marker_tmp session_id session_file token_est
-    system="$(build_system)"
-    user_msg="$(build_user_message)"
-    printf '%s\n' "$user_msg" > "$PERSONA_DIR/last_prompt.txt"
+_save_response() {
+    local response="$1"
+    printf '%s\n' "$response" > "$PERSONA_DIR/last_response.txt"
+    printf '%s\n' "$response"
+    echo "Output saved to: $PERSONA_DIR/last_response.txt"
+}
+
+_run_claude() {
+    local system="$1" user_msg="$2" response
+    response="$(claude --system "$system" -p "$user_msg" --print)"
+    _save_response "$response"
+}
+
+_run_cat() {
+    local system="$1" user_msg="$2"
+    _save_response "$(printf '%s\n\n%s\n' "$system" "$user_msg")"
+}
+
+_run_codex() {
+    local system="$1" user_msg="$2" response resp_tmp marker_tmp session_id session_file token_est
     resp_tmp="$(mktemp)"
 
     if [[ -f "$PERSONA_DIR/session_id" ]]; then
         session_id="$(cat "$PERSONA_DIR/session_id")"
-        # Resume: only send new user message (system context already in session)
+        # Resume: system context already in session; only send new user message
         printf '%s' "$user_msg" | \
             codex exec resume "$session_id" - \
                 -C "$REPO_ROOT" \
                 -s workspace-write \
                 -o "$resp_tmp"
     else
-        # New session: bundle system + user as initial prompt; capture session UUID
+        # New session: bundle system + user as initial prompt
         marker_tmp="$(mktemp)"
         printf '%s\n\n%s' "$system" "$user_msg" | \
             codex exec - \
@@ -131,19 +127,26 @@ run_codex() {
                 -s workspace-write \
                 -o "$resp_tmp"
 
+        # Find session file created after marker, extract UUID from filename
         session_file="$(find ~/.codex/sessions -name "*.jsonl" -newer "$marker_tmp" 2>/dev/null | head -1)"
         rm -f "$marker_tmp"
 
         if [[ -n "$session_file" ]]; then
-            session_id="$(basename "$session_file" .jsonl | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')"
-            [[ -n "$session_id" ]] && printf '%s' "$session_id" > "$PERSONA_DIR/session_id"
+            session_id="$(basename "$session_file" .jsonl | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' || true)"
+            if [[ -n "${session_id:-}" ]]; then
+                printf '%s' "$session_id" > "$PERSONA_DIR/session_id"
+            else
+                echo "[council] Warning: could not extract session UUID from: $session_file" >&2
+            fi
+        else
+            echo "[council] Warning: no new session file found after run" >&2
         fi
     fi
 
     response="$(cat "$resp_tmp")"
     rm -f "$resp_tmp"
 
-    # Check context size and compact if over threshold
+    # Check context size; compact if over threshold
     if [[ -f "$PERSONA_DIR/session_id" ]]; then
         session_id="$(cat "$PERSONA_DIR/session_id")"
         session_file="$(_codex_session_file "$session_id")"
@@ -155,33 +158,19 @@ run_codex() {
         fi
     fi
 
-    printf '%s\n' "$response" > "$PERSONA_DIR/last_response.txt"
-    printf '%s\n' "$response"
-    echo "Output saved to: $PERSONA_DIR/last_response.txt"
+    _save_response "$response"
 }
 
 run_harness() {
-    local system user_msg response
+    local system user_msg
     system="$(build_system)"
     user_msg="$(build_user_message)"
     printf '%s\n' "$user_msg" > "$PERSONA_DIR/last_prompt.txt"
 
     case "$HARNESS" in
-        claude)
-            response="$(claude --system "$system" -p "$user_msg" --print)"
-            printf '%s\n' "$response" > "$PERSONA_DIR/last_response.txt"
-            printf '%s\n' "$response"
-            echo "Output saved to: $PERSONA_DIR/last_response.txt"
-            ;;
-        codex)
-            run_codex
-            ;;
-        cat)
-            response="$(printf '%s\n\n%s\n' "$system" "$user_msg")"
-            printf '%s\n' "$response" > "$PERSONA_DIR/last_response.txt"
-            printf '%s\n' "$response"
-            echo "Output saved to: $PERSONA_DIR/last_response.txt"
-            ;;
+        claude) _run_claude "$system" "$user_msg" ;;
+        codex)  _run_codex  "$system" "$user_msg" ;;
+        cat)    _run_cat    "$system" "$user_msg" ;;
         *)
             echo "Unknown harness: $HARNESS" >&2
             echo "Supported: claude, codex, cat" >&2
