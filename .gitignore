@@ -101,3 +101,5 @@ lib
 *.dll
 windows_bin
 *.map
+.bkit/
+.worktrees/
