@@ -33,6 +33,11 @@ fi
 # Codex internal truncation_policy: compact when context exceeds this token limit
 CODEX_TRUNCATION_LIMIT=140000
 
+# Rotate (reset) a persona's session after this many turns. The turn before
+# rotation, the persona is told to flush state to its memory files so the
+# fresh session can reconstruct context from them.
+SESSION_MAX_TURNS="${SESSION_MAX_TURNS:-8}"
+
 load_file() {
     local path="$1" label="${2:-$1}"
     [[ -f "$path" ]] || return 0
@@ -85,6 +90,7 @@ build_user_message() {
         for p in "${path_lines[@]}"; do
             echo "  $p"
         done
+        echo "Once a feedback file is fully addressed, rename it to end in -feedback-done.md so it stops appearing here."
         echo ""
     fi
 
@@ -118,14 +124,29 @@ strip_prompt_echo() {
 }
 
 _run_claude() {
-    local system="$1" user_msg="$2" response
+    local system="$1" user_msg="$2" response session_id
     local -a claude_env=()
 
     if [[ -n "${CLAUDE_CONFIG_DIR:-}" ]]; then
         claude_env=(env "CLAUDE_CONFIG_DIR=$CLAUDE_CONFIG_DIR")
     fi
 
-    response="$("${claude_env[@]}" claude --system-prompt "$system" -p "$user_msg")"
+    if [[ -f "$SESSION_FILE" ]]; then
+        session_id="$(cat "$SESSION_FILE")"
+        # Resume: system context already in session; only send new user message
+        response="$(cd "$REPO_ROOT" && "${claude_env[@]}" claude -p \
+            --resume "$session_id" \
+            --dangerously-skip-permissions \
+            "$user_msg")"
+    else
+        session_id="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+        response="$(cd "$REPO_ROOT" && "${claude_env[@]}" claude -p \
+            --session-id "$session_id" \
+            --system-prompt "$system" \
+            --dangerously-skip-permissions \
+            "$user_msg")"
+        printf '%s' "$session_id" > "$SESSION_FILE"
+    fi
     _save_response "$response"
 }
 
@@ -138,13 +159,13 @@ _run_codex() {
     local system="$1" user_msg="$2" response resp_tmp marker_tmp session_id session_file
     resp_tmp="$(mktemp)"
 
-    if [[ -f "$PERSONA_DIR/session_id" ]]; then
-        session_id="$(cat "$PERSONA_DIR/session_id")"
+    if [[ -f "$SESSION_FILE" ]]; then
+        session_id="$(cat "$SESSION_FILE")"
         # Resume: system context already in session; only send new user message
         printf '%s' "$user_msg" | \
             codex exec resume "$session_id" - \
                 -C "$REPO_ROOT" \
-                -s workspace-write \
+                -s danger-full-access \
                 -c "truncation_policy={mode=\"tokens\",limit=$CODEX_TRUNCATION_LIMIT}" \
                 -o "$resp_tmp"
     else
@@ -153,7 +174,7 @@ _run_codex() {
         printf '%s\n\n%s' "$system" "$user_msg" | \
             codex exec - \
                 -C "$REPO_ROOT" \
-                -s workspace-write \
+                -s danger-full-access \
                 -c "truncation_policy={mode=\"tokens\",limit=$CODEX_TRUNCATION_LIMIT}" \
                 -o "$resp_tmp"
 
@@ -164,7 +185,7 @@ _run_codex() {
         if [[ -n "$session_file" ]]; then
             session_id="$(basename "$session_file" .jsonl | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' || true)"
             if [[ -n "${session_id:-}" ]]; then
-                printf '%s' "$session_id" > "$PERSONA_DIR/session_id"
+                printf '%s' "$session_id" > "$SESSION_FILE"
             else
                 echo "[council] Warning: could not extract session UUID from: $session_file" >&2
             fi
@@ -180,9 +201,20 @@ _run_codex() {
 }
 
 run_harness() {
-    local system user_msg
+    local system user_msg turns=0
     system="$(build_system)"
     user_msg="$(build_user_message)"
+
+    SESSION_FILE="$PERSONA_DIR/session_id_$HARNESS"
+    TURNS_FILE="$PERSONA_DIR/session_turns_$HARNESS"
+    [[ -f "$TURNS_FILE" ]] && turns="$(cat "$TURNS_FILE")"
+
+    # Warn the persona on its final turn so it flushes state to memory files
+    # before the session is rotated away.
+    if [[ -f "$SESSION_FILE" && $((turns + 1)) -ge $SESSION_MAX_TURNS ]]; then
+        user_msg+=$'\n\n[council] This session resets after this reply. Before answering, overwrite memory-short.md with your current state and fold anything durable into memory-long.md.'
+    fi
+
     printf '%s\n' "$user_msg" > "$PERSONA_DIR/last_prompt.txt"
 
     case "$HARNESS" in
@@ -195,6 +227,16 @@ run_harness() {
             exit 1
             ;;
     esac
+
+    if [[ "$HARNESS" == "claude" || "$HARNESS" == "codex" ]]; then
+        turns=$((turns + 1))
+        if [[ $turns -ge $SESSION_MAX_TURNS ]]; then
+            rm -f "$SESSION_FILE" "$TURNS_FILE"
+            echo "[council] Session rotated after $turns turns; next run starts fresh." >&2
+        else
+            printf '%s' "$turns" > "$TURNS_FILE"
+        fi
+    fi
 }
 
 run_harness
