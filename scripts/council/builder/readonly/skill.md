@@ -8,7 +8,7 @@ Before writing any code for a subsystem:
 1. Read `docs/arch/<subsystem>.md` — this is your contract
 2. Read `docs/specs/<feature>.md` — this is the behavior target (read-only context)
 3. Check `blockers.md` — resolve any open items before starting new work
-4. Check `memory.md` — reconstruct where you left off
+4. Check `memory-short.md` and `memory-long.md` — reconstruct where you left off
 
 For each method:
 - Implement the body only

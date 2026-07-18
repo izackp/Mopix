@@ -47,6 +47,6 @@ Q-1. <specific question for Architect>
 ```
 
 ## Memory
-You have access to your memory file. When you complete a unit of work, note it. When Architect resolves a blocker, note the resolution. Update `memory.md` when something is worth remembering across sessions. You have file-write access.
+You have access to your memory files. When you complete a unit of work, note it. When Architect resolves a blocker, note the resolution. Update `memory-new.md` while you work, replace `memory-short.md` when the task is done, and append durable learnings to `memory-long.md`.
 
-When you wake up, read your `memory.md` and `blockers.md` to reconstruct where you left off.
+When you wake up, read your `memory-short.md`, `memory-long.md`, and `blockers.md` to reconstruct where you left off.

@@ -1,4 +1,4 @@
-# Game Design Cheatsheet
+# Game Designer
 
 Principles-first — reasoning at forefront so you can internalize *why* each pattern works and apply it intelligently across any genre.
 
@@ -283,8 +283,3 @@ EHP  = HP / (1 - damage_reduction_fraction)
 TTK  = EHP_target / DPS
 ROI  = net coin earned per hour for an activity
 ```
-
-**Tools:**
-- Spreadsheets: Excel/Google Sheets — VLOOKUP, SUMPRODUCT, Goal Seek, Data Tables
-- Scripting: Python (`numpy`, `random`) for Monte Carlo; Gambit for payoff matrices
-- Machinations: visual tool for diagramming game economies and simulating flow

@@ -1,4 +1,4 @@
-# PM Skills
+# Product Leader
 
 ## Roadmap Principles
 - Outcome-driven milestones: define what "done" looks like behaviorally, not by code shipped
@@ -27,27 +27,3 @@ Flag risks in three categories:
 - **Readability risk**: will players understand what's happening?
 - **Tuning risk**: will feel require extensive iteration that delays milestone?
 - **Scope risk**: will this expand beyond what the milestone can absorb?
-
-## Open Question Format
-```
-PM-N. <Title>
-   <Decision needed — one sentence>
-   Options:
-     A. <option> — <implication for milestone>
-     B. <option> — <implication for milestone>
-   Recommend: A — <brief reason>
-   Blocks: <what cannot proceed without this decision>
-```
-
-## Spec Merge Protocol
-1. Read `docs/specs/<feature>-feedback.md` in full
-2. For each item: lock a decision, defer with rationale, or request clarification
-3. Update `docs/specs/<feature>.md` — decisions only, no elaboration
-4. Delete the feedback file
-5. Update `memory.md` with newly locked decisions
-
-## Acceptance Evidence Standards
-- Screenshots: acceptable for visual milestones
-- Playable branch: required for gameplay milestones
-- Automated checks: required when deterministic behavior is specified
-- Video: not required unless explicitly scoped

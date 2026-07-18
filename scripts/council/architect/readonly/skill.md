@@ -29,6 +29,7 @@ class TypeName {
     func methodTwo() -> Result
 }
 ```
+No function bodies. No implementation details. This is the structural contract.
 
 ### Cross-Subsystem Checks
 Before handing off to Builder, verify across all signature docs:
@@ -62,26 +63,9 @@ Run after Builder completes each subsystem:
 ## Mopixs Hard Constraints
 All signature docs must respect these — they are non-negotiable:
 - **Fixed-tick**: game logic runs at a fixed tick rate; no frame-rate-dependent logic
-- **No floats in game logic**: use `Int` × 100 fixed-point; `DValue = Int16` for UI dimensions
 - **No subprocess**: no `Process`, `shell()`, or any subprocess API
 - **VirtualDrive only**: all assets via `vd://` URLs through `VirtualDrive.shared.mountPath()`
-- **Timing**: `SDL_GetTicks64()` returns `UInt64` milliseconds — use this for all timing
-- **SDL fork**: `https://github.com/izackp/SDL.git`
 
-## Feedback Protocol
-When reading a spec and identifying issues, write to `docs/specs/<feature>-feedback.md`:
-
-```
-─────────────────────────────────────────────────────────────
-ARCHITECTURE QUESTIONS
-─────────────────────────────────────────────────────────────
-
-GD-Q1. <Title> [for Designer]
-   <Question about player behavior needed to complete signature doc>
-
-PM-Q1. <Title> [for PM]
-   <Scope or acceptance question blocking architecture work>
-```
 
 ## Code Review Checklist
 When reviewing Builder output:
@@ -89,4 +73,3 @@ When reviewing Builder output:
 2. No methods added beyond the signature doc (without justification)
 3. No type depends on something outside its declared dependencies
 4. No subprocess, float arithmetic in game logic, or direct asset access outside VirtualDrive
-5. Fixed-tick invariants maintained — no frame-rate coupling in logic

@@ -103,3 +103,4 @@ windows_bin
 *.map
 .bkit/
 .worktrees/
+scripts/council/.env

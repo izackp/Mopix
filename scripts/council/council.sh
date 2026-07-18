@@ -7,6 +7,12 @@ set -euo pipefail
 
 COUNCIL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$COUNCIL_DIR/../.." && pwd)"
+ENV_FILE="$COUNCIL_DIR/.env"
+
+if [[ -f "$ENV_FILE" ]]; then
+    # Local harness config, e.g. CLI settings paths.
+    source "$ENV_FILE"
+fi
 
 if [[ $# -lt 3 ]]; then
     echo "Usage: council.sh <persona> <harness> \"message\"" >&2
@@ -18,6 +24,7 @@ HARNESS="$2"
 MESSAGE="$3"
 
 PERSONA_DIR="$COUNCIL_DIR/$PERSONA"
+READONLY_DIR="$PERSONA_DIR/readonly"
 if [[ ! -d "$PERSONA_DIR" ]]; then
     echo "Unknown persona: $PERSONA (expected directory $PERSONA_DIR)" >&2
     exit 1
@@ -34,10 +41,35 @@ load_file() {
     printf '\n'
 }
 
+require_file() {
+    local path="$1"
+    [[ -f "$path" ]] || {
+        echo "Missing required file: $path" >&2
+        exit 1
+    }
+}
+
 build_system() {
-    load_file "$PERSONA_DIR/persona.md" "PERSONA"
-    load_file "$PERSONA_DIR/skill.md"   "SKILL"
-    load_file "$PERSONA_DIR/memory.md"  "MEMORY"
+    require_file "$COUNCIL_DIR/agent.md"
+    require_file "$READONLY_DIR/persona.md"
+    require_file "$READONLY_DIR/skill.md"
+    require_file "$PERSONA_DIR/memory-short.md"
+    require_file "$PERSONA_DIR/memory-long.md"
+    require_file "$PERSONA_DIR/memory-new.md"
+
+    load_file "$COUNCIL_DIR/agent.md"        "AGENT"
+    load_file "$READONLY_DIR/persona.md"     "PERSONA"
+    load_file "$READONLY_DIR/skill.md"       "SKILL"
+    load_file "$PERSONA_DIR/memory-short.md" "MEMORY-SHORT"
+
+    printf '\n--- WORKSPACE FILES ---\n'
+    printf 'Immutable worker files live in: %s\n' "$READONLY_DIR"
+    printf 'Editable long-term memory: %s\n' "$PERSONA_DIR/memory-long.md"
+    printf 'Editable scratch memory: %s\n' "$PERSONA_DIR/memory-new.md"
+    if [[ -f "$PERSONA_DIR/blockers.md" ]]; then
+        printf 'Worker blocker file: %s\n' "$PERSONA_DIR/blockers.md"
+    fi
+    printf '\n'
 }
 
 build_user_message() {
@@ -66,15 +98,40 @@ _save_response() {
     echo "Output saved to: $PERSONA_DIR/last_response.txt"
 }
 
+strip_prompt_echo() {
+    local response="$1" system="$2" user_msg="$3"
+    local prompt_bundle
+
+    prompt_bundle="$(printf '%s\n\n%s' "$system" "$user_msg")"
+
+    if [[ "$response" == "$prompt_bundle"* ]]; then
+        response="${response#"$prompt_bundle"}"
+    elif [[ "$response" == "$system"* ]]; then
+        response="${response#"$system"}"
+    fi
+
+    while [[ "$response" == $'\n'* ]]; do
+        response="${response#$'\n'}"
+    done
+
+    printf '%s' "$response"
+}
+
 _run_claude() {
     local system="$1" user_msg="$2" response
-    response="$(claude --system "$system" -p "$user_msg" --print)"
+    local -a claude_env=()
+
+    if [[ -n "${CLAUDE_CONFIG_DIR:-}" ]]; then
+        claude_env=(env "CLAUDE_CONFIG_DIR=$CLAUDE_CONFIG_DIR")
+    fi
+
+    response="$("${claude_env[@]}" claude --system-prompt "$system" -p "$user_msg")"
     _save_response "$response"
 }
 
 _run_cat() {
     local system="$1" user_msg="$2"
-    _save_response "$(printf '%s\n\n%s\n' "$system" "$user_msg")"
+    _save_response "$(strip_prompt_echo "$(printf '%s\n\n%s\n' "$system" "$user_msg")" "$system" "$user_msg")"
 }
 
 _run_codex() {
@@ -118,6 +175,7 @@ _run_codex() {
 
     response="$(cat "$resp_tmp")"
     rm -f "$resp_tmp"
+    response="$(strip_prompt_echo "$response" "$system" "$user_msg")"
     _save_response "$response"
 }
 
