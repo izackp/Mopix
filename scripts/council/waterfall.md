@@ -59,10 +59,26 @@ spec file is now durable — extended later, not rewritten from scratch.
 
 ARCH reads the promoted spec and produces `docs/arch/<subsystem>.md` — Swift
 declarations, ownership, dependencies, zero function bodies. This is Builder's contract.
-ARCH also runs cross-subsystem checks (no duplicate types, no undeclared dependencies)
-before handing off — mandatory, since signature docs get no second-party review the way
-specs do. Where something's easy to silently regress later, ARCH flags it for a small
-test; Builder writes that test in step 5.
+PL's role ends at product scope, behavior, acceptance, and orchestration here: PL may flag
+that a technical question needs review, but must not independently validate engine APIs,
+code structure, or signature compatibility. ARCH owns that technical judgment.
+
+Before handing off, ARCH must complete and report this contract checklist:
+
+- engine APIs, type names, visibility, and protocol conformances verified against the current
+  source tree
+- no duplicate type purposes or declarations across signature docs
+- every dependency is declared and permitted by the subsystem boundary
+- every signature is bodyless and contains no implementation choices that belong to Builder
+- fixed-tick, no-subprocess, VirtualDrive-only, and no-float simulation constraints are met
+- every spec behavior that is structurally relevant is represented
+- regression-prone rules have `// TEST:` notes
+
+This gate is mandatory because signature docs get no second-party technical review before
+Builder starts. PL checks that ARCH reported the gate; PL does not redo the technical checks.
+
+Where something's easy to silently regress later, ARCH flags it for a small test; Builder
+writes that test in step 5.
 
 ### 5. Builder implements
 
