@@ -20,7 +20,7 @@ then `ACRONYM: response`, so the log actually shows who talked to whom.
 2. PL     →  ARCH               (is it feasible)
 3. PL     →  spec               (locked, promoted, durable)
 4. ARCH   →  signature docs     (code shape, no bodies)
-5. Builder →  implementation    (bodies, commits, a regression test where ARCH flagged one)
+5. Builder →  implementation    (bodies, logical-milestone commit, regression test where ARCH flagged one)
 6. Builder ⇄ ARCH                (live questions + review passes)
 7. PL      →  milestone accept  (user plays the build — no agent can)
 
@@ -84,7 +84,10 @@ writes that test in step 5.
 
 Builder reads the signature doc as contract, the spec as behavior target (read-only,
 context only), fills in function bodies exactly as declared — no structural changes, no
-extra methods. Commits after every logical unit of work.
+extra methods. Group related implementation and test edits into one validated logical
+milestone, then commit and push that milestone. Do not create one commit per file or tiny
+workflow/memory artifact. A milestone commit must not contain council-generated memory,
+session, prompt, response, or log files unless explicitly requested.
 
 ### 6. Builder and ARCH talk directly
 

@@ -110,8 +110,12 @@ Ignore the .build folder
 
 ## Claude Workflow Rules
 
-- **Commit after every change.** Make a git commit immediately before reporting a task as done.
-- **Push after every commit.** After every commit, push the branch to the remote immediately.
+- **Commit at logical milestones.** Batch related edits into one validated logical unit (for
+  example, an ARCH contract correction or a Builder subsystem slice), then commit before
+  reporting that unit as done. Do not create one commit per file or tiny note.
+- **Push after milestone commits.** Push each logical-milestone commit immediately after it
+  is created. Do not commit or push council-generated memory, session, prompt, response, or
+  log artifacts unless explicitly requested.
 - **Never modify branches that do not begin with `claude`.** If the current branch does not start with `claude`, stop and ask the user before making any changes.
 - **Commit footer format.** End every commit message with `Automated-By: <model name>` (no email address). Do not use `Co-Authored-By`.
 - **Never spawn processes.** Do not use `Process`, `shell`, or any subprocess API. All I/O must use pure Swift/Foundation or declared package dependencies.
