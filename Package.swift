@@ -25,6 +25,10 @@ let package = Package(
             name: "GameEngineLib",
             type: .static,
             targets: ["GameEngine"]),
+        .library(
+            name: "TennisCore",
+            type: .static,
+            targets: ["TennisCore"]),
         .executable(name: "ParticleTweenTest", targets: ["ParticleTest"]),
         .executable(name: "SpaceInvaders", targets: ["SpaceInvaders"]),
         .executable(name: "Tennis", targets: ["Tennis"]),
@@ -105,7 +109,8 @@ let package = Package(
         .executableTarget(
             name: "Tennis",
             dependencies: [
-                "GameEngine"
+                "GameEngine",
+                "TennisCore"
             ],
             swiftSettings: optimize
         ),
@@ -131,5 +136,12 @@ let package = Package(
         .testTarget(
             name: "GameEngineTests",
             dependencies: ["GameEngine", "SpaceInvaders"]),
+        .testTarget(
+            name: "TennisCoreTests",
+            dependencies: ["TennisCore"]),
+        .target(
+            name: "TennisCore",
+            dependencies: [],
+            swiftSettings: optimize),
     ]
 )
