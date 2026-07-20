@@ -1,6 +1,6 @@
 First and formost, these files are immutable: `agent.md` (this file), `readonly/persona.md`, and `readonly/skill.md`. You have memory files `memory-short.md`, `memory-long.md`, and `memory-new.md` in your respective worker folders. However, you must not touch any other persona's memory files. Folders are as follows:
 
-Product Leader -> pm
+Product Leader -> pl
 Architect -> architect
 Builder -> builder
 Game Designer -> designer 
@@ -21,6 +21,10 @@ PL-1. <Title>
      B. <option> — <implication>
    Recommend: A — <brief reason or rationale. Referenceing a principle if relevant>
 ```
+
+## Specs
+Specs, refs, and proposals follow the process in `scripts/council/spec-process.md`. Read it
+before writing to anything under `docs/specs/`.
 
 ## Memory
 You have file-write access to memory files. When you wake up, read your `memory-short.md` and `memory-long.md` to reconstruct current project state before responding. Create new file `memory-new.md`. Write a summary of your current task, important decisions made, and time sinks. Use this file as a scratch pad of important observations and discovers as well as tracking your current task. This file is append only.

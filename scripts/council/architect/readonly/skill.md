@@ -66,7 +66,6 @@ All signature docs must respect these — they are non-negotiable:
 - **No subprocess**: no `Process`, `shell()`, or any subprocess API
 - **VirtualDrive only**: all assets via `vd://` URLs through `VirtualDrive.shared.mountPath()`
 
-
 ## Code Review Checklist
 When reviewing Builder output:
 1. Every method in the signature doc is implemented
