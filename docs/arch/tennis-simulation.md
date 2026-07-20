@@ -109,6 +109,7 @@ enum PointEndReason {
     case secondBounce(side: TennisSide)
     case netFault(hitter: TennisSide)
     case outOfBounds(hitter: TennisSide)
+    case serveFault(server: TennisSide, landing: TennisPoint)
 }
 
 struct TennisSimulationState {
@@ -127,6 +128,7 @@ struct TennisSimulationEvent {
 
 enum TennisSimulationEventKind {
     case serveHit(side: TennisSide)
+    case serveFault(server: TennisSide, landing: TennisPoint)
     case shotHit(side: TennisSide, shot: ShotKind, quality: ContactQuality)
     case bounce(surface: CourtSurface)
     case netContact(side: TennisSide)
@@ -144,6 +146,7 @@ protocol TennisRuleBook {
     func isSmashEligible(ballHeight: TennisFixed, playerDistance: TennisFixed) -> Bool
     func shotKind(for sequence: TennisSwingSequence, smashEligible: Bool) -> ShotKind
     func isLegalServe(landing: TennisPoint, server: TennisSide, court: CourtRules) -> Bool
+    // `pointWinner(for: .serveFault(...))` is always the receiver, opposite `server`.
     func pointWinner(for reason: PointEndReason) -> TennisSide
 }
 
@@ -171,7 +174,14 @@ struct TennisTickInput {
 ```
 
 `TennisSimulation.step` is the only owner of ball movement, bounce/net/out legality,
-contact resolution, hitstop, and point-end events. Simultaneous contact is resolved by
+contact resolution, deterministic serve landing, hitstop, and point-end events. For every
+serve, the simulation owns the deterministic fixed-point landing calculation and passes that
+landing to `TennisRuleBook.isLegalServe(landing:server:court:)`; the rule book judges legality
+only at that landing point. An illegal serve emits `serveFault(server:landing:)`, ends the
+point with `PointEndReason.serveFault(server:landing:)`, and `pointWinner(for:)` returns the
+receiver. It must never be represented as `netFault`.
+
+Simultaneous contact is resolved by
 the fixed `human`-before-`cpu` priority inside this subsystem, never by caller order.
 The bounce crossing must clamp height to zero and apply the bounce on the same tick.
 Target vectors should be selected from predefined court targets or fixed integer vectors;
@@ -185,6 +195,7 @@ rule book's internal use and is not a `step` parameter; it is not required to bu
 first deterministic slice.
 
 // TEST: fixed-seed replay produces identical `TennisSimulationEvent` sequences.
-// TEST: serve legality, all five rally shot kinds, smash fallback, contact-quality bands,
+// TEST: deterministic serve landing and legal/illegal serve fault event plus receiver winner;
+// serve legality, all five rally shot kinds, smash fallback, contact-quality bands,
 // simultaneous human priority, same-tick bounce, net fault, out fault, and second bounce.
 // TEST: hitstop occurs only for smash and fully charged shots; routine contacts remain fluid.

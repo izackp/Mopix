@@ -80,3 +80,21 @@ Decision: minimal additive contract change, not a workaround inside implementati
   shape — none found, no further edits needed there.
 Not yet committed — pending same commit/push discipline as prior contract-fix (separate
 ARCH commit via cpush.sh).
+
+## Task: review c29e89c simulation milestone
+
+Reviewed `c29e89c` against current locked architecture/specs and package APIs. Filed REVIEW-1..6
+in `scripts/council/builder/blockers.md` without touching source, tests, specs, or PL files.
+Blocking findings: simulation is incorrectly in generic GameEngine target, old swing-buttons
+contract remains and sequence mapping is absent, second-bounce side/winner semantics are wrong,
+RVK-12 power/control/spin effects are unused, and focused tests miss locked regression cases.
+RendererClient failure is real for package-green status but non-blocking for simulation handoff;
+it belongs to the later Tennis presentation slice and must use DisplayRenderClient.
+
+## Task: serve-fault contract correction
+
+Applied PL's RVK-3/RVK-4 decision to `tennis-simulation.md`: added distinct
+`PointEndReason.serveFault(server:landing:)` and `TennisSimulationEventKind.serveFault`,
+documented simulation-owned deterministic fixed-point landing calculation and landing-only
+legality, and specified receiver-wins semantics through `pointWinner(for:)`. No source, tests,
+specs, or PL files changed.
