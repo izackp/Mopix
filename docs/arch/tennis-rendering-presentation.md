@@ -3,7 +3,7 @@
 ```swift
 // OWNED BY: TennisPresentation owns visual projection, HUD, transient cues, and reserved
 // audio notifications. TennisMatchRuntime owns all source state and sends snapshots/events.
-// DEPENDENCIES: GameEngine IDrawable, RendererClient, DrawCmd, AtlasLoader, VirtualDrive;
+// DEPENDENCIES: GameEngine IDrawable, DisplayRenderClient, DrawCmd, AtlasLoader, VirtualDrive;
 // tennis presentation snapshots/events. Assets are resolved only through vd:// URLs.
 
 struct TennisViewport {
@@ -36,20 +36,20 @@ final class TennisPresentation: IDrawable, TennisMatchDelegate, TennisSimulation
     let cuePresenter: TennisCuePresenter
 
     init(viewport: TennisViewport, assets: TennisPresentationAssets, assetProvider: TennisAssetProvider, snapshotSource: TennisPresentationSnapshotSource, cuePresenter: TennisCuePresenter)
-    func draw(_ delta: UInt64, _ renderer: RendererClient)
+    func draw(_ delta: UInt64, _ renderer: DisplayRenderClient)
     func matchDidEmit(_ event: TennisMatchEvent)
     func simulationDidEmit(_ event: TennisSimulationEvent)
 }
 
 protocol TennisDrawCommandSink {
-    func drawCourt(surface: CourtSurface, viewport: TennisViewport, renderer: RendererClient)
-    func drawPlayers(_ state: TennisSimulationState, renderer: RendererClient)
-    func drawBall(_ state: TennisBallState, renderer: RendererClient)
-    func drawTrail(_ state: TennisBallState, renderer: RendererClient)
-    func drawLandingMarker(_ state: TennisBallState, renderer: RendererClient)
-    func drawHUD(_ snapshot: TennisPresentationSnapshot, renderer: RendererClient)
-    func drawPointEndCue(_ event: TennisSimulationEvent, renderer: RendererClient)
-    func drawMenu(_ snapshot: TennisPresentationSnapshot, renderer: RendererClient)
+    func drawCourt(surface: CourtSurface, viewport: TennisViewport, renderer: DisplayRenderClient)
+    func drawPlayers(_ state: TennisSimulationState, renderer: DisplayRenderClient)
+    func drawBall(_ state: TennisBallState, renderer: DisplayRenderClient)
+    func drawTrail(_ state: TennisBallState, renderer: DisplayRenderClient)
+    func drawLandingMarker(_ state: TennisBallState, renderer: DisplayRenderClient)
+    func drawHUD(_ snapshot: TennisPresentationSnapshot, renderer: DisplayRenderClient)
+    func drawPointEndCue(_ event: TennisSimulationEvent, renderer: DisplayRenderClient)
+    func drawMenu(_ snapshot: TennisPresentationSnapshot, renderer: DisplayRenderClient)
 }
 
 protocol TennisAudioHookSink {

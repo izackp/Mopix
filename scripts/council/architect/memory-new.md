@@ -30,8 +30,28 @@ Key points raised:
 No blocking objections — all feedback advisory/cost-flagging per spec-process.md rules
 (ARCH never vetoes, PL may promote over unaddressed notes).
 
-## STOP — branch check
-Current branch is `tennis`, does NOT start with `claude`. CLAUDE.md workflow rule: never
-modify branches not prefixed `claude`; must stop and ask user before making any changes.
-File edits to the three proposal.md files already made (content only, not committed).
-Did NOT commit or push. Asked user how to proceed.
+## Branch check resolved
+User switched to `claude-tennis-game` before follow-up work; workflow rule (no edits on
+non-claude branches) satisfied for all work below.
+
+## Task: contract-fix on tennis-rendering-presentation.md
+Builder handoff review across all four docs/arch/tennis-*.md signature docs against actual
+source declarations:
+- Confirmed bug: `tennis-rendering-presentation.md` declared `RendererClient` (9 sites:
+  DEPENDENCIES comment, `TennisPresentation.draw`, all 8 `TennisDrawCommandSink` methods).
+  Actual engine type per `Sources/GameEngine/Windowing/LiteWindow.swift:15`
+  (`IDrawable.draw(_:_:)`) and `Sources/GameEngine/BatchRenderer/RPC/DisplayRenderClient.swift`
+  is `DisplayRenderClient`. `RendererClient` has no surviving `.swift` source (map file
+  only) — stale name. Corrected all 9 sites via sed to `DisplayRenderClient`.
+- Verified `ImageAtlas` (ImageHandling/ImageAtlas.swift, public class), `AtlasLoader`
+  (ImageHandling/ImageManager.swift, public class), `VDUrl` (Resources/VirtualDrive.swift,
+  `public typealias VDUrl = URL`), `VirtualDrive` (public class) — all public, all
+  compatible with doc usage, no visibility issues.
+- Verified `VirtualController`, `ICommandListener`, `InputCommandList`, `IUpdate`,
+  `IEventListener` (input-controllers.md, match-flow.md) all exist and are public.
+- Structural check across all four docs: no function bodies (declaration-only), no
+  Float/Double in any simulation-state type (tennis-simulation.md's "Float/Double" hit is
+  prose in the DEPENDENCIES comment banning them, not a type usage).
+- Only touched the rendering doc + this memory file; did not touch source, PL/GD files, or
+  the other three arch docs (no issues found in them).
+Committed as a separate ARCH contract-fix commit, pushed via cpush.sh.
