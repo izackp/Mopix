@@ -141,7 +141,7 @@ let package = Package(
             dependencies: ["TennisCore"]),
         .target(
             name: "TennisCore",
-            dependencies: [],
+            dependencies: ["GameEngine"],
             swiftSettings: optimize),
     ]
 )
