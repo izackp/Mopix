@@ -1,0 +1,1 @@
+The tennis simulation slice is implemented in `Sources/GameEngine/TennisSimulation.swift` and tested through `GameEngineTests`. The locked input contract currently cannot represent resolved sequential Lob/Drop shot kinds; this is tracked as `BLOCKER-1` and must be resolved by Architect before those paths can be completed without silently changing structure.
