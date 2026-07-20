@@ -163,29 +163,38 @@ _run_cat() {
 }
 
 _run_codex() {
-    local system="$1" user_msg="$2" response resp_tmp marker_tmp session_id session_file
+    local system="$1" user_msg="$2" response resp_tmp run_log marker_tmp session_id session_file
     resp_tmp="$(mktemp)"
+    run_log="$(mktemp)"
 
     if [[ -f "$SESSION_FILE" ]]; then
         session_id="$(cat "$SESSION_FILE")"
         # Resume: system context already in session; only send new user message
-        printf '%s' "$user_msg" | \
+        if ! printf '%s' "$user_msg" | \
             codex exec \
                 -C "$REPO_ROOT" \
                 -s danger-full-access \
                 -c "truncation_policy={mode=\"tokens\",limit=$CODEX_TRUNCATION_LIMIT}" \
                 resume \
                 -o "$resp_tmp" \
-                "$session_id" -
+                "$session_id" - >"$run_log" 2>&1; then
+            tail -40 "$run_log" >&2
+            rm -f "$resp_tmp" "$run_log"
+            return 1
+        fi
     else
         # New session: bundle system + user as initial prompt
         marker_tmp="$(mktemp)"
-        printf '%s\n\n%s' "$system" "$user_msg" | \
+        if ! printf '%s\n\n%s' "$system" "$user_msg" | \
             codex exec - \
                 -C "$REPO_ROOT" \
                 -s danger-full-access \
                 -c "truncation_policy={mode=\"tokens\",limit=$CODEX_TRUNCATION_LIMIT}" \
-                -o "$resp_tmp"
+                -o "$resp_tmp" >"$run_log" 2>&1; then
+            tail -40 "$run_log" >&2
+            rm -f "$resp_tmp" "$run_log" "$marker_tmp"
+            return 1
+        fi
 
         # Find session file created after marker, extract UUID from filename
         session_file="$(find ~/.codex/sessions -name "*.jsonl" -newer "$marker_tmp" 2>/dev/null | head -1)"
@@ -204,14 +213,14 @@ _run_codex() {
     fi
 
     response="$(cat "$resp_tmp")"
-    rm -f "$resp_tmp"
+    rm -f "$resp_tmp" "$run_log"
     response="$(strip_prompt_echo "$response" "$system" "$user_msg")"
     _save_response "$response"
 }
 
-# Lines present in both memory-short.md and memory-new.md — an idea noted last
-# session (short) that got noted again this session (new) independently. That
-# recurrence is the graduation signal: worth a permanent line in memory-long.md.
+# Lines in memory-short.md (state as of the last call) that also show up in
+# memory-new.md now (this call's additions) — the same idea noted twice,
+# independently. That's the graduation signal for memory-long.md.
 recurring_ideas() {
     local short="$PERSONA_DIR/memory-short.md" new="$PERSONA_DIR/memory-new.md"
     [[ -f "$short" && -f "$new" ]] || return 0
@@ -229,17 +238,14 @@ run_harness() {
     TURNS_FILE="$PERSONA_DIR/session_turns_$HARNESS"
     [[ -f "$TURNS_FILE" ]] && turns="$(cat "$TURNS_FILE")"
 
-    # Warn the persona on its final turn: the script handles the memory-short
-    # flush automatically after this reply — don't overwrite it yourself. Flag
-    # any idea that recurred across short and new, since that's a graduation
-    # candidate for memory-long.md only the persona can judge and write.
     if [[ -f "$SESSION_FILE" && $((turns + 1)) -ge $SESSION_MAX_TURNS ]]; then
-        user_msg+=$'\n\n[council] This session resets after this reply. memory-short.md will be overwritten with memory-new.md automatically — do not write to memory-short.md yourself. If it belongs in this reply, fold anything durable into memory-long.md now.'
-        local recurring
-        recurring="$(recurring_ideas)"
-        if [[ -n "$recurring" ]]; then
-            user_msg+=$'\n\n[council] These lines appear in both memory-short.md and memory-new.md — noted last session and again this one. Consider graduating to memory-long.md:\n'"$recurring"
-        fi
+        user_msg+=$'\n\n[council] This session resets after this reply.'
+    fi
+
+    local recurring
+    recurring="$(recurring_ideas)"
+    if [[ -n "$recurring" ]]; then
+        user_msg+=$'\n\n[council] Recurring across memory-short.md and memory-new.md — consider graduating to memory-long.md:\n'"$recurring"
     fi
 
     printf '%s\n' "$user_msg" > "$PERSONA_DIR/last_prompt.txt"
@@ -256,17 +262,17 @@ run_harness() {
             ;;
     esac
 
+    # Mechanical flush, every call: short := new (script-owned, not persona-trusted).
+    if [[ -f "$PERSONA_DIR/memory-new.md" ]]; then
+        cp "$PERSONA_DIR/memory-new.md" "$PERSONA_DIR/memory-short.md"
+    fi
+
     if [[ "$HARNESS" == "claude" || "$HARNESS" == "codex" ]]; then
         turns=$((turns + 1))
         if [[ $turns -ge $SESSION_MAX_TURNS ]]; then
             rm -f "$SESSION_FILE" "$TURNS_FILE"
-            # Mechanical flush: short := new (script-owned, not persona-trusted),
-            # then reset new to an empty scratchpad for the fresh session.
-            if [[ -f "$PERSONA_DIR/memory-new.md" ]]; then
-                cp "$PERSONA_DIR/memory-new.md" "$PERSONA_DIR/memory-short.md"
-                printf '' > "$PERSONA_DIR/memory-new.md"
-            fi
-            echo "[council] Session rotated after $turns turns; memory-short.md flushed, memory-new.md reset." >&2
+            printf '' > "$PERSONA_DIR/memory-new.md"
+            echo "[council] Session rotated after $turns turns; memory-new.md reset." >&2
         else
             printf '%s' "$turns" > "$TURNS_FILE"
         fi
