@@ -40,9 +40,9 @@ public enum ContactQuality: Hashable { case perfect, good, poor }
 public enum TennisSwingSequence: Hashable { case standaloneA, standaloneB, simultaneousAB, aThenB, bThenA }
 public enum TennisActionIntent { case none; case move(direction: TennisDirection); case swing(sequence: TennisSwingSequence, charge: Int) }
 public struct TennisDirection: Equatable { public let x: Int; public let y: Int; public init(x: Int, y: Int) { self.x = x; self.y = y } }
-public struct ShotCommand {
-    public let side: TennisSide; public let kind: ShotKind; public let target: TennisPoint; public let charge: Int; public let contactQuality: ContactQuality
-    public init(side: TennisSide, kind: ShotKind, target: TennisPoint, charge: Int, contactQuality: ContactQuality) { self.side = side; self.kind = kind; self.target = target; self.charge = charge; self.contactQuality = contactQuality }
+struct ShotCommand {
+    let side: TennisSide; let kind: ShotKind; let target: TennisPoint; let charge: Int; let contactQuality: ContactQuality
+    init(side: TennisSide, kind: ShotKind, target: TennisPoint, charge: Int, contactQuality: ContactQuality) { self.side = side; self.kind = kind; self.target = target; self.charge = charge; self.contactQuality = contactQuality }
 }
 
 public struct TennisPlayerState {
@@ -120,7 +120,13 @@ public final class TennisSimulation {
     private let gravity: TennisFixed = 90
     public init(rules: CourtRules, ruleBook: TennisRuleBook, random: TennisRandomSource, state: TennisSimulationState) { self.rules = rules; self.ruleBook = ruleBook; self.random = random; self.state = state }
     public func snapshot() -> TennisSimulationState { state }
-    public func resetPoint(server: TennisSide) { state.server = server; state.pointEnd = nil; state.ball.isInFlight = false; state.ball.velocity = TennisVelocity(x: 0, y: 0, z: 0); state.ball.height = 0; state.tick &+= 1; bounceCount = 0; state.hitstopTicksRemaining = 0; for side in [TennisSide.human, .cpu] { state.players[side]?.swingPending = false; state.players[side]?.hitstopTicksRemaining = 0 } }
+    public func resetPoint(server: TennisSide) {
+        state.server = server; state.pointEnd = nil; state.ball.isInFlight = false; state.ball.velocity = TennisVelocity(x: 0, y: 0, z: 0); state.ball.height = 0; state.ball.position = baselineCenter(for: server); state.ball.lastHitter = nil; state.ball.shotKind = .serve; state.tick &+= 1; bounceCount = 0; state.hitstopTicksRemaining = 0
+        for side in [TennisSide.human, .cpu] {
+            guard var player = state.players[side] else { continue }
+            player.position = baselineCenter(for: side); player.swingPending = false; player.hitstopTicksRemaining = 0; state.players[side] = player
+        }
+    }
     public func step(tickInput: TennisTickInput) {
         state.tick &+= 1
         guard state.pointEnd == nil else { return }
@@ -158,13 +164,12 @@ public final class TennisSimulation {
         if shot == .smash || cappedCharge == 100 { state.hitstopTicksRemaining = 2; state.players[side]?.hitstopTicksRemaining = 2 }
     }
     private func serveLanding(server: TennisSide, player: TennisPlayerState, charge: Int) -> TennisPoint {
-        let midpoint = (rules.singlesBoundary.minX + rules.singlesBoundary.maxX) / 2
         let left = (random.nextInt(upperBound: 2) == 0)
         let box = server == .human ? (left ? rules.serviceBoxes.topLeft : rules.serviceBoxes.topRight) : (left ? rules.serviceBoxes.bottomLeft : rules.serviceBoxes.bottomRight)
         let center = (box.minX + box.maxX) / 2
         let aimError = max(0, 100 - player.stats.control) * 10 + charge / 5
         let error = TennisFixed(random.nextInt(upperBound: aimError * 2 + 1)) - TennisFixed(aimError)
-        let x = center + error + (player.position.x < midpoint ? -100 : 100)
+        let x = center + error + 100
         return TennisPoint(x: x, y: (box.minY + box.maxY) / 2)
     }
     private func targetPoint(for side: TennisSide, shot: ShotKind, player: TennisPlayerState) -> TennisPoint {
@@ -188,6 +193,7 @@ public final class TennisSimulation {
         state.ball.velocity.z = -state.ball.velocity.z * (multiplier + TennisFixed(spin - 100) / 2) / 100
     }
     private func receivingSide(at point: TennisPoint) -> TennisSide { point.y < rules.netY ? .cpu : .human }
+    private func baselineCenter(for side: TennisSide) -> TennisPoint { TennisPoint(x: (rules.singlesBoundary.minX + rules.singlesBoundary.maxX) / 2, y: side == .human ? rules.singlesBoundary.maxY : rules.singlesBoundary.minY) }
     private func inside(_ rect: TennisRect, _ point: TennisPoint) -> Bool { point.x >= rect.minX && point.x <= rect.maxX && point.y >= rect.minY && point.y <= rect.maxY }
     private func end(_ reason: PointEndReason) { guard state.pointEnd == nil else { return }; state.pointEnd = reason; state.ball.isInFlight = false; emit(.pointEnded(reason: reason)) }
     private func emit(_ kind: TennisSimulationEventKind) { delegate?.simulationDidEmit(TennisSimulationEvent(tick: state.tick, kind: kind)) }

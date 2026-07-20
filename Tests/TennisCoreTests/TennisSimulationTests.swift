@@ -38,6 +38,38 @@ final class TennisSimulationTests: XCTestCase {
         XCTAssertEqual(DefaultTennisRuleBook().pointWinner(for: simulation.state.pointEnd!), .cpu)
     }
 
+    func testResetPointRestoresFixedBaselineCenters() {
+        let simulation = makeSimulation(seed: 5)
+        simulation.resetPoint(server: .human)
+        XCTAssertEqual(simulation.state.players[.human]?.position, TennisPoint(x: 5000, y: 20000))
+        XCTAssertEqual(simulation.state.players[.cpu]?.position, TennisPoint(x: 5000, y: 0))
+        XCTAssertEqual(simulation.state.ball.position, TennisPoint(x: 5000, y: 20000))
+
+        simulation.resetPoint(server: .cpu)
+        XCTAssertEqual(simulation.state.players[.human]?.position, TennisPoint(x: 5000, y: 20000))
+        XCTAssertEqual(simulation.state.players[.cpu]?.position, TennisPoint(x: 5000, y: 0))
+        XCTAssertEqual(simulation.state.ball.position, TennisPoint(x: 5000, y: 0))
+    }
+
+    func testEqualSeedServeReplayMatchesLegalLandingProjectionAndEvents() {
+        let legalA = makeSimulation(seed: 31); let legalB = makeSimulation(seed: 31)
+        legalA.resetPoint(server: .human); legalB.resetPoint(server: .human)
+        let legalRecorderA = EventRecorder(); let legalRecorderB = EventRecorder(); legalA.delegate = legalRecorderA; legalB.delegate = legalRecorderB
+        let serve = TennisTickInput(human: .swing(sequence: .standaloneA, charge: 0), cpu: .none)
+        legalA.step(tickInput: serve); legalB.step(tickInput: serve)
+        XCTAssertEqual(legalA.state.ball.velocity, legalB.state.ball.velocity)
+        XCTAssertEqual(legalRecorderA.events.map(EventShape.init), legalRecorderB.events.map(EventShape.init))
+        XCTAssertNil(legalA.state.pointEnd)
+
+        let illegalA = makeSimulation(seed: 31, serviceBoxes: .remote); let illegalB = makeSimulation(seed: 31, serviceBoxes: .remote)
+        illegalA.resetPoint(server: .human); illegalB.resetPoint(server: .human)
+        let illegalRecorderA = EventRecorder(); let illegalRecorderB = EventRecorder(); illegalA.delegate = illegalRecorderA; illegalB.delegate = illegalRecorderB
+        illegalA.step(tickInput: serve); illegalB.step(tickInput: serve)
+        XCTAssertEqual(illegalRecorderA.events.map(EventShape.init), illegalRecorderB.events.map(EventShape.init))
+        guard case .serveFault(_, let landingA) = illegalA.state.pointEnd, case .serveFault(_, let landingB) = illegalB.state.pointEnd else { return XCTFail("expected deterministic serve faults") }
+        XCTAssertEqual(landingA, landingB)
+    }
+
     func testSecondBounceUsesReceivingSideAndWinner() {
         let simulation = makeSimulation(seed: 2, inFlight: true, ballHeight: 1, ballVelocity: TennisVelocity(x: 0, y: 0, z: -90), ballPosition: TennisPoint(x: 5000, y: 5000), lastHitter: .human); let recorder = EventRecorder(); simulation.delegate = recorder
         for _ in 0..<6 { simulation.step(tickInput: TennisTickInput(human: .none, cpu: .none)) }

@@ -95,3 +95,36 @@ fault as a net fault.
 **Attempted**: Asked ARCH directly twice through `council.sh`; no answer was returned. Implemented the unambiguous standalone, flat, serve, and smash-fallback paths and left sequential mapping unresolved.
 **Question for Architect**: Specify the intended mapping/state owner without silently changing the locked contract, or approve the smallest contract addition needed to carry resolved shot kind.
 **Status**: RESOLVED — 2026-07-20
+
+## REVIEW-8 — 2026-07-20
+**Classification**: BLOCKING
+**File**: `Sources/TennisCore/TennisSimulation.swift`
+**Issue**: `resetPoint(server:)` resets the ball and hit state but does not restore either
+player to a baseline position. `serveLanding` then derives the serve offset from the current
+server position, so a server can remain away from baseline and the serve is no longer governed
+by RVK-3's fixed baseline-center rule.
+**Expected**: Establish the fixed baseline-center placement at the point-reset boundary, or add
+an explicit match/simulation placement contract that guarantees it before a serve. The current
+implementation leaves the required owner and invariant unenforced.
+**Status**: RESOLVED — 2026-07-20
+
+## REVIEW-9 — 2026-07-20
+**Classification**: BLOCKING
+**File**: `Tests/TennisCoreTests/TennisSimulationTests.swift`
+**Issue**: The serve-fault test verifies one seeded landing and its fault event, but no focused
+test compares two identical seeded serve simulations' landing points/events. The locked
+simulation TEST note requires deterministic serve landing, and the existing multi-tick replay
+test exercises a rally rather than the serve path.
+**Expected**: Add a focused equal-seed serve replay assertion covering landing, legality result,
+and emitted event shape for both legal and illegal serve cases.
+**Status**: RESOLVED — 2026-07-20
+
+## REVIEW-10 — 2026-07-20
+**Classification**: NON-BLOCKING
+**File**: `Sources/TennisCore/TennisSimulation.swift`
+**Issue**: `ShotCommand` is documented as reserved/internal and unused by `TennisSimulation`,
+but the implementation exposes it as a public TennisCore type, unnecessarily enlarging the
+public module API.
+**Expected**: Keep the reserved type internal or remove it when no longer needed; do not expose
+unused implementation-only state as public API.
+**Status**: RESOLVED — 2026-07-20
