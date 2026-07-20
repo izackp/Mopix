@@ -20,10 +20,18 @@ struct TennisInputFrame {
     let heldButtons: Set<TennisActionButton>
 }
 
+enum TennisSwingSequence {
+    case standaloneA
+    case standaloneB
+    case simultaneousAB
+    case aThenB
+    case bThenA
+}
+
 enum TennisActionIntent {
     case none
     case move(direction: TennisDirection)
-    case swing(buttons: Set<TennisActionButton>, charge: Int)
+    case swing(sequence: TennisSwingSequence, charge: Int)
 }
 
 protocol TennisHumanInputSource {

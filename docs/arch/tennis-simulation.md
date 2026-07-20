@@ -142,6 +142,7 @@ protocol TennisRuleBook {
     func playerStats(for preset: PlayerPreset) -> PlayerStats
     func contactQuality(distance: TennisFixed) -> ContactQuality
     func isSmashEligible(ballHeight: TennisFixed, playerDistance: TennisFixed) -> Bool
+    func shotKind(for sequence: TennisSwingSequence, smashEligible: Bool) -> ShotKind
     func isLegalServe(landing: TennisPoint, server: TennisSide, court: CourtRules) -> Bool
     func pointWinner(for reason: PointEndReason) -> TennisSide
 }
@@ -175,6 +176,13 @@ the fixed `human`-before-`cpu` priority inside this subsystem, never by caller o
 The bounce crossing must clamp height to zero and apply the bounce on the same tick.
 Target vectors should be selected from predefined court targets or fixed integer vectors;
 there is no runtime normalization requirement.
+`TennisActionIntent.swing`'s `TennisSwingSequence` (defined in the input/controller
+signature) carries the resolved press pattern only; `TennisSimulation.step` is the sole
+caller of `TennisRuleBook.shotKind(for:smashEligible:)`, which maps `standaloneA` →
+topspin, `standaloneB` → slice, `aThenB` → lob, `bThenA` → drop, and `simultaneousAB` →
+smash when `isSmashEligible` else flat. `ShotCommand` is a reserved value type for the
+rule book's internal use and is not a `step` parameter; it is not required to build the
+first deterministic slice.
 
 // TEST: fixed-seed replay produces identical `TennisSimulationEvent` sequences.
 // TEST: serve legality, all five rally shot kinds, smash fallback, contact-quality bands,

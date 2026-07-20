@@ -55,3 +55,28 @@ source declarations:
 - Only touched the rendering doc + this memory file; did not touch source, PL/GD files, or
   the other three arch docs (no issues found in them).
 Committed as a separate ARCH contract-fix commit, pushed via cpush.sh.
+
+## Task: minimal contract addition — swing-sequence ambiguity
+Builder blocked: `TennisActionIntent.swing(buttons:charge:)` can't distinguish standalone
+`A` (topspin) from a resolved `A -> B` (lob) — both collapse to `buttons={a}` once the
+sequence resolver finishes. `ShotCommand` also unreachable (never a `step` param) —
+confirmed vestigial by grep, not itself a blocker.
+
+Decision: minimal additive contract change, not a workaround inside implementation.
+- `tennis-input-controllers.md`: added `enum TennisSwingSequence` (standaloneA,
+  standaloneB, simultaneousAB, aThenB, bThenA). Changed
+  `TennisActionIntent.swing(buttons:charge:)` -> `swing(sequence:charge:)`, dropping the
+  now-redundant raw `buttons` field (only consumer was this case).
+- `tennis-simulation.md`: added `TennisRuleBook.shotKind(for sequence:smashEligible:)
+  -> ShotKind`. Added prose stating `TennisSimulation.step` is the sole caller, mapping
+  standaloneA/B -> topspin/slice, aThenB -> lob, bThenA -> drop, simultaneousAB -> smash
+  (if `isSmashEligible`) else flat. Documented `ShotCommand` as reserved/internal, not
+  required for the first deterministic slice.
+- State-owner split: input layer (`TennisShotSequenceResolver`) owns press-sequence
+  timing/resolution; simulation (`TennisRuleBook`) owns the eligibility-dependent
+  Smash-vs-Flat split, since that needs ball height/distance (sim state), not input's to
+  decide.
+- Checked match-flow.md and rendering-presentation.md for stale references to the old
+  shape — none found, no further edits needed there.
+Not yet committed — pending same commit/push discipline as prior contract-fix (separate
+ARCH commit via cpush.sh).
