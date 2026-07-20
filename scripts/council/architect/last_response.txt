@@ -1,0 +1,3 @@
+Feedback appended, all three files (gameplay/front_end/acceptance proposal.md).
+
+Stop: branch is `tennis`, not `claude*`. Workflow rule says no changes on non-claude branches without asking first. File edits already made (uncommitted) before I checked. Not committing/pushing. Want me to proceed on this branch, or switch to a `claude*` branch first?

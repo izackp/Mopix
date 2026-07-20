@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Usage: council.sh <persona> <harness> "message"
-#   Personas: pm, designer, architect, builder
+# Usage: council.sh <persona> <harness> <caller> "message"
+#   Personas: pl, designer, architect, builder
 #   Harnesses: claude, codex, cat
+#   caller: who's invoking this — required, must be one of PL, GD, ARCH, BD, USER.
+#     Logged in log.txt. Message is always the last argument.
 
 set -euo pipefail
 
@@ -14,14 +16,24 @@ if [[ -f "$ENV_FILE" ]]; then
     source "$ENV_FILE"
 fi
 
-if [[ $# -lt 3 ]]; then
-    echo "Usage: council.sh <persona> <harness> \"message\"" >&2
+if [[ $# -lt 4 ]]; then
+    echo "Usage: council.sh <persona> <harness> <caller> \"message\"" >&2
+    echo "caller must be one of: PL, GD, ARCH, BD, USER" >&2
     exit 1
 fi
 
 PERSONA="$1"
 HARNESS="$2"
-MESSAGE="$3"
+CALLER="$3"
+MESSAGE="$4"
+
+case "$CALLER" in
+    PL|GD|ARCH|BD|USER) ;;
+    *)
+        echo "Unknown caller: $CALLER (must be one of: PL, GD, ARCH, BD, USER)" >&2
+        exit 1
+        ;;
+esac
 
 PERSONA_DIR="$COUNCIL_DIR/$PERSONA"
 READONLY_DIR="$PERSONA_DIR/readonly"
@@ -29,6 +41,16 @@ if [[ ! -d "$PERSONA_DIR" ]]; then
     echo "Unknown persona: $PERSONA (expected directory $PERSONA_DIR)" >&2
     exit 1
 fi
+
+case "$PERSONA" in
+    pl)        ACRONYM="PL" ;;
+    designer)  ACRONYM="GD" ;;
+    architect) ACRONYM="ARCH" ;;
+    builder)   ACRONYM="BD" ;;
+    *)         ACRONYM="${PERSONA^^}" ;;
+esac
+
+LOG_FILE="$COUNCIL_DIR/log.txt"
 
 # Codex internal truncation_policy: compact when context exceeds this token limit
 CODEX_TRUNCATION_LIMIT=140000
@@ -78,28 +100,13 @@ build_system() {
 }
 
 build_user_message() {
-    local path_lines=()
-
-    local feedback
-    while IFS= read -r feedback; do
-        [[ -n "$feedback" ]] && path_lines+=("$feedback")
-    done < <(find "$REPO_ROOT/docs/specs" -name "*-feedback.md" 2>/dev/null || true)
-
-    if [[ ${#path_lines[@]} -gt 0 ]]; then
-        echo "Pending feedback files:"
-        for p in "${path_lines[@]}"; do
-            echo "  $p"
-        done
-        echo "Once a feedback file is fully addressed, rename it to end in -feedback-done.md so it stops appearing here."
-        echo ""
-    fi
-
     echo "$MESSAGE"
 }
 
 _save_response() {
     local response="$1"
     printf '%s\n' "$response" > "$PERSONA_DIR/last_response.txt"
+    printf '%s: %s\n\n' "$ACRONYM" "$response" >> "$LOG_FILE"
     printf '%s\n' "$response"
     echo "Output saved to: $PERSONA_DIR/last_response.txt"
 }
@@ -216,6 +223,7 @@ run_harness() {
     fi
 
     printf '%s\n' "$user_msg" > "$PERSONA_DIR/last_prompt.txt"
+    printf '%s: %s\n' "$CALLER" "$MESSAGE" >> "$LOG_FILE"
 
     case "$HARNESS" in
         claude) _run_claude "$system" "$user_msg" ;;

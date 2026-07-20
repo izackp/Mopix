@@ -93,13 +93,21 @@ ARCH: feasible, no structural risk
 ARCH feedback is **advisory** — it should be taken seriously, but PL may promote over an
 unaddressed ARCH objection.
 
+No persona may edit another persona's feedback entry — not to fix, condense, resolve, or
+reword it. Feedback is append-only per author. To respond, add a new entry underneath
+(e.g. `PL: responding to GD's note above — ...`); never rewrite or delete someone else's
+line. The only exception is the author editing their own entry, or PL deleting the whole
+proposal file at promotion.
+
 ## Phases
 
 0. **Draft** — any persona (usually PL) turns user intent into a proposal. Open questions
    are raised as `PL-N` / `GD-N` / `ARCH-N` items.
 1. **Review** — GD and ARCH append feedback.
 2. **Convergence** — the user answers open items; the author revises. Loop until no open
-   items remain.
+   items remain — of *any* prefix. An unresolved `ARCH-N` blocks promotion exactly like an
+   unresolved `PL-N` or `GD-N`; "advisory" (see above) means PL isn't bound to agree with
+   it, not that it can be left open and ignored.
 3. **Promote** — PL harvests and deletes.
 
 ## Promotion
@@ -107,11 +115,16 @@ unaddressed ARCH objection.
 PL performs the harvest. Two outputs, then the proposal is deleted:
 
 1. **Rules** → written into the target spec file as numbered items under its code.
-2. **Reasoning** → where an item's rationale is worth keeping, write `ref/<ID>.md`.
+2. **Reasoning** → where an item's rationale is worth keeping, write `ref/<ID>.md`. If a
+   GD objection got overridden or changed the outcome, that reasoning is never optional —
+   write the ref. A future decision that contradicts an overridden objection with no
+   record of why is how the same argument happens twice.
 
-Everything else — the argument, the discarded options, the back-and-forth — is thrown away
-with the proposal. Proposals are expensive in tokens and full of reasoning that stops being
-useful once the decision is made.
+Before deleting, confirm: every `PL-N`/`GD-N`/`ARCH-N` item in the proposal is resolved,
+and every locked decision actually made it into the spec (or a ref). Deletion is
+one-way — the argument, discarded options, and back-and-forth are gone with the file, on
+purpose, but only once the two outputs above have safely landed. Don't delete first and
+reconstruct from memory after.
 
 Any persona may receive direct input from the user at any time. User feedback overrides
 spec decisions, but the change still lands through a proposal.

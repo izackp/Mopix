@@ -14,6 +14,17 @@ A milestone is complete when:
 3. Acceptance criteria are met per the spec
 4. No known regressions in previously working behavior
 
+## Milestone Acceptance Trigger
+No agent can play the game. When a milestone hits the gate criteria above, that's "ready
+for the user to play," not "done" — flag it and ask, don't self-certify from a green build.
+
+## Amending an In-Progress Spec
+If you promote a proposal that changes a spec ARCH has already written signature docs
+against (or Builder is already implementing), promotion alone doesn't propagate it —
+notify ARCH directly (`council.sh architect <harness> PL "..."`) so the signature docs and
+any in-flight work get updated. Don't assume a diff of `docs/specs/` gets noticed on its
+own.
+
 ## Scope Decision Framework
 When evaluating whether something is in scope for a milestone:
 - Does it unlock the next milestone? → must be in
