@@ -1,5 +1,12 @@
 # ARCH scratch memory
 
+## Task: tennis runtime signature docs
+
+On branch `claude-tennis-game`, created declaration-only signatures in `docs/arch/` for
+fixed-point deterministic simulation, input/controllers, match flow, and rendering/presentation.
+Cross-subsystem check completed: no duplicate type purposes, boundaries are explicit, and specs
+RVK-1..15, TZL-1..7, and NQF-1..4 are represented. No source implementation changed.
+
 ## Task: feasibility review of tennis proposals (docs/specs/tennis/)
 Appended ARCH: feedback to gameplay.proposal.md, front_end.proposal.md, acceptance.proposal.md.
 
