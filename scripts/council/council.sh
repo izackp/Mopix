@@ -170,11 +170,13 @@ _run_codex() {
         session_id="$(cat "$SESSION_FILE")"
         # Resume: system context already in session; only send new user message
         printf '%s' "$user_msg" | \
-            codex exec resume "$session_id" - \
+            codex exec \
                 -C "$REPO_ROOT" \
                 -s danger-full-access \
                 -c "truncation_policy={mode=\"tokens\",limit=$CODEX_TRUNCATION_LIMIT}" \
-                -o "$resp_tmp"
+                resume \
+                -o "$resp_tmp" \
+                "$session_id" -
     else
         # New session: bundle system + user as initial prompt
         marker_tmp="$(mktemp)"
@@ -207,6 +209,17 @@ _run_codex() {
     _save_response "$response"
 }
 
+# Lines present in both memory-short.md and memory-new.md — an idea noted last
+# session (short) that got noted again this session (new) independently. That
+# recurrence is the graduation signal: worth a permanent line in memory-long.md.
+recurring_ideas() {
+    local short="$PERSONA_DIR/memory-short.md" new="$PERSONA_DIR/memory-new.md"
+    [[ -f "$short" && -f "$new" ]] || return 0
+    comm -12 \
+        <(grep -v '^[[:space:]]*$' "$short" | sort -u) \
+        <(grep -v '^[[:space:]]*$' "$new" | sort -u)
+}
+
 run_harness() {
     local system user_msg turns=0
     system="$(build_system)"
@@ -216,10 +229,17 @@ run_harness() {
     TURNS_FILE="$PERSONA_DIR/session_turns_$HARNESS"
     [[ -f "$TURNS_FILE" ]] && turns="$(cat "$TURNS_FILE")"
 
-    # Warn the persona on its final turn so it flushes state to memory files
-    # before the session is rotated away.
+    # Warn the persona on its final turn: the script handles the memory-short
+    # flush automatically after this reply — don't overwrite it yourself. Flag
+    # any idea that recurred across short and new, since that's a graduation
+    # candidate for memory-long.md only the persona can judge and write.
     if [[ -f "$SESSION_FILE" && $((turns + 1)) -ge $SESSION_MAX_TURNS ]]; then
-        user_msg+=$'\n\n[council] This session resets after this reply. Before answering, overwrite memory-short.md with your current state and fold anything durable into memory-long.md.'
+        user_msg+=$'\n\n[council] This session resets after this reply. memory-short.md will be overwritten with memory-new.md automatically — do not write to memory-short.md yourself. If it belongs in this reply, fold anything durable into memory-long.md now.'
+        local recurring
+        recurring="$(recurring_ideas)"
+        if [[ -n "$recurring" ]]; then
+            user_msg+=$'\n\n[council] These lines appear in both memory-short.md and memory-new.md — noted last session and again this one. Consider graduating to memory-long.md:\n'"$recurring"
+        fi
     fi
 
     printf '%s\n' "$user_msg" > "$PERSONA_DIR/last_prompt.txt"
@@ -240,7 +260,13 @@ run_harness() {
         turns=$((turns + 1))
         if [[ $turns -ge $SESSION_MAX_TURNS ]]; then
             rm -f "$SESSION_FILE" "$TURNS_FILE"
-            echo "[council] Session rotated after $turns turns; next run starts fresh." >&2
+            # Mechanical flush: short := new (script-owned, not persona-trusted),
+            # then reset new to an empty scratchpad for the fresh session.
+            if [[ -f "$PERSONA_DIR/memory-new.md" ]]; then
+                cp "$PERSONA_DIR/memory-new.md" "$PERSONA_DIR/memory-short.md"
+                printf '' > "$PERSONA_DIR/memory-new.md"
+            fi
+            echo "[council] Session rotated after $turns turns; memory-short.md flushed, memory-new.md reset." >&2
         else
             printf '%s' "$turns" > "$TURNS_FILE"
         fi
