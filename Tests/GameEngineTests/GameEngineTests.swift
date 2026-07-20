@@ -78,3 +78,88 @@ private final class FakeDisplayTransport: DisplayTransport {
     func send(_ message: ServerMessage) async {
     }
 }
+
+final class TennisSimulationTests: XCTestCase {
+    func testSeededReplayAndHumanPriorityAreStable() {
+        let first = makeSimulation(seed: 7)
+        let second = makeSimulation(seed: 7)
+        let recorder1 = EventRecorder(); let recorder2 = EventRecorder()
+        first.delegate = recorder1; second.delegate = recorder2
+        let input = TennisTickInput(human: .swing(buttons: [.a, .b], charge: 100), cpu: .swing(buttons: [.a], charge: 0))
+        first.step(tickInput: input); second.step(tickInput: input)
+        XCTAssertEqual(recorder1.events.map { EventShape($0) }, recorder2.events.map { EventShape($0) })
+        XCTAssertTrue(recorder1.events.contains { if case .shotHit(side: .human, shot: .smash, quality: .perfect) = $0.kind { return true }; return false })
+        XCTAssertEqual(first.state.ball.lastHitter, .human)
+        XCTAssertEqual(first.state.hitstopTicksRemaining, 2)
+    }
+
+    func testSmashFallsBackToFlatOutsideOverheadWindow() {
+        let simulation = makeSimulation(seed: 1)
+        let recorder = EventRecorder(); simulation.delegate = recorder
+        simulation.state.ball.isInFlight = true; simulation.state.ball.height = 400
+        simulation.step(tickInput: TennisTickInput(human: .swing(buttons: [.a, .b], charge: 0), cpu: .none))
+        XCTAssertTrue(recorder.events.contains { if case .shotHit(side: .human, shot: .flat, quality: .perfect) = $0.kind { return true }; return false })
+        XCTAssertEqual(simulation.state.hitstopTicksRemaining, 0)
+    }
+
+    func testBounceNetAndOutEndPoints() {
+        let simulation = makeSimulation(seed: 2)
+        let recorder = EventRecorder(); simulation.delegate = recorder
+        simulation.state.ball.isInFlight = true; simulation.state.ball.lastHitter = .human
+        simulation.state.ball.height = 1; simulation.state.ball.velocity = TennisVelocity(x: 0, y: 0, z: -90)
+        simulation.step(tickInput: TennisTickInput(human: .none, cpu: .none))
+        XCTAssertTrue(recorder.events.contains { if case .bounce = $0.kind { return true }; return false })
+        simulation.state.ball.height = 1; simulation.state.ball.velocity = TennisVelocity(x: 0, y: 0, z: -90)
+        simulation.step(tickInput: TennisTickInput(human: .none, cpu: .none))
+        XCTAssertEqual(simulation.state.pointEnd, .secondBounce(side: .human))
+
+        simulation.resetPoint(server: .human)
+        simulation.state.ball.isInFlight = true; simulation.state.ball.lastHitter = .human
+        simulation.state.ball.height = 400; simulation.state.ball.position = TennisPoint(x: 5000, y: 9900)
+        simulation.state.ball.velocity = TennisVelocity(x: 0, y: 200, z: 0)
+        simulation.step(tickInput: TennisTickInput(human: .none, cpu: .none))
+        XCTAssertEqual(simulation.state.pointEnd, .netFault(hitter: .human))
+
+        simulation.resetPoint(server: .human)
+        simulation.state.ball.isInFlight = true; simulation.state.ball.lastHitter = .cpu
+        simulation.state.ball.height = 1; simulation.state.ball.position = TennisPoint(x: 10001, y: 5000)
+        simulation.state.ball.velocity = TennisVelocity(x: 0, y: 0, z: -90)
+        simulation.step(tickInput: TennisTickInput(human: .none, cpu: .none))
+        XCTAssertEqual(simulation.state.pointEnd, .outOfBounds(hitter: .cpu))
+    }
+
+    func testServeAndContactQualityRules() {
+        let book = DefaultTennisRuleBook()
+        let boundary = TennisRect(minX: 0, minY: 0, maxX: 10000, maxY: 20000)
+        let top = TennisRect(minX: 0, minY: 10000, maxX: 5000, maxY: 15000)
+        let bottom = TennisRect(minX: 0, minY: 5000, maxX: 5000, maxY: 10000)
+        let court = CourtRules(surface: .hard, singlesBoundary: boundary, serviceBoxes: TennisServiceBoxes(topLeft: top, topRight: top, bottomLeft: bottom, bottomRight: bottom), netY: 10000)
+        XCTAssertTrue(book.isLegalServe(landing: TennisPoint(x: 2500, y: 12000), server: .human, court: court))
+        XCTAssertFalse(book.isLegalServe(landing: TennisPoint(x: 2500, y: 3000), server: .human, court: court))
+        XCTAssertEqual(book.contactQuality(distance: 0), .perfect)
+        XCTAssertEqual(book.contactQuality(distance: 500), .good)
+        XCTAssertEqual(book.contactQuality(distance: 1000), .poor)
+    }
+
+    private func makeSimulation(seed: UInt64) -> TennisSimulation {
+        let boundary = TennisRect(minX: 0, minY: 0, maxX: 10000, maxY: 20000)
+        let box = TennisRect(minX: 1000, minY: 10000, maxX: 9000, maxY: 15000)
+        let lower = TennisRect(minX: 1000, minY: 5000, maxX: 9000, maxY: 10000)
+        let boxes = TennisServiceBoxes(topLeft: box, topRight: box, bottomLeft: lower, bottomRight: lower)
+        let court = CourtRules(surface: .hard, singlesBoundary: boundary, serviceBoxes: boxes, netY: 10000)
+        let stats = DefaultTennisRuleBook().playerStats(for: .balanced)
+        let players = [TennisSide.human: TennisPlayerState(side: .human, position: TennisPoint(x: 5000, y: 12000), stats: stats, preset: .balanced), TennisSide.cpu: TennisPlayerState(side: .cpu, position: TennisPoint(x: 5000, y: 12000), stats: stats, preset: .power)]
+        let ball = TennisBallState(position: TennisPoint(x: 5000, y: 12000), height: 1000, velocity: TennisVelocity(x: 0, y: 0, z: 0), shotKind: .serve)
+        return TennisSimulation(rules: court, ruleBook: DefaultTennisRuleBook(), random: SeededTennisRandomSource(seed: seed), state: TennisSimulationState(tick: 0, server: .human, players: players, ball: ball))
+    }
+}
+
+private final class EventRecorder: TennisSimulationDelegate {
+    var events: [TennisSimulationEvent] = []
+    func simulationDidEmit(_ event: TennisSimulationEvent) { events.append(event) }
+}
+
+private enum EventShape: Equatable {
+    case serve(TennisSide), shot(TennisSide, ShotKind, ContactQuality), bounce(CourtSurface), net(TennisSide), out(TennisSide), ended(PointEndReason)
+    init(_ event: TennisSimulationEvent) { switch event.kind { case .serveHit(let side): self = .serve(side); case .shotHit(let side, let shot, let quality): self = .shot(side, shot, quality); case .bounce(let surface): self = .bounce(surface); case .netContact(let side): self = .net(side); case .outOfBounds(let side): self = .out(side); case .pointEnded(let reason): self = .ended(reason) } }
+}
