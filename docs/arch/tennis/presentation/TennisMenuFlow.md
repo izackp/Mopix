@@ -42,6 +42,8 @@ TennisPresentationFlow < TennisMatchDelegate | IEventListener
   priv matchFactory: (CourtSurface) -> TennisMatchCoordinator
   priv textRenderer: TennisTextRenderer
   priv coordinator: TennisMatchCoordinator?
+  onCoordinatorChange: Void)?
+  integrationCoordinator: TennisMatchCoordinator?
   pub init(matchFactory: @escaping (CourtSurface) -> TennisMatchCoordinator, textRenderer: TennisTextRenderer)
     >> TennisTextRenderer.draw(_:at:color:z:renderer:)
   pub onCommand(_ command: TennisMenuCommand)
@@ -49,6 +51,8 @@ TennisPresentationFlow < TennisMatchDelegate | IEventListener
   pub draw(renderer: DisplayRenderClient)
   pub matchDidEndPoint(_ reason: PointEndReason, winner: TennisSide, score: TennisMatchScore)
   pub matchDidComplete(_ winner: TennisSide, score: TennisMatchScore)
+  pub makeObservation(feedback: TennisMatchFeedbackState = TennisMatchFeedbackState(),
+    glyphTexts: [String] = [], drawCommandIDs: [UInt64] = []) -> TennisPresentationObservation
   priv beginMatch(surface: CourtSurface)
     >> matchFactory(surface) TennisMatchCoordinator.delegate = self
        TennisPresentationState.setter:screen
@@ -66,11 +70,12 @@ match keydowns are left to the coordinator's input listener. `matchDidComplete` 
 and enters result; no timer or automatic continuation exists. `beginSurfaceSelect` clears the
 held coordinator/result reference.
 
-`TennisApp` injects a per-surface coordinator factory and a font-backed text renderer. The current
-factory creates a new simulation/coordinator with selected `CourtRules.surface`, but the returned
-coordinator is not yet installed into the app's fixed/event registrations or scene. That is the
-REVIEW-25 fix contract: selected result, scene injection, Application fixed-tick registration,
-Application event registration, and flow delegate must all refer to one coordinator identity.
+`TennisApp` injects a per-surface coordinator factory and a font-backed text renderer. The factory
+creates a new simulation/coordinator with selected `CourtRules.surface`; the flow assigns itself
+as delegate, stores it, and invokes `onCoordinatorChange`. `TennisApp` then removes the old
+coordinator and installs the selected instance in the scene and both Application listener loops.
+Returning to surface select invokes the callback with nil, removing the active session and
+clearing scene feedback. All live boundaries therefore refer to one coordinator identity.
 
 // TEST: command/state transitions accept only the legal path and invalid commands leave state
 // unchanged.
@@ -78,11 +83,10 @@ Application event registration, and flow delegate must all refer to one coordina
 // TEST: app construction registers the flow as an SDL event listener and the coordinator as the
 // fixed-tick/event listener used by the match scene.
 
-## REVIEW-27 required headless evidence seam
+## Deterministic headless evidence seam
 
-The next milestone must expose a deterministic observation seam that drives commands and records
-visible state without a human, wall-clock timing, or screenshot interpretation. This is a required
-next contract, not a claim about the current locked initializer:
+The runtime exposes a deterministic observation seam that records visible state without a human,
+wall-clock timing, or screenshot interpretation:
 
 ```text
 TennisPresentationObservation | Equatable
@@ -90,16 +94,29 @@ TennisPresentationObservation | Equatable
   selectedSurface: CourtSurface?
   activeMatchSurface: CourtSurface?
   coordinatorIdentity: ObjectIdentifier?
+  result: TennisResultSnapshot?
   score: TennisMatchScore?
   charge: TennisChargeSnapshot?
   feedback: TennisMatchFeedbackState
   glyphTexts: [String]
   drawCommandIDs: [UInt64]
+  init(screen: TennisScreen, selectedSurface: CourtSurface?, activeMatchSurface: CourtSurface?,
+    coordinatorIdentity: ObjectIdentifier?, result: TennisResultSnapshot?, score: TennisMatchScore?,
+    charge: TennisChargeSnapshot?, feedback: TennisMatchFeedbackState, glyphTexts: [String],
+    drawCommandIDs: [UInt64])
 
 TennisHeadlessEvidenceSink
+  priv observations: [TennisPresentationObservation]
+  init()
   observe(_ observation: TennisPresentationObservation)
   finish() -> [TennisPresentationObservation]
 ```
+
+`makeObservation` snapshots the current screen, selected/active surface, coordinator identity,
+result, score, charge, feedback, glyph text, and draw-command IDs. `TennisHeadlessEvidenceSink`
+owns the ordered observation buffer; `observe` appends one frame and `finish` returns the trace.
+`TennisHeadlessScenario` drives this seam from fixed and post-draw `IUpdate` adapters and writes
+the finished trace when `TennisApp` is launched headlessly with `--tennis-evidence`.
 
 The harness must use the same selected coordinator/session seam as the app graph, inject a
 recording `TennisTextRenderer`, and use a recording `DisplayRenderClient`. A passing trace is:

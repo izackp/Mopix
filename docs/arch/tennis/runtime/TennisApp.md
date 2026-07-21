@@ -15,6 +15,7 @@ TennisApp
   priv matchCoordinator: TennisMatchCoordinator!
   priv presentation: TennisPresentationFlow!
   priv scene: TennisScene!
+  priv headlessScenario: TennisHeadlessScenario?
   private(set) registeredFixedCoordinatorCount: Int
   private(set) registeredEventCoordinatorCount: Int
   init() throws
@@ -27,6 +28,20 @@ TennisApp
        FullWindow.drawable = TennisScene
        Application.addFixedListener(_:msPerTick:)
        Application.addEventListener(_:)
+       TennisPresentationFlow.onCoordinatorChange
+       TennisHeadlessScenario.init(flow:scene:outputDir:)
+       Application.addFixedListener(_:msPerTick:)
+       Application.addDeltaListener(_:)
+  priv replaceCoordinator(_ replacement: TennisMatchCoordinator?)
+    >> Application.removeFixedListener(_:)
+       Application.removeEventListener(_:)
+       TennisScene.replaceCoordinator(_:)
+       TennisScene.resetPresentationFeedback()
+       Application.addFixedListener(_:msPerTick:)
+       Application.addEventListener(_:)
+  var integrationPresentation: TennisPresentationFlow
+  var integrationSceneCoordinator: TennisMatchCoordinator
+  var integrationRegisteredCoordinator: TennisMatchCoordinator?
   static makeSimulation(surface: CourtSurface = .hard) -> TennisSimulation
   static makeCoordinator(surface: CourtSurface) -> TennisMatchCoordinator
   priv static makeCoordinator(surface: CourtSurface, simulation: TennisSimulation,
@@ -38,6 +53,31 @@ TennisApp
 
 TennisVirtualControllerInputSource < TennisHumanInputSource
   frame(for controller: VirtualController) -> TennisInputFrame
+
+TennisHeadlessScenario
+  fixedDriver: TennisHeadlessFixedDriver
+  captureDriver: TennisHeadlessCaptureDriver
+  priv flow: TennisPresentationFlow
+  priv scene: TennisScene
+  priv outputDir: URL
+  priv evidence: TennisHeadlessEvidenceSink
+  priv tick: Int
+  priv glyphTexts: [String]
+  priv textCommandIDs: [UInt64]
+  onFinished: Void)?
+  init(flow: TennisPresentationFlow, scene: TennisScene, outputDir: URL)
+  fixedStep()
+  recordText(_ text: String, commandIDs: [UInt64])
+  afterDraw()
+  priv jsonObject(for observation: TennisPresentationObservation) -> [String: Any]
+
+TennisHeadlessFixedDriver < IUpdate
+  weak scenario: TennisHeadlessScenario?
+  step(_ delta: UInt64)
+
+TennisHeadlessCaptureDriver < IUpdate
+  weak scenario: TennisHeadlessScenario?
+  step(_ delta: UInt64)
 ```
 
 `TennisApp.init()` currently constructs an initial hard-court coordinator, injects it into the
@@ -48,8 +88,15 @@ second SDL event listener. The flow receives a per-surface factory and a
 
 The logical play area is `160x144`. `makeSimulation(surface:)` constructs `CourtRules.surface`
 from its argument and uses the fixed MVP seeds/presets; the default remains `.hard`. The
-`integrationGraph` seam is DEBUG-only and
-exists for app-graph verification; it is not runtime presentation state.
+`replaceCoordinator(_:)` is the selected-session boundary. It removes the old coordinator from
+both Application loops before installing the replacement in the scene and both loops. A nil
+replacement removes the active session and resets scene feedback. The integration accessors and
+DEBUG-only `integrationGraph` are observation seams, not runtime presentation state.
+
+When `isHeadless` and `--tennis-evidence` are both present, the app attaches deterministic fixed
+and post-draw drivers. The scenario drives title → surface select → grass match feedback → result
+hold → continue, records TTF glyph text and draw-command IDs, and writes
+`tennis_evidence.json` to the configured output directory through `TennisHeadlessEvidenceSink`.
 
 // TEST: app construction creates one coordinator shared by the scene and fixed listener, and
 // registers exactly one coordinator fixed listener plus one coordinator event listener.

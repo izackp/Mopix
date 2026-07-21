@@ -23,8 +23,16 @@ TennisScene < IDrawable
   priv hud: TennisHUD?
   priv presentation: TennisPresentationFlow?
   priv feedback: TennisMatchFeedbackReducer
+  priv lastDrawCommandIDs: [UInt64]
   init(coordinator: TennisMatchCoordinator)
   init(coordinator: TennisMatchCoordinator, hud: TennisHUD, presentation: TennisPresentationFlow? = nil)
+  replaceCoordinator(_ coordinator: TennisMatchCoordinator)
+    >> TennisMatchFeedbackReducer.reset()
+  integrationCoordinator: TennisMatchCoordinator
+  integrationFeedback: TennisMatchFeedbackState
+  integrationLastDrawCommandIDs: [UInt64]
+  resetPresentationFeedback()
+    >> TennisMatchFeedbackReducer.reset()
   draw(_ delta: UInt64, _ renderer: DisplayRenderClient)
     >> TennisPresentationFlow.state TennisPresentationFlow.draw(renderer:)
        TennisMatchCoordinator.snapshot() TennisMatchCoordinator.consumePresentationEvents()
@@ -55,7 +63,10 @@ presentation events at the coordinator tick, advance transient feedback, and dra
 Airborne ball shadow, shot/point-end cues, and surface-specific bounce cues are emitted as draw
 commands from `render`; hard, clay, and grass use distinct cue IDs/colors. The coordinator
 injected here must be the same selected coordinator registered with Application's fixed-tick and
-event loops; scene injection is not a passive reference to the initial coordinator.
+event loops; scene injection is not a passive reference to the initial coordinator. `replaceCoordinator(_:)`
+replaces the match source used by subsequent snapshots and event consumption, and resets transient
+feedback at the session boundary. The integration accessors are observation-only seams consumed by
+the deterministic headless evidence driver; they do not add a second renderer or simulation owner.
 
 // TEST: the legacy scene projects snapshot positions to the expected 160x144 court rectangles.
 // TEST: the presentation scene draws title/surface-select/result through the flow and match frames
