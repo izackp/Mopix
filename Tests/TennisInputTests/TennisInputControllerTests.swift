@@ -32,13 +32,14 @@ final class TennisInputControllerTests: XCTestCase {
         let source = CommandFrameSource()
         let router = TennisInputRouter(humanInput: source, sequenceResolver: DefaultTennisShotSequenceResolver(sequenceExpiryTicks: 2), initialFrame: frame())
         let human = TennisHumanController(inputRouter: router)
+        let state = cpuState(ballPosition: TennisPoint(x: 5000, y: 5000))
         let pressA = InputCommand(id: ButtonId.action.command.rawValue, value: 1)
         router.onCommandList(InputCommandList(clientId: 1, deviceId: 1, commands: [pressA]))
-        XCTAssertEqual(shape(human.intent(for: 0)), .none)
+        XCTAssertEqual(shape(human.intent(for: state, tick: 0)), .none)
         router.onCommandList(InputCommandList(clientId: 1, deviceId: 1, commands: []))
-        XCTAssertEqual(shape(human.intent(for: 2)), .swing(.standaloneA, 1))
+        XCTAssertEqual(shape(human.intent(for: state, tick: 2)), .swing(.standaloneA, 1))
         human.resetPoint()
-        XCTAssertEqual(shape(human.intent(for: 3)), .none)
+        XCTAssertEqual(shape(human.intent(for: state, tick: 3)), .none)
     }
 
     func testCPUReactionDelayAndEqualSeedDecisionReplay() {

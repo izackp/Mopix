@@ -28,7 +28,7 @@ final class TennisScene: IDrawable {
     private let upperPlayerColor = SDLColor(rawValue: 0xFF46C28B)
     private let ballColor = SDLColor(rawValue: 0xFFF7EE59)
 
-    func draw(_ delta: UInt64, _ renderer: RendererClient) {
+    func draw(_ delta: UInt64, _ renderer: DisplayRenderClient) {
         let netY = court.centerY
         let serviceInset = 28
         let serviceLineThickness = 2
@@ -74,7 +74,7 @@ final class TennisScene: IDrawable {
         view(renderer, id: Layer.ball, rect: ballRect, fill: ballColor, border: netColor, borderWidth: 1, z: 5)
     }
 
-    private func fill(_ renderer: RendererClient, id: UInt64, rect: Rect<Int>, color: SDLColor, z: Int) {
+    private func fill(_ renderer: DisplayRenderClient, id: UInt64, rect: Rect<Int>, color: SDLColor, z: Int) {
         renderer.drawCmd(
             DrawCmd(
                 animationId: id,
@@ -93,7 +93,7 @@ final class TennisScene: IDrawable {
         )
     }
 
-    private func view(_ renderer: RendererClient, id: UInt64, rect: Rect<Int>, fill: SDLColor, border: SDLColor, borderWidth: Int, z: Int) {
+    private func view(_ renderer: DisplayRenderClient, id: UInt64, rect: Rect<Int>, fill: SDLColor, border: SDLColor, borderWidth: Int, z: Int) {
         renderer.drawCmd(
             DrawCmd(
                 animationId: id,
