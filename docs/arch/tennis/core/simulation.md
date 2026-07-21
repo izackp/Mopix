@@ -1,8 +1,11 @@
-# Tennis Simulation Signature
+# Sources/TennisCore/TennisSimulation.swift [TennisCore]
 
 ```swift
-// OWNED BY: TennisMatchRuntime owns the active TennisSimulation and its immutable rules.
-// DEPENDENCIES: Foundation value types only; no renderer, SDL, VirtualController, or menu types.
+// TARGET: TennisCore
+// OWNED BY: TennisCore owns gameplay value types, deterministic rules, and TennisSimulation.
+// TennisMatchRuntime owns the active TennisSimulation instance at runtime.
+// DEPENDENCIES: Foundation value types only; no GameEngine, renderer, SDL, VirtualController,
+// controller, match-flow, or presentation types.
 // Fixed-tick only. All gameplay state uses Int or fixed-point integers; no Float/Double state
 // or floating-point-dependent branches. A fixed seed is supplied by the match owner.
 
@@ -61,6 +64,27 @@ struct TennisServiceBoxes {
     let topRight: TennisRect
     let bottomLeft: TennisRect
     let bottomRight: TennisRect
+}
+
+// Shared action-intent contracts are owned by TennisCore because TennisSimulation consumes them
+// and TennisInput produces them. TennisInput owns only engine-facing input translation types.
+struct TennisDirection {
+    let x: Int
+    let y: Int
+}
+
+enum TennisSwingSequence {
+    case standaloneA
+    case standaloneB
+    case simultaneousAB
+    case aThenB
+    case bThenA
+}
+
+enum TennisActionIntent {
+    case none
+    case move(direction: TennisDirection)
+    case swing(sequence: TennisSwingSequence, charge: Int)
 }
 
 enum ShotKind {
@@ -186,8 +210,8 @@ the fixed `human`-before-`cpu` priority inside this subsystem, never by caller o
 The bounce crossing must clamp height to zero and apply the bounce on the same tick.
 Target vectors should be selected from predefined court targets or fixed integer vectors;
 there is no runtime normalization requirement.
-`TennisActionIntent.swing`'s `TennisSwingSequence` (defined in the input/controller
-signature) carries the resolved press pattern only; `TennisSimulation.step` is the sole
+`TennisActionIntent.swing`'s `TennisSwingSequence` (defined in this shared Core contract)
+carries the resolved press pattern only; `TennisSimulation.step` is the sole
 caller of `TennisRuleBook.shotKind(for:smashEligible:)`, which maps `standaloneA` →
 topspin, `standaloneB` → slice, `aThenB` → lob, `bThenA` → drop, and `simultaneousAB` →
 smash when `isSmashEligible` else flat. `ShotCommand` is a reserved value type for the

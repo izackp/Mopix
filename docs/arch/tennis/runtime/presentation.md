@@ -1,10 +1,11 @@
-# Tennis Rendering and Presentation Signature
+# Tennis runtime/presentation [Tennis]
 
 ```swift
+// TARGET: Tennis executable
 // OWNED BY: TennisPresentation owns visual projection, HUD, transient cues, and reserved
 // audio notifications. TennisMatchRuntime owns all source state and sends snapshots/events.
-// DEPENDENCIES: GameEngine IDrawable, DisplayRenderClient, DrawCmd, AtlasLoader, VirtualDrive;
-// tennis presentation snapshots/events. Assets are resolved only through vd:// URLs.
+// DEPENDENCIES: GameEngine rendering/resource APIs; TennisCore gameplay snapshots/events;
+// Tennis runtime match-flow snapshots/events. Assets are resolved only through vd:// URLs.
 
 struct TennisViewport {
     let width: Int
@@ -61,6 +62,10 @@ protocol TennisAudioHookSink {
     func scoreStinger()
 }
 ```
+
+`TennisMatchEvent`, `TennisSimulationEvent`, `TennisSimulationState`, and
+`TennisPresentationSnapshot` are owned by the linked runtime/core signatures; this document
+only consumes them through its presentation contracts.
 
 The presentation layer always draws at logical `160x144`, with renderer interpolation
 limited to visual projection; it never feeds interpolated values back into simulation.

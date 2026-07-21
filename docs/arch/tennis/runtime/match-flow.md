@@ -1,10 +1,11 @@
-# Tennis Match Flow Signature
+# Tennis runtime/match-flow [Tennis]
 
 ```swift
+// TARGET: Tennis executable
 // OWNED BY: TennisMatchRuntime owns match score, screen state, controllers, simulation,
 // and the single seeded random source. It is registered with Application as fixed-tick IUpdate.
-// DEPENDENCIES: GameEngine IUpdate/IEventListener/VirtualController; tennis simulation,
-// controllers, and presentation protocols. It does not issue renderer commands.
+// DEPENDENCIES: GameEngine application APIs; TennisCore simulation types; TennisInput controller
+// types; presentation snapshot/event protocols. It does not issue renderer commands.
 
 enum TennisScreen {
     case title
@@ -88,6 +89,10 @@ tick metadata, not permission to scale gameplay by elapsed frame time. Screen fl
 title → surface select → match → result → surface select. Server alternation and first-to
 11-by-2 scoring live here, while point legality stays in `TennisSimulation`. Result state
 does not auto-restart; `continueFromResult()` performs the explicit return.
+
+`TennisMatchRuntime` is the integration owner, not the declaration owner, of simulation and
+controller objects. Their canonical signatures remain in [../core/simulation.md](../core/simulation.md)
+and [../input/controllers.md](../input/controllers.md).
 
 // TEST: score reaches first-to-11 only with a two-point lead; server alternates every two points.
 // TEST: illegal serve awards the point immediately and emits the correct result event.
