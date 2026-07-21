@@ -1,5 +1,6 @@
 import Foundation
 import GameEngine
+import TennisCore
 
 public enum TennisActionButton: Hashable { case a, b }
 
@@ -126,6 +127,7 @@ public final class TennisCPUController: TennisController {
     public let random: TennisRandomSource
     private var decisionAvailableTick: UInt64 = 0
     private var lastObservedHitter: TennisSide?
+    private var rallyShots: Int = 0
 
     public init(policy: TennisCPUDecisionPolicy, random: TennisRandomSource) { self.policy = policy; self.random = random }
 
@@ -142,13 +144,19 @@ public final class TennisCPUController: TennisController {
             guard state.server == .cpu else { return movementTowardBall(cpu: cpu, ball: state.ball) }
             return .swing(sequence: nextSequence(), charge: nextCharge())
         }
+        guard state.ball.lastHitter != .cpu else { return .none }
         if distanceSquared(cpu.position, state.ball.position) > 1_440_000 {
             return movementTowardBall(cpu: cpu, ball: state.ball)
         }
+        if rallyShots < policy.rallyFloor {
+            rallyShots += 1
+            return .swing(sequence: .standaloneA, charge: 0)
+        }
+        rallyShots += 1
         return .swing(sequence: nextSequence(), charge: nextCharge())
     }
 
-    public func resetPoint() { decisionAvailableTick = 0; lastObservedHitter = nil }
+    public func resetPoint() { decisionAvailableTick = 0; lastObservedHitter = nil; rallyShots = 0 }
 
     private func nextSequence() -> TennisSwingSequence {
         switch random.nextInt(upperBound: 5) { case 0: return .standaloneA; case 1: return .standaloneB; case 2: return .simultaneousAB; case 3: return .aThenB; default: return .bThenA }

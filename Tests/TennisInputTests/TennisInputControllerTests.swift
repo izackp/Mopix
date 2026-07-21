@@ -1,6 +1,7 @@
 import XCTest
 import GameEngine
 @testable import TennisCore
+@testable import TennisInput
 
 final class TennisInputControllerTests: XCTestCase {
     func testSequenceResolutionAndExpiryFallback() {
@@ -62,6 +63,18 @@ final class TennisInputControllerTests: XCTestCase {
         XCTAssertEqual(direction, TennisDirection(x: 1, y: 1))
     }
 
+    func testCPURallyFloorUsesSafeShotsBeforeSeededVariety() {
+        let random = SequenceRandomSource(values: [4, 100, 4, 100])
+        let controller = TennisCPUController(policy: TennisCPUDecisionPolicy(reactionDelayTicks: 0, rallyFloor: 2), random: random)
+        let state = cpuState(ballPosition: TennisPoint(x: 5000, y: 5000))
+        XCTAssertEqual(shape(controller.intent(for: state, tick: 0)), .swing(.standaloneA, 0))
+        XCTAssertEqual(shape(controller.intent(for: state, tick: 1)), .swing(.standaloneA, 0))
+        XCTAssertEqual(shape(controller.intent(for: state, tick: 2)), .swing(.bThenA, 100))
+
+        controller.resetPoint()
+        XCTAssertEqual(shape(controller.intent(for: state, tick: 3)), .swing(.standaloneA, 0))
+    }
+
     private func frame(direction: TennisDirection = TennisDirection(x: 0, y: 0), pressed: Set<TennisActionButton> = [], held: Set<TennisActionButton> = []) -> TennisInputFrame { TennisInputFrame(direction: direction, pressedButtons: pressed, heldButtons: held) }
     private func shape(_ intent: TennisActionIntent) -> IntentShape { switch intent { case .none: return .none; case .move(let direction): return .move(direction); case .swing(let sequence, let charge): return .swing(sequence, charge) } }
     private func cpuState(ballPosition: TennisPoint) -> TennisSimulationState {
@@ -88,4 +101,10 @@ private enum IntentShape: Equatable {
     case none
     case move(TennisDirection)
     case swing(TennisSwingSequence, Int)
+}
+
+private final class SequenceRandomSource: TennisRandomSource {
+    private var values: [Int]
+    init(values: [Int]) { self.values = values }
+    func nextInt(upperBound: Int) -> Int { min(upperBound - 1, max(0, values.isEmpty ? 0 : values.removeFirst())) }
 }
