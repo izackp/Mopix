@@ -155,5 +155,8 @@ let package = Package(
         .testTarget(
             name: "TennisInputTests",
             dependencies: ["TennisInput", "TennisCore", "GameEngine"]),
+        .testTarget(
+            name: "TennisTests",
+            dependencies: ["Tennis", "TennisCore", "TennisInput", "GameEngine"]),
     ]
 )
