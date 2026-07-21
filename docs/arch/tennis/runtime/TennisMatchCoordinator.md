@@ -3,7 +3,7 @@
 ```text
 // TARGET: Tennis executable
 // OWNED BY: TennisMatchCoordinator owns fixed-tick orchestration, point lifecycle, controller
-// wiring, and the boundary between TennisCore simulation events and match scoring.
+// wiring, match snapshots, and the boundary between TennisCore simulation events and match scoring.
 // DEPENDENCIES: GameEngine IUpdate, IEventListener, SDL_Event.toCommand(), InputCommand,
 // InputCommandList; TennisCore TennisSimulation, TennisMatchScorekeeper, TennisRuleBook,
 // TennisTickInput, TennisSimulationDelegate; TennisInput TennisHumanController and
@@ -12,6 +12,11 @@
 TennisMatchDelegate | AnyObject
   matchDidEndPoint(_ reason: PointEndReason, winner: TennisSide, score: TennisMatchScore)
   matchDidComplete(_ winner: TennisSide, score: TennisMatchScore)
+
+TennisMatchSnapshot | Equatable
+  pub score: TennisMatchScore
+  pub simulation: TennisSimulationState
+  pub init(score: TennisMatchScore, simulation: TennisSimulationState)
 
 TennisMatchCoordinator < IUpdate | IEventListener | TennisSimulationDelegate
   pub simulation: TennisSimulation
@@ -28,6 +33,8 @@ TennisMatchCoordinator < IUpdate | IEventListener | TennisSimulationDelegate
   pub step(_ delta: UInt64)
     >> flushPendingCommands() TennisController.intent(for:tick:) TennisSimulation.step(tickInput:)
        completePointIfNeeded()
+  pub snapshot() -> TennisMatchSnapshot
+    >> TennisSimulation.snapshot()
   pub onEvents(_ events: [SDL_Event])
     >> SDL_Event.toCommand()
   pub simulationDidEmit(_ event: TennisSimulationEvent)
@@ -43,10 +50,16 @@ TennisMatchCoordinator < IUpdate | IEventListener | TennisSimulationDelegate
 
 `TennisApp` installs one coordinator with `Application.addFixedListener(_:msPerTick:)` and
 `Application.addEventListener(_:)`; the fixed-listener interval is the sole game-logic clock.
-`step(_:)` advances the coordinator tick once per fixed callback and treats `delta` as the engine's
-fixed tick duration, never as a frame-dependent simulation multiplier. It samples one simulation
-snapshot, asks both controllers for intents using that same tick/state, and submits one
+`step(_:)` advances the coordinator tick exactly once per fixed callback and treats `delta` as the
+engine's fixed tick duration, never as a frame-dependent simulation multiplier. It samples one
+simulation snapshot, asks both controllers for intents using that same tick/state, and submits one
 `TennisTickInput`; TennisCore retains deterministic human-before-CPU simultaneous-contact priority.
+
+The coordinator owns the authoritative monotonic tick. A point or match reset clears gameplay
+state, score/controller state, and pending commands, but neither advances nor rewinds that tick;
+`TennisSimulation.resetPoint(server:)` preserves the current simulation tick. Thus one fixed
+callback contains at most one simulation step, and a point-ending callback cannot create a second
+logic tick. `TennisMatchSnapshot` is the read-only boundary consumed by `TennisScene`.
 
 `onEvents(_:)` only converts and queues input commands. The next fixed step forwards one
 `InputCommandList` to the human controller's existing `TennisInputRouter`, preserving the
@@ -63,6 +76,8 @@ the receiver.
 
 // TEST: one fixed callback produces one simulation tick and one paired human/CPU intent sample.
 // TEST: command events reach the human router on the next fixed tick; CPU uses the same snapshot.
+// TEST: snapshot() exposes score and simulation state after the same fixed step that consumed
+// the input, allowing TennisScene to render the resulting positions.
 // TEST: every PointEndReason awards exactly one point, resets state/controllers, and rotates the
 // server only after two points; serve faults award the receiver.
 // TEST: first-to-11 win-by-two publishes completion and prevents further reset or simulation steps.

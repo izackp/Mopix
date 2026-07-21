@@ -194,7 +194,14 @@ The five swing sequences remain canonical in `TennisCore`: standalone A → tops
 → slice, A-then-B → lob, B-then-A → drop, and simultaneous A+B → smash when eligible, otherwise
 flat. `ShotCommand` is internal/reserved and is not a `step` parameter.
 
+`TennisSimulation.resetPoint(server:)` is a gameplay-state reset, not a clock operation. It
+restores the server, players, ball, and point-end fields while preserving `state.tick`; the
+runtime coordinator owns the monotonic fixed tick and calls reset only after the point-end step.
+The match reset follows the same rule: it clears match/point state without creating an extra
+simulation tick or rewinding the runtime clock.
+
 // TEST: fixed-seed replay produces identical states/events, including legal and illegal serves.
 // TEST: landing-only serve legality, receiver winner, second-bounce side, and baseline reset.
+// TEST: point and match resets preserve the fixed simulation tick.
 // TEST: all sequence mappings, smash fallback, contact bands, simultaneous-contact priority,
 // same-tick bounce, net/out faults, and smash/full-charge hitstop.
