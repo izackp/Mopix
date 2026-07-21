@@ -2,15 +2,22 @@
 
 ```text
 // TARGET: Tennis executable
-// OWNED BY: TennisApp owns application/window construction and installs TennisScene as the
-// window drawable. It does not own simulation or input contracts.
-// DEPENDENCIES: GameEngine application/window APIs and SDL2Swift. No TennisCore mutation.
+// OWNED BY: TennisApp owns application/window construction and installs TennisScene plus the
+// fixed-tick TennisMatchCoordinator. Match state remains owned by the coordinator/core.
+// DEPENDENCIES: GameEngine application/window/fixed-update/event APIs and SDL2Swift;
+// TennisCore; TennisInput; TennisMatchCoordinator. No renderer-owned gameplay mutation.
 
 TennisApp
   logicalSize: Size<Int>
+  priv matchCoordinator: TennisMatchCoordinator
   init()!
+    >> TennisMatchCoordinator.init(simulation:scorekeeper:humanController:cpuController:)
+    >> Application.addFixedListener(_:msPerTick:)
+    >> Application.addEventListener(_:)
     << wrapperMain(argc:argv:)
 ```
 
-The application logical size is `160x144`. The window's drawable is `TennisScene`; fixed-tick
-gameplay contracts remain in the lower-level TennisCore/TennisInput documents.
+The application logical size is `160x144`. The window's drawable remains `TennisScene`; the
+coordinator is registered separately as the fixed-tick/event owner. Gameplay contracts remain
+split by map group: scoring in TennisCore, input/controllers in TennisInput, and orchestration in
+the Tennis runtime.
