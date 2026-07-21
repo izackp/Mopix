@@ -66,7 +66,8 @@ injected here must be the same selected coordinator registered with Application'
 event loops; scene injection is not a passive reference to the initial coordinator. `replaceCoordinator(_:)`
 replaces the match source used by subsequent snapshots and event consumption, and resets transient
 feedback at the session boundary. The integration accessors are observation-only seams consumed by
-the deterministic headless evidence driver; they do not add a second renderer or simulation owner.
+focused application-graph tests; they do not add a second renderer, simulation owner, or
+Tennis-specific headless evidence driver.
 
 // TEST: the legacy scene projects snapshot positions to the expected 160x144 court rectangles.
 // TEST: the presentation scene draws title/surface-select/result through the flow and match frames

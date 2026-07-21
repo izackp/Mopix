@@ -45,14 +45,12 @@ TennisPresentationFlow < TennisMatchDelegate | IEventListener
   onCoordinatorChange: Void)?
   integrationCoordinator: TennisMatchCoordinator?
   pub init(matchFactory: @escaping (CourtSurface) -> TennisMatchCoordinator, textRenderer: TennisTextRenderer)
-    >> TennisTextRenderer.draw(_:at:color:z:renderer:)
+    >> TennisPresentationState.init(screen:)
   pub onCommand(_ command: TennisMenuCommand)
   pub onEvents(_ events: [SDL_Event])
   pub draw(renderer: DisplayRenderClient)
   pub matchDidEndPoint(_ reason: PointEndReason, winner: TennisSide, score: TennisMatchScore)
   pub matchDidComplete(_ winner: TennisSide, score: TennisMatchScore)
-  pub makeObservation(feedback: TennisMatchFeedbackState = TennisMatchFeedbackState(),
-    glyphTexts: [String] = [], drawCommandIDs: [UInt64] = []) -> TennisPresentationObservation
   priv beginMatch(surface: CourtSurface)
     >> matchFactory(surface) TennisMatchCoordinator.delegate = self
        TennisPresentationState.setter:screen
@@ -82,52 +80,3 @@ clearing scene feedback. All live boundaries therefore refer to one coordinator 
 // TEST: result state holds winner/score until continue, then returns to surface select.
 // TEST: app construction registers the flow as an SDL event listener and the coordinator as the
 // fixed-tick/event listener used by the match scene.
-
-## Deterministic headless evidence seam
-
-The runtime exposes a deterministic observation seam that records visible state without a human,
-wall-clock timing, or screenshot interpretation:
-
-```text
-TennisPresentationObservation | Equatable
-  screen: TennisScreen
-  selectedSurface: CourtSurface?
-  activeMatchSurface: CourtSurface?
-  coordinatorIdentity: ObjectIdentifier?
-  result: TennisResultSnapshot?
-  score: TennisMatchScore?
-  charge: TennisChargeSnapshot?
-  feedback: TennisMatchFeedbackState
-  glyphTexts: [String]
-  drawCommandIDs: [UInt64]
-  init(screen: TennisScreen, selectedSurface: CourtSurface?, activeMatchSurface: CourtSurface?,
-    coordinatorIdentity: ObjectIdentifier?, result: TennisResultSnapshot?, score: TennisMatchScore?,
-    charge: TennisChargeSnapshot?, feedback: TennisMatchFeedbackState, glyphTexts: [String],
-    drawCommandIDs: [UInt64])
-
-TennisHeadlessEvidenceSink
-  priv observations: [TennisPresentationObservation]
-  init()
-  observe(_ observation: TennisPresentationObservation)
-  finish() -> [TennisPresentationObservation]
-```
-
-`makeObservation` snapshots the current screen, selected/active surface, coordinator identity,
-result, score, charge, feedback, glyph text, and draw-command IDs. `TennisHeadlessEvidenceSink`
-owns the ordered observation buffer; `observe` appends one frame and `finish` returns the trace.
-`TennisHeadlessScenario` drives this seam from fixed and post-draw `IUpdate` adapters and writes
-the finished trace when `TennisApp` is launched headlessly with `--tennis-evidence`.
-
-The harness must use the same selected coordinator/session seam as the app graph, inject a
-recording `TennisTextRenderer`, and use a recording `DisplayRenderClient`. A passing trace is:
-title glyphs → `.start` → surface-select glyphs → `.chooseSurface(.hard/.clay/.grass)` → match
-observation whose active surface and coordinator identity are selected → one fixed tick with
-shot/fault or bounce feedback and HUD score/server/active-charge glyph commands → result
-observation with winner/score held across at least two draws → `.continue` → surface-select with
-the prior result cleared. The trace must show distinct `CourtRules.surface`, feedback cue, and
-draw-command evidence for each selected surface; a title-only PNG is insufficient.
-
-// TEST: the observation trace proves the exact sequence; glyphTexts and drawCommandIDs are
-// non-empty for every visible text/cue assertion.
-// TEST: result remains observable and unchanged during the hold interval, then continue produces
-// exactly one surface-select transition and clears the held result.

@@ -38,5 +38,5 @@ documented as [TennisMatchHUD.md](TennisMatchHUD.md),
 The selected coordinator is an application-graph invariant: the coordinator created for the
 selected surface must be the exact instance injected into `TennisScene` and registered with
 Application's fixed-tick and event loops. The flow's factory callback alone does not establish
-that invariant. The required headless observation seam and its end-to-end evidence trace are
-defined in [TennisMenuFlow.md](TennisMenuFlow.md).
+that invariant. The integration accessors used by focused tests verify this identity and listener
+registration; they are not runtime presentation state or a Tennis-specific headless evidence API.
