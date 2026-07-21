@@ -38,6 +38,22 @@ final class TennisSimulationTests: XCTestCase {
         XCTAssertEqual(DefaultTennisRuleBook().pointWinner(for: simulation.state.pointEnd!), .cpu)
     }
 
+    func testServeWindUpLocksMovementAndLaunchesOnOneFixedTick() {
+        let simulation = makeSimulation(seed: 8)
+        let baseline = simulation.state.players[.human]?.position
+
+        simulation.step(tickInput: TennisTickInput(human: .move(direction: TennisDirection(x: 1, y: -1)), cpu: .none))
+        XCTAssertEqual(simulation.state.phase, .serveWindUp)
+        XCTAssertEqual(simulation.state.players[.human]?.position, baseline)
+        XCTAssertFalse(simulation.state.ball.isInFlight)
+        XCTAssertEqual(simulation.state.tick, 1)
+
+        simulation.step(tickInput: TennisTickInput(human: .swing(sequence: .standaloneA, charge: 0), cpu: .none))
+        XCTAssertEqual(simulation.state.phase, .rally)
+        XCTAssertTrue(simulation.state.ball.isInFlight)
+        XCTAssertEqual(simulation.state.tick, 2)
+    }
+
     func testResetPointRestoresFixedBaselineCenters() {
         let simulation = makeSimulation(seed: 5)
         simulation.resetPoint(server: .human)
@@ -122,7 +138,8 @@ final class TennisSimulationTests: XCTestCase {
         let court = CourtRules(surface: surface, singlesBoundary: boundary, serviceBoxes: boxes, netY: 10000)
         let players = [TennisSide.human: TennisPlayerState(side: .human, position: TennisPoint(x: 5000, y: 12000), stats: stats, preset: .balanced), TennisSide.cpu: TennisPlayerState(side: .cpu, position: TennisPoint(x: 5000, y: 12000), stats: stats, preset: .power)]
         let ball = TennisBallState(position: ballPosition, height: ballHeight, velocity: ballVelocity, shotKind: .serve, lastHitter: lastHitter, isInFlight: inFlight)
-        return TennisSimulation(rules: court, ruleBook: DefaultTennisRuleBook(), random: SeededTennisRandomSource(seed: seed), state: TennisSimulationState(tick: 0, server: .human, players: players, ball: ball))
+        let phase: TennisPointPhase = inFlight ? .rally : .serveWindUp
+        return TennisSimulation(rules: court, ruleBook: DefaultTennisRuleBook(), random: SeededTennisRandomSource(seed: seed), state: TennisSimulationState(tick: 0, server: .human, phase: phase, players: players, ball: ball))
     }
     private func hitVelocity(surface: CourtSurface = .hard, stats: PlayerStats) -> TennisVelocity { let s = makeSimulation(seed: 9, surface: surface, stats: stats, inFlight: true)
         let recorder = EventRecorder(); s.delegate = recorder; s.step(tickInput: TennisTickInput(human: .swing(sequence: .standaloneA, charge: 0), cpu: .none)); return s.state.ball.velocity }

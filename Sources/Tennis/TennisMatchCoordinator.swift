@@ -61,13 +61,18 @@ public final class TennisMatchCoordinator: IUpdate, IEventListener, TennisSimula
         let snapshot = simulation.snapshot()
         let humanIntent = humanController.intent(for: snapshot, tick: tick)
         let cpuIntent = cpuController.intent(for: snapshot, tick: tick)
-        switch (humanIntent, cpuIntent) {
-        case (.swing(_, let value), _):
+        switch humanIntent {
+        case .swing(_, let value):
             latestCharge = TennisChargeSnapshot(activeSide: .human, value: value, capReached: value >= 100)
-        case (_, .swing(_, let value)):
-            latestCharge = TennisChargeSnapshot(activeSide: .cpu, value: value, capReached: value >= 100)
         default:
-            latestCharge = TennisChargeSnapshot(activeSide: snapshot.server, value: 0, capReached: false)
+            let humanCharge = humanController.chargeValue()
+            if humanCharge > 0 || humanController.chargeCapReached() {
+                latestCharge = TennisChargeSnapshot(activeSide: .human, value: humanCharge, capReached: humanController.chargeCapReached())
+            } else if case .swing(_, let value) = cpuIntent {
+                latestCharge = TennisChargeSnapshot(activeSide: .cpu, value: value, capReached: value >= 100)
+            } else {
+                latestCharge = TennisChargeSnapshot(activeSide: snapshot.server, value: 0, capReached: false)
+            }
         }
         simulation.step(tickInput: TennisTickInput(human: humanIntent, cpu: cpuIntent))
         completePointIfNeeded()

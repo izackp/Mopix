@@ -19,6 +19,8 @@ public protocol TennisHumanInputSource {
 
 public protocol TennisShotSequenceResolver {
     func resolve(frame: TennisInputFrame, tick: UInt64) -> TennisActionIntent
+    func chargeValue() -> Int
+    func chargeCapReached() -> Bool
     func reset()
 }
 
@@ -28,6 +30,7 @@ public final class DefaultTennisShotSequenceResolver: TennisShotSequenceResolver
     private var pendingButton: TennisActionButton?
     private var pendingTick: UInt64 = 0
     private var charge: Int = 0
+    private var buttonsAwaitingRelease: Set<TennisActionButton> = []
 
     public init(sequenceExpiryTicks: UInt64 = 6, chargeCap: Int = 100) {
         self.sequenceExpiryTicks = max(1, sequenceExpiryTicks); self.chargeCap = max(0, chargeCap)
@@ -36,6 +39,9 @@ public final class DefaultTennisShotSequenceResolver: TennisShotSequenceResolver
     public func resolve(frame: TennisInputFrame, tick: UInt64) -> TennisActionIntent {
         let hasA = frame.pressedButtons.contains(.a)
         let hasB = frame.pressedButtons.contains(.b)
+        let buttonsDown = frame.pressedButtons.union(frame.heldButtons)
+        buttonsAwaitingRelease.formIntersection(buttonsDown)
+        guard buttonsAwaitingRelease.isEmpty else { return movementOrNone(frame) }
         let isHoldingAction = frame.heldButtons.contains(.a) || frame.heldButtons.contains(.b)
         if isHoldingAction { charge = min(chargeCap, charge + 1) }
 
@@ -45,12 +51,14 @@ public final class DefaultTennisShotSequenceResolver: TennisShotSequenceResolver
                 self.pendingButton = nil
                 let fallbackCharge = cappedCharge()
                 charge = 0
+                buttonsAwaitingRelease = transactionButtons(for: fallback)
                 return .swing(sequence: fallback, charge: fallbackCharge)
             }
             if hasA && hasB {
                 self.pendingButton = nil
                 let result: TennisActionIntent = .swing(sequence: .simultaneousAB, charge: cappedCharge())
                 charge = 0
+                buttonsAwaitingRelease = transactionButtons(for: .simultaneousAB)
                 return result
             }
             if (pendingButton == .a && hasB) || (pendingButton == .b && hasA) {
@@ -58,6 +66,7 @@ public final class DefaultTennisShotSequenceResolver: TennisShotSequenceResolver
                 self.pendingButton = nil
                 let result: TennisActionIntent = .swing(sequence: sequence, charge: cappedCharge())
                 charge = 0
+                buttonsAwaitingRelease = transactionButtons(for: sequence)
                 return result
             }
             return movementOrNone(frame)
@@ -66,6 +75,7 @@ public final class DefaultTennisShotSequenceResolver: TennisShotSequenceResolver
         if hasA && hasB {
             let result: TennisActionIntent = .swing(sequence: .simultaneousAB, charge: cappedCharge())
             charge = 0
+            buttonsAwaitingRelease = transactionButtons(for: .simultaneousAB)
             return result
         }
         if hasA || hasB {
@@ -77,11 +87,20 @@ public final class DefaultTennisShotSequenceResolver: TennisShotSequenceResolver
         return movementOrNone(frame)
     }
 
-    public func reset() { pendingButton = nil; pendingTick = 0; charge = 0 }
+    public func chargeValue() -> Int { cappedCharge() }
+    public func chargeCapReached() -> Bool { charge >= chargeCap }
+    public func reset() { pendingButton = nil; pendingTick = 0; charge = 0; buttonsAwaitingRelease.removeAll(keepingCapacity: true) }
 
     private func standalone(_ button: TennisActionButton) -> TennisSwingSequence { button == .a ? .standaloneA : .standaloneB }
     private func cappedCharge() -> Int { min(chargeCap, max(0, charge)) }
     private func movementOrNone(_ frame: TennisInputFrame) -> TennisActionIntent { frame.direction.x == 0 && frame.direction.y == 0 ? .none : .move(direction: frame.direction) }
+    private func transactionButtons(for sequence: TennisSwingSequence) -> Set<TennisActionButton> {
+        switch sequence {
+        case .standaloneA: return [.a]
+        case .standaloneB: return [.b]
+        case .simultaneousAB, .aThenB, .bThenA: return [.a, .b]
+        }
+    }
 }
 
 public final class TennisInputRouter: ICommandListener {
@@ -113,6 +132,8 @@ public final class TennisHumanController: TennisController {
     public let inputRouter: TennisInputRouter
     public init(inputRouter: TennisInputRouter) { self.inputRouter = inputRouter }
     public func intent(for state: TennisSimulationState, tick: UInt64) -> TennisActionIntent { inputRouter.intent(for: tick) }
+    public func chargeValue() -> Int { inputRouter.sequenceResolver.chargeValue() }
+    public func chargeCapReached() -> Bool { inputRouter.sequenceResolver.chargeCapReached() }
     public func resetPoint() { inputRouter.resetPoint() }
 }
 

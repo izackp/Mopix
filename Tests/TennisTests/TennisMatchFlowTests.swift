@@ -324,7 +324,7 @@ final class TennisMatchFlowTests: XCTestCase {
             TennisSide.cpu: TennisPlayerState(side: .cpu, position: cpuPosition, stats: stats, preset: .power)
         ]
         let ball = TennisBallState(position: ballPosition, height: 0, velocity: TennisVelocity(x: 0, y: 0, z: 0), shotKind: .serve, lastHitter: nil, isInFlight: false)
-        let state = TennisSimulationState(tick: 0, server: server, players: players, ball: ball, pointEnd: pointEnd)
+        let state = TennisSimulationState(tick: 0, server: server, phase: .serveWindUp, players: players, ball: ball, pointEnd: pointEnd)
         return TennisSimulation(rules: court, ruleBook: DefaultTennisRuleBook(), random: SeededTennisRandomSource(seed: 4), state: state)
     }
 

@@ -110,7 +110,7 @@ final class TennisApp: Application {
             TennisSide.cpu: TennisPlayerState(side: .cpu, position: TennisPoint(x: 5000, y: 0), stats: balanced, preset: .power)
         ]
         let ball = TennisBallState(position: TennisPoint(x: 5000, y: 20000), height: 0, velocity: TennisVelocity(x: 0, y: 0, z: 0), shotKind: .serve, lastHitter: nil, isInFlight: false)
-        let state = TennisSimulationState(tick: 0, server: .human, players: players, ball: ball)
+        let state = TennisSimulationState(tick: 0, server: .human, phase: .serveWindUp, players: players, ball: ball)
         return TennisSimulation(rules: court, ruleBook: DefaultTennisRuleBook(), random: SeededTennisRandomSource(seed: 0x54454E4E4953), state: state)
     }
 

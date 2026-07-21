@@ -14,7 +14,8 @@ final class TennisInputControllerTests: XCTestCase {
         XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.a], held: [.a]), tick: 20)), .none)
         XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.b], held: [.b]), tick: 21)), .swing(.aThenB, 2))
         XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.b], held: [.b]), tick: 22)), .none)
-        XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.a, .b], held: [.a, .b]), tick: 23)), .swing(.simultaneousAB, 2))
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(), tick: 23)), .none)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.a, .b], held: [.a, .b]), tick: 24)), .swing(.simultaneousAB, 1))
     }
 
     func testChargeClampsAndResetClearsPendingSequence() {
@@ -23,9 +24,37 @@ final class TennisInputControllerTests: XCTestCase {
         _ = resolver.resolve(frame: frame(held: [.b]), tick: 1)
         _ = resolver.resolve(frame: frame(held: [.b]), tick: 2)
         _ = resolver.resolve(frame: frame(held: [.b]), tick: 3)
+        XCTAssertEqual(resolver.chargeValue(), 3)
+        XCTAssertTrue(resolver.chargeCapReached())
         resolver.reset()
+        XCTAssertEqual(resolver.chargeValue(), 0)
+        XCTAssertFalse(resolver.chargeCapReached())
         XCTAssertEqual(shape(resolver.resolve(frame: frame(), tick: 10)), .none)
         XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.a, .b], held: [.a, .b]), tick: 11)), .swing(.simultaneousAB, 1))
+    }
+
+    func testShotTransactionsRequireReleaseBeforeStandaloneChordAndSequenceRearm() {
+        let resolver = DefaultTennisShotSequenceResolver(sequenceExpiryTicks: 2)
+
+        _ = resolver.resolve(frame: frame(pressed: [.a], held: [.a]), tick: 0)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(), tick: 2)), .swing(.standaloneA, 1))
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.a], held: [.a]), tick: 3)), .none)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(), tick: 4)), .none)
+        _ = resolver.resolve(frame: frame(pressed: [.a], held: [.a]), tick: 5)
+
+        resolver.reset()
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.a, .b], held: [.a, .b]), tick: 10)), .swing(.simultaneousAB, 1))
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.a], held: [.a]), tick: 11)), .none)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(), tick: 12)), .none)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.a, .b], held: [.a, .b]), tick: 13)), .swing(.simultaneousAB, 1))
+
+        resolver.reset()
+        _ = resolver.resolve(frame: frame(pressed: [.a], held: [.a]), tick: 20)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.b], held: [.b]), tick: 21)), .swing(.aThenB, 2))
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.b], held: [.b]), tick: 22)), .none)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(), tick: 23)), .none)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.a], held: [.a]), tick: 24)), .none)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.b], held: [.b]), tick: 25)), .swing(.aThenB, 2))
     }
 
     func testRouterUsesGameEngineCommandStateAndHumanController() {
@@ -82,7 +111,7 @@ final class TennisInputControllerTests: XCTestCase {
         let stats = PlayerStats(power: 100, speed: 100, control: 100, spin: 100)
         let players = [TennisSide.human: TennisPlayerState(side: .human, position: TennisPoint(x: 5000, y: 18000), stats: stats, preset: .balanced), TennisSide.cpu: TennisPlayerState(side: .cpu, position: TennisPoint(x: 5000, y: 5000), stats: stats, preset: .power)]
         let ball = TennisBallState(position: ballPosition, height: 500, velocity: TennisVelocity(x: 0, y: 0, z: 0), shotKind: .topspin, lastHitter: .human, isInFlight: true)
-        return TennisSimulationState(tick: 0, server: .human, players: players, ball: ball)
+        return TennisSimulationState(tick: 0, server: .human, phase: .rally, players: players, ball: ball)
     }
 }
 

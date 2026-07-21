@@ -17,6 +17,7 @@ final class TennisScene: IDrawable {
         static let lowerPlayer: UInt64 = 11
         static let upperPlayer: UInt64 = 12
         static let ball: UInt64 = 13
+        static let serveWindUp: UInt64 = 20
     }
 
     private let viewport = Rect(x: 0, y: 0, width: 160, height: 144)
@@ -83,8 +84,15 @@ final class TennisScene: IDrawable {
         let snapshot = coordinator.snapshot()
         for event in coordinator.consumePresentationEvents() { feedback.consume(event, tick: snapshot.simulation.tick) }
         feedback.advance(to: snapshot.simulation.tick)
+        serveWindUp(snapshot, renderer: renderer)
         render(snapshot, renderer: renderer)
         hud?.draw(snapshot, feedback: feedback.state, renderer: renderer)
+    }
+
+    private func serveWindUp(_ snapshot: TennisMatchSnapshot, renderer: DisplayRenderClient) {
+        guard snapshot.simulation.phase == .serveWindUp else { return }
+        let player = playerRect(for: snapshot.simulation.players[snapshot.simulation.server], in: court)
+        fill(renderer, id: Layer.serveWindUp, rect: Rect(x: player.x - 3, y: player.y - 5, width: player.width + 6, height: 2), color: SDLColor(rawValue: 0xFFFFD447), z: 6)
     }
 
     private func render(_ snapshot: TennisMatchSnapshot, renderer: DisplayRenderClient) {
