@@ -54,6 +54,7 @@ LOG_FILE="$COUNCIL_DIR/log.txt"
 
 # Codex internal truncation_policy: compact when context exceeds this token limit
 CODEX_TRUNCATION_LIMIT=140000
+COUNCIL_SESSION_LOCK_ROOT="${TMPDIR:-/tmp}/council-session-locks"
 
 # Rotate (reset) a persona's session after this many turns. The turn before
 # rotation, the persona is told to flush state to its memory files so the
@@ -162,14 +163,73 @@ _run_cat() {
     _save_response "$(strip_prompt_echo "$(printf '%s\n\n%s\n' "$system" "$user_msg")" "$system" "$user_msg")"
 }
 
-_run_codex() {
-    local system="$1" user_msg="$2" response resp_tmp run_log marker_tmp session_id session_file
+_acquire_lock() {
+    local lock_dir="$1" owner_pid stale_dir attempt
+    mkdir -p "$COUNCIL_SESSION_LOCK_ROOT"
+    for attempt in 1 2 3; do
+        if mkdir "$lock_dir" 2>/dev/null; then
+            printf '%s\n' "$$" > "$lock_dir/pid"
+            return 0
+        fi
+
+        # Reclaim only a lock whose recorded owner is definitely dead. Move
+        # it atomically first so a concurrent caller cannot delete a live
+        # owner's lock between inspection and cleanup.
+        owner_pid="$(cat "$lock_dir/pid" 2>/dev/null || true)"
+        if [[ -n "$owner_pid" && "$owner_pid" =~ ^[0-9]+$ ]] && kill -0 "$owner_pid" 2>/dev/null; then
+            return 1
+        fi
+        if [[ -n "$owner_pid" || ! -e "$lock_dir/pid" ]]; then
+            stale_dir="${lock_dir}.stale.$$.$attempt"
+            if mv "$lock_dir" "$stale_dir" 2>/dev/null; then
+                rm -f "$stale_dir/pid"
+                rmdir "$stale_dir" 2>/dev/null || true
+            fi
+        else
+            # The owner is still writing its pid; give that initialization a
+            # moment before treating the directory as stale.
+            sleep 0.05
+        fi
+    done
+    return 1
+}
+
+_release_lock() {
+    local lock_dir="$1"
+    rm -f "$lock_dir/pid"
+    rmdir "$lock_dir" 2>/dev/null || true
+}
+
+_session_is_owned() {
+    local owner
+    [[ -f "$SESSION_FILE" && -f "$SESSION_OWNER_FILE" ]] || return 1
+    owner="$(cat "$SESSION_OWNER_FILE")"
+    [[ "$owner" == "$PERSONA:$HARNESS:$(cat "$SESSION_FILE")" ]]
+}
+
+_record_session() {
+    local session_id="$1"
+    printf '%s' "$session_id" > "$SESSION_FILE"
+    printf '%s:%s:%s' "$PERSONA" "$HARNESS" "$session_id" > "$SESSION_OWNER_FILE"
+}
+
+_extract_session_id() {
+    sed -nE 's/.*"thread_id"[[:space:]]*:[[:space:]]*"([0-9a-f-]{36})".*/\1/p' "$1" | head -1
+}
+
+_response_present() {
+    [[ -s "$1" ]] && grep -q '[^[:space:]]' "$1"
+}
+
+_run_codex_impl() {
+    local system="$1" user_msg="$2" response resp_tmp run_log session_id resume_failed
     resp_tmp="$(mktemp)"
     run_log="$(mktemp)"
 
-    if [[ -f "$SESSION_FILE" ]]; then
+    if _session_is_owned; then
         session_id="$(cat "$SESSION_FILE")"
         # Resume: system context already in session; only send new user message
+        resume_failed=0
         if ! printf '%s' "$user_msg" | \
             codex exec \
                 -C "$REPO_ROOT" \
@@ -178,37 +238,61 @@ _run_codex() {
                 resume \
                 -o "$resp_tmp" \
                 "$session_id" - >"$run_log" 2>&1; then
+            resume_failed=1
+        elif ! _response_present "$resp_tmp"; then
+            echo "[council] Resume returned no response; treating session as stale." >&2
+            resume_failed=1
+        fi
+        if (( resume_failed )); then
+            # A stale/expired resume session must not block the persona. Start a
+            # fresh session with the same durable system and user context.
             tail -40 "$run_log" >&2
-            rm -f "$resp_tmp" "$run_log"
-            return 1
+            rm -f "$resp_tmp" "$run_log" "$SESSION_FILE" "$TURNS_FILE" "$SESSION_OWNER_FILE"
+            resp_tmp="$(mktemp)"
+            run_log="$(mktemp)"
+            if ! printf '%s\n\n%s' "$system" "$user_msg" | \
+                codex exec --json - \
+                    -C "$REPO_ROOT" \
+                    -s danger-full-access \
+                    -c "truncation_policy={mode=\"tokens\",limit=$CODEX_TRUNCATION_LIMIT}" \
+                    -o "$resp_tmp" >"$run_log" 2>&1; then
+                tail -40 "$run_log" >&2
+                rm -f "$resp_tmp" "$run_log"
+                return 1
+            fi
+            if ! _response_present "$resp_tmp"; then
+                echo "[council] Fresh session returned no response." >&2
+                rm -f "$resp_tmp" "$run_log"
+                return 1
+            fi
+
+            session_id="$(_extract_session_id "$run_log")"
+            [[ -n "${session_id:-}" ]] && _record_session "$session_id"
         fi
     else
         # New session: bundle system + user as initial prompt
-        marker_tmp="$(mktemp)"
+        rm -f "$SESSION_FILE" "$TURNS_FILE" "$SESSION_OWNER_FILE"
         if ! printf '%s\n\n%s' "$system" "$user_msg" | \
-            codex exec - \
+            codex exec --json - \
                 -C "$REPO_ROOT" \
                 -s danger-full-access \
                 -c "truncation_policy={mode=\"tokens\",limit=$CODEX_TRUNCATION_LIMIT}" \
                 -o "$resp_tmp" >"$run_log" 2>&1; then
             tail -40 "$run_log" >&2
-            rm -f "$resp_tmp" "$run_log" "$marker_tmp"
+            rm -f "$resp_tmp" "$run_log"
+            return 1
+        fi
+        if ! _response_present "$resp_tmp"; then
+            echo "[council] New session returned no response." >&2
+            rm -f "$resp_tmp" "$run_log"
             return 1
         fi
 
-        # Find session file created after marker, extract UUID from filename
-        session_file="$(find ~/.codex/sessions -name "*.jsonl" -newer "$marker_tmp" 2>/dev/null | head -1)"
-        rm -f "$marker_tmp"
-
-        if [[ -n "$session_file" ]]; then
-            session_id="$(basename "$session_file" .jsonl | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' || true)"
-            if [[ -n "${session_id:-}" ]]; then
-                printf '%s' "$session_id" > "$SESSION_FILE"
-            else
-                echo "[council] Warning: could not extract session UUID from: $session_file" >&2
-            fi
+        session_id="$(_extract_session_id "$run_log")"
+        if [[ -n "${session_id:-}" ]]; then
+            _record_session "$session_id"
         else
-            echo "[council] Warning: no new session file found after run" >&2
+            echo "[council] Warning: Codex did not report a new session UUID" >&2
         fi
     fi
 
@@ -216,6 +300,32 @@ _run_codex() {
     rm -f "$resp_tmp" "$run_log"
     response="$(strip_prompt_echo "$response" "$system" "$user_msg")"
     _save_response "$response"
+}
+
+_run_codex() {
+    local session_id lock_dir
+    if [[ -f "$SESSION_FILE" ]]; then
+        session_id="$(cat "$SESSION_FILE")"
+        lock_dir="$COUNCIL_SESSION_LOCK_ROOT/session-$session_id"
+    else
+        # Protect only first-session creation for this persona. Once a session
+        # exists, concurrent calls are serialized by its UUID instead.
+        lock_dir="$COUNCIL_SESSION_LOCK_ROOT/init-${PERSONA}-${HARNESS}"
+    fi
+
+    if ! _acquire_lock "$lock_dir"; then
+        echo "[council] Session is active; refusing concurrent resume: ${session_id:-new session} (lock: $lock_dir)" >&2
+        return 1
+    fi
+
+    local result
+    if _run_codex_impl "$@"; then
+        result=0
+    else
+        result=$?
+    fi
+    _release_lock "$lock_dir"
+    return "$result"
 }
 
 # Lines in memory-short.md (state as of the last call) that also show up in
@@ -236,6 +346,7 @@ run_harness() {
 
     SESSION_FILE="$PERSONA_DIR/session_id_$HARNESS"
     TURNS_FILE="$PERSONA_DIR/session_turns_$HARNESS"
+    SESSION_OWNER_FILE="$PERSONA_DIR/session_owner_$HARNESS"
     [[ -f "$TURNS_FILE" ]] && turns="$(cat "$TURNS_FILE")"
 
     if [[ -f "$SESSION_FILE" && $((turns + 1)) -ge $SESSION_MAX_TURNS ]]; then
@@ -270,7 +381,7 @@ run_harness() {
     if [[ "$HARNESS" == "claude" || "$HARNESS" == "codex" ]]; then
         turns=$((turns + 1))
         if [[ $turns -ge $SESSION_MAX_TURNS ]]; then
-            rm -f "$SESSION_FILE" "$TURNS_FILE"
+            rm -f "$SESSION_FILE" "$TURNS_FILE" "$SESSION_OWNER_FILE"
             printf '' > "$PERSONA_DIR/memory-new.md"
             echo "[council] Session rotated after $turns turns; memory-new.md reset." >&2
         else

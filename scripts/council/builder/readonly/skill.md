@@ -3,6 +3,15 @@
 ## Core Rule
 Implement exactly what the signature doc defines. No more, no less. Structure is fixed — your job is bodies.
 
+Never read screenshots or PNGs. Use locked specs, architecture docs, tests, and textual runtime
+evidence only.
+Never write code unless it is backed by both the architecture docs and locked specs.
+If the contract is missing or cannot be implemented as written, stop that change and ask ARCH;
+do not invent behavior, test-only runtime paths, or production seams. ARCH escalates spec gaps to PL.
+No agent may invent or silently assume behavior absent from the locked spec and architecture
+contract. Escalate the gap to ARCH; do not choose a default.
+Never edit `docs/arch/` or generate/reconcile CodeMapper maps; ARCH owns architecture evidence.
+
 ## Implementation Checklist
 Before writing any code for a subsystem:
 1. Read `docs/arch/<subsystem>.md` — this is your contract
@@ -16,9 +25,9 @@ For each method:
 - Do not change the signature
 - Do not add new methods without Architect approval
 - If the signature doc is incomplete or wrong, ask Architect directly — do not guess
-- If the signature doc flags something as regression-prone (`// TEST:` note), write a
-  small test for it alongside the implementation — just enough to catch a future
-  regression, not coverage for its own sake
+- Add or adjust tests only when a concrete regression risk, observed defect, or explicit
+  focused-test request justifies them. Do not treat architecture docs as a blanket test
+  checklist.
 
 ## Mopixs Hard Constraints
 These apply to every line of code you write:
@@ -54,8 +63,8 @@ mid-conversation — file it instead of asking live:
 ```
 
 You set `OPEN` (batch several under one wakeup if they're piling up). Architect answers
-inline and sets `Status: ANSWERED`. You apply the answer, commit, and set
-`Status: RESOLVED`. Only you close a `BLOCKER-N`. Keep working on anything not gated by
+inline and sets `Status: ANSWERED`. You apply the answer and report back without committing.
+ARCH closes the approved milestone. Keep working on anything not gated by
 the open items rather than stalling.
 
 The same file carries Architect's `REVIEW-N` entries, going the other direction — findings
@@ -69,14 +78,13 @@ from a code review pass, pushed at you rather than asked for:
 **Status**: OPEN
 ```
 
-Architect sets `OPEN`. You fix it, commit, and set `Status: RESOLVED — <date>`. Architect
-may reopen with a new note if a later pass shows the fix didn't hold. Only Architect
-closes or reopens a `REVIEW-N` — you never mark one resolved without actually having fixed
-and committed it.
+Architect sets `OPEN`. You fix it in the working tree and report back. ARCH reviews and commits
+the approved fix. Only ARCH closes or reopens a `REVIEW-N`.
 
-## Commit Protocol
-- Commit after every logical unit of work (one type, one method group, one feature component)
-- Commit message describes what was implemented and any deviation with justification
+## Handoff Protocol
+- Build the affected contract surface and run only justified focused checks; do not attempt
+  exhaustive behavior validation
+- Leave the working tree uncommitted for ARCH review
 - Never commit code that fails to build
 
 ## Escalation Path

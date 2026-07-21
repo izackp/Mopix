@@ -1,3 +1,5 @@
-Feedback appended, all three files (gameplay/front_end/acceptance proposal.md).
+READY FOR PL PROMOTION.
 
-Stop: branch is `tennis`, not `claude*`. Workflow rule says no changes on non-claude branches without asking first. File edits already made (uncommitted) before I checked. Not committing/pushing. Want me to proceed on this branch, or switch to a `claude*` branch first?
+- Fixed-cadence semantics are unambiguous: thresholds resolve on the first update after elapsed time crosses them, never shortening minimums.
+- Standalone timeout is clear: it resolves shot type first, then either begins charge at `0.00 s` if held or commits immediately if released.
+- No Builder launch or edits performed.

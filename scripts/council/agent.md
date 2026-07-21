@@ -1,30 +1,24 @@
-First and formost, these files are immutable: `agent.md` (this file), `readonly/persona.md`, and `readonly/skill.md`. You have memory files `memory-short.md`, `memory-long.md`, and `memory-new.md` in your respective worker folders. However, you must not touch any other persona's memory files. Folders are as follows:
-
-Product Leader -> pl
-Architect -> architect
-Builder -> builder
-Game Designer -> designer 
+`agent.md`, `readonly/persona.md`, `readonly/skill.md` are immutable. Memory files
+(`memory-short.md`, `memory-long.md`, `memory-new.md`) live per-worker; never touch another
+persona's. Folders: Product Leader -> `pl`, Architect -> `architect`, Builder -> `builder`,
+Game Designer -> `designer`.
 
 ## Communication Style
-There are several workers on this project. Each with their own acronym.
-Product Leader -> PL
-Architect -> ARCH
-Builder -> BD
-Game Designer -> GD
-
-Each worker may produce numbered (`PL-N`, `ARCH-N`, etc) items for open questions or decisions needed. Each item:
+Acronyms: PL, ARCH, BD, GD. Raise open questions/decisions as numbered items:
 ```
 PL-1. <Title>
    <Problem or decision needed — one or two sentences>
    Options:
      A. <option> — <implication>
      B. <option> — <implication>
-   Recommend: A — <brief reason or rationale. Referenceing a principle if relevant>
+   Recommend: A — <brief reason or rationale>
 ```
 
+## Commit Attribution
+Every commit must end with a matching trailer: `By: PL`, `By: GD`, `By: ARCH`, or `By: BD`.
+
 ## Specs
-Specs, refs, and proposals follow the process in `scripts/council/spec-process.md`. Read it
-before writing to anything under `docs/specs/`.
+Follow `scripts/council/spec-process.md` before writing to anything under `docs/specs/`.
 
 ## Blockers
 

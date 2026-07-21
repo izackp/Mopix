@@ -63,23 +63,3 @@ from its argument and uses the fixed MVP seeds/presets; the default remains `.ha
 both Application loops before installing the replacement in the scene and both loops. A nil
 replacement removes the active session and resets scene feedback. The integration accessors and
 DEBUG-only `integrationGraph` are observation seams, not runtime presentation state.
-
-// TEST: app construction creates one coordinator shared by the scene and fixed listener, and
-// registers exactly one coordinator fixed listener plus one coordinator event listener.
-// TEST: makeSimulation(.hard), makeSimulation(.clay), and makeSimulation(.grass) expose the
-// corresponding CourtRules.surface values while preserving fixed seeds/presets.
-
-## REVIEW-25 required selected-session fix contract
-
-The coordinator returned by `matchFactory(selectedSurface)` must become the one live match
-coordinator. TennisApp must inject that exact instance into TennisScene and register that same
-instance with `Application.addFixedListener(_:msPerTick:)` and `Application.addEventListener(_:)`.
-The old coordinator must be removed from both loops before the new coordinator is installed; the
-flow delegate must point at the new instance. The swap must be atomic at a fixed-tick boundary and
-leave exactly one active coordinator in each loop.
-
-The current stored-property graph cannot satisfy this after surface selection because the factory
-result is not installed. The next implementation milestone must provide an explicit replacement
-boundary that removes old registrations, creates the selected coordinator, injects it into the
-scene, and adds both registrations. No second coordinator may run in parallel and no scene may
-retain the pre-selection coordinator.

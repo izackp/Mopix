@@ -112,4 +112,4 @@ The human controller delegates to that router; the CPU uses only the injected se
 `TennisRandomSource`, honors its reaction delay, and applies `rallyFloor` before random rally
 choices. The resolver's release gate is the input half of RVK-16/RVK-17: a held button cannot
 re-arm a second shot transaction or repeated serve input; serve legality and launch remain owned
-by TennisSimulation after a committed server swing. Input timing does not own TZL-9 flight pacing.
+by TennisSimulation after a committed server swing. Input timing does not own RVK-10 flight pacing.

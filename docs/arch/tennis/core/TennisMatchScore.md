@@ -27,7 +27,6 @@ TennisMatchScorekeeper
   pub recordPoint(winner: TennisSide) -> TennisMatchResolution
   priv incrementedScore(for winner: TennisSide) -> TennisMatchScore
   priv matchWinner(for score: TennisMatchScore) -> TennisSide?
-  priv rotatedServer(after score: TennisMatchScore) -> TennisSide
 ```
 
 `TennisMatchScorekeeper` is the only owner of point totals, server-rotation count, and match

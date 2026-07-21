@@ -42,6 +42,7 @@ TennisMatchCoordinator < IUpdate | IEventListener | TennisSimulationDelegate
   pub step(_ delta: UInt64)
     >> flushPendingCommands() TennisSimulation.snapshot()
        TennisHumanController.intent(for:tick:) TennisCPUController.intent(for:tick:)
+       TennisHumanController.chargeValue() TennisHumanController.chargeCapReached()
        TennisChargeSnapshot.init(activeSide:value:capReached:)
        TennisSimulation.step(tickInput:) completePointIfNeeded()
   pub onEvents(_ events: [SDL_Event])
@@ -68,9 +69,11 @@ TennisMatchCoordinator < IUpdate | IEventListener | TennisSimulationDelegate
 
 The coordinator is the fixed-tick clock boundary. `delta` is ignored as a simulation multiplier;
 one fixed callback samples one simulation snapshot, one human intent, and one CPU intent, then
-submits one `TennisTickInput`. `latestCharge` records the active human or CPU swing charge, or
-resets to zero with the simulation server as active side when neither side swings. It is copied
-into `TennisMatchSnapshot` for the HUD, so both active charge values cross the runtime boundary.
+submits one `TennisTickInput`. `latestCharge` must capture the active transaction's pre-commit
+charge, including the human resolver's held charge and cap state before a commit resets it; a
+committed intent supplies its transaction charge. It is copied into `TennisMatchSnapshot` for the
+HUD, so the cap cue is visible before commit and the active player remains the charge owner. The
+coordinator does not implement release/re-arm rules; those remain in TennisInput.
 
 Simulation events are translated into `TennisMatchPresentationEvent` values and retained until
 `TennisScene.draw` calls `consumePresentationEvents()`. This queue is presentation delivery state,

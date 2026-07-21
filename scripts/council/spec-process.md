@@ -63,7 +63,8 @@ future decisions can be made consistently with it. Ref files are named for the i
 explain: `ref/KTV-3.md`. Write one only when the reasoning is worth keeping; most items
 need none.
 
-Tuning tables and curves also live in `ref/` so spec files stay short.
+Required behavior and tuning values stay in the spec. Use `ref/` only for rationale that helps
+future decisions remain consistent.
 
 ## Proposals
 
@@ -74,6 +75,10 @@ with `.proposal.md` replacing `.md`:
 - A new spec file is proposed as `start_screen.proposal.md` and promotes to `start_screen.md`
 
 Personas append their feedback to the proposal in place.
+
+Proposal criterion: a spec defines what the game is, not how we verify and ship it. Proposals
+must target product rules, player experience, or game behavior. Verification plans, release gates,
+test procedures, and shipping evidence do not belong under `docs/specs/`.
 
 ```markdown
 # Proposal: Dash mechanic
@@ -90,8 +95,8 @@ GD: supports; raises GD-2 on dash-cancel timing
 ARCH: feasible, no structural risk
 ```
 
-ARCH feedback is **advisory** — it should be taken seriously, but PL may promote over an
-unaddressed ARCH objection.
+ARCH feedback is review input. An unresolved ARCH item blocks promotion; PL may choose among
+resolved options, but must record the decision in the proposal.
 
 No persona may edit another persona's feedback entry — not to fix, condense, resolve, or
 reword it. Feedback is append-only per author. To respond, add a new entry underneath
@@ -101,13 +106,13 @@ proposal file at promotion.
 
 ## Phases
 
-0. **Draft** — any persona (usually PL) turns user intent into a proposal. Open questions
-   are raised as `PL-N` / `GD-N` / `ARCH-N` items.
+0. **Draft** — PL and GD co-author the proposal. GD must supply concrete mechanics, values or
+ranges, timing, variant differences, and player-behavior examples; open questions are raised as
+`PL-N` / `GD-N` / `ARCH-N` items.
 1. **Review** — GD and ARCH append feedback.
 2. **Convergence** — the user answers open items; the author revises. Loop until no open
    items remain — of *any* prefix. An unresolved `ARCH-N` blocks promotion exactly like an
-   unresolved `PL-N` or `GD-N`; "advisory" (see above) means PL isn't bound to agree with
-   it, not that it can be left open and ignored.
+   unresolved `PL-N` or `GD-N`; PL may disagree with ARCH, but must resolve the item explicitly.
 3. **Promote** — PL harvests and deletes.
 
 ## Promotion

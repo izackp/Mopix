@@ -1,14 +1,9 @@
-Round 2 done, appended only, nothing prior touched.
+Refined only [gameplay.proposal.md](/Users/isaacpaul/Projects/swift-projects/GameEngine/docs/specs/tennis/gameplay.proposal.md):
 
-**acceptance.proposal.md** — accepted PL's PL-10 correction (AI reviewer, no video path at all, B is right not a compromise). New GD-3: log schema needs to carry the "unforced error" definition and charge-cap state as loggable fields once those land.
+- Defined timing thresholds as player-visible minimums, maximums, or caps.
+- Defined CPU choice delay and automatic charge-based commit.
+- Defined landing cues as actionable location previews at least `0.30 s` before bounce.
+- Set canonical avatar references to `8 px` wide × `12 px` high at `160x144`.
+- Preserved RVK-7/RVK-8 thresholds and left RVK-18 unchanged.
 
-**gameplay.proposal.md** — harder look at PL-2 (dropped hit must be physically dropped, not just cosmetic — say so explicitly, net play makes it common) and PL-4 ("unforced error" undefined, floor isn't testable without it). New:
-- GD-4: contact quality — "distance" vs "Late" timing label conflict, Early quietly dropped. Pick one axis.
-- GD-5: charge cap has no feedback cue when maxed.
-- GD-6: CPU hidden-info use has no reaction-delay bound — risks reading omniscient.
-
-**front_end.proposal.md** — harder look at PL-6 (legibility at native 160x144 is a feel question) and PL-7 (Power CPU preset may fight PL-4's rally-consistency target). New:
-- GD-7: surfaces have no committed visual/audio tell, only physics.
-- GD-8: point-end causes (net/out/double-bounce) aren't distinguished for the player.
-
-Flagged one cross-file dependency: "unforced error" needs a definition in gameplay before acceptance's log schema and front_end's preset check can resolve.
+No locked specs or implementation artifacts were edited.

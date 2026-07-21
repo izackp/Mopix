@@ -17,7 +17,6 @@ TennisChargeSnapshot | Equatable
 TennisHUD
   priv scoreLayout: Rect<Int>
   priv serverLayout: Rect<Int>
-  priv chargeLayout: Rect<Int>
   priv font: Font
   pub init(font: Font)
   pub draw(_ snapshot: TennisMatchSnapshot, feedback: TennisMatchFeedbackState, renderer: DisplayRenderClient)

@@ -13,34 +13,46 @@ Logical play area is `160x144`. All layout and readability is judged at
 that resolution; window scaling is presentation only.
 
 ### TZL-3 — HUD
-Minimal, always visible during a match: player score, CPU score, serving
-side indicator, and a shot charge indicator on the active player. The
-charge indicator sits at or adjacent to the player's sprite, not tucked in
-a HUD corner — it needs to be noticed mid-rally at this resolution. It
-also shows the charge-cap-reached cue described in RVK-6.
+Minimal, always visible during a match: player score, CPU score, serving side indicator, and charge
+meters adjacent to each player with an uncommitted shot transaction. The human meter appears on the
+human's first shot-button press; the CPU meter appears when the CPU begins charging. Each fills from
+empty to full over `0.60 s`, shows the cap cue at `0.60 s`, and remains full until commit. If both
+players have uncommitted transactions, both meters remain visible beside their owners. Each meter
+and cap cue clears when that player's transaction commits, at point end, or when the next serve
+wind-up begins.
 
 ### TZL-4 — Score display
-Engine TTF font is used for score digits. Must be legible unscaled at the
-native `160x144` resolution — legibility at native res is an explicit
-acceptance check, not assumed by default.
+Engine TTF font is used for score digits. Must be legible unscaled; legibility is required, not
+assumed by default.
 
 ### TZL-5 — Audio hooks
-Reserved hooks: serve hit, shot-type hit, per-surface bounce (a distinct
-sting per surface, not one shared "bounce" sound — see RVK-10), net
-contact, out-of-bounds, score stinger. Placeholder or silence is
-acceptable everywhere in MVP — these are reserved slots, not a
-requirement to ship real audio.
+All audio hooks are optional. Serve-hit, shot-type-hit, per-surface-bounce, net-contact,
+out-of-bounds, score, fault, and charge-cap sounds may accompany their visual events, but silence
+never removes or delays the corresponding player-facing result. If a surface sound is present, it
+is distinct for Hard, Clay, and Grass; one shared bounce sound does not identify the surface.
 
 ### TZL-6 — Visual cues
-Required regardless of art fidelity: shot-type trail color (red topspin,
-blue slice, purple smash — RVK-6), a landing marker or shadow under an
-airborne ball, a clearly readable net line and court boundary, a
-per-surface visual tell (e.g. a distinct bounce-particle variant per
-surface, RVK-10), and a distinct point-end cue for a net fault versus an
-out-of-bounds fault (RVK-4) — a generic "point over" flash is not enough,
-the two must read differently in the moment.
+Visual cues are the required readable language for shot type, landing, and bounce surface. Hard's
+higher-bounce ring, Clay's spreading low-bounce dust, and Grass's low, fast horizontal skid remain
+visible for at least `0.30 s` after each bounce. A tell does not clear before `0.30 s`; after that it
+may clear when the next bounce begins. TZL-6 owns the visual vocabulary and minimum display
+lifetimes for shot, landing, and surface cues.
 
 ### TZL-7 — Illegal serve feedback
-A text callout (e.g. "FAULT") paired with the fault audio hook (TZL-5).
-Text alone is unambiguous at this resolution; pairing it with sound is
-free once the hook exists.
+When a serve contacts the net or lands outside the diagonally opposite service box, `FAULT` appears
+immediately after the illegal-serve judgment. It remains visible for `1.0 s` or until the next
+point's serve wind-up begins, whichever comes first. The visual callout is required; fault audio is
+optional.
+
+### TZL-8 — Rally readability
+For the serve and every shot type listed in RVK-6, the player receives a direction and shot-identity
+cue immediately at outgoing contact. The cue remains visible for at least `0.30 s` and until the
+landing cue appears, whichever comes later. The landing marker or shadow identifies the landing
+location at least `0.30 s` before bounce and remains until bounce. The surface tell appears at bounce
+under TZL-6's lifecycle. After bounce, the player can move into the RVK-7 return range and make a
+legal swing during the surface-and-shot response window owned by gameplay.md.
+
+For a normal rally point end, a net fault shows `NET` and an out-of-bounds fault shows `OUT`. Each
+appears immediately at the point-ending judgment and remains visible for `1.0 s` or until the next
+point's serve wind-up begins, whichever comes first. These callouts belong to TZL-8; no audio is
+required to understand any rally, fault, or point-end result.

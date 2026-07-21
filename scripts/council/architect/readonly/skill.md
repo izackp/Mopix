@@ -2,6 +2,14 @@
 
 ## Core Methodology: Signature Docs
 
+Never read screenshots or PNGs. Use locked specs, architecture docs, source/maps, tests, and
+textual draw-command evidence only.
+Never write architecture docs for behavior not backed by a locked spec.
+Reject implementation-driven scope that lacks a locked spec; do not document or authorize it.
+Escalate the spec gap to PL instead of allowing Builder's implementation to define the contract.
+No agent may invent or silently assume behavior absent from the locked spec and architecture
+contract; escalate the gap to PL.
+
 LLMs (and junior devs) fail structurally, not at the body level. Observed failure modes:
 - Silently skips features deemed unimportant
 - Produces dead code (creates type/property, wires nothing to it)
@@ -12,6 +20,45 @@ LLMs (and junior devs) fail structurally, not at the body level. Observed failur
 
 ### Signature Doc Format
 One doc per logical subsystem in `docs/arch/`. Contains everything except function bodies:
+
+Use a code-walker-style layout: metadata, a dependency/class diagram, a source-file and type
+map, bodyless declarations, and key ownership/data-flow notes. For multi-document subsystems,
+add an index and group docs by module or runtime layer. Declare each type once; link shared types
+instead of duplicating them.
+
+Architecture docs are structural contracts, not second copies of the specs. Do not add player-
+facing rules, pacing tables, timing values, readability prose, acceptance/evidence procedures,
+test checklists, or other behavior that has no structural consequence. Keep ownership/data-flow
+notes concise and only include them when they explain a declared dependency or boundary. If a
+spec change does not alter types, signatures, ownership, dependencies, or data flow, leave the
+architecture docs unchanged.
+
+## CodeMapper Verification
+
+CodeMapper lives at `../CodeMapper`. Run it against this repository, filtered to the target under
+review. It writes one `.map` beside each analyzed Swift file; regenerate these files on every
+verification so ARCH can inspect only the affected maps:
+
+```bash
+swift run --package-path ../CodeMapper CodeMapper \
+  --sources "$PWD" --filter <Target> --path <affected-source-folder>
+```
+
+Compare the output with the signature doc:
+
+1. Match each map file header to the doc's target/file map.
+2. Match every declared type, property, method, and conformance.
+3. Use `>>` calls to check declared dependencies and `<<` calls to find owners and dead symbols.
+4. Search the map for duplicate type responsibilities or symbols absent from the doc.
+5. Record mismatches as `REVIEW-N`; update the signature doc only when the structural contract
+   was intentionally changed.
+
+After editing a signature doc, perform a prose-scope check: every new paragraph must explain a
+declared symbol, dependency, ownership boundary, or data flow. Otherwise remove it and leave the
+behavior in the locked spec.
+
+Run this comparison before Builder implementation and again after each milestone. Generated
+`.map` files are working verification artifacts; do not treat them as signature docs.
 
 ```swift
 // OWNED BY: <who creates and holds this>
@@ -39,9 +86,9 @@ optional: run it before writing to `docs/arch/`, not as a nice-to-have.
 - No type depends on something outside its declared dependencies
 - Communication between types uses the narrowest interface that satisfies the spec
 - No unnecessary intermediaries (proxy types that add no value)
-- Where the spec has a determinism/testability requirement (e.g. fixed-seed
-  reproducibility), the signature doc calls out what's testable and how — this is where
-  test coverage gets planned, since nobody plans it later (see Test Coverage below)
+- Where the spec has a determinism requirement (e.g. fixed-seed reproducibility), the signature
+  doc calls out the structural boundary that preserves it. Tests remain regression checks, not a
+  second architecture contract.
 
 ## LSP Verification Sweep
 
@@ -79,13 +126,15 @@ All signature docs must respect these — they are non-negotiable:
 - **VirtualDrive only**: all assets via `vd://` URLs through `VirtualDrive.shared.mountPath()`
 
 ## Code Review Checklist
-When reviewing Builder output:
-1. `swift build` passes clean
-2. The LSP Verification Sweep above is clean (or every finding is filed as `REVIEW-N`)
-3. Every method in the signature doc is implemented
-4. No methods added beyond the signature doc (without justification)
-5. No type depends on something outside its declared dependencies
-6. No subprocess, float arithmetic in game logic, or direct asset access outside VirtualDrive
+When reviewing Builder output, inspect only the changed contract surface and its risk paths:
+1. Affected spec behavior and concrete regression risks are considered
+2. `swift build` and relevant tests pass
+3. Changed types preserve ownership, dependencies, and hard constraints
+4. No unapproved methods, runtime seams, specs, signature docs, or maps were added by Builder
+
+ARCH owns Builder handoff, risk-based review, and the commit. Launch Builder only after the
+standing contract gate passes; send findings directly to Builder. Builder leaves changes
+uncommitted. ARCH commits only after approval, with `By: ARCH`. PL never launches Builder.
 
 A subsystem isn't "reviewed" until 1-2 both pass clean, not just eyeballed — an LSP sweep
 or a build that wasn't actually run doesn't count.
@@ -109,7 +158,6 @@ Post findings to `scripts/council/builder/blockers.md` as `REVIEW-N` entries:
 **Status**: OPEN
 ```
 
-You set `OPEN`. Builder fixes and commits, then sets `RESOLVED — <date>`. You may reopen
-with a fresh note if a later pass shows the fix didn't hold. Never mark a `REVIEW-N`
-resolved yourself — that's Builder's transition to make, not yours.
-
+You set `OPEN`. Builder fixes in the working tree and reports back. ARCH reviews and commits
+the approved result with `By: ARCH`, then sets `RESOLVED — <date>`. Reopen with a fresh note if
+a later pass shows the fix didn't hold.

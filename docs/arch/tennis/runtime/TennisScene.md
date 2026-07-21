@@ -37,11 +37,13 @@ TennisScene < IDrawable
     >> TennisPresentationFlow.state TennisPresentationFlow.draw(renderer:)
        TennisMatchCoordinator.snapshot() TennisMatchCoordinator.consumePresentationEvents()
        TennisMatchFeedbackReducer.consume(_:tick:) TennisMatchFeedbackReducer.advance(to:)
+       serveWindUp(_:renderer:)
        render(_:renderer:) TennisHUD.draw(_:feedback:renderer:)
   priv render(_ snapshot: TennisMatchSnapshot, renderer: DisplayRenderClient)
     >> playerRect(for:in:) ballRect(for:in:)
        TennisMatchFeedbackReducer.state fill(_:id:rect:color:z:)
        view(_:id:rect:fill:border:borderWidth:z:)
+  priv serveWindUp(_ snapshot: TennisMatchSnapshot, renderer: DisplayRenderClient)
   priv playerRect(for player: TennisPlayerState?, in court: Rect<Int>) -> Rect<Int>
   priv ballRect(for ball: TennisBallState, in court: Rect<Int>) -> Rect<Int>
   priv projectedPoint(_ point: TennisPoint, in court: Rect<Int>) -> Point<Int>
@@ -52,14 +54,15 @@ TennisScene < IDrawable
     >> DisplayRenderClient.drawCmd(_:)
 
   Layer
-    background court courtBorder topServiceLine bottomServiceLine centerServiceLine
+    background court courtBorder topServiceLine bottomServiceLine centerServiceLine serveWindUp
     netBand netPosts topCenterMark bottomCenterMark lowerPlayer upperPlayer ball
 ```
 
 The legacy initializer creates a match-only scene with no HUD or menu flow. The app initializer
 uses the presentation initializer, so non-match screens draw the flow after the background and
-return before court rendering. Match frames render court/player/ball geometry, consume queued
-presentation events at the coordinator tick, advance transient feedback, and draw the HUD.
+return before court rendering. Match frames render court/player/ball geometry, expose the server's
+`serveWindUp` phase as a visible player-facing cue, consume queued presentation events at the
+coordinator tick, advance transient feedback, and draw the HUD.
 Airborne ball shadow, shot/point-end cues, and surface-specific bounce cues are emitted as draw
 commands from `render`; hard, clay, and grass use distinct cue IDs/colors. The coordinator
 injected here must be the same selected coordinator registered with Application's fixed-tick and

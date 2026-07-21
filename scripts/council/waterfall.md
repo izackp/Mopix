@@ -16,15 +16,15 @@ then `ACRONYM: response`, so the log actually shows who talked to whom.
 ## Flow
 
 ```
-1. PL/GD  →  proposal          (what to build, product rules)
+1. PL/GD  →  proposal          (GD co-authors concrete mechanics and player-behavior examples)
 2. PL     →  ARCH               (is it feasible)
 3. PL     →  spec               (locked, promoted, durable)
 4. ARCH   →  signature docs     (code shape, no bodies)
-5. Builder →  implementation    (bodies, logical-milestone commit, regression test where ARCH flagged one)
-6. Builder ⇄ ARCH                (live questions + review passes)
+5. ARCH   → Builder             (standing contract handoff; Builder writes bodies, no commit)
+6. Builder ⇄ ARCH                (working-tree review; ARCH commits approved result)
 7. PL      →  milestone accept  (user plays the build — no agent can)
 
-   GD/ARCH → PL  (spec itself has a gap — loops back to step 1, see "Iterating")
+   ARCH → PL  (review outcome or spec gap; PL approves the next transition)
    Builder → ARCH → PL  (same, but Builder never contacts PL/GD directly)
 ```
 
@@ -109,11 +109,10 @@ keeps one session per persona, no recursion guard). Accepted risk, not engineere
 
 ### 7. Milestone acceptance
 
-Not yet formalized as a durable doc — acceptance criteria are milestone-scoped, not a
-standing spec, so they get written per-milestone when a milestone is actually defined
-(current working notes: `scripts/council/pl/tennis-acceptance-draft.md`, PL-only). No
-agent can play the game, so PL doesn't self-certify a milestone as done — PL flags it as
-ready and asks the user to play it.
+The locked spec defines the player-facing outcome. GD confirms the implementation reflects
+that outcome; ARCH confirms the technical contract and Builder's focused checks. No agent
+creates a new evidence subsystem or self-certifies game feel. PL coordinates the handoff and
+asks the user to play the build for final judgment.
 
 ## Iterating on a Live Spec
 
@@ -137,20 +136,3 @@ doesn't propagate to `docs/arch/` or Builder on its own, PL has to notify ARCH.
 
 Steps 1-7 repeat per feature/milestone. Specs accumulate and get extended, not replaced;
 `docs/arch/` and the codebase are the only things that change shape release to release.
-
-## Known Accepted Risks
-
-Not fixed, deliberately — tracked so they don't get rediscovered as surprises:
-- **One working tree, no concurrency control.** Every persona reads and commits to the
-  same tree. Run them sequentially, one at a time — nothing here handles two personas
-  editing or committing at once.
-- **Stale reads across sessions** (`issues.md` #3) — a resumed session may act on a file
-  version that's since changed; relay prompts should say "re-read X" when that's a risk.
-- **Chat-only decisions evaporate on rotation** (`issues.md` #5) — anything decided in
-  conversation and not written to a spec, ref, or memory file is gone once the session
-  rotates. Specs/refs are the durable record; chat isn't.
-- **Builder's `SESSION_MAX_TURNS` rotation** (`issues.md` #4) — can land mid-subsystem;
-  commit-per-logical-unit is the mitigation, not a fix.
-- **Milestone acceptance criteria aren't durable yet** — parked at
-  `scripts/council/pl/tennis-acceptance-draft.md` until a real milestone doc exists to
-  hold them (step 7).

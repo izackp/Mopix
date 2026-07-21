@@ -15,3 +15,17 @@
 - User asked me to read `scripts/council/agent.md` and take the Product Leader role.
 - Read `agent.md`, `scripts/council/pl/readonly/persona.md`, `scripts/council/pl/readonly/skill.md`, and PL memory files.
 - No product work or repository change was requested beyond loading the role.
+
+## 2026-07-20 — Tennis completion audit
+
+- Active objective is to work on and finish the tennis game.
+- Current branch is `tennis`, which violates the repository rule allowing edits only on branches beginning with `claude`; no source changes were made.
+- Current implementation is only a static court shell in `Sources/Tennis/TennisScene.swift`; no gameplay, input, CPU, scoring, menus, surfaces, HUD, or match flow exists.
+- `swift build --product Tennis` fails because `TennisScene.swift` references `RendererClient`, which is not in scope; the current engine API uses `DisplayRenderClient` for `IDrawable`.
+- User approval is required before modifying the current non-`claude*` branch, or they must provide/use a permitted branch.
+
+## 2026-07-20 — Branch setup
+
+- User clarified that implementation is not PL's job and asked for a new branch.
+- Created and switched to `claude-tennis-game`; the flat `claude` branch already exists, so a slash-prefixed branch was not possible.
+- No tennis source or product-spec implementation changes were made.
