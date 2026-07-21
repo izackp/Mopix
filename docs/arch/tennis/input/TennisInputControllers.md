@@ -110,8 +110,6 @@ input frame; this applies to standalone, chord, and sequential transactions. `ch
 `TennisInputRouter` consumes `InputCommandList` through `VirtualController` once per fixed tick.
 The human controller delegates to that router; the CPU uses only the injected seeded
 `TennisRandomSource`, honors its reaction delay, and applies `rallyFloor` before random rally
-choices.
-
-// TEST: expiry fallback, charge cap/reset and pre-commit cap visibility, command translation,
-// release/re-arm for standalone/chord/sequential transactions, human delegation, CPU delay,
-// rally floor, and equal-seed CPU replay.
+choices. The resolver's release gate is the input half of RVK-16/RVK-17: a held button cannot
+re-arm a second shot transaction or repeated serve input; serve legality and launch remain owned
+by TennisSimulation after a committed server swing. Input timing does not own TZL-9 flight pacing.

@@ -64,7 +64,3 @@ serve faults. `advance` expires all transient state. `TennisScene` owns the redu
 calls both consume and advance once per drawn match snapshot. The current reducer declares
 landing-marker state but does not populate it; the scene supplies the required airborne-ball shadow
 directly from simulation state.
-
-// TEST: equal event/tick streams produce equal feedback states and expiry transitions.
-// TEST: serve fault, net fault, and out-of-bounds remain distinguishable.
-// TEST: each shot kind and each CourtSurface produces the declared reducer state.

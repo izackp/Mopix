@@ -69,8 +69,7 @@ feedback at the session boundary. The integration accessors are observation-only
 focused application-graph tests; they do not add a second renderer, simulation owner, or
 Tennis-specific headless evidence driver.
 
-// TEST: the legacy scene projects snapshot positions to the expected 160x144 court rectangles.
-// TEST: the presentation scene draws title/surface-select/result through the flow and match frames
-// consume each coordinator event once before drawing HUD and feedback.
-// TEST: a selected-surface replacement leaves scene snapshots, fixed ticks, event delivery, and
-// feedback events sourced from one coordinator identity.
+TZL-8/TZL-9 readability is not tuned by `draw` cadence or renderer timing. The scene renders the
+simulation's fixed-tick ball path and the reducer's existing shadow, trail, bounce, and point-end
+cues. Acceptance may inspect draw-command/event text evidence and require a live native-resolution
+judgment, but must not add a scene pacing clock or a new observation API.

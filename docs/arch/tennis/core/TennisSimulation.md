@@ -222,10 +222,3 @@ RVK-18 serve wind-up to 12 gameplay ticks and the 0.128-second post-bounce respo
 rules, not a new public simulation accessor or event. Matched surface comparisons use the same
 deterministic seed, initial state, target, and charge band while preserving Clay > Hard > Grass
 travel ordering.
-
-// TEST: fixed-seed replay produces identical states/events, including serve-wind-up, legal and
-// illegal serves.
-// TEST: landing-only serve legality, receiver winner, second-bounce side, and baseline reset.
-// TEST: point and match resets preserve the fixed simulation tick.
-// TEST: all sequence mappings, smash fallback, contact bands, simultaneous-contact priority,
-// same-tick bounce, net/out faults, and smash/full-charge hitstop.

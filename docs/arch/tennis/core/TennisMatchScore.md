@@ -36,7 +36,3 @@ one side, then the server changes after every second completed point. Match comp
 only when the leading side has at least 11 points and leads by at least 2; a 10–10 score does not
 complete the match. The scorekeeper does not inspect `PointEndReason`; the coordinator first asks
 `TennisRuleBook.pointWinner(for:)`, including receiver-wins serve faults, then records that side.
-
-// TEST: first-to-11 completion, win-by-two at 10–10, both winner paths, and no premature match end.
-// TEST: server remains through one point, rotates after two points, and rotation resets its counter.
-// TEST: scorekeeper transitions are deterministic and preserve the supplied initial server.

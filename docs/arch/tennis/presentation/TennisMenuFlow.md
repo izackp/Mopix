@@ -74,9 +74,3 @@ as delegate, stores it, and invokes `onCoordinatorChange`. `TennisApp` then remo
 coordinator and installs the selected instance in the scene and both Application listener loops.
 Returning to surface select invokes the callback with nil, removing the active session and
 clearing scene feedback. All live boundaries therefore refer to one coordinator identity.
-
-// TEST: command/state transitions accept only the legal path and invalid commands leave state
-// unchanged.
-// TEST: result state holds winner/score until continue, then returns to surface select.
-// TEST: app construction registers the flow as an SDL event listener and the coordinator as the
-// fixed-tick/event listener used by the match scene.

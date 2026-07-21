@@ -84,12 +84,6 @@ add a pacing timer, or expose a new production contact-eligibility accessor. Nat
 readability remains a KDP-1 player judgment, while fixed-seed trace envelopes and matched surface
 ordering are deterministic regression evidence.
 
-// TEST: one fixed callback produces one simulation tick, one paired intent sample, and one
-// post-step snapshot.
-// TEST: every point-end reason produces exactly one presentation/score resolution and reset path.
-// TEST: snapshot charge and presentation event consumption are deterministic and point resets
-// clear charge state without advancing the fixed tick.
-
 The selected-surface coordinator must be the same coordinator registered with Application and
 injected into TennisScene; a factory result is not sufficient while another instance remains in
 the fixed/event loops. The replacement invariant is defined in [TennisApp.md](TennisApp.md).
