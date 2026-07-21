@@ -61,8 +61,8 @@ public enum PointEndReason: Equatable {
     case serveFault(server: TennisSide, landing: TennisPoint)
 }
 public struct TennisSimulationState: Equatable {
-    public var tick: UInt64; public var server: TennisSide; public var phase: TennisPointPhase; public var players: [TennisSide: TennisPlayerState]; public var ball: TennisBallState; public var pointEnd: PointEndReason?; public var hitstopTicksRemaining: Int
-    public init(tick: UInt64, server: TennisSide, phase: TennisPointPhase, players: [TennisSide: TennisPlayerState], ball: TennisBallState, pointEnd: PointEndReason? = nil, hitstopTicksRemaining: Int = 0) { self.tick = tick; self.server = server; self.phase = phase; self.players = players; self.ball = ball; self.pointEnd = pointEnd; self.hitstopTicksRemaining = hitstopTicksRemaining }
+    public var tick: UInt64; public var server: TennisSide; public var phase: TennisPointPhase; public var serveWindUpTicksRemaining: Int; public var players: [TennisSide: TennisPlayerState]; public var ball: TennisBallState; public var pointEnd: PointEndReason?; public var hitstopTicksRemaining: Int
+    public init(tick: UInt64, server: TennisSide, phase: TennisPointPhase, serveWindUpTicksRemaining: Int = 12, players: [TennisSide: TennisPlayerState], ball: TennisBallState, pointEnd: PointEndReason? = nil, hitstopTicksRemaining: Int = 0) { self.tick = tick; self.server = server; self.phase = phase; self.serveWindUpTicksRemaining = serveWindUpTicksRemaining; self.players = players; self.ball = ball; self.pointEnd = pointEnd; self.hitstopTicksRemaining = hitstopTicksRemaining }
 }
 public struct TennisSimulationEvent { public let tick: UInt64; public let kind: TennisSimulationEventKind; public init(tick: UInt64, kind: TennisSimulationEventKind) { self.tick = tick; self.kind = kind } }
 public enum TennisSimulationEventKind: Equatable {
@@ -116,13 +116,14 @@ public struct TennisTickInput { public let human: TennisActionIntent; public let
 
 public final class TennisSimulation {
     public let rules: CourtRules; public let ruleBook: TennisRuleBook; public let random: TennisRandomSource; public weak var delegate: TennisSimulationDelegate?; public private(set) var state: TennisSimulationState
+    private static let serveWindUpDurationTicks = 12
     private var bounceCount = 0
     private let netHeight: TennisFixed = 500
     private let gravity: TennisFixed = 90
     public init(rules: CourtRules, ruleBook: TennisRuleBook, random: TennisRandomSource, state: TennisSimulationState) { self.rules = rules; self.ruleBook = ruleBook; self.random = random; self.state = state }
     public func snapshot() -> TennisSimulationState { state }
     public func resetPoint(server: TennisSide) {
-        state.server = server; state.phase = .serveWindUp; state.pointEnd = nil; state.ball.isInFlight = false; state.ball.velocity = TennisVelocity(x: 0, y: 0, z: 0); state.ball.height = 0; state.ball.position = baselineCenter(for: server); state.ball.lastHitter = nil; state.ball.shotKind = .serve; bounceCount = 0; state.hitstopTicksRemaining = 0
+        state.server = server; state.phase = .serveWindUp; state.serveWindUpTicksRemaining = Self.serveWindUpDurationTicks; state.pointEnd = nil; state.ball.isInFlight = false; state.ball.velocity = TennisVelocity(x: 0, y: 0, z: 0); state.ball.height = 0; state.ball.position = baselineCenter(for: server); state.ball.lastHitter = nil; state.ball.shotKind = .serve; bounceCount = 0; state.hitstopTicksRemaining = 0
         for side in [TennisSide.human, .cpu] {
             guard var player = state.players[side] else { continue }
             player.position = baselineCenter(for: side); player.swingPending = false; player.hitstopTicksRemaining = 0; state.players[side] = player
@@ -131,6 +132,10 @@ public final class TennisSimulation {
     public func step(tickInput: TennisTickInput) {
         state.tick &+= 1
         guard state.pointEnd == nil else { return }
+        if state.phase == .serveWindUp && state.serveWindUpTicksRemaining > 0 {
+            state.serveWindUpTicksRemaining -= 1
+            return
+        }
         if state.hitstopTicksRemaining > 0 {
             let remainingTicks = state.hitstopTicksRemaining - 1
             state.hitstopTicksRemaining = remainingTicks

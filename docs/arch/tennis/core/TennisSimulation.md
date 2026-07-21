@@ -55,6 +55,8 @@ ShotKind | Hashable
 ContactQuality | Hashable
 TennisSwingSequence | Hashable
 TennisActionIntent
+TennisPointPhase | Hashable
+  serveWindUp | rally
 
 TennisDirection | Equatable
   pub x: Int
@@ -91,11 +93,13 @@ PointEndReason | Equatable
 TennisSimulationState
   pub tick: UInt64
   pub server: TennisSide
+  pub phase: TennisPointPhase
+  pub serveWindUpTicksRemaining: Int
   pub players: [TennisSide: TennisPlayerState]
   pub ball: TennisBallState
   pub pointEnd: PointEndReason?
   pub hitstopTicksRemaining: Int
-  pub init(tick: UInt64, server: TennisSide, players: [TennisSide: TennisPlayerState], ball: TennisBallState, pointEnd: PointEndReason? = nil, hitstopTicksRemaining: Int = 0)
+  pub init(tick: UInt64, server: TennisSide, phase: TennisPointPhase, serveWindUpTicksRemaining: Int = 12, players: [TennisSide: TennisPlayerState], ball: TennisBallState, pointEnd: PointEndReason? = nil, hitstopTicksRemaining: Int = 0)
 
 TennisSimulationEvent
   pub tick: UInt64
@@ -145,6 +149,7 @@ TennisSimulation
   pub random: TennisRandomSource
   pub delegate: TennisSimulationDelegate?
   pub state: TennisSimulationState
+  priv static let serveWindUpDurationTicks: Int = 12
   priv bounceCount: Int
   priv netHeight: TennisFixed
   priv gravity: TennisFixed
@@ -185,10 +190,17 @@ TennisSimulation
 ```
 
 The fixed-tick simulation owns all gameplay mutation, integer/fixed-point state, deterministic
-seed consumption, serve landing, landing-point legality, and point-end semantics. An illegal
-serve is represented as `serveFault(server:landing:)`; `pointWinner(for:)` awards the point to
-the receiver. `secondBounce(side:)` identifies the receiving side at the second landing, and the
-winner is the opposite side. Human intent is processed before CPU intent on simultaneous contact.
+seed consumption, serve phase/landing, landing-point legality, and point-end semantics. A reset
+point starts in `serveWindUp` with `serveWindUpTicksRemaining` set to
+`serveWindUpDurationTicks` (12). Movement is rejected during wind-up. Each fixed gameplay tick
+consumes one remaining wind-up tick without launching; only a server swing received on a later
+fixed tick, after the counter reaches zero, performs the one-time launch transition to `rally`.
+Serve input received during the countdown is ignored by the simulation and cannot be replayed as a
+launch merely because the button remains held; input re-arming remains owned by TennisInput. An
+illegal serve is represented as `serveFault(server:landing:)`; `pointWinner(for:)` awards the
+point to the receiver. `secondBounce(side:)` identifies the receiving side at the second landing,
+and the winner is the opposite side. Human intent is processed before CPU intent on simultaneous
+contact.
 
 The five swing sequences remain canonical in `TennisCore`: standalone A → topspin, standalone B
 → slice, A-then-B → lob, B-then-A → drop, and simultaneous A+B → smash when eligible, otherwise
@@ -200,7 +212,19 @@ runtime coordinator owns the monotonic fixed tick and calls reset only after the
 The match reset follows the same rule: it clears match/point state without creating an extra
 simulation tick or rewinding the runtime clock.
 
-// TEST: fixed-seed replay produces identical states/events, including legal and illegal serves.
+The fixed-tick ball integration owns the seconds-based RVK-10/TZL-8/TZL-9 pacing envelopes in
+[gameplay.md](../../../specs/tennis/gameplay.md) and [match_hud.md](../../../specs/tennis/match_hud.md):
+surface speed, shot arc, bounce response, and charge affect simulation state and events. Renderer
+cadence is not a pacing control. The current 16 ms fixed cadence quantizes the 0.192-second
+RVK-18 serve wind-up to 12 gameplay ticks and the 0.128-second post-bounce response floor to
+8 ticks. The acceptance matrix observes existing snapshots/events at fixed ticks;
+“contact opportunity” is an acceptance-derived boundary from immutable state and current contact
+rules, not a new public simulation accessor or event. Matched surface comparisons use the same
+deterministic seed, initial state, target, and charge band while preserving Clay > Hard > Grass
+travel ordering.
+
+// TEST: fixed-seed replay produces identical states/events, including serve-wind-up, legal and
+// illegal serves.
 // TEST: landing-only serve legality, receiver winner, second-bounce side, and baseline reset.
 // TEST: point and match resets preserve the fixed simulation tick.
 // TEST: all sequence mappings, smash fallback, contact bands, simultaneous-contact priority,

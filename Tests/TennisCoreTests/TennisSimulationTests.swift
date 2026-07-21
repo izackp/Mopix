@@ -71,10 +71,12 @@ final class TennisSimulationTests: XCTestCase {
     func testIllegalServeUsesLandingFaultAndReceiverWins() {
         let legal = makeSimulation(seed: 4)
         let legalRecorder = EventRecorder(); legal.delegate = legalRecorder
+        advanceServeWindUp(legal)
         legal.step(tickInput: TennisTickInput(human: .swing(sequence: .standaloneA, charge: 0), cpu: .none))
         XCTAssertTrue(legalRecorder.events.contains { if case .serveHit(side: .human) = $0.kind { return true }; return false })
         let simulation = makeSimulation(seed: 4, serviceBoxes: .remote)
         let recorder = EventRecorder(); simulation.delegate = recorder
+        advanceServeWindUp(simulation)
         simulation.step(tickInput: TennisTickInput(human: .swing(sequence: .standaloneA, charge: 0), cpu: .none))
         guard case .serveFault(let server, let landing) = simulation.state.pointEnd else { return XCTFail("expected serve fault") }
         XCTAssertEqual(server, .human)
@@ -85,6 +87,8 @@ final class TennisSimulationTests: XCTestCase {
     func testServeWindUpLocksMovementAndLaunchesOnOneFixedTick() {
         let simulation = makeSimulation(seed: 8)
         let baseline = simulation.state.players[.human]?.position
+        let recorder = EventRecorder(); simulation.delegate = recorder
+        XCTAssertEqual(simulation.state.serveWindUpTicksRemaining, 12)
 
         simulation.step(tickInput: TennisTickInput(human: .move(direction: TennisDirection(x: 1, y: -1)), cpu: .none))
         XCTAssertEqual(simulation.state.phase, .serveWindUp)
@@ -92,15 +96,26 @@ final class TennisSimulationTests: XCTestCase {
         XCTAssertFalse(simulation.state.ball.isInFlight)
         XCTAssertEqual(simulation.state.tick, 1)
 
-        simulation.step(tickInput: TennisTickInput(human: .swing(sequence: .standaloneA, charge: 0), cpu: .none))
+        let heldServe = TennisTickInput(human: .swing(sequence: .standaloneA, charge: 0), cpu: .none)
+        for _ in 0..<11 { simulation.step(tickInput: heldServe) }
+        XCTAssertEqual(simulation.state.serveWindUpTicksRemaining, 0)
+        XCTAssertEqual(simulation.state.phase, .serveWindUp)
+        XCTAssertFalse(simulation.state.ball.isInFlight)
+        simulation.step(tickInput: heldServe)
         XCTAssertEqual(simulation.state.phase, .rally)
         XCTAssertTrue(simulation.state.ball.isInFlight)
-        XCTAssertEqual(simulation.state.tick, 2)
+        XCTAssertEqual(simulation.state.tick, 13)
+        XCTAssertEqual(recorder.events.filter { if case .serveHit(side: .human) = $0.kind { return true }; return false }.count, 1)
+
+        for _ in 0..<3 { simulation.step(tickInput: heldServe) }
+        XCTAssertEqual(simulation.state.phase, .rally)
+        XCTAssertEqual(recorder.events.filter { if case .serveHit(side: .human) = $0.kind { return true }; return false }.count, 1)
     }
 
     func testResetPointRestoresFixedBaselineCenters() {
         let simulation = makeSimulation(seed: 5)
         simulation.resetPoint(server: .human)
+        XCTAssertEqual(simulation.state.serveWindUpTicksRemaining, 12)
         XCTAssertEqual(simulation.state.players[.human]?.position, TennisPoint(x: 5000, y: 20000))
         XCTAssertEqual(simulation.state.players[.cpu]?.position, TennisPoint(x: 5000, y: 0))
         XCTAssertEqual(simulation.state.ball.position, TennisPoint(x: 5000, y: 20000))
@@ -116,6 +131,7 @@ final class TennisSimulationTests: XCTestCase {
         legalA.resetPoint(server: .human); legalB.resetPoint(server: .human)
         let legalRecorderA = EventRecorder(); let legalRecorderB = EventRecorder(); legalA.delegate = legalRecorderA; legalB.delegate = legalRecorderB
         let serve = TennisTickInput(human: .swing(sequence: .standaloneA, charge: 0), cpu: .none)
+        advanceServeWindUp(legalA); advanceServeWindUp(legalB)
         legalA.step(tickInput: serve); legalB.step(tickInput: serve)
         XCTAssertEqual(legalA.state.ball.velocity, legalB.state.ball.velocity)
         XCTAssertEqual(legalRecorderA.events.map(EventShape.init), legalRecorderB.events.map(EventShape.init))
@@ -124,6 +140,7 @@ final class TennisSimulationTests: XCTestCase {
         let illegalA = makeSimulation(seed: 31, serviceBoxes: .remote); let illegalB = makeSimulation(seed: 31, serviceBoxes: .remote)
         illegalA.resetPoint(server: .human); illegalB.resetPoint(server: .human)
         let illegalRecorderA = EventRecorder(); let illegalRecorderB = EventRecorder(); illegalA.delegate = illegalRecorderA; illegalB.delegate = illegalRecorderB
+        advanceServeWindUp(illegalA); advanceServeWindUp(illegalB)
         illegalA.step(tickInput: serve); illegalB.step(tickInput: serve)
         XCTAssertEqual(illegalRecorderA.events.map(EventShape.init), illegalRecorderB.events.map(EventShape.init))
         guard case .serveFault(_, let landingA) = illegalA.state.pointEnd, case .serveFault(_, let landingB) = illegalB.state.pointEnd else { return XCTFail("expected deterministic serve faults") }
@@ -203,7 +220,9 @@ final class TennisSimulationTests: XCTestCase {
     private func serveTrace(surface: CourtSurface, charge: Int) -> FlightTrace {
         let simulation = makeSimulation(seed: 1, surface: surface); simulation.resetPoint(server: .human)
         let recorder = EventRecorder(); simulation.delegate = recorder
+        advanceServeWindUp(simulation)
         simulation.step(tickInput: TennisTickInput(human: .swing(sequence: .standaloneA, charge: charge), cpu: .none))
+        let launchTick = simulation.state.tick
         var firstOpportunity: UInt64?
         for _ in 0..<120 {
             if simulation.state.players[.cpu].map({ distanceSquared(simulation.state.ball.position, $0.position) <= 1_440_000 }) == true {
@@ -217,7 +236,7 @@ final class TennisSimulationTests: XCTestCase {
             if case .bounce(let surface) = event.kind { return surface }
             return nil
         }
-        return FlightTrace(shot: .serve, firstBounce: Int(bounce?.tick ?? 0), firstOpportunity: Int(firstOpportunity ?? simulation.state.tick), bounceSurface: bounceSurface)
+        return FlightTrace(shot: .serve, firstBounce: Int(bounce?.tick ?? launchTick) - Int(launchTick), firstOpportunity: Int(firstOpportunity ?? simulation.state.tick) - Int(launchTick), bounceSurface: bounceSurface)
     }
 
     private func distanceSquared(_ a: TennisPoint, _ b: TennisPoint) -> Int64 {
@@ -234,6 +253,9 @@ final class TennisSimulationTests: XCTestCase {
     }
 
     private enum BoxSet: Equatable { case normal, remote }
+    private func advanceServeWindUp(_ simulation: TennisSimulation) {
+        for _ in 0..<12 { simulation.step(tickInput: TennisTickInput(human: .none, cpu: .none)) }
+    }
     private func makeSimulation(seed: UInt64, serviceBoxes: BoxSet = .normal, surface: CourtSurface = .hard, stats: PlayerStats = PlayerStats(power: 100, speed: 100, control: 100, spin: 100), inFlight: Bool = false, ballHeight: TennisFixed = 1000, ballVelocity: TennisVelocity = TennisVelocity(x: 0, y: 0, z: 0), ballPosition: TennisPoint = TennisPoint(x: 5000, y: 12000), lastHitter: TennisSide? = nil) -> TennisSimulation {
         let boundary = TennisRect(minX: 0, minY: 0, maxX: 10000, maxY: 20000)
         let top = serviceBoxes == .normal ? TennisRect(minX: 0, minY: 0, maxX: 5000, maxY: 5000) : TennisRect(minX: 20000, minY: 30000, maxX: 20100, maxY: 31000)

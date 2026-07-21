@@ -77,6 +77,13 @@ Simulation events are translated into `TennisMatchPresentationEvent` values and 
 not gameplay authority. Score and point completion remain owned by the scorekeeper/rule book, and
 point resets preserve the monotonic simulation tick.
 
+The coordinator is the acceptance trace clock boundary for the seconds-based TZL-9 pacing
+contract. A trace samples one
+snapshot and its emitted events per fixed callback; it must not use `delta` as a speed multiplier,
+add a pacing timer, or expose a new production contact-eligibility accessor. Native-resolution
+readability remains a KDP-1 player judgment, while fixed-seed trace envelopes and matched surface
+ordering are deterministic regression evidence.
+
 // TEST: one fixed callback produces one simulation tick, one paired intent sample, and one
 // post-step snapshot.
 // TEST: every point-end reason produces exactly one presentation/score resolution and reset path.
