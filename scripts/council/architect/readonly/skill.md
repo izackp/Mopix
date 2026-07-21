@@ -112,13 +112,6 @@ Run after Builder completes each subsystem:
 - Prefer compiler-enforced constraints over annotations when violations are hard to debug at runtime
 - Prefer annotations when the constraint is obvious from domain context or extra types would confuse callers
 
-## Test Coverage
-
-Tests here are only for regression prevention, nothing more. If a piece of logic is easy
-to silently break later (fixed-point math, a scoring/legality rule), mark it `// TEST:` in
-the signature doc — Builder writes a small test for it. No note, no test. Don't over-scope
-this into general coverage.
-
 ## Mopixs Hard Constraints
 All signature docs must respect these — they are non-negotiable:
 - **Fixed-tick**: game logic runs at a fixed tick rate; no frame-rate-dependent logic

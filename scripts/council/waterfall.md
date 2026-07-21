@@ -30,26 +30,30 @@ then `ACRONYM: response`, so the log actually shows who talked to whom.
 
 ### 1. PL/GD draft a proposal
 
-PL (co-owner: GD) turns user intent into `docs/specs/tennis/<name>.proposal.md`, targeting
-a spec file that may not exist yet. Rules only — no code, no implementation detail.
+PL and GD co-author `docs/specs/tennis/<name>.proposal.md`, targeting a spec file that may not
+exist yet. GD supplies concrete mechanics, values/ranges, timing, input behavior, variant
+differences, and player-behavior examples. A spec defines what the game is, not how we verify
+and ship it. Rules only — no code, no implementation detail.
 Undecided calls get raised as `PL-N`/`GD-N` items inline (problem, options, recommendation)
 rather than guessed at.
 
 ### 2. GD and ARCH review
 
 PL orchestrates — runs `council.sh designer ...` and `council.sh architect ...` against
-the proposal, in either order, PL is the only one who triggers these. GD and ARCH are the
-ones actually reviewing: both append feedback under the proposal's `## Feedback` section —
+the proposal, in either order, PL is the only one who triggers these. GD authors or completes
+the game-design content; ARCH reviews feasibility. Both append feedback under the proposal's
+`## Feedback` section —
 GD on feel/mechanics, ARCH on feasibility and engine-constraint fit. Feedback is
 append-only: nobody edits another persona's line, ever, only adds a new one below it.
 ARCH is advisory — PL may promote over an unaddressed ARCH note, never silently over a GD
-objection without resolving it.
+objection without resolving it. GD owns player-facing feel, pacing, and readability review;
+ARCH owns technical feasibility and structure.
 
 ### 3. Convergence and promotion
 
 PL resolves every open item — `PL-N`, `GD-N`, and `ARCH-N` alike, none of them exempt —
 with the user where the call is genuinely theirs to make, otherwise PL decides directly
-(final authority on scope/acceptance). Once nothing's left open, PL promotes: rules get
+(final authority on product scope). Once nothing's left open, PL promotes: rules get
 written into the target spec file under its 3-letter code (`RVK-1`, `WPX-1`, ...),
 reasoning worth keeping goes to `ref/<ID>.md` (mandatory, not optional, if a GD objection
 got overridden — see `spec-process.md`), and only then is the proposal file deleted. The
@@ -72,22 +76,16 @@ Before handing off, ARCH must complete and report this contract checklist:
 - every signature is bodyless and contains no implementation choices that belong to Builder
 - fixed-tick, no-subprocess, VirtualDrive-only, and no-float simulation constraints are met
 - every spec behavior that is structurally relevant is represented
-- regression-prone rules have `// TEST:` notes
-
 This gate is mandatory because signature docs get no second-party technical review before
 Builder starts. PL checks that ARCH reported the gate; PL does not redo the technical checks.
-
-Where something's easy to silently regress later, ARCH flags it for a small test; Builder
-writes that test in step 5.
 
 ### 5. Builder implements
 
 Builder reads the signature doc as contract, the spec as behavior target (read-only,
 context only), fills in function bodies exactly as declared — no structural changes, no
-extra methods. Group related implementation and test edits into one validated logical
-milestone, then commit and push that milestone. Do not create one commit per file or tiny
-workflow/memory artifact. A milestone commit must not contain council-generated memory,
-session, prompt, response, or log files unless explicitly requested.
+extra methods. Build the affected code and run only existing or explicitly requested focused
+checks; leave the working tree uncommitted for ARCH review. Do not create one file-at-a-time
+workflow or memory artifact.
 
 ### 6. Builder and ARCH talk directly
 
@@ -99,13 +97,15 @@ Three channels:
   for a quick reply: filed to `scripts/council/builder/blockers.md` as `BLOCKER-N`. Builder
   opens, ARCH answers (`ANSWERED`), Builder applies and closes (`RESOLVED`). Builder keeps
   working on anything not gated by the open items rather than stalling.
-- **ARCH reviews Builder** — after a subsystem's commits land (ARCH checks `git log`, no
-  separate notification needed), ARCH posts findings to the same `blockers.md` as
-  `REVIEW-N` entries. Builder fixes, commits, closes with `RESOLVED`. Only ARCH reopens.
+- **ARCH reviews Builder** — after Builder reports the working tree ready (ARCH checks the
+  affected diff and tests), ARCH posts findings to the same `blockers.md` as
+  `REVIEW-N` entries and sends them directly to Builder. Builder fixes in the working tree;
+  ARCH reviews and commits the approved result with `By: ARCH`, then closes `RESOLVED`. ARCH
+  owns every Builder launch, including new scoped work and review fixes; PL never launches
+  Builder. PL receives ARCH's summary and does not adjudicate or route individual findings.
 
-Known rough edge: Builder calling ARCH while ARCH is itself mid-turn calling Builder
-would resume the *same* stored ARCH session from two processes at once (`council.sh`
-keeps one session per persona, no recursion guard). Accepted risk, not engineered around.
+Council session locks reject concurrent resumes of the same persona session. A nested call must
+fail immediately; the active agent handles the question in its own turn.
 
 ### 7. Milestone acceptance
 
