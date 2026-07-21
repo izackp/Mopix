@@ -25,26 +25,28 @@ final class TennisMatchFlowTests: XCTestCase {
         let app = try TennisApp()
         let initial = app.integrationGraph.coordinator
         let flow = app.integrationPresentation
+        let surfaces: [CourtSurface] = [.hard, .clay, .grass]
 
-        flow.onCommand(.start)
-        flow.onCommand(.chooseSurface(.clay))
-        guard let selected = flow.integrationCoordinator else {
-            return XCTFail("surface selection did not create a coordinator")
+        for (index, surface) in surfaces.enumerated() {
+            if index == 0 { flow.onCommand(.start) }
+            flow.onCommand(.chooseSurface(surface))
+            guard let selected = flow.integrationCoordinator else {
+                return XCTFail("surface selection did not create a coordinator for \(surface)")
+            }
+            XCTAssertFalse(selected === initial)
+            XCTAssertEqual(selected.simulation.rules.surface, surface)
+            XCTAssertTrue(app.integrationSceneCoordinator === selected)
+            XCTAssertTrue(app.integrationRegisteredCoordinator === selected)
+            XCTAssertEqual(app.integrationGraph.fixedCount, 1)
+            XCTAssertEqual(app.integrationGraph.eventCount, 1)
+
+            flow.matchDidComplete(.human, score: TennisMatchScore(humanPoints: 11, cpuPoints: 0, server: .human, matchWinner: .human))
+            flow.onCommand(.continue)
+            XCTAssertNil(app.integrationRegisteredCoordinator)
+            XCTAssertEqual(app.integrationGraph.fixedCount, 0)
+            XCTAssertEqual(app.integrationGraph.eventCount, 0)
+            XCTAssertTrue(app.integrationSceneCoordinator === selected)
         }
-
-        XCTAssertFalse(selected === initial)
-        XCTAssertEqual(selected.simulation.rules.surface, .clay)
-        XCTAssertTrue(app.integrationSceneCoordinator === selected)
-        XCTAssertTrue(app.integrationRegisteredCoordinator === selected)
-        XCTAssertEqual(app.integrationGraph.fixedCount, 1)
-        XCTAssertEqual(app.integrationGraph.eventCount, 1)
-
-        flow.matchDidComplete(.human, score: TennisMatchScore(humanPoints: 11, cpuPoints: 0, server: .human, matchWinner: .human))
-        flow.onCommand(.continue)
-        XCTAssertNil(app.integrationRegisteredCoordinator)
-        XCTAssertEqual(app.integrationGraph.fixedCount, 0)
-        XCTAssertEqual(app.integrationGraph.eventCount, 0)
-        XCTAssertTrue(app.integrationSceneCoordinator === selected)
         app.isRunning = false
     }
 

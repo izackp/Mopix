@@ -160,9 +160,13 @@ private final class TennisHeadlessScenario {
     private let scene: TennisScene
     private let outputDir: URL
     private let evidence = TennisHeadlessEvidenceSink()
-    private var tick = 0
+    private let surfaces: [CourtSurface] = [.hard, .clay, .grass]
+    private var surfaceIndex = 0
+    private var cycleTick = 0
+    private var pendingSurfaceAdvance = false
     private var glyphTexts: [String] = []
     private var textCommandIDs: [UInt64] = []
+    private var evidenceSurfaces: [CourtSurface] = []
     var onFinished: (() -> Void)?
 
     init(flow: TennisPresentationFlow, scene: TennisScene, outputDir: URL) {
@@ -178,18 +182,21 @@ private final class TennisHeadlessScenario {
     }
 
     func fixedStep() {
-        tick += 1
-        switch tick {
-        case 2:
+        cycleTick += 1
+        let surface = surfaces[surfaceIndex]
+        let isFirstSurface = surfaceIndex == 0
+        switch (isFirstSurface, cycleTick) {
+        case (true, 2):
             flow.onCommand(.start)
-        case 3:
-            flow.onCommand(.chooseSurface(.grass))
+        case (true, 3), (false, 2):
+            flow.onCommand(.chooseSurface(surface))
             flow.integrationCoordinator?.simulationDidEmit(TennisSimulationEvent(tick: 0, kind: .shotHit(side: .human, shot: .topspin, quality: .good)))
-            flow.integrationCoordinator?.simulationDidEmit(TennisSimulationEvent(tick: 0, kind: .bounce(surface: .grass)))
-        case 4:
+            flow.integrationCoordinator?.simulationDidEmit(TennisSimulationEvent(tick: 0, kind: .bounce(surface: surface)))
+        case (true, 4), (false, 3):
             flow.matchDidComplete(.human, score: TennisMatchScore(humanPoints: 11, cpuPoints: 0, server: .human, matchWinner: .human))
-        case 6:
+        case (true, 6), (false, 5):
             flow.onCommand(.continue)
+            pendingSurfaceAdvance = true
         default:
             break
         }
@@ -201,18 +208,25 @@ private final class TennisHeadlessScenario {
     }
 
     func afterDraw() {
+        let surface = surfaces[surfaceIndex]
         let observation = flow.makeObservation(
             feedback: scene.integrationFeedback,
             glyphTexts: glyphTexts,
             drawCommandIDs: scene.integrationLastDrawCommandIDs + textCommandIDs
         )
         evidence.observe(observation)
+        evidenceSurfaces.append(surface)
         glyphTexts.removeAll(keepingCapacity: true)
         textCommandIDs.removeAll(keepingCapacity: true)
-        guard tick >= 6 else { return }
+
+        guard pendingSurfaceAdvance else { return }
+        pendingSurfaceAdvance = false
+        surfaceIndex += 1
+        cycleTick = 0
+        guard surfaceIndex == surfaces.count else { return }
         do {
             try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
-            let payload = evidence.finish().map(Self.jsonObject(for:))
+            let payload = zip(evidence.finish(), evidenceSurfaces).map { Self.jsonObject(for: $0.0, surface: $0.1) }
             let data = try JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
             try data.write(to: outputDir.appendingPathComponent("tennis_evidence.json"))
             print("Saved \(outputDir.appendingPathComponent("tennis_evidence.json").path)")
@@ -222,8 +236,9 @@ private final class TennisHeadlessScenario {
         onFinished?()
     }
 
-    private static func jsonObject(for observation: TennisPresentationObservation) -> [String: Any] {
+    private static func jsonObject(for observation: TennisPresentationObservation, surface: CourtSurface) -> [String: Any] {
         [
+            "scenarioSurface": String(describing: surface),
             "screen": String(describing: observation.screen),
             "selectedSurface": observation.selectedSurface.map { String(describing: $0) } as Any,
             "activeMatchSurface": observation.activeMatchSurface.map { String(describing: $0) } as Any,
