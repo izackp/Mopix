@@ -1,44 +1,40 @@
-# Tennis Match HUD Signature
+# Sources/Tennis/TennisPresentation.swift — TennisHUD Signature
 
 ```text
 // TARGET: Tennis executable
-// OWNED BY: TennisHUD owns match-overlay layout and visual state for the active match. It is
-// created and drawn by TennisScene; it does not own score, simulation, input, or event history.
-// DEPENDENCIES: TennisMatchSnapshot and TennisMatchPresentationEvent from Tennis runtime;
-// GameEngine DisplayRenderClient, DrawCmd, SDLColor, Rect, Point, and TTF font APIs. No direct
-// TennisCore mutation, TennisInput dependency, or VirtualDrive access outside the asset boundary.
+// OWNED BY: TennisHUD owns match-overlay layout and visual state. TennisScene creates it and calls
+// it for match frames; it does not own score, simulation, input, or event history.
+// DEPENDENCIES: TennisMatchSnapshot, TennisMatchFeedbackState, TennisChargeSnapshot, and
+// TennisFaultCallout from this source file/runtime; GameEngine Font, DisplayRenderClient, DrawCmd,
+// SDLColor, Rect, Point, and TTF glyph APIs. No direct TennisCore mutation or TennisInput access.
+
+TennisChargeSnapshot | Equatable
+  pub activeSide
+  pub value
+  pub capReached
+  pub init(activeSide: TennisSide, value: Int, capReached: Bool)
 
 TennisHUD
   priv scoreLayout: Rect<Int>
   priv serverLayout: Rect<Int>
   priv chargeLayout: Rect<Int>
   priv font: Font
-  init(font: Font)
-  draw(_ snapshot: TennisMatchSnapshot, feedback: TennisMatchFeedbackState, renderer: DisplayRenderClient)
-    >> drawScore(_:renderer:) drawServer(_:renderer:) drawCharge(_:renderer:)
-  priv drawScore(_ score: TennisMatchScore, renderer: DisplayRenderClient)
-  priv drawServer(_ server: TennisSide, renderer: DisplayRenderClient)
-  priv drawCharge(_ charge: TennisChargeSnapshot, renderer: DisplayRenderClient)
-
-TennisChargeSnapshot | Equatable
-  pub activeSide: TennisSide
-  pub value: Int
-  pub capReached: Bool
-  pub init(activeSide: TennisSide, value: Int, capReached: Bool)
+  pub init(font: Font)
+  pub draw(_ snapshot: TennisMatchSnapshot, feedback: TennisMatchFeedbackState, renderer: DisplayRenderClient)
+    >> drawText(_:at:color:renderer:) fill(_:rect:color:z:)
+       TennisMatchSnapshot.charge TennisMatchFeedbackState.faultCallout
+  priv drawText(_ text: String, at point: Point<Int>, color: SDLColor, renderer: DisplayRenderClient)
+    >> Font.resourceId(for:) DisplayRenderClient.draw(_:_:_:_:_:_:_:_:_:_:)
+  priv fill(_ renderer: DisplayRenderClient, rect: Rect<Int>, color: SDLColor, z: Int)
+    >> DisplayRenderClient.drawCmd(_:)
 ```
 
-The score uses the engine TTF font and is laid out for unscaled `160x144` readability. The server
-indicator is derived from the snapshot's authoritative server. The charge indicator is anchored
-to the active player's projected sprite position, not a fixed HUD corner; `capReached` drives the
-RVK-6 cue. `TennisScene` owns court/player/ball projection and delegates overlay drawing to this
-type, so the HUD cannot become a second scene or a second simulation observer.
+The current implementation draws score/server text with TTF glyph resources, anchors the charge
+bar to the projected active-side player position, and draws the `FAULT` callout when feedback
+contains one. It does not split score/server/charge into separate private methods; `draw` is the
+single HUD rendering entry point. `chargeLayout` remains a declared layout field but is not used
+by the current implementation.
 
-The coordinator must expose the latest human/CPU charge in its presentation snapshot. The value
-is produced by fixed-step controller intents and copied at the snapshot boundary; HUD code must
-not inspect `TennisInputRouter` or infer charge from frame timing.
-
-// TEST: constructing the app graph creates one HUD with the same logical 160x144 layout used by
-// TennisScene and does not create a second coordinator.
-// TEST: a snapshot with score/server/charge changes produces the corresponding visible state;
-// full charge sets the cap cue and point reset clears it.
-// TEST: score digits remain legible at native logical resolution with the engine TTF font.
+// TEST: score/server glyph commands and charge fill commands are present at native 160x144 size.
+// TEST: human and CPU charge snapshots select the corresponding player position; capReached emits
+// the cap cue and reset clears it.

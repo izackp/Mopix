@@ -2,11 +2,12 @@
 
 ```text
 // TARGET: Tennis executable
-// OWNED BY: TennisScene owns the renderer-facing court projection and draw-layer IDs. It reads
-// immutable snapshots from the injected coordinator; it does not own match or simulation state.
-// DEPENDENCIES: GameEngine IDrawable/DisplayRenderClient/DrawCmd APIs and SDL2Swift value types;
-// TennisMatchCoordinator and TennisMatchSnapshot. No TennisInput dependency and no renderer-to-
-// simulation mutation.
+// OWNED BY: TennisScene owns renderer-facing court projection, draw-layer IDs, feedback reduction
+// consumption, and delegation to HUD/menu presentation. It reads immutable snapshots/events from
+// injected runtime objects; it does not own match or simulation state.
+// DEPENDENCIES: GameEngine IDrawable, DisplayRenderClient, DrawCmd, SDL2Swift value types;
+// TennisMatchCoordinator/TennisMatchSnapshot; TennisHUD; TennisPresentationFlow; and
+// TennisMatchFeedbackReducer. No TennisInput dependency and no renderer-to-simulation mutation.
 
 TennisScene < IDrawable
   priv coordinator: TennisMatchCoordinator
@@ -19,13 +20,21 @@ TennisScene < IDrawable
   priv lowerPlayerColor: SDLColor
   priv upperPlayerColor: SDLColor
   priv ballColor: SDLColor
+  priv hud: TennisHUD?
+  priv presentation: TennisPresentationFlow?
+  priv feedback: TennisMatchFeedbackReducer
   init(coordinator: TennisMatchCoordinator)
+  init(coordinator: TennisMatchCoordinator, hud: TennisHUD, presentation: TennisPresentationFlow? = nil)
   draw(_ delta: UInt64, _ renderer: DisplayRenderClient)
-    >> TennisMatchCoordinator.snapshot() render(_:renderer:)
+    >> TennisPresentationFlow.state TennisPresentationFlow.draw(renderer:)
+       TennisMatchCoordinator.snapshot() TennisMatchCoordinator.consumePresentationEvents()
+       TennisMatchFeedbackReducer.consume(_:tick:) TennisMatchFeedbackReducer.advance(to:)
+       render(_:renderer:) TennisHUD.draw(_:feedback:renderer:)
   priv render(_ snapshot: TennisMatchSnapshot, renderer: DisplayRenderClient)
     >> playerRect(for:in:) ballRect(for:in:)
-       fill(_:id:rect:color:z:) view(_:id:rect:fill:border:borderWidth:z:)
-  priv playerRect(for player: TennisPlayerState, in court: Rect<Int>) -> Rect<Int>
+       TennisMatchFeedbackReducer.state fill(_:id:rect:color:z:)
+       view(_:id:rect:fill:border:borderWidth:z:)
+  priv playerRect(for player: TennisPlayerState?, in court: Rect<Int>) -> Rect<Int>
   priv ballRect(for ball: TennisBallState, in court: Rect<Int>) -> Rect<Int>
   priv projectedPoint(_ point: TennisPoint, in court: Rect<Int>) -> Point<Int>
     << playerRect(for:in:) ballRect(for:in:)
@@ -35,27 +44,16 @@ TennisScene < IDrawable
     >> DisplayRenderClient.drawCmd(_:)
 
   Layer
-    background
-    court
-    courtBorder
-    topServiceLine
-    bottomServiceLine
-    centerServiceLine
-    netBand
-    netPosts
-    topCenterMark
-    bottomCenterMark
-    lowerPlayer
-    upperPlayer
-    ball
+    background court courtBorder topServiceLine bottomServiceLine centerServiceLine
+    netBand netPosts topCenterMark bottomCenterMark lowerPlayer upperPlayer ball
 ```
 
-`DisplayRenderClient` is the current GameEngine renderer API used by this source file. Each draw
-reads one `TennisMatchSnapshot` from the coordinator and maps fixed-point player/ball positions
-to integer court rectangles; placeholder player and ball positions are not part of the next slice.
-Rendering is observational: it does not advance the fixed tick, consume input, or mutate TennisCore
-state. The scene emits `DrawCmd` values through `drawCmd(_:)` and does not own renderer transport.
+The legacy initializer creates a match-only scene with no HUD or menu flow. The app initializer
+uses the presentation initializer, so non-match screens draw the flow after the background and
+return before court rendering. Match frames render court/player/ball geometry, consume queued
+presentation events at the coordinator tick, advance transient feedback, and draw the HUD.
+Airborne ball shadow and shot/point-end cues are emitted as draw commands from `render`.
 
-// TEST: after an input event and one fixed coordinator step, the scene reads the resulting
-// snapshot and projects the simulation positions, not hard-coded positions.
-// TEST: point reset is visible in the next snapshot without an extra simulation tick.
+// TEST: the legacy scene projects snapshot positions to the expected 160x144 court rectangles.
+// TEST: the presentation scene draws title/surface-select/result through the flow and match frames
+// consume each coordinator event once before drawing HUD and feedback.

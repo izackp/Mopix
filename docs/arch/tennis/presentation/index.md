@@ -1,22 +1,26 @@
 # Tennis Presentation Architecture
 
+Source map: `Sources/Tennis/TennisPresentation.swift.map` generated from
+`Sources/Tennis/TennisPresentation.swift`.
+
 ## Dependency and ownership boundary
 
 ```text
 TennisApp
   owns -> TennisPresentationFlow
   owns -> TennisMatchCoordinator
+  owns -> TennisHUD
   owns -> TennisScene
 
 TennisMatchCoordinator
   publishes -> TennisMatchSnapshot
-  publishes -> TennisMatchPresentationEvent
+  queues -> TennisMatchPresentationEvent
 
 TennisPresentationFlow
   owns -> current screen and selected surface
 
 TennisScene
-  reads -> TennisMatchSnapshot, TennisMatchPresentationEvent
+  consumes -> TennisMatchSnapshot, queued TennisMatchPresentationEvent
   draws -> court, players, ball, HUD, transient feedback
 ```
 
@@ -25,5 +29,6 @@ loading. `TennisCore` remains renderer-free. `TennisInput` remains responsible f
 translation and shot-sequence resolution; presentation receives read-only charge values through
 the match snapshot rather than reaching into the input router.
 
-The slice is split into [TennisMatchHUD.md](TennisMatchHUD.md),
+All presentation types currently live in `Sources/Tennis/TennisPresentation.swift`; the slice is
+documented as [TennisMatchHUD.md](TennisMatchHUD.md),
 [TennisMatchFeedback.md](TennisMatchFeedback.md), and [TennisMenuFlow.md](TennisMenuFlow.md).

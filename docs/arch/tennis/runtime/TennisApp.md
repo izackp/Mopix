@@ -3,33 +3,50 @@
 ```text
 // TARGET: Tennis executable
 // OWNED BY: TennisApp owns application/window construction and the single live runtime graph:
-// TennisMatchCoordinator plus the TennisScene that reads its snapshots. Match state remains
-// owned by the coordinator/core.
-// DEPENDENCIES: GameEngine application/window/fixed-update/event APIs and SDL2Swift;
-// TennisCore; TennisInput; TennisMatchCoordinator; TennisScene. No renderer-owned gameplay
-// mutation.
+// one TennisMatchCoordinator, one TennisPresentationFlow, and one TennisScene. Match state remains
+// owned by TennisMatchCoordinator/TennisCore; presentation state remains owned by the flow.
+// DEPENDENCIES: GameEngine Application, FullWindow, fixed-update/event registration, FontDesc,
+// Font, and GenericError; SDL2Swift value types; TennisCore; TennisInput; TennisMatchCoordinator;
+// TennisPresentationFlow; TennisHUD; TennisScene. No gameplay mutation in the renderer graph.
 
 TennisApp
   logicalSize: Size<Int>
-  priv matchCoordinator: TennisMatchCoordinator
-  priv scene: TennisScene
-  init()!
+  priv matchCoordinator: TennisMatchCoordinator!
+  priv presentation: TennisPresentationFlow!
+  priv scene: TennisScene!
+  priv registeredFixedCoordinatorCount: Int
+  priv registeredEventCoordinatorCount: Int
+  init() throws
     >> TennisMatchCoordinator.init(simulation:scorekeeper:humanController:cpuController:)
-       TennisScene.init(coordinator:)
+       TennisPresentationFlow.init(matchFactory:)
        FullWindow.init(...)
-       Window.drawable = TennisScene
-    >> Application.addFixedListener(_:msPerTick:)
-    >> Application.addEventListener(_:)
+       FullWindow.imageManager.fetchFont(desc:)
+       TennisHUD.init(font:)
+       TennisScene.init(coordinator:hud:presentation:)
+       FullWindow.drawable = TennisScene
+       Application.addFixedListener(_:msPerTick:)
+       Application.addEventListener(_:)
+  static makeSimulation() -> TennisSimulation
+  #if DEBUG
+  integrationGraph -> (coordinator: TennisMatchCoordinator, fixedCount: Int, eventCount: Int)
+  #endif
     << wrapperMain(argc:argv:)
+
+TennisVirtualControllerInputSource < TennisHumanInputSource
+  frame(for controller: VirtualController) -> TennisInputFrame
 ```
 
-The application logical size is `160x144`. `TennisApp` constructs one coordinator and injects that
-same instance into the window drawable. It registers the coordinator once as both the
-`IUpdate` fixed listener and the `IEventListener`; engine events therefore enter TennisInput
-through the coordinator's queued `TennisInputRouter` path, and gameplay advances only from the
-registered fixed callback. `TennisScene` never receives raw engine events and never mutates the
-coordinator.
+`TennisApp` constructs one hard-court coordinator through `makeSimulation()`, injects that same
+coordinator into the presentation factory closure and scene, registers the coordinator as the
+fixed-tick and SDL event listener, and registers `TennisPresentationFlow` as a second SDL event
+listener. The app creates a TTF font through the window image manager and passes it to
+`TennisHUD`. The current factory closure accepts a `CourtSurface` but returns the already-created
+coordinator; it is therefore a callback boundary, not yet a per-surface coordinator factory.
 
-// TEST: application assembly uses one coordinator instance for scene, fixed updates, and events.
-// TEST: an SDL command delivered by the engine reaches TennisInput on the next fixed callback.
-// TEST: the fixed callback produces a post-simulation snapshot that the drawable renders.
+The logical play area is `160x144`. `makeSimulation()` currently constructs `CourtRules.surface`
+as `.hard` and uses the fixed MVP seeds/presets. The `integrationGraph` seam is DEBUG-only and
+exists for app-graph verification; it is not runtime presentation state.
+
+// TEST: app construction creates one coordinator shared by the scene and fixed listener, and
+// registers exactly one coordinator fixed listener plus one coordinator event listener.
+// TEST: two calls to makeSimulation() produce equal initial snapshots.
