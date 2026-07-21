@@ -131,7 +131,16 @@ public final class TennisSimulation {
     public func step(tickInput: TennisTickInput) {
         state.tick &+= 1
         guard state.pointEnd == nil else { return }
-        if state.hitstopTicksRemaining > 0 { state.hitstopTicksRemaining -= 1; for side in [TennisSide.human, .cpu] { state.players[side]?.hitstopTicksRemaining = state.hitstopTicksRemaining }; return }
+        if state.hitstopTicksRemaining > 0 {
+            let remainingTicks = state.hitstopTicksRemaining - 1
+            state.hitstopTicksRemaining = remainingTicks
+            for side in [TennisSide.human, .cpu] {
+                guard var player = state.players[side] else { continue }
+                player.hitstopTicksRemaining = remainingTicks
+                state.players[side] = player
+            }
+            return
+        }
         if state.phase == .rally && state.ball.isInFlight { move(.human, intent: tickInput.human); move(.cpu, intent: tickInput.cpu) }
         let intents: [(TennisSide, TennisActionIntent)] = [(.human, tickInput.human), (.cpu, tickInput.cpu)]
         for (side, intent) in intents { guard case .swing(let sequence, let charge) = intent else { continue }; state.players[side]?.swingPending = true; if canContact(side) && (side == .human || !canContact(.human)) { hit(side: side, sequence: sequence, charge: charge) } }
