@@ -2,6 +2,32 @@
 
 No active blockers.
 
+## REVIEW-34 — 2026-07-21
+**Classification**: BLOCKING FOR FINAL ARCHITECTURE VERIFICATION
+**File**: `docs/arch/tennis/presentation/index.md`, `docs/arch/tennis/runtime/TennisScene.md`
+**Issue**: The current source and regenerated maps correctly contain no Tennis-specific headless
+evidence driver or observation API, but these architecture docs still describe a “required
+headless observation seam,” an “end-to-end evidence trace,” and integration accessors consumed by
+“the deterministic headless evidence driver.” Those statements authorize deleted implementation
+scope and contradict REVIEW-32/33’s locked-spec contract.
+**Expected**: Describe the integration accessors as test-only application-graph verification
+seams, and remove references to a Tennis-specific headless evidence driver or required observation
+trace. Keep the generic GameEngine headless loop as the only headless runtime path.
+**Status**: RESOLVED — 2026-07-21
+
+## REVIEW-35 — 2026-07-21
+**Classification**: BLOCKING FOR FINAL RELEASE READINESS
+**File**: `Tests/TennisTests/TennisMatchFlowTests.swift`, current release evidence
+**Issue**: The current HEAD passes focused tests and proves selected-coordinator identity for hard,
+clay, and grass, but it has no valid end-to-end player-visible evidence through title, surface
+selection, each selected match, HUD/feedback, result hold, and continue. The prior c447842 evidence
+used the Tennis-specific harness removed by b913513 and exited 133, so it cannot certify current
+HEAD.
+**Expected**: Produce equivalent current-HEAD evidence through the generic GameEngine headless
+loop and SDL event path, or a documented manual run, covering all three surfaces and the complete
+NQF flow. Do not restore a Tennis-specific driver or observation API.
+**Status**: OPEN
+
 ## REVIEW-33 — 2026-07-21
 **Classification**: BLOCKING FOR ARCHITECTURE VERIFICATION
 **File**: `docs/arch/tennis/runtime/TennisApp.md`, `docs/arch/tennis/presentation/TennisMenuFlow.md`, `Sources/Tennis/TennisApp.swift.map`, `Sources/Tennis/TennisPresentation.swift.map`
