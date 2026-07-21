@@ -477,3 +477,18 @@ behavior corresponding to RVK-13's required 6–8-shot baseline.
 decision before exposing the field. The implementation must preserve the same player-visible shot
 vocabulary and seeded replay guarantees while honoring the rally-floor requirement.
 **Status**: RESOLVED — 2026-07-20
+
+## REVIEW-36 — 2026-07-21
+**Classification**: BLOCKING FOR ARCHITECTURE VERIFICATION
+**File**: `Sources/Tennis/TennisApp.swift.map`, `Sources/TennisCore/`, `Sources/TennisInput/`
+**Issue**: Commit `0be0514` changes `TennisSimulationState` to require `phase`, but the
+regenerated Tennis map still records the pre-commit initializer
+`TennisSimulationState.init(tick:server:players:ball:pointEnd:hitstopTicksRemaining:)` and
+does not contain `TennisPointPhase` or the serve-phase call shape. The target-filtered
+CodeMapper passes reported completion for TennisCore and TennisInput but did not materialize
+their `.swift.map` files, so the required map-to-signature sweep cannot verify those targets.
+**Expected**: Regenerate maps from the checked-out `0be0514` source for TennisCore, TennisInput,
+and Tennis, and reconcile the output with the current signature docs. The maps must declare the
+phase-bearing simulation state, `buttonsAwaitingRelease`/charge accessors, and the serve-wind-up
+scene/coordinator edges before this milestone passes architecture verification.
+**Status**: RESOLVED — 2026-07-21
