@@ -57,6 +57,18 @@ final class TennisInputControllerTests: XCTestCase {
         XCTAssertEqual(shape(resolver.resolve(frame: frame(pressed: [.b], held: [.b]), tick: 25)), .swing(.aThenB, 2))
     }
 
+    func testHeldServeOrShotCommitsOnceAndRearmsAfterRelease() {
+        let resolver = DefaultTennisShotSequenceResolver(sequenceExpiryTicks: 2)
+        _ = resolver.resolve(frame: frame(pressed: [.a], held: [.a]), tick: 0)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(held: [.a]), tick: 1)), .none)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(held: [.a]), tick: 2)), .swing(.standaloneA, 3))
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(held: [.a]), tick: 3)), .none)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(held: [.a]), tick: 4)), .none)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(), tick: 5)), .none)
+        _ = resolver.resolve(frame: frame(pressed: [.a], held: [.a]), tick: 6)
+        XCTAssertEqual(shape(resolver.resolve(frame: frame(held: [.a]), tick: 8)), .swing(.standaloneA, 2))
+    }
+
     func testRouterUsesGameEngineCommandStateAndHumanController() {
         let source = CommandFrameSource()
         let router = TennisInputRouter(humanInput: source, sequenceResolver: DefaultTennisShotSequenceResolver(sequenceExpiryTicks: 2), initialFrame: frame())

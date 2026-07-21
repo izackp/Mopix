@@ -168,8 +168,12 @@ public final class TennisSimulation {
         }
         let shot = state.ball.shotKind
         let speed = surfaceSpeed() + TennisFixed(player.stats.power / 4) + TennisFixed(cappedCharge / 4)
-        let arc: TennisFixed = shot == .lob ? 360 : shot == .drop ? 80 : shot == .smash ? 460 : shot == .slice ? 120 : shot == .topspin ? 280 : 240
-        state.ball.velocity = TennisVelocity(x: (target.x - state.ball.position.x) * speed / 1000, y: (target.y - state.ball.position.y) * speed / 1000, z: arc + TennisFixed(player.stats.spin - 100))
+        let travelScale = shot == .serve ? 107 : shot == .lob ? 70 : shot == .drop ? 128 : shot == .smash ? 160 : shot == .topspin ? 114 : shot == .slice ? 107 : 139
+        let travelSpeed = speed * TennisFixed(travelScale) / 100
+        let baseArc: TennisFixed = shot == .serve ? 1350 : shot == .lob ? 1800 : shot == .drop ? 1100 : shot == .smash ? 800 : shot == .topspin ? 1200 : shot == .slice ? 1300 : 1000
+        let surfaceArc = rules.surface == .clay ? baseArc * 120 / 100 : rules.surface == .grass ? baseArc * 85 / 100 : baseArc
+        let arc = max(0, surfaceArc - TennisFixed(cappedCharge * 2))
+        state.ball.velocity = TennisVelocity(x: (target.x - state.ball.position.x) * travelSpeed / 4000, y: (target.y - state.ball.position.y) * travelSpeed / 4000, z: arc + TennisFixed(player.stats.spin - 100))
         state.ball.lastHitter = side; state.ball.isInFlight = true; bounceCount = 0
         emit(.shotHit(side: side, shot: shot, quality: quality))
         if shot == .smash || cappedCharge == 100 { state.hitstopTicksRemaining = 2; state.players[side]?.hitstopTicksRemaining = 2 }
@@ -190,7 +194,7 @@ public final class TennisSimulation {
         let randomAim = random.nextInt(upperBound: 2001) - 1000
         let aimOffset = randomAim * aimSpread / 100
         let baseX = center + TennisFixed(aimOffset)
-        let y = side == .human ? (deep ? rules.singlesBoundary.minY + 1500 : rules.netY - 800) : (deep ? rules.singlesBoundary.maxY - 1500 : rules.netY + 800)
+        let y = side == .human ? (deep ? rules.singlesBoundary.minY + 7500 : rules.netY - 800) : (deep ? rules.singlesBoundary.maxY - 7500 : rules.netY + 800)
         return TennisPoint(x: TennisFixed(baseX), y: y)
     }
     private func surfaceSpeed() -> TennisFixed { rules.surface == .clay ? 85 : rules.surface == .grass ? 125 : 100 }
@@ -200,7 +204,7 @@ public final class TennisSimulation {
         if !inside(rules.singlesBoundary, state.ball.position) { let hitter = state.ball.lastHitter ?? state.server; emit(.outOfBounds(side: hitter)); end(.outOfBounds(hitter: hitter)); return }
         bounceCount += 1; emit(.bounce(surface: rules.surface)); if bounceCount >= 2 { end(.secondBounce(side: receivingSide(at: state.ball.position))); return }
         let spin = state.players[state.ball.lastHitter ?? state.server]?.stats.spin ?? 100
-        let multiplier: TennisFixed = rules.surface == .hard ? 75 : rules.surface == .clay ? 60 : 50
+        let multiplier: TennisFixed = rules.surface == .hard ? 75 : rules.surface == .clay ? 60 : 70
         state.ball.velocity.z = -state.ball.velocity.z * (multiplier + TennisFixed(spin - 100) / 2) / 100
     }
     private func receivingSide(at point: TennisPoint) -> TennisSide { point.y < rules.netY ? .cpu : .human }

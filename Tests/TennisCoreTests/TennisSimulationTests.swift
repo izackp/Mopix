@@ -2,6 +2,50 @@ import XCTest
 @testable import TennisCore
 
 final class TennisSimulationTests: XCTestCase {
+    func testPacingRowsAndResponseFloorAcrossShotClassesAndSurfaces() {
+        let cases: [(TennisSwingSequence, ShotKind, ClosedRange<Int>, ClosedRange<Int>, ClosedRange<Int>, TennisFixed)] = [
+            (.standaloneA, .topspin, 22...32, 26...40, 18...27, 0),
+            (.standaloneB, .slice, 24...36, 28...44, 20...31, 0),
+            (.simultaneousAB, .flat, 18...28, 22...34, 15...24, 0),
+            (.aThenB, .lob, 36...56, 42...68, 31...48, 0),
+            (.bThenA, .drop, 20...30, 24...36, 17...26, 0),
+            (.simultaneousAB, .smash, 16...24, 19...29, 14...21, 1000)
+        ]
+        for (sequence, expectedShot, hard, clay, grass, ballHeight) in cases {
+            let ranges = [CourtSurface.hard: hard, .clay: clay, .grass: grass]
+            for surface in [CourtSurface.hard, .clay, .grass] {
+                let trace = flightTrace(surface: surface, sequence: sequence, charge: 0, ballHeight: ballHeight)
+                XCTAssertEqual(trace.shot, expectedShot)
+                XCTAssertTrue(ranges[surface]!.contains(trace.firstBounce), "\(surface) \(expectedShot) bounce \(trace.firstBounce)")
+                XCTAssertGreaterThanOrEqual(trace.firstOpportunity - trace.firstBounce, 8, "\(surface) \(expectedShot) response floor")
+                XCTAssertEqual(trace.bounceSurface, surface)
+            }
+        }
+        let serveRanges = [CourtSurface.hard: 24...36, .clay: 28...44, .grass: 20...31]
+        for surface in [CourtSurface.hard, .clay, .grass] {
+            let trace = serveTrace(surface: surface, charge: 0)
+            XCTAssertTrue(serveRanges[surface]!.contains(trace.firstBounce), "\(surface) serve bounce \(trace.firstBounce)")
+            XCTAssertGreaterThanOrEqual(trace.firstOpportunity - trace.firstBounce, 8, "\(surface) serve response floor")
+            XCTAssertEqual(trace.bounceSurface, surface)
+        }
+    }
+
+    func testMatchedSurfaceOrderingAndChargePacing() {
+        let hard = flightTrace(surface: .hard, sequence: .standaloneA, charge: 0, ballHeight: 0)
+        let clay = flightTrace(surface: .clay, sequence: .standaloneA, charge: 0, ballHeight: 0)
+        let grass = flightTrace(surface: .grass, sequence: .standaloneA, charge: 0, ballHeight: 0)
+        XCTAssertGreaterThan(clay.firstBounce, hard.firstBounce)
+        XCTAssertGreaterThan(hard.firstBounce, grass.firstBounce)
+        XCTAssertEqual(hard.bounceSurface, .hard)
+        XCTAssertEqual(clay.bounceSurface, .clay)
+        XCTAssertEqual(grass.bounceSurface, .grass)
+
+        let uncharged = flightTrace(surface: .hard, sequence: .standaloneA, charge: 0, ballHeight: 0)
+        let full = flightTrace(surface: .hard, sequence: .standaloneA, charge: 100, ballHeight: 0)
+        XCTAssertTrue((2...6).contains(uncharged.firstBounce - full.firstBounce), "uncharged \(uncharged.firstBounce), full \(full.firstBounce)")
+        XCTAssertTrue((22...32).contains(full.firstBounce))
+    }
+
     func testRuleBookMapsEverySwingSequenceAndSmashFallback() {
         let rules = DefaultTennisRuleBook()
         XCTAssertEqual(rules.shotKind(for: .standaloneA, smashEligible: false), .topspin)
@@ -125,6 +169,62 @@ final class TennisSimulationTests: XCTestCase {
         XCTAssertEqual(routine.state.hitstopTicksRemaining, 0)
     }
 
+    private struct FlightTrace {
+        let shot: ShotKind
+        let firstBounce: Int
+        let firstOpportunity: Int
+        let bounceSurface: CourtSurface?
+    }
+
+    private func flightTrace(surface: CourtSurface, sequence: TennisSwingSequence, charge: Int, ballHeight: TennisFixed) -> FlightTrace {
+        let simulation = makeTraceSimulation(surface: surface, ballHeight: ballHeight)
+        let recorder = EventRecorder(); simulation.delegate = recorder
+        simulation.step(tickInput: TennisTickInput(human: .swing(sequence: sequence, charge: charge), cpu: .none))
+        var firstOpportunity: UInt64?
+        for _ in 0..<120 {
+            if simulation.state.players[.cpu].map({ distanceSquared(simulation.state.ball.position, $0.position) <= 1_440_000 }) == true {
+                firstOpportunity = simulation.state.tick
+                break
+            }
+            simulation.step(tickInput: TennisTickInput(human: .none, cpu: .none))
+        }
+        let bounce = recorder.events.first { if case .bounce = $0.kind { return true }; return false }
+        let shot = recorder.events.compactMap { event -> ShotKind? in
+            if case .shotHit(side: .human, shot: let shot, quality: _) = event.kind { return shot }
+            return nil
+        }.first ?? .serve
+        let bounceSurface: CourtSurface? = bounce.flatMap { event in
+            if case .bounce(let surface) = event.kind { return surface }
+            return nil
+        }
+        return FlightTrace(shot: shot, firstBounce: Int(bounce?.tick ?? 0), firstOpportunity: Int(firstOpportunity ?? simulation.state.tick), bounceSurface: bounceSurface)
+    }
+
+    private func serveTrace(surface: CourtSurface, charge: Int) -> FlightTrace {
+        let simulation = makeSimulation(seed: 1, surface: surface); simulation.resetPoint(server: .human)
+        let recorder = EventRecorder(); simulation.delegate = recorder
+        simulation.step(tickInput: TennisTickInput(human: .swing(sequence: .standaloneA, charge: charge), cpu: .none))
+        var firstOpportunity: UInt64?
+        for _ in 0..<120 {
+            if simulation.state.players[.cpu].map({ distanceSquared(simulation.state.ball.position, $0.position) <= 1_440_000 }) == true {
+                firstOpportunity = simulation.state.tick
+                break
+            }
+            simulation.step(tickInput: TennisTickInput(human: .none, cpu: .none))
+        }
+        let bounce = recorder.events.first { if case .bounce = $0.kind { return true }; return false }
+        let bounceSurface: CourtSurface? = bounce.flatMap { event in
+            if case .bounce(let surface) = event.kind { return surface }
+            return nil
+        }
+        return FlightTrace(shot: .serve, firstBounce: Int(bounce?.tick ?? 0), firstOpportunity: Int(firstOpportunity ?? simulation.state.tick), bounceSurface: bounceSurface)
+    }
+
+    private func distanceSquared(_ a: TennisPoint, _ b: TennisPoint) -> Int64 {
+        let x = Int64(a.x - b.x); let y = Int64(a.y - b.y)
+        return x * x + y * y
+    }
+
     func testSeededReplayProducesIdenticalEvents() {
         let first = makeSimulation(seed: 77); let second = makeSimulation(seed: 77)
         let a = EventRecorder(); let b = EventRecorder(); first.delegate = a; second.delegate = b
@@ -144,6 +244,15 @@ final class TennisSimulationTests: XCTestCase {
         let ball = TennisBallState(position: ballPosition, height: ballHeight, velocity: ballVelocity, shotKind: .serve, lastHitter: lastHitter, isInFlight: inFlight)
         let phase: TennisPointPhase = inFlight ? .rally : .serveWindUp
         return TennisSimulation(rules: court, ruleBook: DefaultTennisRuleBook(), random: SeededTennisRandomSource(seed: seed), state: TennisSimulationState(tick: 0, server: .human, phase: phase, players: players, ball: ball))
+    }
+    private func makeTraceSimulation(surface: CourtSurface, ballHeight: TennisFixed = 0) -> TennisSimulation {
+        let simulation = makeSimulation(seed: 1, surface: surface, inFlight: true, ballHeight: ballHeight, ballPosition: TennisPoint(x: 5000, y: 20000))
+        var state = simulation.state
+        let stats = PlayerStats(power: 100, speed: 100, control: 100, spin: 100)
+        state.players[.human] = TennisPlayerState(side: .human, position: TennisPoint(x: 5000, y: 20000), stats: stats, preset: .balanced)
+        state.players[.cpu] = TennisPlayerState(side: .cpu, position: TennisPoint(x: 5000, y: 0), stats: stats, preset: .power)
+        state.ball.position = TennisPoint(x: 5000, y: 20000)
+        return TennisSimulation(rules: simulation.rules, ruleBook: simulation.ruleBook, random: SeededTennisRandomSource(seed: 1), state: state)
     }
     private func hitVelocity(surface: CourtSurface = .hard, stats: PlayerStats) -> TennisVelocity { let s = makeSimulation(seed: 9, surface: surface, stats: stats, inFlight: true)
         let recorder = EventRecorder(); s.delegate = recorder; s.step(tickInput: TennisTickInput(human: .swing(sequence: .standaloneA, charge: 0), cpu: .none)); return s.state.ball.velocity }
