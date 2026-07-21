@@ -45,11 +45,11 @@ struct ShotCommand {
     init(side: TennisSide, kind: ShotKind, target: TennisPoint, charge: Int, contactQuality: ContactQuality) { self.side = side; self.kind = kind; self.target = target; self.charge = charge; self.contactQuality = contactQuality }
 }
 
-public struct TennisPlayerState {
+public struct TennisPlayerState: Equatable {
     public let side: TennisSide; public var position: TennisPoint; public var stats: PlayerStats; public var preset: PlayerPreset; public var swingPending: Bool; public var hitstopTicksRemaining: Int
     public init(side: TennisSide, position: TennisPoint, stats: PlayerStats, preset: PlayerPreset, swingPending: Bool = false, hitstopTicksRemaining: Int = 0) { self.side = side; self.position = position; self.stats = stats; self.preset = preset; self.swingPending = swingPending; self.hitstopTicksRemaining = hitstopTicksRemaining }
 }
-public struct TennisBallState {
+public struct TennisBallState: Equatable {
     public var position: TennisPoint; public var height: TennisFixed; public var velocity: TennisVelocity; public var shotKind: ShotKind; public var lastHitter: TennisSide?; public var isInFlight: Bool
     public init(position: TennisPoint, height: TennisFixed, velocity: TennisVelocity, shotKind: ShotKind, lastHitter: TennisSide? = nil, isInFlight: Bool = false) { self.position = position; self.height = height; self.velocity = velocity; self.shotKind = shotKind; self.lastHitter = lastHitter; self.isInFlight = isInFlight }
 }
@@ -59,7 +59,7 @@ public enum PointEndReason: Equatable {
     case outOfBounds(hitter: TennisSide)
     case serveFault(server: TennisSide, landing: TennisPoint)
 }
-public struct TennisSimulationState {
+public struct TennisSimulationState: Equatable {
     public var tick: UInt64; public var server: TennisSide; public var players: [TennisSide: TennisPlayerState]; public var ball: TennisBallState; public var pointEnd: PointEndReason?; public var hitstopTicksRemaining: Int
     public init(tick: UInt64, server: TennisSide, players: [TennisSide: TennisPlayerState], ball: TennisBallState, pointEnd: PointEndReason? = nil, hitstopTicksRemaining: Int = 0) { self.tick = tick; self.server = server; self.players = players; self.ball = ball; self.pointEnd = pointEnd; self.hitstopTicksRemaining = hitstopTicksRemaining }
 }
@@ -121,7 +121,7 @@ public final class TennisSimulation {
     public init(rules: CourtRules, ruleBook: TennisRuleBook, random: TennisRandomSource, state: TennisSimulationState) { self.rules = rules; self.ruleBook = ruleBook; self.random = random; self.state = state }
     public func snapshot() -> TennisSimulationState { state }
     public func resetPoint(server: TennisSide) {
-        state.server = server; state.pointEnd = nil; state.ball.isInFlight = false; state.ball.velocity = TennisVelocity(x: 0, y: 0, z: 0); state.ball.height = 0; state.ball.position = baselineCenter(for: server); state.ball.lastHitter = nil; state.ball.shotKind = .serve; state.tick &+= 1; bounceCount = 0; state.hitstopTicksRemaining = 0
+        state.server = server; state.pointEnd = nil; state.ball.isInFlight = false; state.ball.velocity = TennisVelocity(x: 0, y: 0, z: 0); state.ball.height = 0; state.ball.position = baselineCenter(for: server); state.ball.lastHitter = nil; state.ball.shotKind = .serve; bounceCount = 0; state.hitstopTicksRemaining = 0
         for side in [TennisSide.human, .cpu] {
             guard var player = state.players[side] else { continue }
             player.position = baselineCenter(for: side); player.swingPending = false; player.hitstopTicksRemaining = 0; state.players[side] = player

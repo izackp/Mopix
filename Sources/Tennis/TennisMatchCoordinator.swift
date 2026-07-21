@@ -8,6 +8,16 @@ public protocol TennisMatchDelegate: AnyObject {
     func matchDidComplete(_ winner: TennisSide, score: TennisMatchScore)
 }
 
+public struct TennisMatchSnapshot: Equatable {
+    public let score: TennisMatchScore
+    public let simulation: TennisSimulationState
+
+    public init(score: TennisMatchScore, simulation: TennisSimulationState) {
+        self.score = score
+        self.simulation = simulation
+    }
+}
+
 public final class TennisMatchCoordinator: IUpdate, IEventListener, TennisSimulationDelegate {
     public let simulation: TennisSimulation
     public let humanController: TennisHumanController
@@ -17,7 +27,7 @@ public final class TennisMatchCoordinator: IUpdate, IEventListener, TennisSimula
 
     private let scorekeeper: TennisMatchScorekeeper
     private var pendingCommands: [InputCommand] = []
-    private var tick: UInt64 = 0
+    private var tick: UInt64
     private var pendingPointEnd: PointEndReason?
 
     public init(
@@ -31,7 +41,12 @@ public final class TennisMatchCoordinator: IUpdate, IEventListener, TennisSimula
         self.humanController = humanController
         self.cpuController = cpuController
         self.score = scorekeeper.score
+        self.tick = simulation.state.tick
         simulation.delegate = self
+    }
+
+    public func snapshot() -> TennisMatchSnapshot {
+        TennisMatchSnapshot(score: score, simulation: simulation.snapshot())
     }
 
     public func step(_ delta: UInt64) {
@@ -62,7 +77,6 @@ public final class TennisMatchCoordinator: IUpdate, IEventListener, TennisSimula
         score = scorekeeper.score
         pendingCommands.removeAll(keepingCapacity: true)
         pendingPointEnd = nil
-        tick = 0
         simulation.resetPoint(server: server)
         humanController.resetPoint()
         cpuController.resetPoint()
