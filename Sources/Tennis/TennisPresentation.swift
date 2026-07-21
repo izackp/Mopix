@@ -91,7 +91,6 @@ public struct TennisChargeSnapshot: Equatable {
 public final class TennisHUD {
     private let scoreLayout = Rect(x: 3, y: 3, width: 48, height: 12)
     private let serverLayout = Rect(x: 112, y: 3, width: 45, height: 12)
-    private let chargeLayout = Rect(x: 0, y: 0, width: 0, height: 0)
     private let font: Font
     public init(font: Font) { self.font = font }
     public func draw(_ snapshot: TennisMatchSnapshot, feedback: TennisMatchFeedbackState, renderer: DisplayRenderClient) {
