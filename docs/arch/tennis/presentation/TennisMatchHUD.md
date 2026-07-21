@@ -33,7 +33,8 @@ The current implementation draws score/server text with TTF glyph resources, anc
 bar to the projected active-side player position, and draws the `FAULT` callout when feedback
 contains one. It does not split score/server/charge into separate private methods; `draw` is the
 single HUD rendering entry point. `chargeLayout` remains a declared layout field but is not used
-by the current implementation.
+by the current implementation. Menu text is separated behind `TennisTextRenderer`; HUD text uses
+its injected `Font` directly.
 
 // TEST: score/server glyph commands and charge fill commands are present at native 160x144 size.
 // TEST: human and CPU charge snapshots select the corresponding player position; capReached emits

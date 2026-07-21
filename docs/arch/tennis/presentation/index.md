@@ -18,6 +18,8 @@ TennisMatchCoordinator
 
 TennisPresentationFlow
   owns -> current screen and selected surface
+  delegates -> selected-surface match factory
+  renders -> injected TennisTextRenderer glyphs
 
 TennisScene
   consumes -> TennisMatchSnapshot, queued TennisMatchPresentationEvent
@@ -32,3 +34,9 @@ the match snapshot rather than reaching into the input router.
 All presentation types currently live in `Sources/Tennis/TennisPresentation.swift`; the slice is
 documented as [TennisMatchHUD.md](TennisMatchHUD.md),
 [TennisMatchFeedback.md](TennisMatchFeedback.md), and [TennisMenuFlow.md](TennisMenuFlow.md).
+
+The selected coordinator is an application-graph invariant: the coordinator created for the
+selected surface must be the exact instance injected into `TennisScene` and registered with
+Application's fixed-tick and event loops. The flow's factory callback alone does not establish
+that invariant. The required headless observation seam and its end-to-end evidence trace are
+defined in [TennisMenuFlow.md](TennisMenuFlow.md).

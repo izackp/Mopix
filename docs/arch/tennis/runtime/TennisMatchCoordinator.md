@@ -68,9 +68,9 @@ TennisMatchCoordinator < IUpdate | IEventListener | TennisSimulationDelegate
 
 The coordinator is the fixed-tick clock boundary. `delta` is ignored as a simulation multiplier;
 one fixed callback samples one simulation snapshot, one human intent, and one CPU intent, then
-submits one `TennisTickInput`. `latestCharge` currently records the human swing charge or resets
-to zero with the simulation server as active side; it is copied into `TennisMatchSnapshot` for
-the HUD.
+submits one `TennisTickInput`. `latestCharge` records the active human or CPU swing charge, or
+resets to zero with the simulation server as active side when neither side swings. It is copied
+into `TennisMatchSnapshot` for the HUD, so both active charge values cross the runtime boundary.
 
 Simulation events are translated into `TennisMatchPresentationEvent` values and retained until
 `TennisScene.draw` calls `consumePresentationEvents()`. This queue is presentation delivery state,
@@ -82,3 +82,7 @@ point resets preserve the monotonic simulation tick.
 // TEST: every point-end reason produces exactly one presentation/score resolution and reset path.
 // TEST: snapshot charge and presentation event consumption are deterministic and point resets
 // clear charge state without advancing the fixed tick.
+
+The selected-surface coordinator must be the same coordinator registered with Application and
+injected into TennisScene; a factory result is not sufficient while another instance remains in
+the fixed/event loops. The replacement invariant is defined in [TennisApp.md](TennisApp.md).

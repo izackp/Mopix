@@ -51,6 +51,7 @@ TennisMatchFeedbackState | Equatable
 
 TennisMatchFeedbackReducer
   pub private(set) state: TennisMatchFeedbackState
+  pub var surfaceBounceAudioHook: ((CourtSurface) -> Void)?
   pub init()
   pub consume(_ event: TennisMatchPresentationEvent, tick: UInt64)
   pub advance(to tick: UInt64)
@@ -58,10 +59,11 @@ TennisMatchFeedbackReducer
 ```
 
 `consume` maps topspin/slice/smash to trail colors, records surface bounce and distinct net/out
-point-end cues, and creates the `FAULT` callout for serve faults. `advance` expires all transient
-state. `TennisScene` owns the reducer instance and calls both consume and advance once per drawn
-match snapshot. The current reducer declares landing-marker state but does not populate it; the
-scene supplies the required airborne-ball shadow directly from simulation state.
+point-end cues, calls `surfaceBounceAudioHook` for a bounce, and creates the `FAULT` callout for
+serve faults. `advance` expires all transient state. `TennisScene` owns the reducer instance and
+calls both consume and advance once per drawn match snapshot. The current reducer declares
+landing-marker state but does not populate it; the scene supplies the required airborne-ball shadow
+directly from simulation state.
 
 // TEST: equal event/tick streams produce equal feedback states and expiry transitions.
 // TEST: serve fault, net fault, and out-of-bounds remain distinguishable.

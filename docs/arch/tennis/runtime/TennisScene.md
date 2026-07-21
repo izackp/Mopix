@@ -52,8 +52,13 @@ The legacy initializer creates a match-only scene with no HUD or menu flow. The 
 uses the presentation initializer, so non-match screens draw the flow after the background and
 return before court rendering. Match frames render court/player/ball geometry, consume queued
 presentation events at the coordinator tick, advance transient feedback, and draw the HUD.
-Airborne ball shadow and shot/point-end cues are emitted as draw commands from `render`.
+Airborne ball shadow, shot/point-end cues, and surface-specific bounce cues are emitted as draw
+commands from `render`; hard, clay, and grass use distinct cue IDs/colors. The coordinator
+injected here must be the same selected coordinator registered with Application's fixed-tick and
+event loops; scene injection is not a passive reference to the initial coordinator.
 
 // TEST: the legacy scene projects snapshot positions to the expected 160x144 court rectangles.
 // TEST: the presentation scene draws title/surface-select/result through the flow and match frames
 // consume each coordinator event once before drawing HUD and feedback.
+// TEST: a selected-surface replacement leaves scene snapshots, fixed ticks, event delivery, and
+// feedback events sourced from one coordinator identity.

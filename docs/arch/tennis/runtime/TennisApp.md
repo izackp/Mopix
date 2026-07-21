@@ -2,23 +2,24 @@
 
 ```text
 // TARGET: Tennis executable
-// OWNED BY: TennisApp owns application/window construction and the single live runtime graph:
-// one TennisMatchCoordinator, one TennisPresentationFlow, and one TennisScene. Match state remains
-// owned by TennisMatchCoordinator/TennisCore; presentation state remains owned by the flow.
+// OWNED BY: TennisApp owns application/window construction and registration of the live runtime
+// graph. Match state remains owned by TennisMatchCoordinator/TennisCore; presentation state
+// remains owned by TennisPresentationFlow.
 // DEPENDENCIES: GameEngine Application, FullWindow, fixed-update/event registration, FontDesc,
 // Font, and GenericError; SDL2Swift value types; TennisCore; TennisInput; TennisMatchCoordinator;
-// TennisPresentationFlow; TennisHUD; TennisScene. No gameplay mutation in the renderer graph.
+// TennisPresentationFlow; TennisTextRenderer/TennisFontTextRenderer; TennisHUD; TennisScene.
+// No gameplay mutation in the renderer graph.
 
 TennisApp
   logicalSize: Size<Int>
   priv matchCoordinator: TennisMatchCoordinator!
   priv presentation: TennisPresentationFlow!
   priv scene: TennisScene!
-  priv registeredFixedCoordinatorCount: Int
-  priv registeredEventCoordinatorCount: Int
+  private(set) registeredFixedCoordinatorCount: Int
+  private(set) registeredEventCoordinatorCount: Int
   init() throws
     >> TennisMatchCoordinator.init(simulation:scorekeeper:humanController:cpuController:)
-       TennisPresentationFlow.init(matchFactory:)
+       TennisPresentationFlow.init(matchFactory:textRenderer:)
        FullWindow.init(...)
        FullWindow.imageManager.fetchFont(desc:)
        TennisHUD.init(font:)
@@ -26,7 +27,10 @@ TennisApp
        FullWindow.drawable = TennisScene
        Application.addFixedListener(_:msPerTick:)
        Application.addEventListener(_:)
-  static makeSimulation() -> TennisSimulation
+  static makeSimulation(surface: CourtSurface = .hard) -> TennisSimulation
+  static makeCoordinator(surface: CourtSurface) -> TennisMatchCoordinator
+  priv static makeCoordinator(surface: CourtSurface, simulation: TennisSimulation,
+    humanRouter: TennisInputRouter) -> TennisMatchCoordinator
   #if DEBUG
   integrationGraph -> (coordinator: TennisMatchCoordinator, fixedCount: Int, eventCount: Int)
   #endif
@@ -36,17 +40,33 @@ TennisVirtualControllerInputSource < TennisHumanInputSource
   frame(for controller: VirtualController) -> TennisInputFrame
 ```
 
-`TennisApp` constructs one hard-court coordinator through `makeSimulation()`, injects that same
-coordinator into the presentation factory closure and scene, registers the coordinator as the
-fixed-tick and SDL event listener, and registers `TennisPresentationFlow` as a second SDL event
-listener. The app creates a TTF font through the window image manager and passes it to
-`TennisHUD`. The current factory closure accepts a `CourtSurface` but returns the already-created
-coordinator; it is therefore a callback boundary, not yet a per-surface coordinator factory.
+`TennisApp.init()` currently constructs an initial hard-court coordinator, injects it into the
+scene, registers it with both the fixed-tick and SDL event loops, and registers the flow as a
+second SDL event listener. The flow receives a per-surface factory and a
+`TennisFontTextRenderer` backed by the fetched TTF font. `makeSimulation(surface:)` and
+`makeCoordinator(surface:)` create distinct surface-specific `CourtRules`/simulation graphs.
 
-The logical play area is `160x144`. `makeSimulation()` currently constructs `CourtRules.surface`
-as `.hard` and uses the fixed MVP seeds/presets. The `integrationGraph` seam is DEBUG-only and
+The logical play area is `160x144`. `makeSimulation(surface:)` constructs `CourtRules.surface`
+from its argument and uses the fixed MVP seeds/presets; the default remains `.hard`. The
+`integrationGraph` seam is DEBUG-only and
 exists for app-graph verification; it is not runtime presentation state.
 
 // TEST: app construction creates one coordinator shared by the scene and fixed listener, and
 // registers exactly one coordinator fixed listener plus one coordinator event listener.
-// TEST: two calls to makeSimulation() produce equal initial snapshots.
+// TEST: makeSimulation(.hard), makeSimulation(.clay), and makeSimulation(.grass) expose the
+// corresponding CourtRules.surface values while preserving fixed seeds/presets.
+
+## REVIEW-25 required selected-session fix contract
+
+The coordinator returned by `matchFactory(selectedSurface)` must become the one live match
+coordinator. TennisApp must inject that exact instance into TennisScene and register that same
+instance with `Application.addFixedListener(_:msPerTick:)` and `Application.addEventListener(_:)`.
+The old coordinator must be removed from both loops before the new coordinator is installed; the
+flow delegate must point at the new instance. The swap must be atomic at a fixed-tick boundary and
+leave exactly one active coordinator in each loop.
+
+The current stored-property graph cannot satisfy this after surface selection because the factory
+result is not installed. The next implementation milestone must provide an explicit replacement
+boundary that removes old registrations, creates the selected coordinator, injects it into the
+scene, and adds both registrations. No second coordinator may run in parallel and no scene may
+retain the pre-selection coordinator.
