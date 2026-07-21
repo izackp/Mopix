@@ -116,7 +116,7 @@ final class TennisSimulationTests: XCTestCase {
     private enum BoxSet: Equatable { case normal, remote }
     private func makeSimulation(seed: UInt64, serviceBoxes: BoxSet = .normal, surface: CourtSurface = .hard, stats: PlayerStats = PlayerStats(power: 100, speed: 100, control: 100, spin: 100), inFlight: Bool = false, ballHeight: TennisFixed = 1000, ballVelocity: TennisVelocity = TennisVelocity(x: 0, y: 0, z: 0), ballPosition: TennisPoint = TennisPoint(x: 5000, y: 12000), lastHitter: TennisSide? = nil) -> TennisSimulation {
         let boundary = TennisRect(minX: 0, minY: 0, maxX: 10000, maxY: 20000)
-        let top = serviceBoxes == .normal ? TennisRect(minX: 0, minY: 0, maxX: 5000, maxY: 5000) : TennisRect(minX: 20000, minY: 30000, maxX: 21000, maxY: 31000)
+        let top = serviceBoxes == .normal ? TennisRect(minX: 0, minY: 0, maxX: 5000, maxY: 5000) : TennisRect(minX: 20000, minY: 30000, maxX: 20100, maxY: 31000)
         let bottom = TennisRect(minX: 0, minY: 15000, maxX: 5000, maxY: 20000)
         let boxes = TennisServiceBoxes(topLeft: top, topRight: top, bottomLeft: bottom, bottomRight: bottom)
         let court = CourtRules(surface: surface, singlesBoundary: boundary, serviceBoxes: boxes, netY: 10000)

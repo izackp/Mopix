@@ -37,7 +37,7 @@ final class TennisInputControllerTests: XCTestCase {
         router.onCommandList(InputCommandList(clientId: 1, deviceId: 1, commands: [pressA]))
         XCTAssertEqual(shape(human.intent(for: state, tick: 0)), .none)
         router.onCommandList(InputCommandList(clientId: 1, deviceId: 1, commands: []))
-        XCTAssertEqual(shape(human.intent(for: state, tick: 2)), .swing(.standaloneA, 1))
+        XCTAssertEqual(shape(human.intent(for: state, tick: 2)), .swing(.standaloneA, 2))
         human.resetPoint()
         XCTAssertEqual(shape(human.intent(for: state, tick: 3)), .none)
     }
