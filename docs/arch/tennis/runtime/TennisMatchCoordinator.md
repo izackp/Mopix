@@ -1,5 +1,8 @@
 # Sources/Tennis/TennisMatchCoordinator.swift [Tennis]
 
+This is the current CodeMapper-style source map for the coordinator. The live map includes the
+snapshot boundary, fixed-step call graph, queued event path, and point-reset ownership.
+
 ```text
 // TARGET: Tennis executable
 // OWNED BY: TennisMatchCoordinator owns fixed-tick orchestration, point lifecycle, controller
@@ -31,21 +34,25 @@ TennisMatchCoordinator < IUpdate | IEventListener | TennisSimulationDelegate
   pub init(simulation: TennisSimulation, scorekeeper: TennisMatchScorekeeper, humanController: TennisHumanController, cpuController: TennisCPUController)
     >> TennisSimulationDelegate assignment
   pub step(_ delta: UInt64)
-    >> flushPendingCommands() TennisController.intent(for:tick:) TennisSimulation.step(tickInput:)
+    >> flushPendingCommands() TennisHumanController.intent(for:tick:)
+       TennisCPUController.intent(for:tick:) TennisSimulation.snapshot()
+       TennisTickInput.init(human:cpu:) TennisSimulation.step(tickInput:)
        completePointIfNeeded()
   pub snapshot() -> TennisMatchSnapshot
     >> TennisSimulation.snapshot()
   pub onEvents(_ events: [SDL_Event])
     >> SDL_Event.toCommand()
   pub simulationDidEmit(_ event: TennisSimulationEvent)
-    >> TennisMatchDelegate.matchDidEndPoint(_:winner:score:) TennisMatchDelegate.matchDidComplete(_:score:)
+    >> TennisSimulationEvent.kind
   pub resetMatch(server: TennisSide)
     >> TennisMatchScorekeeper.reset(server:) TennisSimulation.resetPoint(server:) TennisController.resetPoint()
   priv flushPendingCommands()
     >> TennisInputRouter.onCommandList(_:)
   priv completePointIfNeeded()
-    >> TennisRuleBook.pointWinner(for:) TennisMatchScorekeeper.recordPoint(winner:)
-       TennisSimulation.resetPoint(server:) TennisController.resetPoint()
+    >> TennisSimulationState.pointEnd TennisRuleBook.pointWinner(for:)
+       TennisMatchScorekeeper.recordPoint(winner:) TennisMatchDelegate.matchDidEndPoint(_:winner:score:)
+       TennisSimulation.resetPoint(server:) TennisHumanController.resetPoint()
+       TennisCPUController.resetPoint() TennisMatchDelegate.matchDidComplete(_:score:)
 ```
 
 `TennisApp` installs one coordinator with `Application.addFixedListener(_:msPerTick:)` and

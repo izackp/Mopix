@@ -27,6 +27,8 @@ TennisScene < IDrawable
        fill(_:id:rect:color:z:) view(_:id:rect:fill:border:borderWidth:z:)
   priv playerRect(for player: TennisPlayerState, in court: Rect<Int>) -> Rect<Int>
   priv ballRect(for ball: TennisBallState, in court: Rect<Int>) -> Rect<Int>
+  priv projectedPoint(_ point: TennisPoint, in court: Rect<Int>) -> Point<Int>
+    << playerRect(for:in:) ballRect(for:in:)
   priv fill(_ renderer: DisplayRenderClient, id: UInt64, rect: Rect<Int>, color: SDLColor, z: Int)
     >> DisplayRenderClient.drawCmd(_:)
   priv view(_ renderer: DisplayRenderClient, id: UInt64, rect: Rect<Int>, fill: SDLColor, border: SDLColor, borderWidth: Int, z: Int)
