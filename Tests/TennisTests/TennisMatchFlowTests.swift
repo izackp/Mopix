@@ -21,9 +21,9 @@ final class TennisMatchFlowTests: XCTestCase {
     }
 
     func testPresentationFlowHoldsResultUntilContinue() {
-        let flow = TennisPresentationFlow { _ in
+        let flow = TennisPresentationFlow(matchFactory: { _ in
             TennisMatchCoordinator(simulation: self.makeSimulation(), scorekeeper: TennisMatchScorekeeper(initialServer: .human), humanController: self.humanController(), cpuController: TennisCPUController(policy: TennisCPUDecisionPolicy(reactionDelayTicks: 0, rallyFloor: 6), random: SeededTennisRandomSource(seed: 3)))
-        }
+        }, textRenderer: CommandTextRenderer())
         XCTAssertEqual(flow.state.screen, .title)
         flow.onCommand(.start)
         XCTAssertEqual(flow.state.screen, .surfaceSelect)
@@ -49,6 +49,73 @@ final class TennisMatchFlowTests: XCTestCase {
         XCTAssertEqual(reducer.state.pointEnd?.kind, .outOfBounds)
         reducer.consume(.serveFault(landing: TennisPoint(x: 1, y: 2)), tick: 4)
         XCTAssertEqual(reducer.state.faultCallout?.text, "FAULT")
+    }
+
+    func testPresentationUsesTextCommandsForMenuAndResultLabels() {
+        let text = CommandTextRenderer()
+        let flow = TennisPresentationFlow(matchFactory: { _ in
+            TennisMatchCoordinator(simulation: self.makeSimulation(), scorekeeper: TennisMatchScorekeeper(initialServer: .human), humanController: self.humanController(), cpuController: TennisCPUController(policy: TennisCPUDecisionPolicy(reactionDelayTicks: 0, rallyFloor: 6), random: SeededTennisRandomSource(seed: 3)))
+        }, textRenderer: text)
+        let renderer = makeRenderer()
+
+        flow.draw(renderer: renderer)
+        XCTAssertEqual(text.labels, ["TENNIS", "PRESS A"])
+        flow.onCommand(.start)
+        flow.draw(renderer: renderer)
+        XCTAssertEqual(Array(text.labels.suffix(2)), ["SURFACE", "1 HARD  2 CLAY  3 GRASS"])
+        flow.onCommand(.chooseSurface(.grass))
+        flow.matchDidComplete(.human, score: TennisMatchScore(humanPoints: 11, cpuPoints: 0, server: .human, matchWinner: .human))
+        flow.draw(renderer: renderer)
+        XCTAssertEqual(Array(text.labels.suffix(2)), ["PLAYER WINS", "PRESS A"])
+    }
+
+    @MainActor
+    func testSurfaceFactoryPropagatesSelectedCourtSurface() {
+        XCTAssertEqual(TennisApp.makeCoordinator(surface: .hard).simulation.rules.surface, .hard)
+        XCTAssertEqual(TennisApp.makeCoordinator(surface: .clay).simulation.rules.surface, .clay)
+        XCTAssertEqual(TennisApp.makeCoordinator(surface: .grass).simulation.rules.surface, .grass)
+    }
+
+    func testCoordinatorPublishesHumanAndCPUActiveCharge() {
+        let human = TennisMatchCoordinator(
+            simulation: makeSimulation(), scorekeeper: TennisMatchScorekeeper(initialServer: .human),
+            humanController: humanController(),
+            cpuController: TennisCPUController(policy: TennisCPUDecisionPolicy(reactionDelayTicks: 0, rallyFloor: 6), random: SeededTennisRandomSource(seed: 3))
+        )
+        human.step(16)
+        XCTAssertEqual(human.latestCharge.activeSide, .human)
+
+        let cpu = TennisMatchCoordinator(
+            simulation: makeSimulation(server: .cpu), scorekeeper: TennisMatchScorekeeper(initialServer: .cpu),
+            humanController: humanController(),
+            cpuController: TennisCPUController(policy: TennisCPUDecisionPolicy(reactionDelayTicks: 0, rallyFloor: 6), random: SeededTennisRandomSource(seed: 3))
+        )
+        cpu.step(16)
+        XCTAssertEqual(cpu.latestCharge.activeSide, .cpu)
+        XCTAssertGreaterThanOrEqual(cpu.latestCharge.value, 0)
+        XCTAssertEqual(cpu.latestCharge.capReached, cpu.latestCharge.value >= 100)
+    }
+
+    func testEachSurfaceBounceProducesDistinctCueAndAudioHook() {
+        for (surface, expectedID) in [(CourtSurface.hard, UInt64(17)), (.clay, 18), (.grass, 19)] {
+            let reducer = TennisMatchFeedbackReducer()
+            var heard: CourtSurface?
+            reducer.surfaceBounceAudioHook = { heard = $0 }
+            reducer.consume(.bounce(surface: surface), tick: 0)
+            XCTAssertEqual(heard, surface)
+
+            let coordinator = TennisMatchCoordinator(
+                simulation: makeSimulation(), scorekeeper: TennisMatchScorekeeper(initialServer: .human),
+                humanController: humanController(),
+                cpuController: TennisCPUController(policy: TennisCPUDecisionPolicy(reactionDelayTicks: 0, rallyFloor: 6), random: SeededTennisRandomSource(seed: 3))
+            )
+            coordinator.simulationDidEmit(TennisSimulationEvent(tick: 0, kind: .bounce(surface: surface)))
+            let scene = TennisScene(coordinator: coordinator)
+            let renderer = makeRenderer()
+            scene.draw(0, renderer)
+            let commands = Mirror(reflecting: renderer).children.first { $0.label == "cmdList" }?.value as? [DrawCmd]
+            XCTAssertNotNil(commands?.first(where: { $0.animationId == expectedID }))
+        }
     }
 
     func testScorekeeperRotatesServerEveryTwoPoints() {
@@ -216,7 +283,7 @@ final class TennisMatchFlowTests: XCTestCase {
         ))
     }
 
-    private func makeSimulation(pointEnd: PointEndReason? = nil, humanPosition: TennisPoint = TennisPoint(x: 5000, y: 20000), cpuPosition: TennisPoint = TennisPoint(x: 5000, y: 0), ballPosition: TennisPoint = TennisPoint(x: 5000, y: 20000)) -> TennisSimulation {
+    private func makeSimulation(pointEnd: PointEndReason? = nil, server: TennisSide = .human, humanPosition: TennisPoint = TennisPoint(x: 5000, y: 20000), cpuPosition: TennisPoint = TennisPoint(x: 5000, y: 0), ballPosition: TennisPoint = TennisPoint(x: 5000, y: 20000)) -> TennisSimulation {
         let boundary = TennisRect(minX: 0, minY: 0, maxX: 10000, maxY: 20000)
         let box = TennisRect(minX: 0, minY: 0, maxX: 5000, maxY: 5000)
         let bottomBox = TennisRect(minX: 0, minY: 15000, maxX: 5000, maxY: 20000)
@@ -227,8 +294,24 @@ final class TennisMatchFlowTests: XCTestCase {
             TennisSide.cpu: TennisPlayerState(side: .cpu, position: cpuPosition, stats: stats, preset: .power)
         ]
         let ball = TennisBallState(position: ballPosition, height: 0, velocity: TennisVelocity(x: 0, y: 0, z: 0), shotKind: .serve, lastHitter: nil, isInFlight: false)
-        let state = TennisSimulationState(tick: 0, server: .human, players: players, ball: ball, pointEnd: pointEnd)
+        let state = TennisSimulationState(tick: 0, server: server, players: players, ball: ball, pointEnd: pointEnd)
         return TennisSimulation(rules: court, ruleBook: DefaultTennisRuleBook(), random: SeededTennisRandomSource(seed: 4), state: state)
+    }
+
+    private func makeRenderer() -> DisplayRenderClient {
+        let transport = InProcessTransport.makePair()
+        let client = DisplayClient(transport: transport.client, logicalSize: Size(160, 144))
+        return DisplayRenderClient(displayClient: client, windowSize: Size<Int16>(160, 144))
+    }
+}
+
+private final class CommandTextRenderer: TennisTextRenderer {
+    var labels: [String] = []
+    func draw(_ text: String, at point: Point<Int>, color: SDLColor, z: Int, renderer: DisplayRenderClient) {
+        labels.append(text)
+        for (index, _) in text.enumerated() {
+            renderer.draw(UInt64(7000 + index), UInt64(8000 + index), Rect(x: point.x + index * 6, y: point.y, width: 5, height: 8), color, z)
+        }
     }
 }
 

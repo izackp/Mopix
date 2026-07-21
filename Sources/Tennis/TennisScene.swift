@@ -91,6 +91,18 @@ final class TennisScene: IDrawable {
             let color = pointEnd.kind == .netFault ? SDLColor(rawValue: 0xFFE34B4B) : SDLColor(rawValue: 0xFFFFD447)
             fill(renderer, id: 16, rect: Rect(x: court.x + 5, y: court.centerY - 2, width: court.width - 10, height: 4), color: color, z: 6)
         }
+        if let bounce = feedback.state.surfaceBounce {
+            let cue: (UInt64, SDLColor, Rect<Int>)
+            switch bounce.surface {
+            case .hard:
+                cue = (17, SDLColor(rawValue: 0xFFEAF7FF), Rect(x: ballRect.x - 3, y: ballRect.bottom, width: 9, height: 1))
+            case .clay:
+                cue = (18, SDLColor(rawValue: 0xFFE07A45), Rect(x: ballRect.x - 2, y: ballRect.bottom, width: 7, height: 2))
+            case .grass:
+                cue = (19, SDLColor(rawValue: 0xFFB5F05A), Rect(x: ballRect.x - 4, y: ballRect.bottom, width: 11, height: 1))
+            }
+            fill(renderer, id: cue.0, rect: cue.2, color: cue.1, z: 6)
+        }
 
         view(renderer, id: Layer.lowerPlayer, rect: lowerPlayerRect, fill: lowerPlayerColor, border: lineColor, borderWidth: 1, z: 4)
         view(renderer, id: Layer.upperPlayer, rect: upperPlayerRect, fill: upperPlayerColor, border: lineColor, borderWidth: 1, z: 4)

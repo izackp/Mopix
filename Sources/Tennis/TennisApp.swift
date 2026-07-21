@@ -21,18 +21,8 @@ final class TennisApp: Application {
             sequenceResolver: DefaultTennisShotSequenceResolver(),
             initialFrame: TennisInputFrame(direction: TennisDirection(x: 0, y: 0), pressedButtons: [], heldButtons: [])
         )
-        let matchCoordinator = TennisMatchCoordinator(
-            simulation: simulation,
-            scorekeeper: TennisMatchScorekeeper(initialServer: .human),
-            humanController: TennisHumanController(inputRouter: humanRouter),
-            cpuController: TennisCPUController(
-                policy: TennisCPUDecisionPolicy(reactionDelayTicks: 2, rallyFloor: 6),
-                random: SeededTennisRandomSource(seed: 0x54454E4E4953)
-            )
-        )
+        let matchCoordinator = TennisApp.makeCoordinator(surface: .hard, simulation: simulation, humanRouter: humanRouter)
         self.matchCoordinator = matchCoordinator
-        let flow = TennisPresentationFlow { _ in matchCoordinator }
-        self.presentation = flow
 
         let windowFrame = Rect(
             x: 0,
@@ -55,6 +45,11 @@ final class TennisApp: Application {
         guard let font else {
             throw GenericError("Tennis HUD font unavailable")
         }
+        let flow = TennisPresentationFlow(
+            matchFactory: { surface in TennisApp.makeCoordinator(surface: surface) },
+            textRenderer: TennisFontTextRenderer(font: font)
+        )
+        self.presentation = flow
         self.scene = TennisScene(coordinator: matchCoordinator, hud: TennisHUD(font: font), presentation: flow)
         window.drawable = scene
         addFixedListener(matchCoordinator, msPerTick: 16)
@@ -65,12 +60,12 @@ final class TennisApp: Application {
         addWindow(window)
     }
 
-    static func makeSimulation() -> TennisSimulation {
+    static func makeSimulation(surface: CourtSurface = .hard) -> TennisSimulation {
         let boundary = TennisRect(minX: 0, minY: 0, maxX: 10000, maxY: 20000)
         let topBox = TennisRect(minX: 0, minY: 0, maxX: 5000, maxY: 5000)
         let bottomBox = TennisRect(minX: 0, minY: 15000, maxX: 5000, maxY: 20000)
         let court = CourtRules(
-            surface: .hard,
+            surface: surface,
             singlesBoundary: boundary,
             serviceBoxes: TennisServiceBoxes(topLeft: topBox, topRight: topBox, bottomLeft: bottomBox, bottomRight: bottomBox),
             netY: 10000
@@ -83,6 +78,26 @@ final class TennisApp: Application {
         let ball = TennisBallState(position: TennisPoint(x: 5000, y: 20000), height: 0, velocity: TennisVelocity(x: 0, y: 0, z: 0), shotKind: .serve, lastHitter: nil, isInFlight: false)
         let state = TennisSimulationState(tick: 0, server: .human, players: players, ball: ball)
         return TennisSimulation(rules: court, ruleBook: DefaultTennisRuleBook(), random: SeededTennisRandomSource(seed: 0x54454E4E4953), state: state)
+    }
+
+    static func makeCoordinator(surface: CourtSurface) -> TennisMatchCoordinator {
+        makeCoordinator(surface: surface, simulation: makeSimulation(surface: surface), humanRouter: TennisInputRouter(
+            humanInput: TennisVirtualControllerInputSource(),
+            sequenceResolver: DefaultTennisShotSequenceResolver(),
+            initialFrame: TennisInputFrame(direction: TennisDirection(x: 0, y: 0), pressedButtons: [], heldButtons: [])
+        ))
+    }
+
+    private static func makeCoordinator(surface: CourtSurface, simulation: TennisSimulation, humanRouter: TennisInputRouter) -> TennisMatchCoordinator {
+        TennisMatchCoordinator(
+            simulation: simulation,
+            scorekeeper: TennisMatchScorekeeper(initialServer: .human),
+            humanController: TennisHumanController(inputRouter: humanRouter),
+            cpuController: TennisCPUController(
+                policy: TennisCPUDecisionPolicy(reactionDelayTicks: 2, rallyFloor: 6),
+                random: SeededTennisRandomSource(seed: 0x54454E4E4953)
+            )
+        )
     }
 
     #if DEBUG

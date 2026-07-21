@@ -52,13 +52,16 @@ public struct TennisMatchFeedbackState: Equatable {
 
 public final class TennisMatchFeedbackReducer {
     public private(set) var state = TennisMatchFeedbackState()
+    public var surfaceBounceAudioHook: ((CourtSurface) -> Void)?
     public init() {}
     public func consume(_ event: TennisMatchPresentationEvent, tick: UInt64) {
         switch event {
         case .shotHit(_, let shot):
             let color: SDLColor = shot == .topspin ? SDLColor(rawValue: 0xFFE34B4B) : shot == .slice ? SDLColor(rawValue: 0xFF4B86E3) : shot == .smash ? SDLColor(rawValue: 0xFFB04BE3) : SDLColor(rawValue: 0xFFF2F1D5)
             state.shotTrail = TennisShotTrail(color: color, expiresAt: tick + 12)
-        case .bounce(let surface): state.surfaceBounce = TennisSurfaceBounce(surface: surface, expiresAt: tick + 8)
+        case .bounce(let surface):
+            state.surfaceBounce = TennisSurfaceBounce(surface: surface, expiresAt: tick + 8)
+            surfaceBounceAudioHook?(surface)
         case .netContact: state.pointEnd = TennisPointEndCue(kind: .netFault, expiresAt: tick + 20)
         case .outOfBounds: state.pointEnd = TennisPointEndCue(kind: .outOfBounds, expiresAt: tick + 20)
         case .serveFault(let landing): state.faultCallout = TennisFaultCallout(text: "FAULT", landing: landing, expiresAt: tick + 30)
@@ -118,11 +121,34 @@ public final class TennisHUD {
     }
 }
 
+public protocol TennisTextRenderer {
+    func draw(_ text: String, at point: Point<Int>, color: SDLColor, z: Int, renderer: DisplayRenderClient)
+}
+
+final class TennisFontTextRenderer: TennisTextRenderer {
+    private let font: Font
+    init(font: Font) { self.font = font }
+
+    func draw(_ text: String, at point: Point<Int>, color: SDLColor, z: Int, renderer: DisplayRenderClient) {
+        var x = point.x
+        for (index, character) in text.enumerated() {
+            guard let resource = font.resourceId(for: character) else { continue }
+            renderer.draw(UInt64(4000 + z * 100 + index), resource, Rect(x: x, y: point.y, width: 5, height: 8), color, z)
+            x += 6
+        }
+    }
+}
+
 public final class TennisPresentationFlow: TennisMatchDelegate, IEventListener {
     public private(set) var state: TennisPresentationState
     private let matchFactory: (CourtSurface) -> TennisMatchCoordinator
+    private let textRenderer: TennisTextRenderer
     private var coordinator: TennisMatchCoordinator?
-    public init(matchFactory: @escaping (CourtSurface) -> TennisMatchCoordinator) { self.matchFactory = matchFactory; state = TennisPresentationState() }
+    public init(matchFactory: @escaping (CourtSurface) -> TennisMatchCoordinator, textRenderer: TennisTextRenderer) {
+        self.matchFactory = matchFactory
+        self.textRenderer = textRenderer
+        state = TennisPresentationState()
+    }
     public func onCommand(_ command: TennisMenuCommand) {
         switch (state.screen, command) {
         case (.title, .start): state.screen = .surfaceSelect
@@ -153,6 +179,6 @@ public final class TennisPresentationFlow: TennisMatchDelegate, IEventListener {
     private func beginMatch(surface: CourtSurface) { state.selectedSurface = surface; state.result = nil; coordinator = matchFactory(surface); coordinator?.delegate = self; state.screen = .match }
     private func beginSurfaceSelect() { coordinator = nil; state.result = nil; state.screen = .surfaceSelect }
     private func drawText(_ text: String, x: Int, y: Int, renderer: DisplayRenderClient) {
-        let width = max(1, text.count * 4); renderer.drawCmd(DrawCmd(animationId: 500, parentAnimationId: 0, dest: Rect(x: x, y: y, width: width, height: 7), color: .white, alpha: 1, z: 40, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: renderer.defaultTime, type: .fill))
+        textRenderer.draw(text, at: Point(x, y), color: .white, z: 40, renderer: renderer)
     }
 }
