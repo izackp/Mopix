@@ -69,7 +69,7 @@ public struct FontDesc : Codable, Hashable {
     public static let defaultFont = FontDesc(family: "Alibaba PuHuiTi"
                                              , weight: 100, size: 18)
     
-    init(family: String, weight: UInt16, size: Float) {
+    public init(family: String, weight: UInt16, size: Float) {
         self.family = family
         self.weight = weight
         self.size = size

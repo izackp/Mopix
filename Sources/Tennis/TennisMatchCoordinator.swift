@@ -11,10 +11,12 @@ public protocol TennisMatchDelegate: AnyObject {
 public struct TennisMatchSnapshot: Equatable {
     public let score: TennisMatchScore
     public let simulation: TennisSimulationState
+    public let charge: TennisChargeSnapshot
 
-    public init(score: TennisMatchScore, simulation: TennisSimulationState) {
+    public init(score: TennisMatchScore, simulation: TennisSimulationState, charge: TennisChargeSnapshot? = nil) {
         self.score = score
         self.simulation = simulation
+        self.charge = charge ?? TennisChargeSnapshot(activeSide: score.server, value: 0, capReached: false)
     }
 }
 
@@ -29,6 +31,8 @@ public final class TennisMatchCoordinator: IUpdate, IEventListener, TennisSimula
     private var pendingCommands: [InputCommand] = []
     private var tick: UInt64
     private var pendingPointEnd: PointEndReason?
+    public private(set) var latestCharge = TennisChargeSnapshot(activeSide: .human, value: 0, capReached: false)
+    public private(set) var presentationEvents: [TennisMatchPresentationEvent] = []
 
     public init(
         simulation: TennisSimulation,
@@ -46,7 +50,7 @@ public final class TennisMatchCoordinator: IUpdate, IEventListener, TennisSimula
     }
 
     public func snapshot() -> TennisMatchSnapshot {
-        TennisMatchSnapshot(score: score, simulation: simulation.snapshot())
+        TennisMatchSnapshot(score: score, simulation: simulation.snapshot(), charge: latestCharge)
     }
 
     public func step(_ delta: UInt64) {
@@ -57,6 +61,11 @@ public final class TennisMatchCoordinator: IUpdate, IEventListener, TennisSimula
         let snapshot = simulation.snapshot()
         let humanIntent = humanController.intent(for: snapshot, tick: tick)
         let cpuIntent = cpuController.intent(for: snapshot, tick: tick)
+        if case .swing(_, let value) = humanIntent {
+            latestCharge = TennisChargeSnapshot(activeSide: .human, value: value, capReached: value >= 100)
+        } else {
+            latestCharge = TennisChargeSnapshot(activeSide: snapshot.server, value: 0, capReached: false)
+        }
         simulation.step(tickInput: TennisTickInput(human: humanIntent, cpu: cpuIntent))
         completePointIfNeeded()
     }
@@ -70,6 +79,21 @@ public final class TennisMatchCoordinator: IUpdate, IEventListener, TennisSimula
 
     public func simulationDidEmit(_ event: TennisSimulationEvent) {
         if case .pointEnded(let reason) = event.kind { pendingPointEnd = reason }
+        switch event.kind {
+        case .serveHit(let side): presentationEvents.append(.shotHit(side: side, shot: .serve))
+        case .serveFault(_, let landing): presentationEvents.append(.serveFault(landing: landing))
+        case .shotHit(let side, let shot, _): presentationEvents.append(.shotHit(side: side, shot: shot))
+        case .bounce(let surface): presentationEvents.append(.bounce(surface: surface))
+        case .netContact: presentationEvents.append(.netContact)
+        case .outOfBounds: presentationEvents.append(.outOfBounds)
+        case .pointEnded(let reason): presentationEvents.append(.pointEnded(reason: reason, winner: simulation.ruleBook.pointWinner(for: reason)))
+        }
+    }
+
+    public func consumePresentationEvents() -> [TennisMatchPresentationEvent] {
+        let events = presentationEvents
+        presentationEvents.removeAll(keepingCapacity: true)
+        return events
     }
 
     public func resetMatch(server: TennisSide) {
@@ -77,6 +101,7 @@ public final class TennisMatchCoordinator: IUpdate, IEventListener, TennisSimula
         score = scorekeeper.score
         pendingCommands.removeAll(keepingCapacity: true)
         pendingPointEnd = nil
+        latestCharge = TennisChargeSnapshot(activeSide: server, value: 0, capReached: false)
         simulation.resetPoint(server: server)
         humanController.resetPoint()
         cpuController.resetPoint()

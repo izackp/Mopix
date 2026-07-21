@@ -6,6 +6,51 @@ import SDL2
 @testable import TennisInput
 
 final class TennisMatchFlowTests: XCTestCase {
+    @MainActor
+    func testTennisAppRegistersOneDeterministicCoordinatorGraph() throws {
+        let first = TennisApp.makeSimulation().snapshot()
+        let second = TennisApp.makeSimulation().snapshot()
+        XCTAssertEqual(first, second)
+
+        let app = try TennisApp()
+        let graph = app.integrationGraph
+        XCTAssertEqual(graph.fixedCount, 1)
+        XCTAssertEqual(graph.eventCount, 1)
+        XCTAssertTrue(graph.coordinator === app.integrationGraph.coordinator)
+        app.isRunning = false
+    }
+
+    func testPresentationFlowHoldsResultUntilContinue() {
+        let flow = TennisPresentationFlow { _ in
+            TennisMatchCoordinator(simulation: self.makeSimulation(), scorekeeper: TennisMatchScorekeeper(initialServer: .human), humanController: self.humanController(), cpuController: TennisCPUController(policy: TennisCPUDecisionPolicy(reactionDelayTicks: 0, rallyFloor: 6), random: SeededTennisRandomSource(seed: 3)))
+        }
+        XCTAssertEqual(flow.state.screen, .title)
+        flow.onCommand(.start)
+        XCTAssertEqual(flow.state.screen, .surfaceSelect)
+        flow.onCommand(.chooseSurface(.grass))
+        XCTAssertEqual(flow.state.screen, .match)
+        flow.matchDidComplete(.human, score: TennisMatchScore(humanPoints: 11, cpuPoints: 0, server: .human, matchWinner: .human))
+        XCTAssertEqual(flow.state.screen, .result)
+        XCTAssertEqual(flow.state.result?.winner, .human)
+        flow.onCommand(.continue)
+        XCTAssertEqual(flow.state.screen, .surfaceSelect)
+        XCTAssertNil(flow.state.result)
+    }
+
+    func testFeedbackReducerDistinguishesFaultsAndSurfaceCues() {
+        let reducer = TennisMatchFeedbackReducer()
+        reducer.consume(.shotHit(side: .human, shot: .topspin), tick: 1)
+        XCTAssertEqual(reducer.state.shotTrail?.color, SDLColor(rawValue: 0xFFE34B4B))
+        reducer.consume(.bounce(surface: .clay), tick: 1)
+        XCTAssertEqual(reducer.state.surfaceBounce?.surface, .clay)
+        reducer.consume(.netContact, tick: 2)
+        XCTAssertEqual(reducer.state.pointEnd?.kind, .netFault)
+        reducer.consume(.outOfBounds, tick: 3)
+        XCTAssertEqual(reducer.state.pointEnd?.kind, .outOfBounds)
+        reducer.consume(.serveFault(landing: TennisPoint(x: 1, y: 2)), tick: 4)
+        XCTAssertEqual(reducer.state.faultCallout?.text, "FAULT")
+    }
+
     func testScorekeeperRotatesServerEveryTwoPoints() {
         let scorekeeper = TennisMatchScorekeeper(initialServer: .human)
 

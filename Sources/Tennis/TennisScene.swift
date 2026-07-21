@@ -29,9 +29,20 @@ final class TennisScene: IDrawable {
     private let upperPlayerColor = SDLColor(rawValue: 0xFF46C28B)
     private let ballColor = SDLColor(rawValue: 0xFFF7EE59)
     private let coordinator: TennisMatchCoordinator
+    private let hud: TennisHUD?
+    private let presentation: TennisPresentationFlow?
+    private let feedback = TennisMatchFeedbackReducer()
 
     init(coordinator: TennisMatchCoordinator) {
         self.coordinator = coordinator
+        self.hud = nil
+        self.presentation = nil
+    }
+
+    init(coordinator: TennisMatchCoordinator, hud: TennisHUD, presentation: TennisPresentationFlow? = nil) {
+        self.coordinator = coordinator
+        self.hud = hud
+        self.presentation = presentation
     }
 
     func draw(_ delta: UInt64, _ renderer: DisplayRenderClient) {
@@ -41,6 +52,10 @@ final class TennisScene: IDrawable {
         let baselineCenterMarkWidth = 2
         let baselineCenterMarkHeight = 5
         fill(renderer, id: Layer.background, rect: viewport, color: backgroundColor, z: 0)
+        if let presentation, presentation.state.screen != .match {
+            presentation.draw(renderer: renderer)
+            return
+        }
         view(renderer, id: Layer.courtBorder, rect: court, fill: courtColor, border: lineColor, borderWidth: 2, z: 1)
 
         fill(renderer, id: Layer.topServiceLine, rect: Rect(x: court.x + 2, y: court.y + serviceInset, width: court.width - 4, height: serviceLineThickness), color: lineColor, z: 2)
@@ -54,13 +69,28 @@ final class TennisScene: IDrawable {
         fill(renderer, id: Layer.bottomCenterMark, rect: Rect(x: court.centerX - 1, y: court.bottom - baselineCenterMarkHeight, width: baselineCenterMarkWidth, height: baselineCenterMarkHeight), color: lineColor, z: 2)
 
         let snapshot = coordinator.snapshot()
+        for event in coordinator.consumePresentationEvents() { feedback.consume(event, tick: snapshot.simulation.tick) }
+        feedback.advance(to: snapshot.simulation.tick)
         render(snapshot, renderer: renderer)
+        hud?.draw(snapshot, feedback: feedback.state, renderer: renderer)
     }
 
     private func render(_ snapshot: TennisMatchSnapshot, renderer: DisplayRenderClient) {
         let lowerPlayerRect = playerRect(for: snapshot.simulation.players[.human], in: court)
         let upperPlayerRect = playerRect(for: snapshot.simulation.players[.cpu], in: court)
         let ballRect = ballRect(for: snapshot.simulation.ball, in: court)
+
+        // Keep the airborne landing/shadow cue under the ball and its target area.
+        if snapshot.simulation.ball.isInFlight {
+            fill(renderer, id: 14, rect: Rect(x: ballRect.x - 1, y: ballRect.y + 3, width: 5, height: 2), color: SDLColor(rawValue: 0x88404040), z: 4)
+        }
+        if let trail = feedback.state.shotTrail {
+            fill(renderer, id: 15, rect: Rect(x: ballRect.x - 4, y: ballRect.y, width: 3, height: 2), color: trail.color, z: 4)
+        }
+        if let pointEnd = feedback.state.pointEnd {
+            let color = pointEnd.kind == .netFault ? SDLColor(rawValue: 0xFFE34B4B) : SDLColor(rawValue: 0xFFFFD447)
+            fill(renderer, id: 16, rect: Rect(x: court.x + 5, y: court.centerY - 2, width: court.width - 10, height: 4), color: color, z: 6)
+        }
 
         view(renderer, id: Layer.lowerPlayer, rect: lowerPlayerRect, fill: lowerPlayerColor, border: lineColor, borderWidth: 1, z: 4)
         view(renderer, id: Layer.upperPlayer, rect: upperPlayerRect, fill: upperPlayerColor, border: lineColor, borderWidth: 1, z: 4)
