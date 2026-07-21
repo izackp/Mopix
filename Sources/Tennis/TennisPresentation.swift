@@ -88,6 +88,48 @@ public struct TennisChargeSnapshot: Equatable {
     public init(activeSide: TennisSide, value: Int, capReached: Bool) { self.activeSide = activeSide; self.value = value; self.capReached = capReached }
 }
 
+public struct TennisPresentationObservation: Equatable {
+    public let screen: TennisScreen
+    public let selectedSurface: CourtSurface?
+    public let activeMatchSurface: CourtSurface?
+    public let coordinatorIdentity: ObjectIdentifier?
+    public let result: TennisResultSnapshot?
+    public let score: TennisMatchScore?
+    public let charge: TennisChargeSnapshot?
+    public let feedback: TennisMatchFeedbackState
+    public let glyphTexts: [String]
+    public let drawCommandIDs: [UInt64]
+
+    public init(screen: TennisScreen, selectedSurface: CourtSurface?, activeMatchSurface: CourtSurface?,
+                coordinatorIdentity: ObjectIdentifier?, result: TennisResultSnapshot?, score: TennisMatchScore?, charge: TennisChargeSnapshot?,
+                feedback: TennisMatchFeedbackState, glyphTexts: [String], drawCommandIDs: [UInt64]) {
+        self.screen = screen
+        self.selectedSurface = selectedSurface
+        self.activeMatchSurface = activeMatchSurface
+        self.coordinatorIdentity = coordinatorIdentity
+        self.result = result
+        self.score = score
+        self.charge = charge
+        self.feedback = feedback
+        self.glyphTexts = glyphTexts
+        self.drawCommandIDs = drawCommandIDs
+    }
+}
+
+public final class TennisHeadlessEvidenceSink {
+    private var observations: [TennisPresentationObservation] = []
+
+    public init() {}
+
+    public func observe(_ observation: TennisPresentationObservation) {
+        observations.append(observation)
+    }
+
+    public func finish() -> [TennisPresentationObservation] {
+        observations
+    }
+}
+
 public final class TennisHUD {
     private let scoreLayout = Rect(x: 3, y: 3, width: 48, height: 12)
     private let serverLayout = Rect(x: 112, y: 3, width: 45, height: 12)
@@ -127,15 +169,20 @@ public protocol TennisTextRenderer {
 
 final class TennisFontTextRenderer: TennisTextRenderer {
     private let font: Font
+    var onDraw: ((String, [UInt64]) -> Void)?
     init(font: Font) { self.font = font }
 
     func draw(_ text: String, at point: Point<Int>, color: SDLColor, z: Int, renderer: DisplayRenderClient) {
         var x = point.x
+        var commandIDs: [UInt64] = []
         for (index, character) in text.enumerated() {
             guard let resource = font.resourceId(for: character) else { continue }
-            renderer.draw(UInt64(4000 + z * 100 + index), resource, Rect(x: x, y: point.y, width: 5, height: 8), color, z)
+            let commandID = UInt64(4000 + z * 100 + index)
+            commandIDs.append(commandID)
+            renderer.draw(commandID, resource, Rect(x: x, y: point.y, width: 5, height: 8), color, z)
             x += 6
         }
+        onDraw?(text, commandIDs)
     }
 }
 
@@ -144,11 +191,13 @@ public final class TennisPresentationFlow: TennisMatchDelegate, IEventListener {
     private let matchFactory: (CourtSurface) -> TennisMatchCoordinator
     private let textRenderer: TennisTextRenderer
     private var coordinator: TennisMatchCoordinator?
+    var onCoordinatorChange: ((TennisMatchCoordinator?) -> Void)?
     public init(matchFactory: @escaping (CourtSurface) -> TennisMatchCoordinator, textRenderer: TennisTextRenderer) {
         self.matchFactory = matchFactory
         self.textRenderer = textRenderer
         state = TennisPresentationState()
     }
+    var integrationCoordinator: TennisMatchCoordinator? { coordinator }
     public func onCommand(_ command: TennisMenuCommand) {
         switch (state.screen, command) {
         case (.title, .start): state.screen = .surfaceSelect
@@ -174,10 +223,38 @@ public final class TennisPresentationFlow: TennisMatchDelegate, IEventListener {
         case .result: if let result = state.result { drawText(result.winner == .human ? "PLAYER WINS" : "CPU WINS", x: 39, y: 52, renderer: renderer); drawText("PRESS A", x: 57, y: 76, renderer: renderer) }
         case .match: break }
     }
+    public func makeObservation(feedback: TennisMatchFeedbackState = TennisMatchFeedbackState(),
+                                glyphTexts: [String] = [], drawCommandIDs: [UInt64] = []) -> TennisPresentationObservation {
+        TennisPresentationObservation(
+            screen: state.screen,
+            selectedSurface: state.selectedSurface,
+            activeMatchSurface: coordinator?.simulation.rules.surface,
+            coordinatorIdentity: coordinator.map(ObjectIdentifier.init),
+            result: state.result,
+            score: state.result?.score ?? coordinator?.score,
+            charge: coordinator?.latestCharge,
+            feedback: feedback,
+            glyphTexts: glyphTexts,
+            drawCommandIDs: drawCommandIDs
+        )
+    }
     public func matchDidEndPoint(_ reason: PointEndReason, winner: TennisSide, score: TennisMatchScore) {}
     public func matchDidComplete(_ winner: TennisSide, score: TennisMatchScore) { state.result = TennisResultSnapshot(winner: winner, score: score); state.screen = .result }
-    private func beginMatch(surface: CourtSurface) { state.selectedSurface = surface; state.result = nil; coordinator = matchFactory(surface); coordinator?.delegate = self; state.screen = .match }
-    private func beginSurfaceSelect() { coordinator = nil; state.result = nil; state.screen = .surfaceSelect }
+    private func beginMatch(surface: CourtSurface) {
+        state.selectedSurface = surface
+        state.result = nil
+        let selectedCoordinator = matchFactory(surface)
+        selectedCoordinator.delegate = self
+        coordinator = selectedCoordinator
+        onCoordinatorChange?(selectedCoordinator)
+        state.screen = .match
+    }
+    private func beginSurfaceSelect() {
+        onCoordinatorChange?(nil)
+        coordinator = nil
+        state.result = nil
+        state.screen = .surfaceSelect
+    }
     private func drawText(_ text: String, x: Int, y: Int, renderer: DisplayRenderClient) {
         textRenderer.draw(text, at: Point(x, y), color: .white, z: 40, renderer: renderer)
     }

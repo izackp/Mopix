@@ -28,10 +28,11 @@ final class TennisScene: IDrawable {
     private let lowerPlayerColor = SDLColor(rawValue: 0xFFF46D43)
     private let upperPlayerColor = SDLColor(rawValue: 0xFF46C28B)
     private let ballColor = SDLColor(rawValue: 0xFFF7EE59)
-    private let coordinator: TennisMatchCoordinator
+    private var coordinator: TennisMatchCoordinator
     private let hud: TennisHUD?
     private let presentation: TennisPresentationFlow?
     private let feedback = TennisMatchFeedbackReducer()
+    private var lastDrawCommandIDs: [UInt64] = []
 
     init(coordinator: TennisMatchCoordinator) {
         self.coordinator = coordinator
@@ -45,7 +46,18 @@ final class TennisScene: IDrawable {
         self.presentation = presentation
     }
 
+    func replaceCoordinator(_ coordinator: TennisMatchCoordinator) {
+        self.coordinator = coordinator
+        feedback.reset()
+    }
+
+    var integrationCoordinator: TennisMatchCoordinator { coordinator }
+    var integrationFeedback: TennisMatchFeedbackState { feedback.state }
+    var integrationLastDrawCommandIDs: [UInt64] { lastDrawCommandIDs }
+    func resetPresentationFeedback() { feedback.reset() }
+
     func draw(_ delta: UInt64, _ renderer: DisplayRenderClient) {
+        lastDrawCommandIDs.removeAll(keepingCapacity: true)
         let netY = court.centerY
         let serviceInset = 28
         let serviceLineThickness = 2
@@ -128,6 +140,7 @@ final class TennisScene: IDrawable {
     }
 
     private func fill(_ renderer: DisplayRenderClient, id: UInt64, rect: Rect<Int>, color: SDLColor, z: Int) {
+        lastDrawCommandIDs.append(id)
         renderer.drawCmd(
             DrawCmd(
                 animationId: id,
@@ -147,6 +160,7 @@ final class TennisScene: IDrawable {
     }
 
     private func view(_ renderer: DisplayRenderClient, id: UInt64, rect: Rect<Int>, fill: SDLColor, border: SDLColor, borderWidth: Int, z: Int) {
+        lastDrawCommandIDs.append(id)
         renderer.drawCmd(
             DrawCmd(
                 animationId: id,

@@ -1,3 +1,4 @@
+import Foundation
 import GameEngine
 import SDL2Swift
 import TennisCore
@@ -9,6 +10,7 @@ final class TennisApp: Application {
     private var matchCoordinator: TennisMatchCoordinator!
     private var presentation: TennisPresentationFlow!
     private var scene: TennisScene!
+    private var headlessScenario: TennisHeadlessScenario?
     private(set) var registeredFixedCoordinatorCount = 0
     private(set) var registeredEventCoordinatorCount = 0
 
@@ -45,12 +47,16 @@ final class TennisApp: Application {
         guard let font else {
             throw GenericError("Tennis HUD font unavailable")
         }
+        let textRenderer = TennisFontTextRenderer(font: font)
         let flow = TennisPresentationFlow(
             matchFactory: { surface in TennisApp.makeCoordinator(surface: surface) },
-            textRenderer: TennisFontTextRenderer(font: font)
+            textRenderer: textRenderer
         )
         self.presentation = flow
         self.scene = TennisScene(coordinator: matchCoordinator, hud: TennisHUD(font: font), presentation: flow)
+        flow.onCoordinatorChange = { [weak self] coordinator in
+            self?.replaceCoordinator(coordinator)
+        }
         window.drawable = scene
         addFixedListener(matchCoordinator, msPerTick: 16)
         addEventListener(matchCoordinator)
@@ -58,6 +64,46 @@ final class TennisApp: Application {
         registeredFixedCoordinatorCount += 1
         registeredEventCoordinatorCount += 1
         addWindow(window)
+
+        if isHeadless && CommandLine.arguments.contains("--tennis-evidence") {
+            let scenario = TennisHeadlessScenario(flow: flow, scene: scene,
+                                                   outputDir: headlessConfig?.outputDir ?? URL(fileURLWithPath: "./"))
+            textRenderer.onDraw = { [weak scenario] text, commandIDs in
+                scenario?.recordText(text, commandIDs: commandIDs)
+            }
+            scenario.onFinished = { [weak self] in self?.isRunning = false }
+            self.headlessScenario = scenario
+            addFixedListener(scenario.fixedDriver, msPerTick: 16)
+            addDeltaListener(scenario.captureDriver)
+        }
+    }
+
+    private func replaceCoordinator(_ replacement: TennisMatchCoordinator?) {
+        if registeredFixedCoordinatorCount > 0 {
+            removeFixedListener(matchCoordinator)
+            registeredFixedCoordinatorCount = 0
+        }
+        if registeredEventCoordinatorCount > 0 {
+            removeEventListener(matchCoordinator)
+            registeredEventCoordinatorCount = 0
+        }
+
+        guard let replacement else {
+            scene.resetPresentationFeedback()
+            return
+        }
+        matchCoordinator = replacement
+        scene.replaceCoordinator(replacement)
+        addFixedListener(replacement, msPerTick: 16)
+        addEventListener(replacement)
+        registeredFixedCoordinatorCount = 1
+        registeredEventCoordinatorCount = 1
+    }
+
+    var integrationPresentation: TennisPresentationFlow { presentation }
+    var integrationSceneCoordinator: TennisMatchCoordinator { scene.integrationCoordinator }
+    var integrationRegisteredCoordinator: TennisMatchCoordinator? {
+        registeredFixedCoordinatorCount == 1 && registeredEventCoordinatorCount == 1 ? matchCoordinator : nil
     }
 
     static func makeSimulation(surface: CourtSurface = .hard) -> TennisSimulation {
@@ -105,6 +151,109 @@ final class TennisApp: Application {
         return (matchCoordinator, registeredFixedCoordinatorCount, registeredEventCoordinatorCount)
     }
     #endif
+}
+
+private final class TennisHeadlessScenario {
+    let fixedDriver: TennisHeadlessFixedDriver
+    let captureDriver: TennisHeadlessCaptureDriver
+    private let flow: TennisPresentationFlow
+    private let scene: TennisScene
+    private let outputDir: URL
+    private let evidence = TennisHeadlessEvidenceSink()
+    private var tick = 0
+    private var glyphTexts: [String] = []
+    private var textCommandIDs: [UInt64] = []
+    var onFinished: (() -> Void)?
+
+    init(flow: TennisPresentationFlow, scene: TennisScene, outputDir: URL) {
+        self.flow = flow
+        self.scene = scene
+        self.outputDir = outputDir
+        let fixedDriver = TennisHeadlessFixedDriver()
+        let captureDriver = TennisHeadlessCaptureDriver()
+        self.fixedDriver = fixedDriver
+        self.captureDriver = captureDriver
+        fixedDriver.scenario = self
+        captureDriver.scenario = self
+    }
+
+    func fixedStep() {
+        tick += 1
+        switch tick {
+        case 2:
+            flow.onCommand(.start)
+        case 3:
+            flow.onCommand(.chooseSurface(.grass))
+            flow.integrationCoordinator?.simulationDidEmit(TennisSimulationEvent(tick: 0, kind: .shotHit(side: .human, shot: .topspin, quality: .good)))
+            flow.integrationCoordinator?.simulationDidEmit(TennisSimulationEvent(tick: 0, kind: .bounce(surface: .grass)))
+        case 4:
+            flow.matchDidComplete(.human, score: TennisMatchScore(humanPoints: 11, cpuPoints: 0, server: .human, matchWinner: .human))
+        case 6:
+            flow.onCommand(.continue)
+        default:
+            break
+        }
+    }
+
+    func recordText(_ text: String, commandIDs: [UInt64]) {
+        glyphTexts.append(text)
+        textCommandIDs.append(contentsOf: commandIDs)
+    }
+
+    func afterDraw() {
+        let observation = flow.makeObservation(
+            feedback: scene.integrationFeedback,
+            glyphTexts: glyphTexts,
+            drawCommandIDs: scene.integrationLastDrawCommandIDs + textCommandIDs
+        )
+        evidence.observe(observation)
+        glyphTexts.removeAll(keepingCapacity: true)
+        textCommandIDs.removeAll(keepingCapacity: true)
+        guard tick >= 6 else { return }
+        do {
+            try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
+            let payload = evidence.finish().map(Self.jsonObject(for:))
+            let data = try JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
+            try data.write(to: outputDir.appendingPathComponent("tennis_evidence.json"))
+            print("Saved \(outputDir.appendingPathComponent("tennis_evidence.json").path)")
+        } catch {
+            fputs("Headless evidence write failed: \(error.localizedDescription)\n", stderr)
+        }
+        onFinished?()
+    }
+
+    private static func jsonObject(for observation: TennisPresentationObservation) -> [String: Any] {
+        [
+            "screen": String(describing: observation.screen),
+            "selectedSurface": observation.selectedSurface.map { String(describing: $0) } as Any,
+            "activeMatchSurface": observation.activeMatchSurface.map { String(describing: $0) } as Any,
+            "coordinatorIdentity": observation.coordinatorIdentity.map { String(describing: $0) } as Any,
+            "result": observation.result.map {
+                ["winner": String(describing: $0.winner), "score": ["humanPoints": $0.score.humanPoints,
+                 "cpuPoints": $0.score.cpuPoints, "server": String(describing: $0.score.server)]]
+            } as Any,
+            "score": observation.score.map {
+                ["humanPoints": $0.humanPoints, "cpuPoints": $0.cpuPoints, "server": String(describing: $0.server),
+                 "matchWinner": $0.matchWinner.map { String(describing: $0) } as Any]
+            } as Any,
+            "charge": observation.charge.map {
+                ["activeSide": String(describing: $0.activeSide), "value": $0.value, "capReached": $0.capReached]
+            } as Any,
+            "surfaceBounce": observation.feedback.surfaceBounce.map { String(describing: $0.surface) } as Any,
+            "glyphTexts": observation.glyphTexts,
+            "drawCommandIDs": observation.drawCommandIDs
+        ]
+    }
+}
+
+private final class TennisHeadlessFixedDriver: IUpdate {
+    weak var scenario: TennisHeadlessScenario?
+    func step(_ delta: UInt64) { scenario?.fixedStep() }
+}
+
+private final class TennisHeadlessCaptureDriver: IUpdate {
+    weak var scenario: TennisHeadlessScenario?
+    func step(_ delta: UInt64) { scenario?.afterDraw() }
 }
 
 private final class TennisVirtualControllerInputSource: TennisHumanInputSource {

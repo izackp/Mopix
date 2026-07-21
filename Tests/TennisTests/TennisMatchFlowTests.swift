@@ -20,6 +20,34 @@ final class TennisMatchFlowTests: XCTestCase {
         app.isRunning = false
     }
 
+    @MainActor
+    func testSelectedSurfaceReplacesSceneAndApplicationCoordinatorIdentity() throws {
+        let app = try TennisApp()
+        let initial = app.integrationGraph.coordinator
+        let flow = app.integrationPresentation
+
+        flow.onCommand(.start)
+        flow.onCommand(.chooseSurface(.clay))
+        guard let selected = flow.integrationCoordinator else {
+            return XCTFail("surface selection did not create a coordinator")
+        }
+
+        XCTAssertFalse(selected === initial)
+        XCTAssertEqual(selected.simulation.rules.surface, .clay)
+        XCTAssertTrue(app.integrationSceneCoordinator === selected)
+        XCTAssertTrue(app.integrationRegisteredCoordinator === selected)
+        XCTAssertEqual(app.integrationGraph.fixedCount, 1)
+        XCTAssertEqual(app.integrationGraph.eventCount, 1)
+
+        flow.matchDidComplete(.human, score: TennisMatchScore(humanPoints: 11, cpuPoints: 0, server: .human, matchWinner: .human))
+        flow.onCommand(.continue)
+        XCTAssertNil(app.integrationRegisteredCoordinator)
+        XCTAssertEqual(app.integrationGraph.fixedCount, 0)
+        XCTAssertEqual(app.integrationGraph.eventCount, 0)
+        XCTAssertTrue(app.integrationSceneCoordinator === selected)
+        app.isRunning = false
+    }
+
     func testPresentationFlowHoldsResultUntilContinue() {
         let flow = TennisPresentationFlow(matchFactory: { _ in
             TennisMatchCoordinator(simulation: self.makeSimulation(), scorekeeper: TennisMatchScorekeeper(initialServer: .human), humanController: self.humanController(), cpuController: TennisCPUController(policy: TennisCPUDecisionPolicy(reactionDelayTicks: 0, rallyFloor: 6), random: SeededTennisRandomSource(seed: 3)))
@@ -67,6 +95,71 @@ final class TennisMatchFlowTests: XCTestCase {
         flow.matchDidComplete(.human, score: TennisMatchScore(humanPoints: 11, cpuPoints: 0, server: .human, matchWinner: .human))
         flow.draw(renderer: renderer)
         XCTAssertEqual(Array(text.labels.suffix(2)), ["PLAYER WINS", "PRESS A"])
+    }
+
+    @MainActor
+    func testHeadlessEvidenceCoversSelectedMatchFeedbackResultHoldAndContinue() {
+        let text = CommandTextRenderer()
+        var createdCoordinator: TennisMatchCoordinator?
+        let flow = TennisPresentationFlow(matchFactory: { surface in
+            let coordinator = TennisApp.makeCoordinator(surface: surface)
+            createdCoordinator = coordinator
+            return coordinator
+        }, textRenderer: text)
+        let sink = TennisHeadlessEvidenceSink()
+
+        func drawFlowFrame() {
+            text.labels.removeAll()
+            let renderer = makeRenderer()
+            flow.draw(renderer: renderer)
+            sink.observe(flow.makeObservation(glyphTexts: text.labels, drawCommandIDs: commandIDs(in: renderer)))
+        }
+
+        drawFlowFrame()
+        flow.onCommand(.start)
+        drawFlowFrame()
+        flow.onCommand(.chooseSurface(.grass))
+        guard let coordinator = createdCoordinator else {
+            return XCTFail("surface selection did not create a coordinator")
+        }
+
+        let scene = TennisScene(coordinator: coordinator)
+        coordinator.simulationDidEmit(TennisSimulationEvent(tick: 0, kind: .shotHit(side: .human, shot: .topspin, quality: .good)))
+        coordinator.simulationDidEmit(TennisSimulationEvent(tick: 0, kind: .bounce(surface: .grass)))
+        let matchRenderer = makeRenderer()
+        scene.draw(0, matchRenderer)
+        XCTAssertEqual(scene.integrationFeedback.surfaceBounce?.surface, .grass)
+        XCTAssertNotNil(scene.integrationFeedback.shotTrail)
+        let matchIDs = commandIDs(in: matchRenderer)
+        XCTAssertTrue(matchIDs.contains(19))
+        sink.observe(flow.makeObservation(feedback: scene.integrationFeedback,
+                                          glyphTexts: ["HUD SCORE", "ACTIVE CHARGE"], drawCommandIDs: matchIDs))
+
+        flow.matchDidComplete(.human, score: TennisMatchScore(humanPoints: 11, cpuPoints: 0, server: .human, matchWinner: .human))
+        drawFlowFrame()
+        let heldResult = sink.finish().last!
+        drawFlowFrame()
+        let observationsDuringHold = sink.finish().filter { $0.screen == .result }
+        XCTAssertEqual(observationsDuringHold.count, 2)
+        XCTAssertEqual(observationsDuringHold[0].score, observationsDuringHold[1].score)
+        XCTAssertEqual(observationsDuringHold[0].result?.winner, .human)
+        XCTAssertEqual(observationsDuringHold[0].result?.score.humanPoints, 11)
+        XCTAssertEqual(observationsDuringHold[0].glyphTexts, ["PLAYER WINS", "PRESS A"])
+
+        flow.onCommand(.continue)
+        drawFlowFrame()
+        let trace = sink.finish()
+        XCTAssertEqual(trace.map(\.screen), [.title, .surfaceSelect, .match, .result, .result, .surfaceSelect])
+        XCTAssertEqual(heldResult.screen, .result)
+        XCTAssertNil(trace.last?.score)
+        XCTAssertEqual(trace.last?.glyphTexts, ["SURFACE", "1 HARD  2 CLAY  3 GRASS"])
+        XCTAssertNil(trace.last?.result)
+        XCTAssertNil(trace.last?.feedback.surfaceBounce)
+        XCTAssertTrue(trace[2].selectedSurface == .grass)
+        XCTAssertTrue(trace[2].activeMatchSurface == .grass)
+        XCTAssertNotNil(trace[2].coordinatorIdentity)
+        XCTAssertTrue(trace[2].feedback.surfaceBounce?.surface == .grass)
+        XCTAssertTrue(trace[2].drawCommandIDs.contains(19))
     }
 
     @MainActor
@@ -302,6 +395,11 @@ final class TennisMatchFlowTests: XCTestCase {
         let transport = InProcessTransport.makePair()
         let client = DisplayClient(transport: transport.client, logicalSize: Size(160, 144))
         return DisplayRenderClient(displayClient: client, windowSize: Size<Int16>(160, 144))
+    }
+
+    private func commandIDs(in renderer: DisplayRenderClient) -> [UInt64] {
+        let commands = Mirror(reflecting: renderer).children.first { $0.label == "cmdList" }?.value as? [DrawCmd]
+        return commands?.map(\.animationId) ?? []
     }
 }
 
