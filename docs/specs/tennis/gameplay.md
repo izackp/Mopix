@@ -12,8 +12,19 @@ Points only, no deuce or advantage. First to 11 points wins, must win by 2.
 Server alternates every 2 points.
 
 ### RVK-2 — Match structure
-One singles match, one surface, player vs CPU. No doubles, no
-tournaments, no progression. Match ends when a player wins per RVK-1.
+One singles match, one surface, player vs CPU. No doubles, no tournaments, no progression. Match
+ends when a player wins per RVK-1. The default singles court occupies a `128x96 px` rectangle:
+left and right boundaries are `x=16` and `x=144`, baselines are `y=24` and `y=120`, the net is
+`y=72` from `x=16` through `x=144`, service lines are `y=56` and `y=88`, and the center service
+line is `x=80`. Each service box is `64x16 px`; the baseline center is `x=80` and a legal serve
+lands in the diagonally opposite box.
+
+Player centers move inclusively from `x=20` through `x=140`; the near-side center moves from `y=24`
+through `y=66` and the far-side center from `y=78` through `y=120`. A player cannot cross a
+boundary or the net. At the net plane (`y=72`), a ball clears when its ground shadow crosses within
+`x=16…144` and its visible center is at least `1.00` player-height above that shadow; exactly `1.00`
+counts. Outside the net span, RVK-4 landing judgment applies. Cardinal movement uses full speed;
+diagonal movement uses `0.707` speed on each axis.
 
 ### RVK-3 — Serve
 Every point starts with a serve. Server fixed at baseline center; no foot
@@ -55,6 +66,12 @@ After a transaction commits, every button involved in it must be released before
 transaction can begin. The charge amount and cap cue clear on commit, at point end, or when the
 next serve wind-up begins.
 
+D-pad or left stick provides eight-direction movement. Each stick axis is neutral at absolute value
+`0.25` or below; above that threshold it selects negative or positive movement. Keyboard `WASD` and
+arrow keys map to the same directions. Diagonal movement uses `0.707` speed on each axis. `A` is
+the south face button and `B` the east face button; serve-wind-up presses are ignored and not
+buffered. Other devices and unmapped buttons produce no tennis action.
+
 ### RVK-7 — Contact quality
 Measure distance at the instant of the swing using player-width units from the player center to the
 ball. The canonical standing avatar reference is `8 px` wide from its leftmost to rightmost visible
@@ -79,36 +96,30 @@ side's swing still plays — the input isn't silently eaten — but does not
 touch the ball.
 
 ### RVK-10 — Court surfaces
-Three surfaces ship in MVP, each with a distinct speed/bounce profile:
-Hard Court (normal speed, high bounce), Clay Court (slow, low bounce),
-Grass Court (fast, low bounce). Surfaces must be distinguishable from play
-behavior alone and reinforced by distinct visual cues. Optional audio may
-also distinguish them under TZL-5.
+Three surfaces ship in MVP, each with a distinct speed/bounce profile: Hard Court (normal speed,
+high bounce), Clay Court (slow, low bounce), and Grass Court (fast, low bounce). Surfaces must be
+distinguishable from play behavior and reinforced by distinct visual cues; optional audio may also
+distinguish them under TZL-5.
 
-Rally flight uses these player-perceivable windows, measured from outgoing contact:
+The authoritative uncharged contact-to-bounce timings are: ordinary shots (Serve, Topspin, Slice,
+Drop) Hard `0.70 s`, Clay `0.85 s`, Grass `0.58 s`; fast shots (Flat, Smash) Hard `0.56 s`, Clay
+`0.66 s`, Grass `0.48 s`; and Lob Hard `1.05 s`, Clay `1.20 s`, Grass `0.90 s`. These values are
+inside the locked RVK-10 windows. Bounce heights are measured from landing shadow to peak: Hard,
+Clay, Grass Topspin are `1.50`, `1.15`, `1.00` player-heights; Slice `0.70`, `0.50`, `0.45`; Flat
+`0.90`, `0.70`, `0.60`; Lob `1.70`, `1.35`, `1.20`; Drop `0.55`, `0.40`, `0.35`; Smash `1.00`,
+`0.80`, `0.70`. Surface skid distances are Hard `1.00`, Clay `0.50`, Grass `1.50` player-widths;
+Slice adds `0.50` and Drop adds `0.25` player-width.
 
-| Ball type | Hard | Clay | Grass |
-|---|---:|---:|---:|
-| Serve — contact to first bounce | 0.50–0.70 s | 0.60–0.85 s | 0.42–0.58 s |
-| Ordinary shot: topspin, slice, drop — contact to bounce | 0.50–0.70 s | 0.60–0.85 s | 0.42–0.58 s |
-| Ordinary shot — bounce to next contact opportunity | 0.30–0.40 s | 0.34–0.46 s | 0.24–0.34 s |
-| Fast shot: flat, smash, smash fallback — contact to bounce | 0.42–0.56 s | 0.50–0.66 s | 0.36–0.48 s |
-| Fast shot — bounce to next contact opportunity | 0.26–0.32 s | 0.28–0.36 s | 0.24–0.30 s |
-| Lob — contact to bounce | 0.75–1.05 s | 0.85–1.20 s | 0.65–0.90 s |
-| Lob — bounce to next contact opportunity | 0.35–0.48 s | 0.40–0.55 s | 0.28–0.40 s |
+Bounce-to-next-contact windows begin at the first bounce: ordinary shots Hard `0.35 s`, Clay
+`0.40 s`, Grass `0.29 s`; fast shots `0.29 s`, `0.32 s`, `0.27 s`; Lob `0.42 s`, `0.47 s`,
+`0.34 s`; Serve `0.35 s`, `0.40 s`, `0.30 s`. Charge changes only contact-to-bounce time, not
+post-bounce response. During Serve response the server cannot launch another serve, but the receiver
+can move and use ordinary shot inputs.
 
-Each bounce-to-return range begins at the first bounce and ends at the first playable contact
-opportunity after that bounce. A playable contact opportunity is a legal swing from within the
-`2.00` player-width return range under RVK-7; being in range before the bounce does not end the
-post-bounce response window early. The response window is the player's opportunity to move and
-swing, not a separate input-timing test. The minimum ordinary-shot response is `0.24 s`. The
-landing location becomes clear at least `0.30 s` before bounce. Full charge may shorten the relevant
-flight window by at most `0.10 s`, never below the stated minimum. Serve response after first bounce
-is at least `0.30 s` on every surface.
-
-Hard is middle-speed with the higher bounce; Clay is slowest with the longest response; Grass is
-fastest with a low bounce and shorter response supported by stronger pre-bounce anticipation.
-Surface identity must be readable from play behavior and reinforced by distinct cues.
+For rally shots, contact-to-bounce time is the uncharged value minus `0.10 s × (held charge / 0.60
+s)`, never below the locked RVK-10 minimum. Flat and Smash share the fast-shot timing; Flat is a
+low direct attack and Smash a steep attack, with Smash not arriving earlier. The surface and shot
+tables are the Balanced baseline; Power modifiers are defined in RVK-12.
 
 ### RVK-11 — Dash
 Cut from MVP. Movement must feel complete on its own. Revisit only if
@@ -120,20 +131,32 @@ Two fixed presets: `Balanced` and `Power`. Human player always uses
 (`power`, `speed`, `control`, `spin`) affect shot speed, move speed, aim
 precision, and spin/bounce strength respectively. No stat growth or decay.
 
+The RVK-10 surface and shot outcomes are the Balanced human baseline. Power CPU movement is `1.10×`
+Balanced movement speed; its contact-to-bounce time is `0.04 s` earlier, clipped at the RVK-10
+minimum; its landing point is within `0.50` player-width of its selected target center versus
+Balanced's `1.00` player-width aim spread; and Power adds `0.10` player-height to Topspin/Lob and
+`0.05` to Serve/Flat/Smash bounce heights. Slice and Drop heights, surface skid, net clearance,
+eligibility, contact range, target regions, and response windows do not change.
+
 ### RVK-13 — CPU opponent
 CPU must be rally-safe before it is challenging: its job is to sustain a rally, not to win. Baseline
 target is 6–8 shots before an unforced error (see RVK-14). After the opponent's contact, the CPU
-waits at least `0.35 s` before choosing its next shot. During that delay, the player can see the
-ball's direction, shot identity, and landing marker and can begin moving toward the marked landing
-spot; the CPU may also move toward that spot, but cannot choose a shot before the delay. If the ball
-becomes returnable before the delay ends, the CPU waits and may miss; it does not teleport or extend
-the return range.
+waits at least `0.35 s` before choosing its next shot. At the end of that delay, or at the first
+legal CPU swing opportunity if it is not yet in range, it measures contact quality, ball height,
+net-to-baseline depth, and lateral distance from the current positions. It then chooses the first
+applicable rule: Smash (`0.60 s`) when overhead and within `0.75` widths; Lob (`0.35 s`) when the
+opponent is within `3.00` widths of the net; Drop (`0.25 s`) when the opponent is more than `5.00`
+widths from the net; Slice (`0.15 s`) on Poor contact or a ball no more than `0.50` heights above
+its shadow; Flat (`0.45 s`) when the opponent is more than `4.00` widths away laterally with
+Perfect/Good contact; otherwise Topspin (`0.20 s`).
 
-The CPU uses the same shot vocabulary and `0.60 s` charge cap as the player. After choosing a shot,
-it chooses a charge duration from `0.00–0.60 s` and the shot commits automatically when that duration
-elapses; if the ball reaches its return range first, it commits at that contact opportunity. One
-rally shot is one successful return contact after the serve; the serve does not count toward the
-`6–8` target. One difficulty tier ships in MVP; no difficulty select.
+Depth is measured from net to the opponent's center along that player's court depth axis. Lateral
+distance is the absolute horizontal difference between centers divided by `8 px`. The CPU targets
+the center of a region: a deep corner is within `1.00` width of a sideline and `2.00` widths of the
+opponent baseline; a Drop lands within `1.00` width of the net inside the opponent's service box;
+the farther side from the opponent is selected, with right side resolving a tie. If the CPU never
+reaches legal return range, it does not swing and normal point-end rules apply. Charge durations are
+action durations, not reaction windows. The 6–8 shot length is a tuning target, not a guarantee.
 
 ### RVK-14 — Unforced error
 An unforced error is a point ending in a net fault or out-of-bounds fault

@@ -9,6 +9,7 @@ Reject implementation-driven scope that lacks a locked spec; do not document or 
 Escalate the spec gap to PL instead of allowing Builder's implementation to define the contract.
 No agent may invent or silently assume behavior absent from the locked spec and architecture
 contract; escalate the gap to PL.
+A missing implementation is not a blocker when the task is to create it.
 
 LLMs (and junior devs) fail structurally, not at the body level. Observed failure modes:
 - Silently skips features deemed unimportant
@@ -19,51 +20,49 @@ LLMs (and junior devs) fail structurally, not at the body level. Observed failur
 **Solution**: Signature docs own the structural shape before implementation begins.
 
 ### Signature Doc Format
-One doc per logical subsystem in `docs/arch/`. Contains everything except function bodies:
+Create one contract document per Swift source file under review in `docs/arch/`. Name it after the
+source file. Each document contains only the bodyless declarations for the types in that source
+file, with the minimum imports needed to make the declarations intelligible.
 
-Use a code-walker-style layout: metadata, a dependency/class diagram, a source-file and type
-map, bodyless declarations, and key ownership/data-flow notes. For multi-document subsystems,
-add an index and group docs by module or runtime layer. Declare each type once; link shared types
-instead of duplicating them.
+Do not create an umbrella document, index, metadata section, dependency diagram, source-file map,
+links, ownership notes, data-flow notes, or explanatory prose. Shared types are referenced by name;
+do not duplicate their declarations.
 
 Architecture docs are structural contracts, not second copies of the specs. Do not add player-
 facing rules, pacing tables, timing values, readability prose, acceptance/evidence procedures,
-test checklists, or other behavior that has no structural consequence. Keep ownership/data-flow
-notes concise and only include them when they explain a declared dependency or boundary. If a
-spec change does not alter types, signatures, ownership, dependencies, or data flow, leave the
-architecture docs unchanged.
+test checklists, or behavior that has no structural consequence. If a spec change does not alter
+types or signatures, leave the affected declaration documents unchanged.
 
 ## CodeMapper Verification
 
-CodeMapper lives at `../CodeMapper`. Run it against this repository, filtered to the target under
-review. It writes one `.map` beside each analyzed Swift file; regenerate these files on every
-verification so ARCH can inspect only the affected maps:
+ARCH decides the existence, naming, and contents of signature documents from the locked specs
+before Builder starts. CodeMapper lives at `../CodeMapper` and is used only after Builder creates
+source, as review evidence. It writes one `.map` beside each analyzed Swift file; regenerate these
+files on every verification so ARCH can inspect only the affected maps:
 
 ```bash
 swift run --package-path ../CodeMapper CodeMapper \
   --sources "$PWD" --filter <Target> --path <affected-source-folder>
 ```
 
-Compare the output with the signature doc:
+Compare the output with the corresponding signature document:
 
 1. Match each map file header to the doc's target/file map.
 2. Match every declared type, property, method, and conformance.
 3. Use `>>` calls to check declared dependencies and `<<` calls to find owners and dead symbols.
 4. Search the map for duplicate type responsibilities or symbols absent from the doc.
-5. Record mismatches as `REVIEW-N`; update the signature doc only when the structural contract
-   was intentionally changed.
+5. Record mismatches as `REVIEW-N`. Do not let a map create, rename, or reorganize signature
+   documents; update a signature document only when the locked structural contract intentionally
+   changed.
 
-After editing a signature doc, perform a prose-scope check: every new paragraph must explain a
-declared symbol, dependency, ownership boundary, or data flow. Otherwise remove it and leave the
-behavior in the locked spec.
+After editing a signature doc, confirm it contains only declarations and required imports. Remove
+any prose, metadata, diagrams, links, or notes; leave behavior in the locked spec.
 
-Run this comparison before Builder implementation and again after each milestone. Generated
-`.map` files are working verification artifacts; do not treat them as signature docs.
+Run this comparison after Builder creates source and again after each milestone. Generated `.map`
+files are working review artifacts; do not treat them as signature docs or as the source of the
+architecture contract.
 
 ```swift
-// OWNED BY: <who creates and holds this>
-// DEPENDENCIES: <what this is allowed to depend on — nothing else>
-
 protocol IProtocolName {
     func methodName(param: Type) -> ReturnType
 }
@@ -86,9 +85,8 @@ optional: run it before writing to `docs/arch/`, not as a nice-to-have.
 - No type depends on something outside its declared dependencies
 - Communication between types uses the narrowest interface that satisfies the spec
 - No unnecessary intermediaries (proxy types that add no value)
-- Where the spec has a determinism requirement (e.g. fixed-seed reproducibility), the signature
-  doc calls out the structural boundary that preserves it. Tests remain regression checks, not a
-  second architecture contract.
+- Where the spec has a determinism requirement (e.g. fixed-seed reproducibility), declarations
+  expose the required structural boundary without explanatory notes.
 
 ## LSP Verification Sweep
 
@@ -132,11 +130,9 @@ uncommitted. ARCH commits only after approval, with `By: ARCH`. PL never launche
 A subsystem isn't "reviewed" until 1-2 both pass clean, not just eyeballed — an LSP sweep
 or a build that wasn't actually run doesn't count.
 
-Trigger: run this pass after Builder completes a subsystem — check `git log`/`git diff`
-for commits touching the subsystem since your last review. Track the baseline yourself:
-note the commit hash you reviewed up to in `memory-long.md` (a durable one-liner, e.g.
-"reviewed Ball.swift through <hash>") so the next pass has something concrete to diff
-against instead of guessing where the last one stopped.
+Trigger: run this pass after Builder completes a subsystem. Review only the current workspace
+files, locked specs, current signature documents, current source/maps, and current textual runtime
+evidence. Do not inspect Git history or use deleted files as requirements.
 
 ### Posting Findings
 

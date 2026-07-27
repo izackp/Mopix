@@ -36,7 +36,9 @@ Visual cues are the required readable language for shot type, landing, and bounc
 higher-bounce ring, Clay's spreading low-bounce dust, and Grass's low, fast horizontal skid remain
 visible for at least `0.30 s` after each bounce. A tell does not clear before `0.30 s`; after that it
 may clear when the next bounce begins. TZL-6 owns the visual vocabulary and minimum display
-lifetimes for shot, landing, and surface cues.
+lifetimes for shot, landing, and surface cues. At Smash outgoing contact, the ball flashes white and
+a four-point white starburst centered on it expands to `1.00` player-width over `0.10 s`; Flat Shot
+has neither Smash-specific cue. The fixed top-down camera does not move, zoom, or change mode.
 
 ### TZL-7 — Illegal serve feedback
 When a serve contacts the net or lands outside the diagonally opposite service box, `FAULT` appears

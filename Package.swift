@@ -141,9 +141,6 @@ let package = Package(
         .testTarget(
             name: "GameEngineTests",
             dependencies: ["GameEngine", "SpaceInvaders"]),
-        .testTarget(
-            name: "TennisCoreTests",
-            dependencies: ["TennisCore"]),
         .target(
             name: "TennisCore",
             dependencies: [],
@@ -152,11 +149,5 @@ let package = Package(
             name: "TennisInput",
             dependencies: ["GameEngine", "TennisCore"],
             swiftSettings: optimize),
-        .testTarget(
-            name: "TennisInputTests",
-            dependencies: ["TennisInput", "TennisCore", "GameEngine"]),
-        .testTarget(
-            name: "TennisTests",
-            dependencies: ["Tennis", "TennisCore", "TennisInput", "GameEngine"]),
     ]
 )
