@@ -12,7 +12,7 @@ final class TennisGameApp: Application {
     private(set) var gameController: TennisGameController!
 
     init(configuration: TennisGameConfiguration) throws {
-        let fontURL = URL(string: "vd://tennis/Roboto-Medium.ttf")!
+        let fontURL = URL(string: "vd:/Roboto-Medium.ttf")!
         try super.init()
         let resources = URL(fileURLWithPath: Bundle.tennis.resourcePath!).appendingPathComponent("ExternalFiles")
         try vd.mountPath(path: resources)
