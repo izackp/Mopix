@@ -30,6 +30,9 @@ final class TennisGameApp: Application {
     }
 
     func prepare() async throws {
+        // FullWindow starts the display-client handshake during initialization.
+        // Resource requests must wait until the server has registered this client.
+        try await gameWindow.waitForConnection()
         try await gameController.prepare(using: gameWindow.displayClient)
     }
 }
