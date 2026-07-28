@@ -248,10 +248,23 @@ public class DrawCmdInterpolator {
         align: TextAlignment,
         dest: Rect<Int>
     ) throws {
-        let font = try resourceStore.fetchFont(handle: fontHandle, size: size)
+        let font: Font
+        do {
+            font = try resourceStore.fetchFont(handle: fontHandle, size: size)
+        } catch {
+            throw GenericError(
+                "Text font lookup/load failed (handle: \(fontHandle), size: \(size), content: '\(content)'): \(String(reflecting: error))"
+            )
+        }
         var measuredWidth = 0
         for character in content {
-            measuredWidth += try font._font.glyphMetrics(c: character).advance
+            do {
+                measuredWidth += try font._font.glyphMetrics(c: character).advance
+            } catch {
+                throw GenericError(
+                    "Text measurement/glyph metrics failed (character: '\(character)', content: '\(content)'): \(String(reflecting: error))"
+                )
+            }
         }
 
         let startX: Int
@@ -266,15 +279,36 @@ public class DrawCmdInterpolator {
 
         var x = startX
         for character in content {
-            let metrics = try font._font.glyphMetrics(c: character)
-            let image = try font.glyph(character)
+            let metrics: SDLFont.GlyphMetrics
+            do {
+                metrics = try font._font.glyphMetrics(c: character)
+            } catch {
+                throw GenericError(
+                    "Text measurement/glyph metrics failed (character: '\(character)', content: '\(content)'): \(String(reflecting: error))"
+                )
+            }
+
+            let image: AtlasImage
+            do {
+                image = try font.glyph(character)
+            } catch {
+                throw GenericError(
+                    "Text glyph rasterization/atlas insertion failed (character: '\(character)', content: '\(content)'): \(String(reflecting: error))"
+                )
+            }
             let glyphDest = Rect(
                 x: x,
                 y: dest.y,
                 width: Int(image.size.width),
                 height: Int(image.size.height)
             )
-            try renderer.draw(image.getTextureSlice(), glyphDest.sdlRect(), cmd.color, cmd.alpha)
+            do {
+                try renderer.draw(image.getTextureSlice(), glyphDest.sdlRect(), cmd.color, cmd.alpha)
+            } catch {
+                throw GenericError(
+                    "Text renderer texture draw failed (character: '\(character)', content: '\(content)'): \(String(reflecting: error))"
+                )
+            }
             x += metrics.advance
         }
     }
