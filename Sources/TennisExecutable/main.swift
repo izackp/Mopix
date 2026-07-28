@@ -29,4 +29,4 @@ func tennisMain(
     return exitCode
 }
 
-let _ = tennisMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
+exit(tennisMain(argc: CommandLine.argc, argv: CommandLine.unsafeArgv))

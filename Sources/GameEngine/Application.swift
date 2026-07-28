@@ -130,7 +130,7 @@ open class Application {
         CodableTypeResolver.resolve = { try TypeMap.customDecodeSwitch($0) }
         //Note: automatically initializes the Event Handling, File I/O and Threading subsystems
         //NOTE: Present via metal is .. slow? taking 32+ms
-        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl")
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, headlessConfig == nil ? "opengl" : "software")
 
         try SDL.initialize([.video])
         try TTF.initialize()
@@ -278,6 +278,7 @@ open class Application {
                     print("Saved \(outURL.path)")
                 } catch {
                     fputs("Screenshot at tick \(tick) failed: \(error.localizedDescription)\n", stderr)
+                    throw error
                 }
             }
             if headlessConfig?.writeCmds == true {
@@ -290,6 +291,7 @@ open class Application {
                     print("Saved \(outURL.path) (\(cmds.count) commands)")
                 } catch {
                     fputs("Command dump at tick \(tick) failed: \(error.localizedDescription)\n", stderr)
+                    throw error
                 }
             }
         }
