@@ -1,0 +1,35 @@
+import Foundation
+import GameEngine
+import SDL2Swift
+
+extension Bundle {
+    static var tennis: Bundle { .module }
+}
+
+@MainActor
+final class TennisGameApp: Application {
+    private(set) var gameWindow: FullWindow!
+    private(set) var gameController: TennisGameController!
+
+    init(configuration: TennisGameConfiguration) throws {
+        let fontURL = URL(string: "vd://tennis/Roboto-Medium.ttf")!
+        try super.init()
+        let resources = URL(fileURLWithPath: Bundle.tennis.resourcePath!).appendingPathComponent("ExternalFiles")
+        try vd.mountPath(path: resources)
+        gameWindow = try FullWindow(
+            parent: self,
+            title: "Tennis",
+            windowOptions: headlessWindowOptions,
+            options: isHeadless ? [] : [Renderer.Option.presentVsync]
+        )
+        gameController = TennisGameController(configuration: configuration, fontURL: fontURL)
+        addWindow(gameWindow)
+        addFixedListener(gameController, msPerTick: Int(configuration.tickMilliseconds))
+        addEventListener(gameController)
+        gameWindow.drawable = gameController
+    }
+
+    func prepare() async throws {
+        try await gameController.prepare(using: gameWindow.displayClient)
+    }
+}

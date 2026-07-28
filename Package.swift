@@ -25,14 +25,6 @@ let package = Package(
             name: "GameEngineLib",
             type: .static,
             targets: ["GameEngine"]),
-        .library(
-            name: "TennisCore",
-            type: .static,
-            targets: ["TennisCore"]),
-        .library(
-            name: "TennisInput",
-            type: .static,
-            targets: ["TennisInput"]),
         .executable(name: "ParticleTweenTest", targets: ["ParticleTest"]),
         .executable(name: "SpaceInvaders", targets: ["SpaceInvaders"]),
         .executable(name: "Tennis", targets: ["Tennis"]),
@@ -111,15 +103,6 @@ let package = Package(
             swiftSettings: optimize
         ),
         .executableTarget(
-            name: "Tennis",
-            dependencies: [
-                "GameEngine",
-                "TennisCore",
-                "TennisInput"
-            ],
-            swiftSettings: optimize
-        ),
-        .executableTarget(
             name: "UITest",
             dependencies: [
                 "GameEngine"
@@ -138,16 +121,18 @@ let package = Package(
             ],
             swiftSettings: optimize
         ),
+        .executableTarget(
+            name: "Tennis",
+            dependencies: [
+                "GameEngine"
+            ],
+            resources: [
+                .copy("ExternalFiles")
+            ],
+            swiftSettings: optimize
+        ),
         .testTarget(
             name: "GameEngineTests",
             dependencies: ["GameEngine", "SpaceInvaders"]),
-        .target(
-            name: "TennisCore",
-            dependencies: [],
-            swiftSettings: optimize),
-        .target(
-            name: "TennisInput",
-            dependencies: ["GameEngine", "TennisCore"],
-            swiftSettings: optimize),
     ]
 )
