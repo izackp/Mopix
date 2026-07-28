@@ -117,8 +117,9 @@ open class Application {
     public var lastStats:String = ""
 
     public let headlessConfig: HeadlessConfig?
-    public var isHeadless: Bool { headlessConfig != nil }
+    public var isHeadless: Bool
     public var headlessWindowOptions: BitMaskOptionSet<SDLWindow.Option> { isHeadless ? [.hidden] : [] }
+    public private(set) var runtimeFailure: Error?
 
     static weak var _shared:Application!
     public static func shared() -> Application {
@@ -127,6 +128,8 @@ open class Application {
 
     public init() throws {
         headlessConfig = HeadlessConfig.parse()
+        isHeadless = headlessConfig != nil
+        runtimeFailure = nil
         CodableTypeResolver.resolve = { try TypeMap.customDecodeSwitch($0) }
         //Note: automatically initializes the Event Handling, File I/O and Threading subsystems
         //NOTE: Present via metal is .. slow? taking 32+ms
@@ -138,6 +141,19 @@ open class Application {
         //let resources = Bundle.main.bundleURL.appendingPathComponent("Contents").appendingPathComponent("Resources")
 
         Application._shared = self
+    }
+
+    public func reportRuntimeFailure(_ error: Error) {
+        if runtimeFailure == nil {
+            runtimeFailure = error
+        }
+        isRunning = false
+    }
+
+    public func throwIfRuntimeFailed() throws {
+        if let runtimeFailure {
+            throw runtimeFailure
+        }
     }
     
     deinit {
@@ -231,6 +247,7 @@ open class Application {
             while (count > 0) {
                 readEvents()
                 eachUpdateListener.listener.step(regulator._timePerTick)
+                if runtimeFailure != nil { return }
                 count -= 1
             }
         }
@@ -248,6 +265,7 @@ open class Application {
                 lastStats = stats.lastStats()
                 stats.insertSample("delta", Double(deltaTicks) / 1000)
                 eachUpdateListener.listener.step(deltaTicks)
+                if runtimeFailure != nil { return }
                 eachUpdateListener.lastTick = callTime
             }
         }
@@ -257,6 +275,7 @@ open class Application {
         listUpdate.applyChanges()
         for eachUpdateListener in listUpdate.metaData {
             eachUpdateListener.listener.step(delta)
+            if runtimeFailure != nil { return }
             eachUpdateListener.lastTick = simTime
         }
     }
@@ -277,11 +296,14 @@ open class Application {
                     try writePNG(rgba: rgba, size: size, to: outURL)
                     print("Saved \(outURL.path)")
                 } catch {
-                    fputs("Screenshot at tick \(tick) failed: \(error.localizedDescription)\n", stderr)
+                    fputs("Screenshot at tick \(tick) failed: \(String(reflecting: error))\n", stderr)
                     throw error
                 }
             }
             if headlessConfig?.writeCmds == true {
+                if headlessConfig?.screenshotTicks.contains(tick) != true {
+                    _ = try await fullWindow.screenshot()
+                }
                 await fullWindow.drainDelivery()
                 let cmds = fullWindow.renderServer.drawingInterpolator._futureAllCmds
                 let outURL = outputDir.appendingPathComponent("frame_\(tick)_cmds.json")
@@ -290,7 +312,7 @@ open class Application {
                     try data.write(to: outURL)
                     print("Saved \(outURL.path) (\(cmds.count) commands)")
                 } catch {
-                    fputs("Command dump at tick \(tick) failed: \(error.localizedDescription)\n", stderr)
+                    fputs("Command dump at tick \(tick) failed: \(String(reflecting: error))\n", stderr)
                     throw error
                 }
             }
@@ -339,5 +361,6 @@ open class Application {
             loopDriver = RealtimeApplicationLoopDriver()
         }
         try await loopDriver.run(application: self)
+        try throwIfRuntimeFailed()
     }
 }

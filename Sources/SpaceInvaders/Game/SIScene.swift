@@ -138,9 +138,9 @@ public class SIScene : IScene, IUpdate, IDrawable, IEventListener, IResourceCach
     //Can't use texture backed resources
     //So we use ids/strings as references.
     var didLoad = false
-    public func draw(_ delta:UInt64, _ renderer: DisplayRenderClient) {
+    public func draw(_ delta:UInt64, _ renderer: DisplayRenderClient) throws {
         if (didLoad == false) {
-            try? loadResources(renderer)
+            try loadResources(renderer)
             didLoad = true
         }
         guard let store = resourceIds else { return }

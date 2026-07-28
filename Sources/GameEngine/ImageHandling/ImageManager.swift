@@ -41,20 +41,23 @@ public class AtlasLoader: IFontProvider {
         #endif
     }
     
-    public func addFont(_ url:URL) {
+    public func addFont(_ url:URL) throws {
+        let file: [UInt8]
         do {
-            //TODO: This is pretty extra.. I would perfer to use something lighter than SDLFont
-            //I would also prefer to have more infomation (available styles, sizes, etc)
-            let file = try _dataSource.fetch(url)
-            let font = try SDLFont(data: file, ptSize: 14)
-            guard let name = font.faceFamilyName() else {
-                print("Couldn't load font. No name.")
-                return
-            }
-            _fontList[name] = url
+            file = try _dataSource.fetch(url)
         } catch {
-            print("Couldn't load font: \(error.localizedDescription)")
+            throw GenericError("Font data load failed for \(url.absoluteString): \(String(reflecting: error))")
         }
+        let font: SDLFont
+        do {
+            font = try SDLFont(data: file, ptSize: 14)
+        } catch {
+            throw GenericError("Font open failed for \(url.absoluteString): \(String(reflecting: error))")
+        }
+        guard let name = font.faceFamilyName() else {
+            throw GenericError("Font family name unavailable for \(url.absoluteString)")
+        }
+        _fontList[name] = url
     }
     
     public func fetchFont(desc:FontDesc) throws -> Font? {
@@ -66,7 +69,7 @@ public class AtlasLoader: IFontProvider {
         if let url = _fontList[name] {
             let file = try _dataSource.fetch(url)
             let font = try SDLFont(data: file, ptSize: Int(desc.size))
-            let result = Font(atlas: atlas, font: font, resourceStore: resourceStore)
+            let result = Font(atlas: atlas, font: font, fontData: Data(file), resourceStore: resourceStore)
             _fontCache[desc] = result
             return result
         }
@@ -87,7 +90,7 @@ public class AtlasLoader: IFontProvider {
         let cgFont = CGFont(name as CFString)
         guard let data = fontDataForCGFont(cgFont) else { return nil }
         let font = try SDLFont(data: data, ptSize: Int(desc.size))
-        return Font(atlas: atlas, font: font, resourceStore: resourceStore)
+        return Font(atlas: atlas, font: font, fontData: data, resourceStore: resourceStore)
     }
     #endif
     

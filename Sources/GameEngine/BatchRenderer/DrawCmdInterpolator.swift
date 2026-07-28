@@ -66,7 +66,7 @@ public class DrawCmdInterpolator {
         }
     }
 
-    public func draw(_ time: UInt64) {
+    public func draw(_ time: UInt64) throws {
         let previousRect = renderer.getClipRect()
         do {
             try renderer.setClipRect(nil)
@@ -86,7 +86,8 @@ public class DrawCmdInterpolator {
                     }
                 }
 
-                switch eachCmd.type {
+                do {
+                    switch eachCmd.type {
                 case .image(let resourceId):
                     let id = Int(Int64(bitPattern: eachCmd.animationId))
                     let interpolated: DrawCmd
@@ -100,89 +101,86 @@ public class DrawCmdInterpolator {
                     if interpolated.animationId != 0 {
                         resolvedPositions[interpolated.animationId] = resolved
                     }
-                    do {
-                        try drawImageCmd(interpolated, resourceId: resourceId, dest: resolved)
-                    } catch {
-                        print("Unable to draw drawCmd: \(eachCmd.animationId) : \(error.localizedDescription)")
-                    }
+                    try drawImageCmd(interpolated, resourceId: resourceId, dest: resolved)
 
                 case .fill:
                     let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
                     if eachCmd.animationId != 0 {
                         resolvedPositions[eachCmd.animationId] = resolved
                     }
-                    do {
-                        try drawFillCmd(eachCmd, dest: resolved)
-                    } catch {
-                        print("Unable to draw fill cmd: \(error.localizedDescription)")
-                    }
+                    try drawFillCmd(eachCmd, dest: resolved)
 
                 case .view(let borderColor, let borderWidth):
                     let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
                     if eachCmd.animationId != 0 {
                         resolvedPositions[eachCmd.animationId] = resolved
                     }
-                    do {
-                        try drawViewCmd(eachCmd, borderColor: borderColor, borderWidth: borderWidth, dest: resolved)
-                    } catch {
-                        print("Unable to draw view cmd: \(error.localizedDescription)")
-                    }
+                    try drawViewCmd(eachCmd, borderColor: borderColor, borderWidth: borderWidth, dest: resolved)
 
                 case .rtt:
                     let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
                     if eachCmd.animationId != 0 {
                         resolvedPositions[eachCmd.animationId] = resolved
                     }
-                    print("DrawCmd.rtt stub — not yet rendered")
+                    throw GenericError("DrawCmd.rtt is unsupported")
 
                 case .text(let fontHandle, let content, let size, let align):
                     let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
                     if eachCmd.animationId != 0 {
                         resolvedPositions[eachCmd.animationId] = resolved
                     }
-                    do {
-                        try drawTextCmd(eachCmd, fontHandle: fontHandle, content: content, size: size, align: align, dest: resolved)
-                    } catch {
-                        print("Unable to draw text cmd: \(error.localizedDescription)")
-                    }
+                    try drawTextCmd(eachCmd, fontHandle: fontHandle, content: content, size: size, align: align, dest: resolved)
 
                 case .line(let to, let thickness):
                     let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
                     if eachCmd.animationId != 0 {
                         resolvedPositions[eachCmd.animationId] = resolved
                     }
-                    do {
-                        try drawLineCmd(eachCmd, to: to, thickness: thickness, origin: resolved)
-                    } catch {
-                        print("Unable to draw line cmd: \(error.localizedDescription)")
-                    }
+                    try drawLineCmd(eachCmd, to: to, thickness: thickness, origin: resolved)
 
                 case .circle(let radius, let filled):
                     let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
                     if eachCmd.animationId != 0 {
                         resolvedPositions[eachCmd.animationId] = resolved
                     }
-                    do {
-                        try drawCircleCmd(eachCmd, radius: radius, filled: filled, center: Point(resolved.x, resolved.y))
-                    } catch {
-                        print("Unable to draw circle cmd: \(error.localizedDescription)")
-                    }
+                    try drawCircleCmd(eachCmd, radius: radius, filled: filled, center: Point(resolved.x, resolved.y))
 
                 case .rect(let filled):
                     let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
                     if eachCmd.animationId != 0 {
                         resolvedPositions[eachCmd.animationId] = resolved
                     }
-                    do {
-                        try drawRectCmd(eachCmd, filled: filled, dest: resolved)
-                    } catch {
-                        print("Unable to draw rect cmd: \(error.localizedDescription)")
+                    try drawRectCmd(eachCmd, filled: filled, dest: resolved)
                     }
+                } catch {
+                    let identity: String
+                    switch eachCmd.type {
+                    case .image(let resourceId):
+                        identity = "type: image, resource: \(resourceId)"
+                    case .fill:
+                        identity = "type: fill"
+                    case .view:
+                        identity = "type: view"
+                    case .rtt:
+                        identity = "type: rtt"
+                    case .text(let fontHandle, let content, _, _):
+                        identity = "type: text, font: \(fontHandle), content: '\(content)'"
+                    case .line:
+                        identity = "type: line"
+                    case .circle:
+                        identity = "type: circle"
+                    case .rect:
+                        identity = "type: rect"
+                    }
+                    throw GenericError(
+                        "Draw command failed (\(identity), animationId: \(eachCmd.animationId)): \(String(reflecting: error)) — \(error.localizedDescription)"
+                    )
                 }
             }
             try renderer.setClipRect(previousRect)
-        } catch let error {
-            print("Unable to draw: \(error)")
+        } catch {
+            try renderer.setClipRect(previousRect)
+            throw error
         }
     }
 

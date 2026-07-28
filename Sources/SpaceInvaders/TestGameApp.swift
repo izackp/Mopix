@@ -80,10 +80,10 @@ class EngineWrapped : IUpdate, IDrawable, IDisplayDrawable {
         changes = true
     }
     
-    func draw(_ delta: UInt64, _ renderer: GameEngine.DisplayRenderClient) {
+    func draw(_ delta: UInt64, _ renderer: GameEngine.DisplayRenderClient) throws {
         if (changes) {
             renderer.defaultTime = totalTime
-            scene.draw(delta, renderer)
+            try scene.draw(delta, renderer)
             changes = false
         }
     }

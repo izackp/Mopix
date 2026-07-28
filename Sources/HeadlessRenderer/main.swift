@@ -54,6 +54,7 @@ func parseArgs() throws -> Args {
 final class HeadlessApp: Application {
     override init() throws {
         try super.init()
+        isHeadless = true
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software")
     }
 }
@@ -83,8 +84,8 @@ Task { @MainActor in
         let scene = try TennisHeadlessCaptureScene()
         let runner = HeadlessCaptureRunner(
             scene: scene,
-            client: window.displayClient,
-            renderer: window.displayRenderClient,
+            application: app,
+            window: window,
             inputCommands: args.inputCommands,
             screenshotTicks: args.screenshotTicks,
             outputDirectory: args.outputDirectory
@@ -97,7 +98,7 @@ Task { @MainActor in
         await window.displayClient.disconnect()
         exit(EXIT_SUCCESS)
     } catch {
-        fputs("Fatal error: \(error.localizedDescription)\n", stderr)
+        fputs("Fatal error: \(String(reflecting: error))\n", stderr)
         exit(EXIT_FAILURE)
     }
 }

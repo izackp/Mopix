@@ -6,8 +6,8 @@ import SDL2Swift
 @MainActor
 final class HeadlessCaptureRunner {
     private let scene: any HeadlessCaptureScene
-    private let client: DisplayClient
-    private let renderer: DisplayRenderClient
+    private let application: Application
+    private let window: FullWindow
     private let inputTimeline: [Int: [InputCommand]]
     private let screenshotTicks: Set<Int>
     private let outputDirectory: URL
@@ -15,15 +15,15 @@ final class HeadlessCaptureRunner {
 
     init(
         scene: any HeadlessCaptureScene,
-        client: DisplayClient,
-        renderer: DisplayRenderClient,
+        application: Application,
+        window: FullWindow,
         inputCommands: [InputCommand],
         screenshotTicks: Set<Int>,
         outputDirectory: URL
     ) {
         self.scene = scene
-        self.client = client
-        self.renderer = renderer
+        self.application = application
+        self.window = window
         self.inputTimeline = buildTimeline(from: inputCommands)
         self.screenshotTicks = screenshotTicks
         self.outputDirectory = outputDirectory
@@ -31,7 +31,8 @@ final class HeadlessCaptureRunner {
     }
 
     func run() async throws -> HeadlessCaptureResult {
-        try await scene.prepare(using: client)
+        try await scene.prepare(using: window.displayClient)
+        window.drawable = scene
         let finalInputTick = inputTimeline.keys.max() ?? 0
         let finalScreenshotTick = screenshotTicks.max() ?? 0
         let totalTicks = max(finalInputTick, finalScreenshotTick)
@@ -43,10 +44,8 @@ final class HeadlessCaptureRunner {
         for tick in 1...totalTicks {
             scene.onEvents(events(for: inputTimeline[tick] ?? []))
             scene.step(millisecondsPerTick)
-            renderer.clearCommands()
-            renderer.defaultTime = UInt64(tick)
-            scene.draw(millisecondsPerTick, renderer)
-            await renderer.sendCommands().value
+            window.step(millisecondsPerTick)
+            try application.throwIfRuntimeFailed()
 
             if screenshotTicks.contains(tick) {
                 try await captureScreenshot(at: tick)
@@ -91,7 +90,7 @@ final class HeadlessCaptureRunner {
     }
 
     private func captureScreenshot(at tick: Int) async throws {
-        let (size, rgba) = try await client.screenshot()
+        let (size, rgba) = try await window.screenshot()
         let hasVisiblePixel = stride(from: 0, to: rgba.count, by: 4).contains { index in
             rgba[index] != 0 || rgba[index + 1] != 0 || rgba[index + 2] != 0
         }

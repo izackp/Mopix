@@ -11,11 +11,11 @@ public struct HeadlessCaptureResult: Equatable {
 }
 
 @MainActor
-public protocol HeadlessCaptureScene: AnyObject {
+public protocol HeadlessCaptureScene: AnyObject, IDrawable {
     var result: HeadlessCaptureResult? { get }
 
     func prepare(using client: DisplayClient) async throws
     func onEvents(_ events: [SDL_Event])
     func step(_ delta: UInt64)
-    func draw(_ delta: UInt64, _ renderer: DisplayRenderClient)
+    func draw(_ delta: UInt64, _ renderer: DisplayRenderClient) throws
 }

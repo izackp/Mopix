@@ -54,8 +54,8 @@ final class TennisGameController: IUpdate, IDrawable, IEventListener {
         }
     }
 
-    func draw(_ delta: UInt64, _ renderer: DisplayRenderClient) {
-        self.renderer.draw(
+    func draw(_ delta: UInt64, _ renderer: DisplayRenderClient) throws {
+        try self.renderer.draw(
             flow: flow,
             match: simulation?.snapshot,
             presentation: presentation.state,

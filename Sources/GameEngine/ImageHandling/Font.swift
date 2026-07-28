@@ -89,11 +89,13 @@ public class Font {
     var _glyphs:[Character:AtlasImage] = [:] //TODO: Array or dictionary?
     let _atlas:ImageAtlas
     let _font:SDLFont
+    private let _fontData: Data
     weak var _resourceStore: ResourceStore?
 
-    public init(atlas: ImageAtlas, font:SDL2_TTFSwift.Font, resourceStore: ResourceStore? = nil) {
+    public init(atlas: ImageAtlas, font:SDL2_TTFSwift.Font, fontData: Data, resourceStore: ResourceStore? = nil) {
         _atlas = atlas
         _font = font
+        _fontData = fontData
         _resourceStore = resourceStore
     }
 
@@ -113,14 +115,10 @@ public class Font {
         var width:Int = 0
         var count:Int = 0
         for c in text {
-            do {
-                let metrics = try _font.glyphMetrics(c: c)
-                if (maxWidthPxs != 0 && width + metrics.advance > maxWidthPxs) { break }
-                width += metrics.advance
-                count += 1
-            } catch {
-                print("Error couldn't measure character '\(c)': \(error.localizedDescription)")
-            }
+            let metrics = try _font.glyphMetrics(c: c)
+            if (maxWidthPxs != 0 && width + metrics.advance > maxWidthPxs) { break }
+            width += metrics.advance
+            count += 1
         }
         return MeasureResult(extent: width, count: count)
     }
@@ -144,7 +142,6 @@ public class Font {
         if let image = _glyphs[c], let id = image.resourceId {
             return id
         }
-        guard let image = try? glyph(c) else { return nil }
-        return image.resourceId
+        return nil
     }
 }

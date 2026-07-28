@@ -3,5 +3,5 @@
 //
 
 public protocol IDisplayDrawable {
-    func draw(_ delta: UInt64, _ renderer: GameEngine.DisplayRenderClient)
+    func draw(_ delta: UInt64, _ renderer: GameEngine.DisplayRenderClient) throws
 }

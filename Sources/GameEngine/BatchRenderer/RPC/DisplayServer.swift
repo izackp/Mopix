@@ -457,7 +457,7 @@ private extension DisplayServer {
             return .image(handle: image.id, size: image.size.to(Int.self))
 
         case .font:
-            rendererServer.imageManager.addFont(url)
+            try rendererServer.imageManager.addFont(url)
             let family = try readFontFamily(url: url)
             let handle = generateHandle()
             track(handle: handle, owner: client, origin: .pack(url: url, kind: kind, density: density))
@@ -996,7 +996,7 @@ private extension DisplayServer {
         defer { try? rendererServer.renderer.setTarget(prevTarget) }
         try rendererServer.renderer.setDrawColor(red: 0, green: 0, blue: 0, alpha: 255)
         try rendererServer.renderer.clear()
-        rendererServer.drawingInterpolator.draw(SDL_GetTicks64())
+        try rendererServer.drawingInterpolator.draw(SDL_GetTicks64())
         let format = try PixelFormat(format: .argb8888)
         let surface = try rendererServer.renderer.readPixels(format: format)
         var rgba = [UInt8](repeating: 0, count: w * h * 4)

@@ -12,7 +12,7 @@ import SDL2Swift
 public typealias SDLWindow = SDL2Swift.Window
 
 public protocol IDrawable {
-    func draw(_ delta: UInt64, _ renderer: DisplayRenderClient)
+    func draw(_ delta: UInt64, _ renderer: DisplayRenderClient) throws
 }
 
 /*
@@ -91,9 +91,9 @@ open class LiteWindow : IUpdate, IEventListener {
                 drawFinish()
             }
         } catch let error as SDLError {
-            print("Error: \(error.debugDescription)")
+            parentApp.reportRuntimeFailure(error)
         } catch {
-            print("Error: \(error.localizedDescription)")
+            parentApp.reportRuntimeFailure(error)
         }
     }
     

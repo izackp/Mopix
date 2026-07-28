@@ -31,7 +31,7 @@ public final class TennisHeadlessCaptureScene: HeadlessCaptureScene {
         result = HeadlessCaptureResult(label: winner == .human ? "YOU WIN" : "CPU WINS")
     }
 
-    public func draw(_ delta: UInt64, _ renderer: DisplayRenderClient) {
-        controller.draw(delta, renderer)
+    public func draw(_ delta: UInt64, _ renderer: DisplayRenderClient) throws {
+        try controller.draw(delta, renderer)
     }
 }

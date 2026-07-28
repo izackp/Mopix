@@ -30,7 +30,7 @@ final class SpaceInvadersDisplayClientTests: XCTestCase {
         transport.client = displayClient
         let renderer = DisplayRenderClient(displayClient: displayClient, windowSize: Size<Int16>(800, 600))
         renderer.defaultTime = time
-        scene.draw(time, renderer)
+        try scene.draw(time, renderer)
         let resources = try XCTUnwrap(scene.resourceIds)
         await renderer.sendCommands().value
         let frame = try XCTUnwrap(transport.lastFrame())

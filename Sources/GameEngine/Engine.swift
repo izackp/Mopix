@@ -37,9 +37,9 @@ public class Engine : IEngine {
         }
     }
     
-    open func onDraw(_ renderer: DisplayRenderClient) {
+    open func onDraw(_ renderer: DisplayRenderClient) throws {
         for eachScene in scenes {
-            eachScene.draw(0, renderer)
+            try eachScene.draw(0, renderer)
         }
     }
 }

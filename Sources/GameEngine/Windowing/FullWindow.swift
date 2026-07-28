@@ -46,7 +46,11 @@ public final class FullWindow: LiteWindow {
         imageManager.loadSystemFonts()
         let results = parent.vd.allItemsWithExt("ttf")
         for eachItem in results {
-            imageManager.addFont(eachItem.url)
+            do {
+                try imageManager.addFont(eachItem.url)
+            } catch {
+                throw GenericError("Font resource preparation failed for \(eachItem.url.absoluteString): \(String(reflecting: error))")
+            }
         }
         renderServer = RendererServer(renderer: renderer, imageManager: imageManager)
 
@@ -240,7 +244,7 @@ public final class FullWindow: LiteWindow {
     public override func draw(time: UInt64) throws {
         totalDrawTime += time
         displayRenderClient.clearCommands()
-        drawable?.draw(time, displayRenderClient)
+        try drawable?.draw(time, displayRenderClient)
         if let view = rootView {
             let context = UICommandContext(client: displayRenderClient, fontProvider: imageManager, rttAllocator: renderServer)
             try view.draw(context, view.frame)
@@ -248,8 +252,10 @@ public final class FullWindow: LiteWindow {
         lastSendTask = displayRenderClient.sendCommands()
         let drawingInterp = renderServer.drawingInterpolator
         drawCount = drawingInterp._futureAllCmds.count
-        if totalDrawTime >= 100 {
-            drawingInterp.draw(totalDrawTime - 100)
+        if parentApp.isHeadless {
+            try drawingInterp.draw(totalDrawTime)
+        } else if totalDrawTime >= 100 {
+            try drawingInterp.draw(totalDrawTime - 100)
         }
     }
 }

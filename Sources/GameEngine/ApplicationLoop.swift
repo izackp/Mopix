@@ -27,6 +27,7 @@ final class RealtimeApplicationLoopDriver: ApplicationLoopDriver {
         }
 
         application.persistTimelineIfPossible()
+        try application.throwIfRuntimeFailed()
     }
 }
 
@@ -50,7 +51,9 @@ final class HeadlessApplicationLoopDriver: ApplicationLoopDriver {
             application.pumpAndReadEvents()
 
             application.runFixedUpdates(currentTime: simulatedTime)
+            try application.throwIfRuntimeFailed()
             application.runDeltaUpdatesHeadless(simTime: simulatedTime, delta: millisecondsPerTick)
+            try application.throwIfRuntimeFailed()
 
             if config.screenshotTicks.contains(tick) || config.writeCmds {
                 try await application.captureScreenshots(for: tick, outputDir: config.outputDir)

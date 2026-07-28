@@ -184,22 +184,18 @@ public class Emitter : IDrawable {
         return (image, id)
     }
     
-    public func draw(_ delta: UInt64, _ renderer: GameEngine.DisplayRenderClient) {
+    public func draw(_ delta: UInt64, _ renderer: GameEngine.DisplayRenderClient) throws {
         if (renderer.windowSize == Size.zero) {
             return
         }
         step(16)
-        do {
-            let windowSize = renderer.windowSize.to(Int.self)
-            let (image, id) = try getEditableImage(windowSize, renderer)
-            try image.fill(color: SDLColor.clear)
-            try self.drawParticles(image, renderer.windowSize)
-            try renderer.updateImage(id, image)
-            //TODO: We don't need to draw particles if nothing changed
-            renderer.draw(0, id, Rect(origin: Point.zero, size: windowSize))
-        } catch let error {
-            print("Unable to draw emitter: \(error.localizedDescription)")
-        }
+        let windowSize = renderer.windowSize.to(Int.self)
+        let (image, id) = try getEditableImage(windowSize, renderer)
+        try image.fill(color: SDLColor.clear)
+        try self.drawParticles(image, renderer.windowSize)
+        try renderer.updateImage(id, image)
+        //TODO: We don't need to draw particles if nothing changed
+        renderer.draw(0, id, Rect(origin: Point.zero, size: windowSize))
     }
 
     public func runTweens(_ delta:Double) {
