@@ -52,5 +52,5 @@ final class TennisRenderer {
         }
     }
     private func drawText(_ text: String, at point: TennisPoint, using renderer: DisplayRenderClient) { guard let fontHandle else { return }; renderer.drawCmd(DrawCmd(animationId: 0, parentAnimationId: 0, dest: Rect(x: point.x, y: point.y, width: 100, height: 16), color: .white, alpha: 1, z: 10, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .text(fontHandle: fontHandle, content: text, size: 12, align: .left))) }
-    private func drawPoint(_ point: TennisPoint, size: Int, using renderer: DisplayRenderClient) { renderer.drawCmd(DrawCmd(animationId: UInt64(point.x * 1000 + point.y), parentAnimationId: 0, dest: Rect(x: point.x - size / 2, y: point.y - size / 2, width: size, height: size), color: .white, alpha: 1, z: 5, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true))) }
+    private func drawPoint(_ point: TennisPoint, size: Int, using renderer: DisplayRenderClient) { renderer.drawCmd(DrawCmd(animationId: UInt64(bitPattern: Int64(point.x) * 1000 + Int64(point.y)), parentAnimationId: 0, dest: Rect(x: point.x - size / 2, y: point.y - size / 2, width: size, height: size), color: .white, alpha: 1, z: 5, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true))) }
 }

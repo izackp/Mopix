@@ -110,6 +110,9 @@ open class Application {
     //var delegate:LGAppDelegate
     public var isRunning = true
     public var stats = Stats()
+    /// Optional deterministic input hook used by headless executable demos.
+    /// Called once before each simulated headless tick reads SDL events.
+    public var headlessTickHook: ((Int) -> Void)?
 
     public var everySecond:Double = 0
     public var skippedFrames = 0
@@ -126,6 +129,7 @@ open class Application {
     }
 
     public init() throws {
+        headlessTickHook = nil
         headlessConfig = HeadlessConfig.parse()
         CodableTypeResolver.resolve = { try TypeMap.customDecodeSwitch($0) }
         //Note: automatically initializes the Event Handling, File I/O and Threading subsystems
@@ -339,5 +343,4 @@ open class Application {
         try await loopDriver.run(application: self)
     }
 }
-
 
