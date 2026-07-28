@@ -47,7 +47,6 @@ final class HeadlessApplicationLoopDriver: ApplicationLoopDriver {
 
         for tick in 1...maxTick {
             simulatedTime += millisecondsPerTick
-            application.headlessTickHook?(tick)
             application.pumpAndReadEvents()
 
             application.runFixedUpdates(currentTime: simulatedTime)

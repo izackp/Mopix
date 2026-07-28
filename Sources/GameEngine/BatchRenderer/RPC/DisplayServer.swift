@@ -462,6 +462,7 @@ private extension DisplayServer {
             let handle = generateHandle()
             track(handle: handle, owner: client, origin: .pack(url: url, kind: kind, density: density))
             fontResources[handle] = FontResource(ownerClientId: client.clientId, family: family, url: url, uploadedData: nil)
+            rendererServer.resourceStore.registerFont(handle: handle, family: family)
             return .font(handle: handle, family: family)
 
         case .sound:
@@ -487,6 +488,7 @@ private extension DisplayServer {
             let handle = generateHandle()
             track(handle: handle, owner: client, origin: .uploaded(url: url, kind: kind))
             fontResources[handle] = FontResource(ownerClientId: client.clientId, family: family, url: url, uploadedData: data)
+            rendererServer.resourceStore.registerFont(handle: handle, family: family)
             return .font(handle: handle, family: family)
 
         case .sound:
@@ -847,6 +849,7 @@ private extension DisplayServer {
         proceduralImages[handle] = nil
         soundResources[handle] = nil
         fontResources[handle] = nil
+        rendererServer.resourceStore.unregisterFont(handle: handle)
         resourceOrigins[handle] = nil
 
         if let owner = resourceOwners.removeValue(forKey: handle) {

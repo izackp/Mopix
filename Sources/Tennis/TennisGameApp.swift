@@ -7,11 +7,11 @@ extension Bundle {
 }
 
 @MainActor
-final class TennisGameApp: Application {
+public final class TennisGameApp: Application {
     private(set) var gameWindow: FullWindow!
     private(set) var gameController: TennisGameController!
 
-    init(configuration: TennisGameConfiguration) throws {
+    public override init() throws {
         let fontURL = URL(string: "vd:/Roboto-Medium.ttf")!
         try super.init()
         let resources = URL(fileURLWithPath: Bundle.tennis.resourcePath!).appendingPathComponent("ExternalFiles")
@@ -22,14 +22,14 @@ final class TennisGameApp: Application {
             windowOptions: headlessWindowOptions,
             options: isHeadless ? [] : [Renderer.Option.presentVsync]
         )
-        gameController = TennisGameController(configuration: configuration, fontURL: fontURL)
+        gameController = TennisGameController(configuration: .approvedMVP, fontURL: fontURL)
         addWindow(gameWindow)
-        addFixedListener(gameController, msPerTick: Int(configuration.tickMilliseconds))
+        addFixedListener(gameController, msPerTick: Int(TennisGameConfiguration.approvedMVP.tickMilliseconds))
         addEventListener(gameController)
         gameWindow.drawable = gameController
     }
 
-    func prepare() async throws {
+    public func prepare() async throws {
         // FullWindow starts the display-client handshake during initialization.
         // Resource requests must wait until the server has registered this client.
         try await gameWindow.waitForConnection()

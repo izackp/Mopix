@@ -135,9 +135,49 @@ public class DrawCmdInterpolator {
                     }
                     print("DrawCmd.rtt stub — not yet rendered")
 
-                case .text, .line, .circle, .rect:
-                    // New shape/text cases — rendering handled in a later prompt.
-                    break
+                case .text(let fontHandle, let content, let size, let align):
+                    let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
+                    if eachCmd.animationId != 0 {
+                        resolvedPositions[eachCmd.animationId] = resolved
+                    }
+                    do {
+                        try drawTextCmd(eachCmd, fontHandle: fontHandle, content: content, size: size, align: align, dest: resolved)
+                    } catch {
+                        print("Unable to draw text cmd: \(error.localizedDescription)")
+                    }
+
+                case .line(let to, let thickness):
+                    let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
+                    if eachCmd.animationId != 0 {
+                        resolvedPositions[eachCmd.animationId] = resolved
+                    }
+                    do {
+                        try drawLineCmd(eachCmd, to: to, thickness: thickness, origin: resolved)
+                    } catch {
+                        print("Unable to draw line cmd: \(error.localizedDescription)")
+                    }
+
+                case .circle(let radius, let filled):
+                    let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
+                    if eachCmd.animationId != 0 {
+                        resolvedPositions[eachCmd.animationId] = resolved
+                    }
+                    do {
+                        try drawCircleCmd(eachCmd, radius: radius, filled: filled, center: Point(resolved.x, resolved.y))
+                    } catch {
+                        print("Unable to draw circle cmd: \(error.localizedDescription)")
+                    }
+
+                case .rect(let filled):
+                    let resolved = resolvedDest(eachCmd.dest, parentId: eachCmd.parentAnimationId, positions: &resolvedPositions)
+                    if eachCmd.animationId != 0 {
+                        resolvedPositions[eachCmd.animationId] = resolved
+                    }
+                    do {
+                        try drawRectCmd(eachCmd, filled: filled, dest: resolved)
+                    } catch {
+                        print("Unable to draw rect cmd: \(error.localizedDescription)")
+                    }
                 }
             }
             try renderer.setClipRect(previousRect)
@@ -176,6 +216,127 @@ public class DrawCmdInterpolator {
         let (r, g, b, a) = sdlColorComponents(cmd.color, alpha: cmd.alpha)
         try renderer.setDrawColor(red: r, green: g, blue: b, alpha: a)
         try renderer.fill(rect: dest.sdlRect())
+    }
+
+    private func drawRectCmd(_ cmd: DrawCmd, filled: Bool, dest: Rect<Int>) throws {
+        guard dest.width > 0, dest.height > 0 else { return }
+        let (r, g, b, a) = sdlColorComponents(cmd.color, alpha: cmd.alpha)
+        try renderer.setDrawColor(red: r, green: g, blue: b, alpha: a)
+
+        if filled {
+            try renderer.fill(rect: dest.sdlRect())
+            return
+        }
+
+        try renderer.fill(rect: Rect(x: dest.x, y: dest.y, width: dest.width, height: 1).sdlRect())
+        if dest.height > 1 {
+            try renderer.fill(rect: Rect(x: dest.x, y: dest.bottom - 1, width: dest.width, height: 1).sdlRect())
+        }
+        if dest.height > 2 {
+            try renderer.fill(rect: Rect(x: dest.x, y: dest.y + 1, width: 1, height: dest.height - 2).sdlRect())
+            if dest.width > 1 {
+                try renderer.fill(rect: Rect(x: dest.right - 1, y: dest.y + 1, width: 1, height: dest.height - 2).sdlRect())
+            }
+        }
+    }
+
+    private func drawTextCmd(
+        _ cmd: DrawCmd,
+        fontHandle: UInt64,
+        content: String,
+        size: Float,
+        align: TextAlignment,
+        dest: Rect<Int>
+    ) throws {
+        let font = try resourceStore.fetchFont(handle: fontHandle, size: size)
+        var measuredWidth = 0
+        for character in content {
+            measuredWidth += try font._font.glyphMetrics(c: character).advance
+        }
+
+        let startX: Int
+        switch align {
+        case .center:
+            startX = dest.x + (dest.width - measuredWidth) / 2
+        case .right, .end:
+            startX = dest.right - measuredWidth
+        case .left, .start:
+            startX = dest.x
+        }
+
+        var x = startX
+        for character in content {
+            let metrics = try font._font.glyphMetrics(c: character)
+            let image = try font.glyph(character)
+            let glyphDest = Rect(
+                x: x,
+                y: dest.y,
+                width: Int(image.size.width),
+                height: Int(image.size.height)
+            )
+            try renderer.draw(image.getTextureSlice(), glyphDest.sdlRect(), cmd.color, cmd.alpha)
+            x += metrics.advance
+        }
+    }
+
+    private func drawCircleCmd(_ cmd: DrawCmd, radius: Int, filled: Bool, center: Point<Int>) throws {
+        guard radius > 0 else { return }
+        let (r, g, b, a) = sdlColorComponents(cmd.color, alpha: cmd.alpha)
+        try renderer.setDrawColor(red: r, green: g, blue: b, alpha: a)
+
+        let outerRadiusSquared = radius * radius
+        let innerRadius = max(0, radius - 1)
+        let innerRadiusSquared = innerRadius * innerRadius
+        for y in -radius...radius {
+            for x in -radius...radius {
+                let distanceSquared = x * x + y * y
+                let shouldDraw = filled
+                    ? distanceSquared <= outerRadiusSquared
+                    : distanceSquared <= outerRadiusSquared && distanceSquared >= innerRadiusSquared
+                if shouldDraw {
+                    try renderer.drawPoint(x: Int32(center.x + x), y: Int32(center.y + y))
+                }
+            }
+        }
+    }
+
+    private func drawLineCmd(_ cmd: DrawCmd, to: Point<Int>, thickness: Int, origin: Rect<Int>) throws {
+        let lineThickness = max(1, thickness)
+        let (r, g, b, a) = sdlColorComponents(cmd.color, alpha: cmd.alpha)
+        try renderer.setDrawColor(red: r, green: g, blue: b, alpha: a)
+
+        var x = origin.x
+        var y = origin.y
+        let endX = origin.x + to.x
+        let endY = origin.y + to.y
+        let deltaX = abs(endX - x)
+        let stepX = x < endX ? 1 : -1
+        let deltaY = -abs(endY - y)
+        let stepY = y < endY ? 1 : -1
+        var error = deltaX + deltaY
+
+        while true {
+            try drawLinePoint(x: x, y: y, thickness: lineThickness)
+            if x == endX, y == endY { break }
+            let doubledError = error * 2
+            if doubledError >= deltaY {
+                error += deltaY
+                x += stepX
+            }
+            if doubledError <= deltaX {
+                error += deltaX
+                y += stepY
+            }
+        }
+    }
+
+    private func drawLinePoint(x: Int, y: Int, thickness: Int) throws {
+        let radius = thickness / 2
+        for offsetY in -radius...radius {
+            for offsetX in -radius...radius {
+                try renderer.drawPoint(x: Int32(x + offsetX), y: Int32(y + offsetY))
+            }
+        }
     }
 
     private func drawViewCmd(_ cmd: DrawCmd, borderColor: SDLColor, borderWidth: Int, dest: Rect<Int>) throws {

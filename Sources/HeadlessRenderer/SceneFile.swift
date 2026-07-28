@@ -1,15 +1,15 @@
 import Foundation
 
-struct SceneFile: Decodable {
-    var logicalWidth: Int
-    var logicalHeight: Int
-    var scale: Float
-    var packName: String?
-    var viewPath: String?
+enum HeadlessSceneID: String, Decodable {
+    case tennis
+}
 
-    enum CodingKeys: String, CodingKey {
-        case logicalWidth, logicalHeight, scale, packName, viewPath
-    }
+struct SceneFile: Decodable {
+    let scene: HeadlessSceneID
+    let logicalWidth: Int
+    let logicalHeight: Int
+    let scale: Float
+    let expectedResult: String
 
     static func load(from url: URL) throws -> SceneFile {
         let data = try Data(contentsOf: url)

@@ -25,6 +25,10 @@ let package = Package(
             name: "GameEngineLib",
             type: .static,
             targets: ["GameEngine"]),
+        .library(
+            name: "TennisGame",
+            type: .static,
+            targets: ["TennisGame"]),
         .executable(name: "ParticleTweenTest", targets: ["ParticleTest"]),
         .executable(name: "SpaceInvaders", targets: ["SpaceInvaders"]),
         .executable(name: "Tennis", targets: ["Tennis"]),
@@ -116,6 +120,7 @@ let package = Package(
             name: "HeadlessRenderer",
             dependencies: [
                 "GameEngine",
+                "TennisGame",
                 .product(name: "SDL2Swift", package: "SDL2-Swift"),
                 .product(name: "SDL2_TTFSwift", package: "SDL2-Swift"),
             ],
@@ -124,8 +129,18 @@ let package = Package(
         .executableTarget(
             name: "Tennis",
             dependencies: [
+                "TennisGame",
+                .product(name: "SDL2Swift", package: "SDL2-Swift"),
+            ],
+            path: "Sources/TennisExecutable",
+            swiftSettings: optimize
+        ),
+        .target(
+            name: "TennisGame",
+            dependencies: [
                 "GameEngine"
             ],
+            path: "Sources/Tennis",
             resources: [
                 .copy("ExternalFiles")
             ],

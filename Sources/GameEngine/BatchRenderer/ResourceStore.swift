@@ -8,6 +8,7 @@
 public class ResourceStore {
     public init(_ imageManager:AtlasLoader) {
         self.imageManager = imageManager
+        self._fontFamilyByHandle = [:]
     }
     let imageManager:AtlasLoader
     
@@ -18,6 +19,7 @@ public class ResourceStore {
     var _urlImageCache:[String:UInt64] = [:] //TODO: FIX: Also cached in image manager
     var _urlEditableImageCache:[String:ReadOnlyImage] = [:] //TODO: FIX: Also cached in image manager
     var _editableImageHashToId:[UInt64:UInt64] = [:]
+    private var _fontFamilyByHandle:[UInt64:String]
     
     //TODO: Inline; Copy from RendererClient
     func idExists(_ id:UInt64) -> Bool {
@@ -63,6 +65,25 @@ public class ResourceStore {
         }
         resource.ticksSinceLastUse = 0
         return resource
+    }
+
+    func registerFont(handle: UInt64, family: String) {
+        _fontFamilyByHandle[handle] = family
+    }
+
+    func fetchFont(handle: UInt64, size: Float) throws -> Font {
+        guard let family = _fontFamilyByHandle[handle] else {
+            throw GenericError("No font with handle: \(handle)")
+        }
+        let description = FontDesc(family: family, weight: 100, size: size)
+        guard let font = try imageManager.fetchFont(desc: description) else {
+            throw GenericError("Unable to load font family: \(family)")
+        }
+        return font
+    }
+
+    func unregisterFont(handle: UInt64) {
+        _fontFamilyByHandle[handle] = nil
     }
 
     public func increaseTicks() {
@@ -301,4 +322,3 @@ public class ResourceStore {
         cache[id] = SurfaceBackedTexture(texture: newTexture, editIteration: backingImage.editIteration)
     }*/
 }
-
