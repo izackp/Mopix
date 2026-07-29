@@ -1,9 +1,0 @@
-Refined only [gameplay.proposal.md](/Users/isaacpaul/Projects/swift-projects/GameEngine/docs/specs/tennis/gameplay.proposal.md):
-
-- Defined timing thresholds as player-visible minimums, maximums, or caps.
-- Defined CPU choice delay and automatic charge-based commit.
-- Defined landing cues as actionable location previews at least `0.30 s` before bounce.
-- Set canonical avatar references to `8 px` wide × `12 px` high at `160x144`.
-- Preserved RVK-7/RVK-8 thresholds and left RVK-18 unchanged.
-
-No locked specs or implementation artifacts were edited.

@@ -1,5 +1,0 @@
-READY FOR PL PROMOTION.
-
-- Fixed-cadence semantics are unambiguous: thresholds resolve on the first update after elapsed time crosses them, never shortening minimums.
-- Standalone timeout is clear: it resolves shot type first, then either begins charge at `0.00 s` if held or commits immediately if released.
-- No Builder launch or edits performed.

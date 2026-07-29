@@ -1,1 +1,0 @@
-Re-review only gameplay.proposal.md after the final two wording fixes. Confirm whether fixed-cadence threshold semantics and standalone timeout/charge transition are now unambiguous. Do not edit anything outside the proposal, do not launch Builder, and report READY FOR PL PROMOTION only if clean.
