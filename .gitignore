@@ -104,3 +104,12 @@ windows_bin
 .bkit/
 .worktrees/
 scripts/council/.env
+
+# Orc runtime metadata. Keep the project database itself trackable; only
+# transient SQLite sidecars and generated runtime files are ignored.
+.orc/*.sqlite-shm
+.orc/*.sqlite-wal
+.orc/runtime/
+
+# CodeMapper indexes, module caches, and temporary metadata.
+.codemapper/
