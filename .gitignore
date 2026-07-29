@@ -113,3 +113,4 @@ scripts/council/.env
 
 # CodeMapper indexes, module caches, and temporary metadata.
 .codemapper/
+.artifacts/
