@@ -51,6 +51,7 @@ struct TennisMatchSnapshot: Equatable {
 enum TennisSimulationEvent: Equatable {
     case serveAnticipationStarted(TennisSide)
     case shotTransactionChanged(TennisSide, UInt64, Bool)
+    case shotTransactionCancelled(TennisSide)
     case shotContact(TennisSide, TennisShotType, TennisPoint, Bool)
     case bounce(TennisSurface, TennisShotType, TennisPoint)
     case fault(TennisFaultCallout)

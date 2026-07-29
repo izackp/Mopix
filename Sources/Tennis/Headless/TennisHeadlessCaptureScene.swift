@@ -13,7 +13,9 @@ public final class TennisHeadlessCaptureScene: HeadlessCaptureScene {
         try VirtualDrive.shared.mountPath(path: resources)
         controller = TennisGameController(
             configuration: .approvedMVP,
-            fontURL: URL(string: "vd:/Roboto-Medium.ttf")!
+            fontURL: URL(string: "vd:/Roboto-Medium.ttf")!,
+            windowActive: true,
+            keyboardFocused: true
         )
     }
 

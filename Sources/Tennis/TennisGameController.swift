@@ -6,6 +6,8 @@ struct TennisFlowState: Equatable {
     var screen: TennisScreen
     var highlightedSurface: TennisSurface
     var result: TennisSide?
+    var windowActive: Bool = true
+    var keyboardFocused: Bool = true
 }
 
 final class TennisGameController: IUpdate, IDrawable, IEventListener {
@@ -16,12 +18,12 @@ final class TennisGameController: IUpdate, IDrawable, IEventListener {
     private let renderer: TennisRenderer
     private let configuration: TennisGameConfiguration
 
-    init(configuration: TennisGameConfiguration, fontURL: VDUrl) {
+    init(configuration: TennisGameConfiguration, fontURL: VDUrl, windowActive: Bool, keyboardFocused: Bool) {
         self.configuration = configuration
-        self.flow = TennisFlowState(screen: .title, highlightedSurface: .hard, result: nil)
+        self.flow = TennisFlowState(screen: .title, highlightedSurface: .hard, result: nil, windowActive: windowActive, keyboardFocused: keyboardFocused)
         self.simulation = nil
         self.presentation = TennisPresentationController()
-        self.input = TennisInputController()
+        self.input = TennisInputController(windowActive: windowActive, keyboardFocused: keyboardFocused)
         self.renderer = TennisRenderer(fontURL: fontURL)
     }
 
@@ -35,6 +37,8 @@ final class TennisGameController: IUpdate, IDrawable, IEventListener {
 
     func step(_ delta: UInt64) {
         let frame = input.consumeTick()
+        flow.windowActive = frame.windowActive
+        flow.keyboardFocused = frame.keyboardFocused
         switch flow.screen {
         case .title, .surfaceSelect, .result:
             advanceMenu(input: frame)

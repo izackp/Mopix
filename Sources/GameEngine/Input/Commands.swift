@@ -268,9 +268,9 @@ public class VirtualController {
         statePrevious = state //TODO: Hopefully copys
         state.commands = commandList.commands
         for eachCommmand in commandList.commands {
-            
+
             guard let commandEnum = CommandId(rawValue: eachCommmand.id) else { continue }
-            
+
             if let analogId = commandEnum.analogId {
                 state.analogValues[analogId] = eachCommmand.value
             } else if let buttonId = commandEnum.buttonId {
@@ -282,5 +282,18 @@ public class VirtualController {
                 }
             }
         }
+    }
+
+    /// Commits the current state as the baseline for next tick's held/edge comparison.
+    /// Callers that batch multiple `pushCommandList` calls within one fixed tick should call
+    /// this once at the end of the tick rather than relying on `pushCommandList`'s own snapshot.
+    public func finishTick() {
+        statePrevious = state
+    }
+
+    /// Clears both current and previous state, discarding any held buttons/analog values.
+    public func reset() {
+        state = ControllerState.blank
+        statePrevious = ControllerState.blank
     }
 }

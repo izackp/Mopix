@@ -38,6 +38,7 @@ final class TennisRenderer {
             try drawResult(flow: flow, using: renderer)
             drawCues(presentation, using: renderer)
         }
+        try drawKeyboardFocusCue(flow: flow, using: renderer)
     }
 
     private func drawTitle(using renderer: DisplayRenderClient) throws {
@@ -75,6 +76,21 @@ final class TennisRenderer {
         if let winner = flow.result { drawIdentityMark(for: winner, at: TennisPoint(x: 40, y: 58), using: renderer) }
         try drawText(flow.result == .human ? "YOU WIN" : "CPU WINS", at: TennisPoint(x: 52, y: 52), color: palette.primary, using: renderer)
         try drawText("PRESS A", at: TennisPoint(x: 48, y: 84), color: palette.primary, using: renderer)
+    }
+
+    /// Placed per-screen so it never overlaps required text, HUD/score, or fault callouts:
+    /// title/result use the gap below their "PRESS A" line, match uses the strip below the
+    /// court, and surface-select uses the gap between the surface tiles and its footer text.
+    private func drawKeyboardFocusCue(flow: TennisFlowState, using renderer: DisplayRenderClient) throws {
+        guard !(flow.windowActive && flow.keyboardFocused) else { return }
+        let y: Int
+        switch flow.screen {
+        case .title: y = 120
+        case .surfaceSelect: y = 100
+        case .match: y = 128
+        case .result: y = 112
+        }
+        try drawText("CLICK GAME FOR KEYS", at: TennisPoint(x: 20, y: y), color: palette.primary, using: renderer)
     }
 
     private func drawCourt(surface: TennisSurface, using renderer: DisplayRenderClient) {

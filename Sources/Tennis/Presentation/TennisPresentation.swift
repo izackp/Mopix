@@ -92,6 +92,14 @@ struct TennisPresentationController {
                 state.players[owner] = TennisPlayerPresentation(motion: .shotCharge, direction: state.players[owner]?.direction ?? TennisPoint(x: 0, y: 0), shot: nil, elapsedMilliseconds: elapsed, isChargeCapped: capped, impactElapsedMilliseconds: nil)
                 state.cues.removeAll { $0.kind == .chargeMeter || $0.kind == .chargeCap }
                 state.cues.append(TennisCue(kind: capped ? .chargeCap : .chargeMeter, owner: owner, shot: nil, position: snapshot.players[owner]?.position, callout: nil, elapsedMilliseconds: elapsed, minimumLifetimeMilliseconds: 0, persistsUntilLanding: true))
+            case let .shotTransactionCancelled(owner):
+                state.cues.removeAll { $0.kind == .chargeMeter || $0.kind == .chargeCap }
+                if var presentation = state.players[owner] {
+                    presentation.motion = .idle
+                    presentation.elapsedMilliseconds = 0
+                    presentation.isChargeCapped = false
+                    state.players[owner] = presentation
+                }
             case let .shotContact(owner, shot, landing, fullyCharged):
                 let origin = snapshot.players[owner]?.position ?? landing
                 let swingDirection = TennisPoint(x: landing.x - origin.x, y: landing.y - origin.y)

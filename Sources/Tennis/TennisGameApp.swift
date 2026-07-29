@@ -13,6 +13,7 @@ public final class TennisGameApp: Application {
 
     public override init() throws {
         let fontURL = URL(string: "vd:/Roboto-Medium.ttf")!
+        Self.configureKeyboardRuntime()
         try super.init()
         let resources = URL(fileURLWithPath: Bundle.tennis.resourcePath!).appendingPathComponent("ExternalFiles")
         try vd.mountPath(path: resources)
@@ -22,11 +23,17 @@ public final class TennisGameApp: Application {
             windowOptions: headlessWindowOptions,
             options: isHeadless ? [] : [Renderer.Option.presentVsync]
         )
-        gameController = TennisGameController(configuration: .approvedMVP, fontURL: fontURL)
+        gameController = TennisGameController(configuration: .approvedMVP, fontURL: fontURL, windowActive: true, keyboardFocused: false)
         addWindow(gameWindow)
         addFixedListener(gameController, msPerTick: Int(TennisGameConfiguration.approvedMVP.tickMilliseconds))
         addEventListener(gameController)
         gameWindow.drawable = gameController
+    }
+
+    /// Suppresses macOS's press-and-hold accent popup so that holding a mapped key (e.g. WASD)
+    /// produces the expected repeated key-down/held state instead of an OS text-input gesture.
+    private static func configureKeyboardRuntime() {
+        UserDefaults.standard.register(defaults: ["ApplePressAndHoldEnabled": false])
     }
 
     public func prepare() async throws {

@@ -30,6 +30,7 @@ struct TennisSimulation {
 
     mutating func advance(input: TennisInputFrame) -> TennisTickResult {
         var events: [TennisSimulationEvent] = []
+        if input.keyboardFocusLost { cancelHumanInput(events: &events) }
         phaseElapsedMilliseconds += rules.configuration.tickMilliseconds
         if snapshot.phase == .ended { beginPoint() }
         switch snapshot.phase {
@@ -51,6 +52,12 @@ struct TennisSimulation {
             snapshot.players[side] = player
         }
         humanShotInput.reset(); cpuController.resetForPoint(random: &random)
+    }
+
+    private mutating func cancelHumanInput(events: inout [TennisSimulationEvent]) {
+        guard humanShotInput.transaction != nil else { return }
+        humanShotInput.cancelAndRequireRelease([])
+        events.append(.shotTransactionCancelled(.human))
     }
 
     private mutating func advancePlayers(humanInput: TennisPoint, cpuInput: TennisPoint) {
