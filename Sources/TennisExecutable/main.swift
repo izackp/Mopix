@@ -18,7 +18,9 @@ func tennisMain(
             fputs("Error: \(error.debugDescription)\n", stderr)
             exitCode = EXIT_FAILURE
         } catch {
-            fputs("Error: \(String(reflecting: error))\n", stderr)
+            let message = (error as? LocalizedError)?.errorDescription
+                ?? "\(String(describing: error)) (\(String(reflecting: error)))"
+            fputs("Error: \(message)\n", stderr)
             exitCode = EXIT_FAILURE
         }
         semaphore.signal()
