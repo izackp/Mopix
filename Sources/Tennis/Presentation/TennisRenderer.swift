@@ -81,6 +81,14 @@ final class TennisRenderer {
             drawPlayersAndBall(snapshot: snapshot, presentation: presentation, courtEnd: nil, using: renderer)
         }
         drawCues(presentation, using: renderer)
+        if presentation.cues.contains(where: { $0.kind == .scoreOverlay }) { try drawScoreOverlay(snapshot: snapshot, presentation: presentation, using: renderer) }
+    }
+
+    /// Shown for the fixed 2s post-point window (owned by the `.scoreOverlay` cue's lifetime).
+    /// Reads the score straight from the snapshot rather than the cue, and sits below the HUD/fault
+    /// callout band (y 2-34) so it never occludes required HUD or fault text per VIBE-7.
+    private func drawScoreOverlay(snapshot: TennisMatchSnapshot, presentation: TennisPresentationState, using renderer: DisplayRenderClient) throws {
+        try drawText("H \(snapshot.score.human)   C \(snapshot.score.cpu)", at: TennisPoint(x: 56, y: 60), color: palette.primary, using: renderer)
     }
 
     private func drawResult(flow: TennisFlowState, using renderer: DisplayRenderClient) throws {
@@ -287,7 +295,7 @@ final class TennisRenderer {
                 renderer.drawCmd(DrawCmd(animationId: UInt64(abs(point.x * 1000 + point.y + 45)), parentAnimationId: 0, dest: Rect(x: point.x - 10, y: point.y - 10, width: cue.kind == .chargeCap ? 20 : 12, height: 2), color: palette.attention, alpha: 1, z: 9, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: cue.kind == .chargeMeter)))
             case .faultCallout:
                 if let fontHandle { renderer.drawCmd(DrawCmd(animationId: UInt64(abs(point.x * 1000 + point.y + 46)), parentAnimationId: 0, dest: Rect(x: 48, y: 18, width: 64, height: 16), color: palette.attention, alpha: 1, z: 10, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .text(fontHandle: fontHandle, content: cue.callout.map { String(describing: $0).uppercased() } ?? "FAULT", size: 12, align: .left))) }
-            case .serveAnticipation: break
+            case .serveAnticipation, .scoreOverlay: break
             }
         }
     }

@@ -2,7 +2,7 @@ import Foundation
 
 enum TennisCueKind: Equatable {
     case serveAnticipation, shotDirection, landing, hardBounce, clayBounce, grassBounce
-    case smashFlash, smashStarburst, chargeMeter, chargeCap, faultCallout
+    case smashFlash, smashStarburst, chargeMeter, chargeCap, faultCallout, scoreOverlay
 }
 
 enum TennisPlayerMotionKind: Equatable { case idle, locomotion, serveWindup, shotCharge, followThrough }
@@ -118,7 +118,9 @@ struct TennisPresentationController {
                 state.cues.append(TennisCue(kind: kind, owner: nil, shot: shot, position: position, callout: nil, elapsedMilliseconds: 0, minimumLifetimeMilliseconds: 300, persistsUntilLanding: false))
                 state.ball = TennisBallPresentation(contactElapsedMilliseconds: nil, bounceElapsedMilliseconds: 0)
             case let .fault(callout): state.cues.append(TennisCue(kind: .faultCallout, owner: nil, shot: nil, position: nil, callout: callout, elapsedMilliseconds: 0, minimumLifetimeMilliseconds: 1000, persistsUntilLanding: false))
-            case .pointEnded, .matchEnded: state.cues.removeAll { $0.kind != .faultCallout }
+            case .pointEnded, .matchEnded:
+                state.cues.removeAll { $0.kind != .faultCallout }
+                state.cues.append(TennisCue(kind: .scoreOverlay, owner: nil, shot: nil, position: nil, callout: nil, elapsedMilliseconds: 0, minimumLifetimeMilliseconds: 2000, persistsUntilLanding: false))
             }
         }
     }

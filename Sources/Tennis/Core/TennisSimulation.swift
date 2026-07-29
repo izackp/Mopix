@@ -32,12 +32,12 @@ struct TennisSimulation {
         var events: [TennisSimulationEvent] = []
         if input.keyboardFocusLost { cancelHumanInput(events: &events) }
         phaseElapsedMilliseconds += rules.configuration.tickMilliseconds
-        if snapshot.phase == .ended { beginPoint() }
+        if snapshot.phase == .ended && phaseElapsedMilliseconds >= 2000 && snapshot.matchWinner == nil { beginPoint() }
         switch snapshot.phase {
         case .serveAnticipation, .awaitingServeInput: advanceServe(input: input, events: &events)
         case .rally: advanceRally(input: input, events: &events)
         case .hitstop: advanceHitstop(input: input)
-        case .ended: break
+        case .ended: advancePostPoint(events: &events)
         }
         return TennisTickResult(snapshot: snapshot, events: events)
     }
@@ -118,6 +118,10 @@ struct TennisSimulation {
         ball.position = rules.flightPosition(ball)
         ball.hasCrossedNetPlane = rules.hasCrossedNetPlane(ball)
         if ball.elapsedMilliseconds < ball.contactToBounceMilliseconds { snapshot.ball = ball; return .inFlight }
+        // The ball is already at rest at its landing point for every fault-ending branch below
+        // (flightPosition clamps to `landing` once elapsed >= duration); write it back before
+        // ending the point so the post-point continuation has a resting position to slide from.
+        snapshot.ball = ball
         if ball.shot == .serve && rules.landingJudgment(ball.landing) == .outOfBounds {
             endPoint(winner: ball.hitter == .human ? .cpu : .human, reason: .outOfBounds, events: &events); return .pointEnded
         }
@@ -138,6 +142,35 @@ struct TennisSimulation {
         snapshot.ball = ball
         events.append(.bounce(snapshot.surface, ball.shot, ball.landing))
         return ball.consecutiveGroundContacts >= 2 ? .secondGroundContactDue : .firstGroundContact
+    }
+
+    /// Slides the resting ball by its already-computed `skidDistance` along the dominant axis of
+    /// its final flight direction, over a fixed short duration, then holds it for the remainder of
+    /// the point's 2s window. No new trajectory math: `landing`/`origin`/`skidDistance` already
+    /// exist on the ball from the shot that ended the point.
+    private mutating func advancePostPoint(events: inout [TennisSimulationEvent]) {
+        guard var ball = snapshot.ball else { return }
+        ball.elapsedMilliseconds += rules.configuration.tickMilliseconds
+        let skidDurationMilliseconds: UInt64 = 200
+        let progress = min(skidDurationMilliseconds, ball.elapsedMilliseconds)
+        let dx = ball.landing.x - ball.origin.x
+        let dy = ball.landing.y - ball.origin.y
+        var restX = ball.landing.x
+        var restY = ball.landing.y
+        if dx != 0 || dy != 0 {
+            if abs(dx) >= abs(dy) {
+                restX += dx >= 0 ? ball.skidDistance : -ball.skidDistance
+            } else {
+                restY += dy >= 0 ? ball.skidDistance : -ball.skidDistance
+            }
+        }
+        restX = min(159, max(0, restX))
+        restY = min(143, max(0, restY))
+        ball.position = TennisPoint(
+            x: ball.landing.x + (restX - ball.landing.x) * Int(progress) / Int(skidDurationMilliseconds),
+            y: ball.landing.y + (restY - ball.landing.y) * Int(progress) / Int(skidDurationMilliseconds)
+        )
+        snapshot.ball = ball
     }
 
     private mutating func resolveSecondGroundContact(events: inout [TennisSimulationEvent]) {
@@ -165,5 +198,5 @@ struct TennisSimulation {
         phaseElapsedMilliseconds = 0
         events.append(.shotContact(hitter, shot, outcome.landing, fullyCharged))
     }
-    private mutating func endPoint(winner: TennisSide, reason: TennisPointEndReason, events: inout [TennisSimulationEvent]) { snapshot.score = rules.score(after: winner, current: snapshot.score); snapshot.ball = nil; snapshot.liveBallPhase = .pointEnding; snapshot.phase = .ended; totalPointsPlayed += 1; if reason == .netFault { events.append(.fault(.net)) }; if reason == .outOfBounds { events.append(.fault(.out)) }; if reason == .illegalServe { events.append(.fault(.fault)) }; if let matchWinner = rules.hasMatchWinner(snapshot.score) { snapshot.matchWinner = matchWinner; events.append(.matchEnded(matchWinner)) } else { events.append(.pointEnded(winner, reason)) } }
+    private mutating func endPoint(winner: TennisSide, reason: TennisPointEndReason, events: inout [TennisSimulationEvent]) { snapshot.score = rules.score(after: winner, current: snapshot.score); snapshot.ball?.elapsedMilliseconds = 0; snapshot.liveBallPhase = .pointEnding; snapshot.phase = .ended; phaseElapsedMilliseconds = 0; totalPointsPlayed += 1; if reason == .netFault { events.append(.fault(.net)) }; if reason == .outOfBounds { events.append(.fault(.out)) }; if reason == .illegalServe { events.append(.fault(.fault)) }; if let matchWinner = rules.hasMatchWinner(snapshot.score) { snapshot.matchWinner = matchWinner; events.append(.matchEnded(matchWinner)) } else { events.append(.pointEnded(winner, reason)) } }
 }

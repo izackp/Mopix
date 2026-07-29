@@ -50,7 +50,7 @@ final class TennisGameController: IUpdate, IDrawable, IEventListener {
                 snapshot: tick.snapshot,
                 elapsedMilliseconds: delta
             )
-            if let winner = tick.snapshot.matchWinner {
+            if let winner = tick.snapshot.matchWinner, !presentation.state.cues.contains(where: { $0.kind == .scoreOverlay }) {
                 flow.screen = .result
                 flow.result = winner
             }
