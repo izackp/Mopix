@@ -68,8 +68,11 @@ public class AtlasLoader: IFontProvider {
 
         if let url = _fontList[name] {
             let file = try _dataSource.fetch(url)
-            let font = try SDLFont(data: file, ptSize: Int(desc.size))
-            let result = Font(atlas: atlas, font: font, fontData: Data(file), resourceStore: resourceStore)
+            let fontData = Data(file)
+            let font = try fontData.withUnsafeBytes { (dataPtr: UnsafeRawBufferPointer) in
+                try SDLFont(dataPtr: dataPtr, ptSize: Int(desc.size))
+            }
+            let result = Font(atlas: atlas, font: font, fontData: fontData, resourceStore: resourceStore)
             _fontCache[desc] = result
             return result
         }
