@@ -8,6 +8,7 @@ enum TennisContactQuality: Equatable { case perfect, good, poor }
 enum TennisStatPreset: Equatable { case balanced, power }
 enum TennisScreen: Equatable { case title, surfaceSelect, match, result }
 enum TennisPointPhase: Equatable { case serveAnticipation, awaitingServeInput, rally, hitstop, ended }
+enum TennisLiveBallPhase: Equatable { case serveFlight, rally, pointEnding }
 enum TennisPointEndReason: Equatable { case secondBounce, netFault, outOfBounds, illegalServe }
 enum TennisErrorClassification: Equatable { case none, forced, unforced }
 enum TennisFaultCallout: Equatable { case fault, net, out }
@@ -37,15 +38,15 @@ struct TennisGameConfiguration: Equatable {
 
 struct TennisPlayerState: Equatable { var side: TennisSide; var courtEnd: TennisCourtEnd; var position: TennisPoint; var preset: TennisStatPreset }
 struct TennisBallFlight: Equatable {
-    var hitter: TennisSide; var shot: TennisShotType; var contactQuality: TennisContactQuality
-    var origin: TennisPoint; var landing: TennisPoint; var shadow: TennisPoint; var height: Int
+    var hitter: TennisSide; var receiver: TennisSide; var shot: TennisShotType; var contactQuality: TennisContactQuality
+    var origin: TennisPoint; var landing: TennisPoint; var position: TennisPoint; var shadow: TennisPoint; var height: Int
     var elapsedMilliseconds: UInt64; var contactToBounceMilliseconds: UInt64; var responseWindowMilliseconds: UInt64
-    var bounceHeight: Int; var skidDistance: Int; var bounceCount: Int
+    var bounceHeight: Int; var skidDistance: Int; var hasCrossedNetPlane: Bool; var consecutiveGroundContacts: Int
 }
 struct TennisScore: Equatable { var human: Int; var cpu: Int }
 struct TennisMatchSnapshot: Equatable {
     var surface: TennisSurface; var players: [TennisSide: TennisPlayerState]; var ball: TennisBallFlight?
-    var score: TennisScore; var server: TennisSide; var phase: TennisPointPhase; var matchWinner: TennisSide?
+    var score: TennisScore; var server: TennisSide; var phase: TennisPointPhase; var liveBallPhase: TennisLiveBallPhase?; var matchWinner: TennisSide?
 }
 enum TennisSimulationEvent: Equatable {
     case serveAnticipationStarted(TennisSide)

@@ -129,7 +129,7 @@ final class TennisRenderer {
         let elapsed = flight.elapsedMilliseconds
         let duration = max(1, flight.contactToBounceMilliseconds)
         let progress = min(100, Int(elapsed * 100 / duration))
-        let current = flight.bounceCount > 0 ? flight.landing : TennisPoint(x: flight.origin.x + (flight.landing.x - flight.origin.x) * progress / 100, y: flight.origin.y + (flight.landing.y - flight.origin.y) * progress / 100 - flight.height * (progress <= 50 ? progress : 100 - progress) / 50)
+        let current = flight.consecutiveGroundContacts > 0 ? flight.landing : TennisPoint(x: flight.origin.x + (flight.landing.x - flight.origin.x) * progress / 100, y: flight.origin.y + (flight.landing.y - flight.origin.y) * progress / 100 - flight.height * (progress <= 50 ? progress : 100 - progress) / 50)
         let squash = presentation?.bounceElapsedMilliseconds != nil
         let contact = presentation?.contactElapsedMilliseconds != nil
         let impact = presentation?.contactElapsedMilliseconds != nil

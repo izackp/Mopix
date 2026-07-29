@@ -6,7 +6,7 @@ final class TennisPresentationEvidenceTests: XCTestCase {
     private func snapshot() -> TennisMatchSnapshot {
         let human = TennisPlayerState(side: .human, courtEnd: .near, position: TennisPoint(x: 40, y: 100), preset: .balanced)
         let cpu = TennisPlayerState(side: .cpu, courtEnd: .far, position: TennisPoint(x: 120, y: 40), preset: .power)
-        return TennisMatchSnapshot(surface: .hard, players: [.human: human, .cpu: cpu], ball: nil, score: TennisScore(human: 0, cpu: 0), server: .human, phase: .rally, matchWinner: nil)
+        return TennisMatchSnapshot(surface: .hard, players: [.human: human, .cpu: cpu], ball: nil, score: TennisScore(human: 0, cpu: 0), server: .human, phase: .rally, liveBallPhase: .rally, matchWinner: nil)
     }
 
     func testApprovedPaletteUsesExactOpaqueRGBAValues() {
@@ -142,11 +142,13 @@ final class TennisPresentationEvidenceTests: XCTestCase {
         for _ in 0..<17 { _ = simulation.advance(input: moveRight) }
         for _ in 0..<240 {
             let tick = simulation.advance(input: empty)
-            if !tick.events.isEmpty || tick.snapshot.phase != TennisPointPhase.rally { phaseTrace.append("\(tick.snapshot.phase):\(tick.snapshot.ball?.bounceCount ?? -1):\(tick.events)") }
+            if !tick.events.isEmpty || tick.snapshot.phase != TennisPointPhase.rally { phaseTrace.append("\(tick.snapshot.phase):\(tick.snapshot.ball?.consecutiveGroundContacts ?? -1):\(tick.events)") }
             if tick.snapshot.phase == TennisPointPhase.hitstop { hitstopTick = tick; break }
-            if tick.snapshot.ball?.bounceCount == 1 { break }
+            if tick.snapshot.ball?.consecutiveGroundContacts == 1 { break }
         }
-        guard hitstopTick == nil, simulation.snapshot.ball?.bounceCount == 1 else { return XCTFail("expected a first bounce before human contact: \(phaseTrace)") }
+        guard hitstopTick == nil, simulation.snapshot.ball?.consecutiveGroundContacts == 1 else { return XCTFail("expected a first bounce before human contact: \(phaseTrace)") }
+        XCTAssertEqual(simulation.snapshot.liveBallPhase, .rally)
+        XCTAssertEqual(simulation.snapshot.ball?.receiver, .human)
         let smashStart = TennisInputFrame(movement: TennisPoint(x: 0, y: 0), pressedShotButtons: [.a, .b], shotEvents: [.init(button: .a, edge: .pressed), .init(button: .b, edge: .pressed)], menuLeftPressed: false, menuRightPressed: false, menuAcceptPressed: false, servePressed: false)
         let startTick = simulation.advance(input: smashStart)
         if startTick.snapshot.phase == TennisPointPhase.hitstop { hitstopTick = startTick }
@@ -169,11 +171,13 @@ final class TennisPresentationEvidenceTests: XCTestCase {
         let released = TennisInputFrame(movement: TennisPoint(x: 0, y: 0), pressedShotButtons: [], shotEvents: [.init(button: .a, edge: .released), .init(button: .b, edge: .released)], menuLeftPressed: false, menuRightPressed: false, menuAcceptPressed: false, servePressed: false)
         let resumed = simulation.advance(input: released)
         XCTAssertEqual(resumed.snapshot.phase, TennisPointPhase.rally)
+        XCTAssertEqual(simulation.snapshot.ball?.receiver, .cpu)
+        XCTAssertEqual(simulation.snapshot.ball?.consecutiveGroundContacts, 0)
     }
 
     private func snapshotWithBall() -> TennisMatchSnapshot {
         var state = snapshot()
-        state.ball = TennisBallFlight(hitter: .human, shot: .smash, contactQuality: .perfect, origin: TennisPoint(x: 40, y: 100), landing: TennisPoint(x: 120, y: 40), shadow: TennisPoint(x: 120, y: 40), height: 12, elapsedMilliseconds: 0, contactToBounceMilliseconds: 700, responseWindowMilliseconds: 350, bounceHeight: 12, skidDistance: 8, bounceCount: 0)
+        state.ball = TennisBallFlight(hitter: .human, receiver: .cpu, shot: .smash, contactQuality: .perfect, origin: TennisPoint(x: 40, y: 100), landing: TennisPoint(x: 120, y: 40), position: TennisPoint(x: 40, y: 100), shadow: TennisPoint(x: 120, y: 40), height: 12, elapsedMilliseconds: 0, contactToBounceMilliseconds: 700, responseWindowMilliseconds: 350, bounceHeight: 12, skidDistance: 8, hasCrossedNetPlane: false, consecutiveGroundContacts: 0)
         return state
     }
 

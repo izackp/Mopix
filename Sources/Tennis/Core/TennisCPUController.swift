@@ -1,6 +1,6 @@
 import Foundation
 
-struct TennisCPUTacticalContext: Equatable { var cpu: TennisPlayerState; var human: TennisPlayerState; var ball: TennisBallFlight; var contactQuality: TennisContactQuality?; var legalSwingOpportunity: Bool }
+struct TennisCPUTacticalContext: Equatable { var cpu: TennisPlayerState; var human: TennisPlayerState; var ball: TennisBallFlight; var contactQuality: TennisContactQuality?; var isLegalReturnOpportunity: Bool }
 struct TennisCPUShotPlan: Equatable { var shot: TennisShotType; var target: TennisPoint; var chargeMilliseconds: UInt64 }
 enum TennisCPUAction: Equatable { case transactionChanged(TennisShotType, UInt64, Bool); case commit(TennisCPUShotPlan) }
 struct TennisCPUOutput: Equatable { var movement: TennisPoint; var actions: [TennisCPUAction] }
@@ -37,7 +37,7 @@ struct TennisCPUController {
             }
             return TennisCPUOutput(movement: movement, actions: [.transactionChanged(plan.shot, chargeElapsedMilliseconds, chargeElapsedMilliseconds >= 600)])
         }
-        guard context.legalSwingOpportunity, reactionElapsedMilliseconds >= 350 else { return TennisCPUOutput(movement: movement, actions: []) }
+        guard context.isLegalReturnOpportunity, reactionElapsedMilliseconds >= 350 else { return TennisCPUOutput(movement: movement, actions: []) }
         let horizontal = abs(context.human.position.x - context.cpu.position.x) / 8
         let depth = abs(context.human.position.y - 72) / 8
         let shot: TennisShotType

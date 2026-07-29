@@ -1,5 +1,7 @@
 import Foundation
 
+private enum TennisBallAdvanceResult: Equatable { case inFlight, firstGroundContact, secondGroundContactDue, pointEnded }
+
 struct TennisSimulation {
     private(set) var snapshot: TennisMatchSnapshot
     private var rules: TennisRules
@@ -17,7 +19,7 @@ struct TennisSimulation {
         let near = TennisPlayerState(side: .human, courtEnd: configuration.humanCourtEnd, position: TennisPoint(x: 80, y: 120), preset: .balanced)
         let farEnd: TennisCourtEnd = configuration.humanCourtEnd == .near ? .far : .near
         let cpu = TennisPlayerState(side: .cpu, courtEnd: farEnd, position: TennisPoint(x: 80, y: 24), preset: .power)
-        snapshot = TennisMatchSnapshot(surface: surface, players: [.human: near, .cpu: cpu], ball: nil, score: TennisScore(human: 0, cpu: 0), server: configuration.openingServer, phase: .serveAnticipation, matchWinner: nil)
+        snapshot = TennisMatchSnapshot(surface: surface, players: [.human: near, .cpu: cpu], ball: nil, score: TennisScore(human: 0, cpu: 0), server: configuration.openingServer, phase: .serveAnticipation, liveBallPhase: nil, matchWinner: nil)
         cpuController = TennisCPUController()
         humanShotInput = TennisShotInputMachine()
         random = TennisSeededRandom(seed: configuration.seed)
@@ -41,7 +43,7 @@ struct TennisSimulation {
 
     mutating func beginPoint() {
         snapshot.server = rules.server(totalPointsPlayed: totalPointsPlayed)
-        snapshot.phase = .serveAnticipation; snapshot.ball = nil; snapshot.matchWinner = nil; phaseElapsedMilliseconds = 0
+        snapshot.phase = .serveAnticipation; snapshot.liveBallPhase = nil; snapshot.ball = nil; snapshot.matchWinner = nil; phaseElapsedMilliseconds = 0
         for side in [TennisSide.human, .cpu] {
             guard var player = snapshot.players[side] else { continue }
             let bounds = rules.movementBounds(for: player.courtEnd)
@@ -75,12 +77,12 @@ struct TennisSimulation {
         guard let ball = snapshot.ball, let human = snapshot.players[.human], let cpu = snapshot.players[.cpu] else { return }
         let cpuQuality = rules.contactQuality(player: cpu.position, ball: ball.shadow)
         lastContactQuality[.cpu] = cpuQuality
-        let cpuOutput = cpuController.advance(context: TennisCPUTacticalContext(cpu: cpu, human: human, ball: ball, contactQuality: cpuQuality, legalSwingOpportunity: ball.bounceCount > 0), elapsedMilliseconds: rules.configuration.tickMilliseconds, rules: rules)
+        let cpuOutput = cpuController.advance(context: TennisCPUTacticalContext(cpu: cpu, human: human, ball: ball, contactQuality: cpuQuality, isLegalReturnOpportunity: rules.isLegalReturnOpportunity(for: .cpu, phase: snapshot.liveBallPhase, ball: ball)), elapsedMilliseconds: rules.configuration.tickMilliseconds, rules: rules)
         advancePlayers(humanInput: input.movement, cpuInput: cpuOutput.movement)
         let humanQuality = rules.contactQuality(player: human.position, ball: ball.shadow)
         lastContactQuality[.human] = humanQuality
         let previousHumanTransaction = humanShotInput.transaction
-        let humanCommit = humanShotInput.advance(input: input, elapsedMilliseconds: rules.configuration.tickMilliseconds, contactOpportunity: humanQuality != nil && ball.bounceCount > 0, smashEligible: rules.isSmashEligible(player: human.position, ball: ball))
+        let humanCommit = humanShotInput.advance(input: input, elapsedMilliseconds: rules.configuration.tickMilliseconds, contactOpportunity: humanQuality != nil && rules.isLegalReturnOpportunity(for: .human, phase: snapshot.liveBallPhase, ball: ball), smashEligible: rules.isSmashEligible(player: human.position, ball: ball))
         if let transaction = humanShotInput.transaction,
            previousHumanTransaction != transaction {
             events.append(.shotTransactionChanged(.human, transaction.heldChargeMilliseconds, transaction.isChargeCapped))
@@ -96,30 +98,65 @@ struct TennisSimulation {
             resolveSimultaneousContacts(human: humanCommit, cpu: cpuPlan, events: &events)
             if snapshot.phase == .hitstop { humanShotInput.cancelAndRequireRelease(input.pressedShotButtons) }
         }
-        if snapshot.phase != .hitstop { advanceBall(events: &events) }
+        if snapshot.phase != .hitstop {
+            let result = advanceBall(events: &events)
+            if result == .secondGroundContactDue { resolveSecondGroundContact(events: &events) }
+        }
     }
 
     private mutating func advanceHitstop(input: TennisInputFrame) { if phaseElapsedMilliseconds >= 100 { snapshot.phase = phaseBeforeHitstop ?? .rally; phaseBeforeHitstop = nil; phaseElapsedMilliseconds = 0 } }
-    private mutating func advanceBall(events: inout [TennisSimulationEvent]) {
-        guard var ball = snapshot.ball else { return }
+    private mutating func advanceBall(events: inout [TennisSimulationEvent]) -> TennisBallAdvanceResult {
+        guard var ball = snapshot.ball else { return .pointEnded }
         ball.elapsedMilliseconds += rules.configuration.tickMilliseconds
-        if ball.elapsedMilliseconds < ball.contactToBounceMilliseconds { snapshot.ball = ball; return }
-        if rules.landingJudgment(ball.landing) == .outOfBounds { endPoint(winner: ball.hitter == .human ? .cpu : .human, reason: .outOfBounds, events: &events); return }
-        ball.bounceCount += 1; ball.shadow = ball.landing; ball.elapsedMilliseconds = 0; ball.contactToBounceMilliseconds = ball.responseWindowMilliseconds
-        snapshot.ball = ball; events.append(.bounce(snapshot.surface, ball.shot, ball.landing))
-        if ball.bounceCount >= 2 { endPoint(winner: ball.hitter == .human ? .cpu : .human, reason: .secondBounce, events: &events) }
+        ball.position = rules.flightPosition(ball)
+        ball.hasCrossedNetPlane = rules.hasCrossedNetPlane(ball)
+        if ball.elapsedMilliseconds < ball.contactToBounceMilliseconds { snapshot.ball = ball; return .inFlight }
+        if ball.shot == .serve && rules.landingJudgment(ball.landing) == .outOfBounds {
+            endPoint(winner: ball.hitter == .human ? .cpu : .human, reason: .outOfBounds, events: &events); return .pointEnded
+        }
+        if !rules.clearsNet(ball) {
+            endPoint(winner: ball.hitter == .human ? .cpu : .human, reason: .netFault, events: &events); return .pointEnded
+        }
+        if rules.landingJudgment(ball.landing) == .outOfBounds {
+            endPoint(winner: ball.hitter == .human ? .cpu : .human, reason: .outOfBounds, events: &events); return .pointEnded
+        }
+        if ball.shot == .serve && !rules.isLegalServeLanding(ball.landing, server: ball.hitter) {
+            endPoint(winner: ball.hitter == .human ? .cpu : .human, reason: .illegalServe, events: &events); return .pointEnded
+        }
+        ball.origin = ball.landing; ball.position = ball.landing; ball.shadow = ball.landing; ball.elapsedMilliseconds = 0
+        ball.contactToBounceMilliseconds = ball.responseWindowMilliseconds
+        ball.consecutiveGroundContacts += 1
+        if ball.shot == .serve { snapshot.liveBallPhase = .rally }
+        snapshot.phase = .rally
+        snapshot.ball = ball
+        events.append(.bounce(snapshot.surface, ball.shot, ball.landing))
+        return ball.consecutiveGroundContacts >= 2 ? .secondGroundContactDue : .firstGroundContact
     }
 
-    private mutating func resolveSimultaneousContacts(human: TennisShotCommit?, cpu: TennisCPUShotPlan?, events: inout [TennisSimulationEvent]) { if let human { launchShot(hitter: .human, shot: human.shot, chargedMilliseconds: human.chargedMilliseconds, target: snapshot.ball?.landing ?? TennisPoint(x: 80, y: 72), events: &events) } else if let cpu { launchShot(hitter: .cpu, shot: cpu.shot, chargedMilliseconds: cpu.chargeMilliseconds, target: cpu.target, events: &events) } }
+    private mutating func resolveSecondGroundContact(events: inout [TennisSimulationEvent]) {
+        guard let ball = snapshot.ball else { return }
+        endPoint(winner: ball.hitter == .human ? .cpu : .human, reason: .secondBounce, events: &events)
+    }
+
+    private mutating func resolveSimultaneousContacts(human: TennisShotCommit?, cpu: TennisCPUShotPlan?, events: inout [TennisSimulationEvent]) {
+        guard let ball = snapshot.ball else { return }
+        if let human, rules.isLegalReturnOpportunity(for: .human, phase: snapshot.liveBallPhase, ball: ball) {
+            launchShot(hitter: .human, shot: human.shot, chargedMilliseconds: human.chargedMilliseconds, target: ball.landing, events: &events)
+        } else if let cpu, rules.isLegalReturnOpportunity(for: .cpu, phase: snapshot.liveBallPhase, ball: ball) {
+            launchShot(hitter: .cpu, shot: cpu.shot, chargedMilliseconds: cpu.chargeMilliseconds, target: cpu.target, events: &events)
+        }
+    }
     private mutating func launchShot(hitter: TennisSide, shot: TennisShotType, chargedMilliseconds: UInt64, target: TennisPoint, events: inout [TennisSimulationEvent]) {
         guard let player = snapshot.players[hitter], let opponent = snapshot.players[hitter == .human ? .cpu : .human] else { return }
         let outcome = rules.shotOutcome(hitter: player, opponent: opponent, surface: snapshot.surface, shot: shot, chargedMilliseconds: chargedMilliseconds, target: target, random: &random)
-        snapshot.ball = TennisBallFlight(hitter: hitter, shot: shot, contactQuality: lastContactQuality[hitter] ?? .good, origin: player.position, landing: outcome.landing, shadow: outcome.landing, height: outcome.bounceHeight, elapsedMilliseconds: 0, contactToBounceMilliseconds: outcome.contactToBounceMilliseconds, responseWindowMilliseconds: outcome.responseWindowMilliseconds, bounceHeight: outcome.bounceHeight, skidDistance: outcome.skidDistance, bounceCount: 0)
+        let receiver: TennisSide = hitter == .human ? .cpu : .human
+        snapshot.ball = TennisBallFlight(hitter: hitter, receiver: receiver, shot: shot, contactQuality: lastContactQuality[hitter] ?? .good, origin: player.position, landing: outcome.landing, position: player.position, shadow: outcome.landing, height: outcome.bounceHeight, elapsedMilliseconds: 0, contactToBounceMilliseconds: outcome.contactToBounceMilliseconds, responseWindowMilliseconds: outcome.responseWindowMilliseconds, bounceHeight: outcome.bounceHeight, skidDistance: outcome.skidDistance, hasCrossedNetPlane: false, consecutiveGroundContacts: 0)
+        snapshot.liveBallPhase = shot == .serve ? .serveFlight : .rally
         let fullyCharged = chargedMilliseconds >= 600
         snapshot.phase = shot == .smash || fullyCharged ? .hitstop : .rally
         phaseBeforeHitstop = snapshot.phase == .hitstop ? .rally : nil
         phaseElapsedMilliseconds = 0
         events.append(.shotContact(hitter, shot, outcome.landing, fullyCharged))
     }
-    private mutating func endPoint(winner: TennisSide, reason: TennisPointEndReason, events: inout [TennisSimulationEvent]) { snapshot.score = rules.score(after: winner, current: snapshot.score); snapshot.ball = nil; snapshot.phase = .ended; totalPointsPlayed += 1; if reason == .netFault { events.append(.fault(.net)) }; if reason == .outOfBounds { events.append(.fault(.out)) }; if reason == .illegalServe { events.append(.fault(.fault)) }; if let matchWinner = rules.hasMatchWinner(snapshot.score) { snapshot.matchWinner = matchWinner; events.append(.matchEnded(matchWinner)) } else { events.append(.pointEnded(winner, reason)) } }
+    private mutating func endPoint(winner: TennisSide, reason: TennisPointEndReason, events: inout [TennisSimulationEvent]) { snapshot.score = rules.score(after: winner, current: snapshot.score); snapshot.ball = nil; snapshot.liveBallPhase = .pointEnding; snapshot.phase = .ended; totalPointsPlayed += 1; if reason == .netFault { events.append(.fault(.net)) }; if reason == .outOfBounds { events.append(.fault(.out)) }; if reason == .illegalServe { events.append(.fault(.fault)) }; if let matchWinner = rules.hasMatchWinner(snapshot.score) { snapshot.matchWinner = matchWinner; events.append(.matchEnded(matchWinner)) } else { events.append(.pointEnded(winner, reason)) } }
 }

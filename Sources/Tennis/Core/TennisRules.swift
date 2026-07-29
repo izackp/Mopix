@@ -68,6 +68,24 @@ struct TennisRules {
         let landing = TennisPoint(x: target.x + random.nextInt(upperBound: 2 * spread + 1) - spread, y: target.y + random.nextInt(upperBound: 2 * spread + 1) - spread)
         return TennisShotOutcome(landing: landing, contactToBounceMilliseconds: profile.contactToBounceMilliseconds, responseWindowMilliseconds: profile.responseWindowMilliseconds, bounceHeight: profile.bounceHeight, skidDistance: profile.skidDistance)
     }
+    func flightPosition(_ ball: TennisBallFlight) -> TennisPoint {
+        let duration = max(1, ball.contactToBounceMilliseconds)
+        let progress = min(duration, ball.elapsedMilliseconds)
+        return TennisPoint(
+            x: ball.origin.x + (ball.landing.x - ball.origin.x) * Int(progress) / Int(duration),
+            y: ball.origin.y + (ball.landing.y - ball.origin.y) * Int(progress) / Int(duration)
+        )
+    }
+    func hasCrossedNetPlane(_ ball: TennisBallFlight) -> Bool {
+        if ball.hasCrossedNetPlane { return true }
+        let originSide = ball.origin.y < 72
+        let positionSide = flightPosition(ball).y < 72
+        return originSide != positionSide || flightPosition(ball).y == 72
+    }
+    func isLegalReturnOpportunity(for side: TennisSide, phase: TennisLiveBallPhase?, ball: TennisBallFlight) -> Bool {
+        guard phase == .rally, ball.receiver == side, ball.consecutiveGroundContacts < 2 else { return false }
+        return hasCrossedNetPlane(ball) || ball.consecutiveGroundContacts >= 1
+    }
     func clearsNet(_ ball: TennisBallFlight) -> Bool { ball.shadow.x >= 16 && ball.shadow.x <= 144 && ball.height >= 12 }
     func landingJudgment(_ point: TennisPoint) -> TennisLandingJudgment { point.x >= 16 && point.x <= 144 && point.y >= 24 && point.y <= 120 ? .inBounds : .outOfBounds }
     func isLegalServeLanding(_ point: TennisPoint, server: TennisSide) -> Bool { let box = server == .human ? configuration.humanServeBox : configuration.cpuServeBox; return point.x >= box.minX && point.x <= box.maxX && point.y >= box.minY && point.y <= box.maxY }
