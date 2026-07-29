@@ -8,23 +8,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build & Run Commands
 
-```bash
-# Build everything
-swift build
+Prefer `scripts/build.sh` and `scripts/test.sh` over raw `swift build`/`swift test` — they cut token usage by printing a compact pass/fail summary instead of full compiler output. Full output always goes to a log file in `.build/logs/`.
 
-# Build a specific product (debug or release)
-swift build --product SpaceInvaders -c debug
-swift build --product UITest -c debug
-swift build --product ParticleTweenTest -c debug
+```bash
+# Build a specific product — prints summary, full output in .build/logs/build-<product>.log
+scripts/build.sh Tennis
+scripts/build.sh SpaceInvaders
+scripts/build.sh UITest
+scripts/build.sh ParticleTweenTest
+scripts/build.sh HeadlessRenderer
+
+# Build everything (raw, no wrapper)
+swift build
 
 # Run an executable (note: swift run may not find SDL on Windows)
 swift build --product SpaceInvaders && .build/debug/SpaceInvaders
 
-# Run tests
-swift test
-
-# Run a single test
-swift test --filter GameEngineTests.<TestName>
+# Run tests — prints summary, full output in .build/logs/test.log
+scripts/test.sh
+scripts/test.sh --filter GameEngineTests.<TestName>
 ```
 
 **macOS prerequisite**: The `icu-swift` dependency requires that `libicuuc` is code-signed, or that Hardened Runtime > Library Validation is disabled in the app's signing settings. This is a local path dependency (`/Users/isaacpaul/Projects/swift-projects/icu-swift`), so it must exist on the machine.
