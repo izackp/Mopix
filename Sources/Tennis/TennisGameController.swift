@@ -91,7 +91,7 @@ final class TennisGameController: IUpdate, IDrawable, IEventListener {
     private func startMatch(surface: TennisSurface) {
         simulation = TennisSimulation(surface: surface, configuration: configuration)
         simulation?.beginPoint()
-        presentation.resetForServeWindup()
+        if let snapshot = simulation?.snapshot { presentation.resetForMatch(snapshot: snapshot) }
         input.clearGameplayInput()
         flow.screen = .match
         flow.result = nil

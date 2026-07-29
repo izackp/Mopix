@@ -149,5 +149,8 @@ let package = Package(
         .testTarget(
             name: "GameEngineTests",
             dependencies: ["GameEngine", "SpaceInvaders"]),
+        .testTarget(
+            name: "TennisGameTests",
+            dependencies: ["TennisGame"]),
     ]
 )
