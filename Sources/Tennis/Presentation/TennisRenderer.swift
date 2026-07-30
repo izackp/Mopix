@@ -190,7 +190,17 @@ final class TennisRenderer {
             renderer.drawCmd(DrawCmd(animationId: UInt64(20_200 + index), parentAnimationId: 0, dest: Rect(x: edge.0.x, y: edge.0.y, width: 1, height: 1), color: palette.primary, alpha: 1, z: 4, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(edge.1.x - edge.0.x, edge.1.y - edge.0.y), thickness: 1)))
         }
         let boundingBox = Rect(x: min(projection.farLeft.x, projection.nearLeft.x), y: 0, width: max(projection.farRight.x, projection.nearRight.x) - min(projection.farLeft.x, projection.nearLeft.x), height: 126)
-        drawSurfacePattern(surface, in: boundingBox, using: renderer)
+        drawSurfacePattern(surface, in: boundingBox, rowBounds: trapezoidRowBounds, using: renderer)
+    }
+
+    /// Reprojects the world sidelines (X 16/144) at a given screen row's equivalent world depth —
+    /// the same math `drawCourt`/`drawGrassCourt` use to fill each scanline — so pattern marks can
+    /// be clipped to the true trapezoid instead of its rectangular bounding box.
+    private func trapezoidRowBounds(_ screenY: Int) -> (left: Int, right: Int) {
+        let worldY = 24.0 + Double(screenY) / 126.0 * 96.0
+        let left = projection.worldToScreen(TennisPoint(x: 16, y: Int(worldY.rounded()))).x
+        let right = projection.worldToScreen(TennisPoint(x: 144, y: Int(worldY.rounded()))).x
+        return (left, right)
     }
 
     /// The Grass proof court reuses the same trapezoid fill/border as Hard/Clay (GAME-19 v2: one
@@ -216,6 +226,8 @@ final class TennisRenderer {
     private func drawGrassDepthBand(_ rect: Rect<Int>, markLength: Int, spacing: Int, using renderer: DisplayRenderClient) {
         for x in stride(from: rect.x + 2, through: rect.x + rect.width - markLength - 2, by: spacing) {
             for y in stride(from: rect.y + 2, through: rect.y + rect.height - 3, by: spacing) {
+                let bounds = trapezoidRowBounds(y)
+                guard x >= bounds.left && x + markLength <= bounds.right else { continue }
                 renderer.drawCmd(DrawCmd(animationId: UInt64(abs(x * 1000 + y)), parentAnimationId: 0, dest: Rect(x: x, y: y, width: markLength, height: 1), color: palette.canvas, alpha: 1, z: 1, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(markLength, 0), thickness: 1)))
             }
         }
@@ -277,15 +289,25 @@ final class TennisRenderer {
         }
     }
 
-    private func drawSurfacePattern(_ surface: TennisSurface, in rect: Rect<Int>, using renderer: DisplayRenderClient) {
+    /// `rowBounds`, when supplied, gives the true left/right extent (in screen X) of the drawable
+    /// shape at a given screen Y — used to clip marks to the projected trapezoid instead of its
+    /// rectangular bounding box (REVIEW-5: pattern marks were spilling past the trapezoid's slanted
+    /// edges onto the canvas, most visible near the narrower far edge). `nil` (surface-select tiles,
+    /// which are plain axis-aligned rects) skips clipping entirely.
+    private func drawSurfacePattern(_ surface: TennisSurface, in rect: Rect<Int>, rowBounds: ((Int) -> (left: Int, right: Int))? = nil, using renderer: DisplayRenderClient) {
         let pattern = surface == .hard ? palette.primary : palette.canvas
+        func fits(x: Int, y: Int, width: Int) -> Bool {
+            guard let rowBounds else { return true }
+            let bounds = rowBounds(y)
+            return x >= bounds.left && x + width <= bounds.right
+        }
         switch surface {
         case .hard:
-            for x in stride(from: rect.x + 3, through: rect.x + rect.width - 4, by: 10) { for y in stride(from: rect.y + 3, through: rect.y + rect.height - 7, by: 9) { renderer.drawCmd(DrawCmd(animationId: UInt64(x * 1000 + y), parentAnimationId: 0, dest: Rect(x: x, y: y, width: 1, height: 5), color: pattern, alpha: 1, z: 1, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(0, 5), thickness: 1))) } }
+            for x in stride(from: rect.x + 3, through: rect.x + rect.width - 4, by: 10) { for y in stride(from: rect.y + 3, through: rect.y + rect.height - 7, by: 9) { guard fits(x: x, y: y, width: 1) else { continue }; renderer.drawCmd(DrawCmd(animationId: UInt64(x * 1000 + y), parentAnimationId: 0, dest: Rect(x: x, y: y, width: 1, height: 5), color: pattern, alpha: 1, z: 1, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(0, 5), thickness: 1))) } }
         case .clay:
-            for x in stride(from: rect.x + 2, through: rect.x + rect.width - 7, by: 10) { for y in stride(from: rect.y + 2, through: rect.y + rect.height - 7, by: 8) { renderer.drawCmd(DrawCmd(animationId: UInt64(abs(x * 1000 + y)), parentAnimationId: 0, dest: Rect(x: x, y: y, width: 5, height: 5), color: pattern, alpha: 1, z: 1, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(5, 5), thickness: 1))) } }
+            for x in stride(from: rect.x + 2, through: rect.x + rect.width - 7, by: 10) { for y in stride(from: rect.y + 2, through: rect.y + rect.height - 7, by: 8) { guard fits(x: x, y: y, width: 5) else { continue }; renderer.drawCmd(DrawCmd(animationId: UInt64(abs(x * 1000 + y)), parentAnimationId: 0, dest: Rect(x: x, y: y, width: 5, height: 5), color: pattern, alpha: 1, z: 1, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(5, 5), thickness: 1))) } }
         case .grass:
-            for x in stride(from: rect.x + 3, through: rect.x + rect.width - 8, by: 10) { for y in stride(from: rect.y + 3, through: rect.y + rect.height - 4, by: 9) { renderer.drawCmd(DrawCmd(animationId: UInt64(rect.x * 1000 + y + x), parentAnimationId: 0, dest: Rect(x: x, y: y, width: 6, height: 1), color: pattern, alpha: 1, z: 1, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(6, 0), thickness: 1))) } }
+            for x in stride(from: rect.x + 3, through: rect.x + rect.width - 8, by: 10) { for y in stride(from: rect.y + 3, through: rect.y + rect.height - 4, by: 9) { guard fits(x: x, y: y, width: 6) else { continue }; renderer.drawCmd(DrawCmd(animationId: UInt64(rect.x * 1000 + y + x), parentAnimationId: 0, dest: Rect(x: x, y: y, width: 6, height: 1), color: pattern, alpha: 1, z: 1, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(6, 0), thickness: 1))) } }
         }
     }
 
