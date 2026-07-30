@@ -312,8 +312,8 @@ final class TennisRenderer {
     }
 
     private func drawHUD(snapshot: TennisMatchSnapshot, using renderer: DisplayRenderClient) throws {
-        renderer.drawCmd(DrawCmd(animationId: 30, parentAnimationId: 0, dest: Rect(x: 40, y: 2, width: 80, height: 18), color: palette.panel, alpha: 1, z: 3, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
-        try drawText("H \(snapshot.score.human)   C \(snapshot.score.cpu)", at: TennisPoint(x: 48, y: 5), color: palette.primary, using: renderer)
+        renderer.drawCmd(DrawCmd(animationId: 30, parentAnimationId: 0, dest: Rect(x: 40, y: 140, width: 80, height: 18), color: palette.panel, alpha: 1, z: 3, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
+        try drawText("H \(snapshot.score.human)   C \(snapshot.score.cpu)", at: TennisPoint(x: 48, y: 143), color: palette.primary, using: renderer)
     }
 
     /// `courtEnd` filters which side's player/ball are emitted, so the Grass composition can
