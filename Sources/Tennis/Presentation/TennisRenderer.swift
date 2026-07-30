@@ -15,12 +15,77 @@ struct TennisPalette {
     func playerColor(for side: TennisSide) -> SDLColor { side == .human ? human : cpu }
 }
 
+/// Build-time-only camera parameters (GAME-19 v2). Not player-facing; no runtime camera control.
+/// `.approved` reproduces the spec's fixed trapezoid corners: far (53,0)-(187,0), near (43,126)-(197,126).
+struct TennisCameraPreset {
+    var heightAboveCourt: Float
+    var pitchDegrees: Float
+    var horizontalOffset: Float
+
+    static var approved: TennisCameraPreset {
+        TennisCameraPreset(heightAboveCourt: 773.85, pitchDegrees: 50.26769712804423, horizontalOffset: 0)
+    }
+}
+
+/// Sole world-to-screen projection (GAME-19 v2). Derives the fixed court trapezoid corners from
+/// a `TennisCameraPreset` via a simple ground-plane pinhole model, then `worldToScreen(_:)` is the
+/// one projection rule for court fill/border, net, serve box outlines, center lines, baseline
+/// marks, players, and ball alike. World X `16...144` (center 80) maps symmetrically around
+/// screen X 120; world Y `24...120` (depth) maps linearly to screen Y `0...126`.
+struct TennisCourtProjection {
+    let farLeft: Point<Int>
+    let farRight: Point<Int>
+    let nearLeft: Point<Int>
+    let nearRight: Point<Int>
+
+    private let farHalfWidth: Double
+    private let nearHalfWidth: Double
+    private let farCenterX: Double
+    private let nearCenterX: Double
+
+    init(camera: TennisCameraPreset) {
+        let courtWorldHalfWidth = 64.0
+        let courtWorldDepth = 96.0
+        let screenCenterX = 120.0
+        let tanPitch = tan(Double(camera.pitchDegrees) * .pi / 180)
+        let nearHalfWidth = courtWorldHalfWidth * tanPitch
+        let groundDistanceNear = Double(camera.heightAboveCourt) / tanPitch
+        let groundDistanceFar = groundDistanceNear + courtWorldDepth
+        let farHalfWidth = (Double(camera.heightAboveCourt) * courtWorldHalfWidth) / groundDistanceFar
+        let nearCenterX = screenCenterX
+        let farCenterX = screenCenterX + Double(camera.horizontalOffset)
+
+        self.nearHalfWidth = nearHalfWidth
+        self.farHalfWidth = farHalfWidth
+        self.nearCenterX = nearCenterX
+        self.farCenterX = farCenterX
+        self.farLeft = Point(Int((farCenterX - farHalfWidth).rounded()), 0)
+        self.farRight = Point(Int((farCenterX + farHalfWidth).rounded()), 0)
+        self.nearLeft = Point(Int((nearCenterX - nearHalfWidth).rounded()), 126)
+        self.nearRight = Point(Int((nearCenterX + nearHalfWidth).rounded()), 126)
+    }
+
+    func worldToScreen(_ point: TennisPoint) -> Point<Int> {
+        let depthFraction = (Double(point.y) - 24.0) / 96.0
+        let halfWidth = farHalfWidth + (nearHalfWidth - farHalfWidth) * depthFraction
+        let centerX = farCenterX + (nearCenterX - farCenterX) * depthFraction
+        let worldXFraction = (Double(point.x) - 80.0) / 64.0
+        let screenX = centerX + worldXFraction * halfWidth
+        let screenY = depthFraction * 126.0
+        return Point(Int(screenX.rounded()), Int(screenY.rounded()))
+    }
+}
+
 final class TennisRenderer {
+    static let screenWidth: Int = 240
+    static let screenHeight: Int = 160
+
     private var fontHandle: UInt64?
     private let fontURL: VDUrl
     private let palette: TennisPalette
+    private let projection: TennisCourtProjection
 
-    init(fontURL: VDUrl) { self.fontURL = fontURL; self.palette = .approved }
+    init(fontURL: VDUrl) { self.fontURL = fontURL; self.palette = .approved; self.projection = TennisCourtProjection(camera: .approved) }
 
     func loadResources(using client: DisplayClient) async throws {
         let body = try await client.loadResource(url: fontURL, kind: .font)
@@ -28,12 +93,12 @@ final class TennisRenderer {
         fontHandle = handle
     }
 
-    func draw(flow: TennisFlowState, match: TennisMatchSnapshot?, presentation: TennisPresentationState, using renderer: DisplayRenderClient) throws {
-        renderer.drawCmd(DrawCmd(animationId: 1, parentAnimationId: 0, dest: Rect(x: 0, y: 0, width: 160, height: 144), color: palette.canvas, alpha: 1, z: -10, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
+    func draw(flow: TennisFlowState, match: TennisMatchSnapshot?, presentation: TennisPresentationState, humanServeBox: TennisRect, cpuServeBox: TennisRect, using renderer: DisplayRenderClient) throws {
+        renderer.drawCmd(DrawCmd(animationId: 1, parentAnimationId: 0, dest: Rect(x: 0, y: 0, width: Self.screenWidth, height: Self.screenHeight), color: palette.canvas, alpha: 1, z: -10, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
         switch flow.screen {
         case .title: try drawTitle(using: renderer)
         case .surfaceSelect: try drawSurfaceSelect(flow: flow, using: renderer)
-        case .match: if let match { try drawMatch(snapshot: match, presentation: presentation, using: renderer) }
+        case .match: if let match { try drawMatch(snapshot: match, presentation: presentation, humanServeBox: humanServeBox, cpuServeBox: cpuServeBox, using: renderer) }
         case .result:
             try drawResult(flow: flow, using: renderer)
             drawCues(presentation, using: renderer)
@@ -67,19 +132,17 @@ final class TennisRenderer {
         try drawText(String(describing: surface).uppercased(), at: TennisPoint(x: rect.x + 4, y: 100), color: palette.primary, using: renderer)
     }
 
-    private func drawMatch(snapshot: TennisMatchSnapshot, presentation: TennisPresentationState, using renderer: DisplayRenderClient) throws {
+    private func drawMatch(snapshot: TennisMatchSnapshot, presentation: TennisPresentationState, humanServeBox: TennisRect, cpuServeBox: TennisRect, using renderer: DisplayRenderClient) throws {
         try drawHUD(snapshot: snapshot, using: renderer)
-        if snapshot.surface == .grass {
-            // Near-side entities are drawn before the net (net renders in front of them), far-side
-            // entities after (net renders behind them) — see the Net and depth-anchor outcome.
-            drawGrassCourt(using: renderer)
-            drawPlayersAndBall(snapshot: snapshot, presentation: presentation, courtEnd: .near, using: renderer)
-            drawGrassNet(using: renderer)
-            drawPlayersAndBall(snapshot: snapshot, presentation: presentation, courtEnd: .far, using: renderer)
-        } else {
-            drawCourt(surface: snapshot.surface, using: renderer)
-            drawPlayersAndBall(snapshot: snapshot, presentation: presentation, courtEnd: nil, using: renderer)
-        }
+        if snapshot.surface == .grass { drawGrassCourt(using: renderer) } else { drawCourt(surface: snapshot.surface, using: renderer) }
+        drawServeBoxOutlines(humanServeBox: humanServeBox, cpuServeBox: cpuServeBox, using: renderer)
+        drawCenterServiceLines(humanServeBox: humanServeBox, cpuServeBox: cpuServeBox, using: renderer)
+        drawBaselineCenterMarks(using: renderer)
+        // Near-side entities are drawn before the net, far-side after; actual occlusion is z-order
+        // driven (bodyZ 2/3 near vs 5/6 far straddling the net's z:4), see drawPlayer/drawGrassPlayerSilhouette.
+        drawPlayersAndBall(snapshot: snapshot, presentation: presentation, courtEnd: .near, using: renderer)
+        drawNet(using: renderer)
+        drawPlayersAndBall(snapshot: snapshot, presentation: presentation, courtEnd: .far, using: renderer)
         drawCues(presentation, using: renderer)
         if presentation.cues.contains(where: { $0.kind == .scoreOverlay }) { try drawScoreOverlay(snapshot: snapshot, presentation: presentation, using: renderer) }
     }
@@ -112,24 +175,42 @@ final class TennisRenderer {
         try drawText("CLICK GAME FOR KEYS", at: TennisPoint(x: 20, y: y), color: palette.primary, using: renderer)
     }
 
+    /// Fills the projected court trapezoid one screen row at a time (left/right edges reprojected
+    /// per row from the world sidelines, world X 16/144), then draws the 4 projected corner edges
+    /// as the border. Shared shape logic duplicated between drawCourt/drawGrassCourt (no shared
+    /// private method for it — keeps both bodies within this class's declared method surface).
     private func drawCourt(surface: TennisSurface, using renderer: DisplayRenderClient) {
-        let court = Rect(x: 16, y: 24, width: 128, height: 96)
-        renderer.drawCmd(DrawCmd(animationId: 20, parentAnimationId: 0, dest: court, color: palette.courtColor(for: surface), alpha: 1, z: 0, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
-        drawSurfacePattern(surface, in: court, using: renderer)
-        renderer.drawCmd(DrawCmd(animationId: 21, parentAnimationId: 0, dest: court, color: palette.primary, alpha: 1, z: 4, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: false)))
-        renderer.drawCmd(DrawCmd(animationId: 22, parentAnimationId: 0, dest: Rect(x: 80, y: 24, width: 1, height: 96), color: palette.primary, alpha: 1, z: 1, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(0, 0), thickness: 1)))
+        for screenY in 0...126 {
+            let worldY = 24.0 + Double(screenY) / 126.0 * 96.0
+            let left = projection.worldToScreen(TennisPoint(x: 16, y: Int(worldY.rounded()))).x
+            let right = projection.worldToScreen(TennisPoint(x: 144, y: Int(worldY.rounded()))).x
+            renderer.drawCmd(DrawCmd(animationId: UInt64(20_000 + screenY), parentAnimationId: 0, dest: Rect(x: left, y: screenY, width: max(1, right - left), height: 1), color: palette.courtColor(for: surface), alpha: 1, z: 0, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
+        }
+        for (index, edge) in [(projection.farLeft, projection.farRight), (projection.nearLeft, projection.nearRight), (projection.farLeft, projection.nearLeft), (projection.farRight, projection.nearRight)].enumerated() {
+            renderer.drawCmd(DrawCmd(animationId: UInt64(20_200 + index), parentAnimationId: 0, dest: Rect(x: edge.0.x, y: edge.0.y, width: 1, height: 1), color: palette.primary, alpha: 1, z: 4, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(edge.1.x - edge.0.x, edge.1.y - edge.0.y), thickness: 1)))
+        }
+        let boundingBox = Rect(x: min(projection.farLeft.x, projection.nearLeft.x), y: 0, width: max(projection.farRight.x, projection.nearRight.x) - min(projection.farLeft.x, projection.nearLeft.x), height: 126)
+        drawSurfacePattern(surface, in: boundingBox, using: renderer)
     }
 
-    /// The 136x108 Grass proof court is a composition-only overlay: it is sized and placed
-    /// independently of the 128x96 gameplay court bounds (`TennisRules.courtBounds()`), which are
-    /// unchanged. Depth bands run far-to-near with decreasing lane-mark spacing/increasing length.
+    /// The Grass proof court reuses the same trapezoid fill/border as Hard/Clay (GAME-19 v2: one
+    /// projection rule for the court surface across all surfaces); depth bands are a cosmetic
+    /// overlay sized to the trapezoid's bounding box, running far-to-near with decreasing lane-mark
+    /// spacing/increasing length, and (per GAME-19 v2's no-depth-scaling rule) are not themselves projected.
     private func drawGrassCourt(using renderer: DisplayRenderClient) {
-        let court = Rect(x: 12, y: 18, width: 136, height: 108)
-        renderer.drawCmd(DrawCmd(animationId: 60, parentAnimationId: 0, dest: court, color: palette.grassCourt, alpha: 1, z: 0, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
-        drawGrassDepthBand(Rect(x: court.x, y: court.y, width: court.width, height: 36), markLength: 2, spacing: 8, using: renderer)
-        drawGrassDepthBand(Rect(x: court.x, y: court.y + 36, width: court.width, height: 36), markLength: 4, spacing: 6, using: renderer)
-        drawGrassDepthBand(Rect(x: court.x, y: court.y + 72, width: court.width, height: 36), markLength: 6, spacing: 4, using: renderer)
-        renderer.drawCmd(DrawCmd(animationId: 61, parentAnimationId: 0, dest: court, color: palette.primary, alpha: 1, z: 1, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: false)))
+        for screenY in 0...126 {
+            let worldY = 24.0 + Double(screenY) / 126.0 * 96.0
+            let left = projection.worldToScreen(TennisPoint(x: 16, y: Int(worldY.rounded()))).x
+            let right = projection.worldToScreen(TennisPoint(x: 144, y: Int(worldY.rounded()))).x
+            renderer.drawCmd(DrawCmd(animationId: UInt64(60_000 + screenY), parentAnimationId: 0, dest: Rect(x: left, y: screenY, width: max(1, right - left), height: 1), color: palette.grassCourt, alpha: 1, z: 0, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
+        }
+        for (index, edge) in [(projection.farLeft, projection.farRight), (projection.nearLeft, projection.nearRight), (projection.farLeft, projection.nearLeft), (projection.farRight, projection.nearRight)].enumerated() {
+            renderer.drawCmd(DrawCmd(animationId: UInt64(60_200 + index), parentAnimationId: 0, dest: Rect(x: edge.0.x, y: edge.0.y, width: 1, height: 1), color: palette.primary, alpha: 1, z: 4, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(edge.1.x - edge.0.x, edge.1.y - edge.0.y), thickness: 1)))
+        }
+        let boundingBox = Rect(x: min(projection.farLeft.x, projection.nearLeft.x), y: 0, width: max(projection.farRight.x, projection.nearRight.x) - min(projection.farLeft.x, projection.nearLeft.x), height: 126)
+        drawGrassDepthBand(Rect(x: boundingBox.x, y: boundingBox.y, width: boundingBox.width, height: boundingBox.height / 3), markLength: 2, spacing: 8, using: renderer)
+        drawGrassDepthBand(Rect(x: boundingBox.x, y: boundingBox.y + boundingBox.height / 3, width: boundingBox.width, height: boundingBox.height / 3), markLength: 4, spacing: 6, using: renderer)
+        drawGrassDepthBand(Rect(x: boundingBox.x, y: boundingBox.y + 2 * boundingBox.height / 3, width: boundingBox.width, height: boundingBox.height / 3), markLength: 6, spacing: 4, using: renderer)
     }
 
     private func drawGrassDepthBand(_ rect: Rect<Int>, markLength: Int, spacing: Int, using renderer: DisplayRenderClient) {
@@ -140,11 +221,17 @@ final class TennisRenderer {
         }
     }
 
-    /// Centered on the y=72 gameplay net plane so its front/behind split (via the caller's
-    /// near-then-net-then-far draw order) lines up with `TennisRules.hasCrossedNetPlane`.
-    private func drawGrassNet(using renderer: DisplayRenderClient) {
-        let left = 12; let right = 148; let netTop = 70; let netHeight = 4
+    /// Fixed screen band, bottom edge at screen Y 58, per GAME-19 v2 — a hand-placed focal line
+    /// that takes precedence over `worldToScreen`'s row interpolation at that one row (left/right
+    /// edges are reprojected from the world sidelines at the equivalent depth, matching the
+    /// trapezoid's width there, rather than derived from the world net plane y=72 directly).
+    /// Shared by all three surfaces (Hard/Clay/Grass) — replaces the old Grass-only `drawGrassNet`.
+    private func drawNet(using renderer: DisplayRenderClient) {
+        let netBottomY = 58; let netHeight = 4; let netTop = netBottomY - netHeight
         let postWidth = 4; let postExtend = 8
+        let rowWorldY = Int((24.0 + Double(netBottomY) / 126.0 * 96.0).rounded())
+        let left = projection.worldToScreen(TennisPoint(x: 16, y: rowWorldY)).x
+        let right = projection.worldToScreen(TennisPoint(x: 144, y: rowWorldY)).x
         renderer.drawCmd(DrawCmd(animationId: 62, parentAnimationId: 0, dest: Rect(x: left, y: netTop - postExtend, width: postWidth, height: netHeight + postExtend * 2), color: palette.canvas, alpha: 1, z: 4, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
         renderer.drawCmd(DrawCmd(animationId: 63, parentAnimationId: 0, dest: Rect(x: right - postWidth, y: netTop - postExtend, width: postWidth, height: netHeight + postExtend * 2), color: palette.canvas, alpha: 1, z: 4, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
         renderer.drawCmd(DrawCmd(animationId: 64, parentAnimationId: 0, dest: Rect(x: left, y: netTop, width: right - left, height: netHeight), color: palette.canvas, alpha: 1, z: 4, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
@@ -152,6 +239,41 @@ final class TennisRenderer {
             for x in stride(from: left + postWidth + (rowIndex % 2), to: right - postWidth, by: 2) {
                 renderer.drawCmd(DrawCmd(animationId: UInt64(abs(x * 1000 + y + 65)), parentAnimationId: 0, dest: Rect(x: x, y: y, width: 1, height: 1), color: palette.primary, alpha: 1, z: 4, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
             }
+        }
+    }
+
+    /// Draws both GAME-3 serve target box outlines at their existing world rects, projected as
+    /// 4-edge quads (not axis-aligned rects on screen, since each edge sits at a different depth).
+    private func drawServeBoxOutlines(humanServeBox: TennisRect, cpuServeBox: TennisRect, using renderer: DisplayRenderClient) {
+        for (index, box) in [humanServeBox, cpuServeBox].enumerated() {
+            let topLeft = projection.worldToScreen(TennisPoint(x: box.minX, y: box.minY))
+            let topRight = projection.worldToScreen(TennisPoint(x: box.maxX, y: box.minY))
+            let bottomLeft = projection.worldToScreen(TennisPoint(x: box.minX, y: box.maxY))
+            let bottomRight = projection.worldToScreen(TennisPoint(x: box.maxX, y: box.maxY))
+            for (edgeIndex, edge) in [(topLeft, topRight), (topRight, bottomRight), (bottomRight, bottomLeft), (bottomLeft, topLeft)].enumerated() {
+                renderer.drawCmd(DrawCmd(animationId: UInt64(70_000 + index * 10 + edgeIndex), parentAnimationId: 0, dest: Rect(x: edge.0.x, y: edge.0.y, width: 1, height: 1), color: palette.secondary, alpha: 1, z: 2, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(edge.1.x - edge.0.x, edge.1.y - edge.0.y), thickness: 1)))
+            }
+        }
+    }
+
+    /// Two segments only — net plane (world Y 72) to each serve box's outer (farthest-from-net)
+    /// edge — not full court depth. World X 80 always projects to screen X 120 (GAME-19 v2), so
+    /// both segments render as straight vertical lines.
+    private func drawCenterServiceLines(humanServeBox: TennisRect, cpuServeBox: TennisRect, using renderer: DisplayRenderClient) {
+        for (index, box) in [humanServeBox, cpuServeBox].enumerated() {
+            let outerY = abs(box.minY - 72) > abs(box.maxY - 72) ? box.minY : box.maxY
+            let netPoint = projection.worldToScreen(TennisPoint(x: 80, y: 72))
+            let outerPoint = projection.worldToScreen(TennisPoint(x: 80, y: outerY))
+            renderer.drawCmd(DrawCmd(animationId: UInt64(70_100 + index), parentAnimationId: 0, dest: Rect(x: netPoint.x, y: netPoint.y, width: 1, height: 1), color: palette.primary, alpha: 1, z: 2, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(outerPoint.x - netPoint.x, outerPoint.y - netPoint.y), thickness: 1)))
+        }
+    }
+
+    /// Short mark at the midpoint of each baseline (world Y 24 and Y 120), world X 80.
+    private func drawBaselineCenterMarks(using renderer: DisplayRenderClient) {
+        for (index, baselineY) in [24, 120].enumerated() {
+            let point = projection.worldToScreen(TennisPoint(x: 80, y: baselineY))
+            let markInward = baselineY == 24 ? 4 : -4
+            renderer.drawCmd(DrawCmd(animationId: UInt64(70_110 + index), parentAnimationId: 0, dest: Rect(x: point.x, y: point.y, width: 1, height: 1), color: palette.primary, alpha: 1, z: 2, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(0, markInward), thickness: 1)))
         }
     }
 
@@ -193,17 +315,24 @@ final class TennisRenderer {
         let moving = presentation.direction.x != 0 || presentation.direction.y != 0
         let torsoXOffset = presentation.motion == .followThrough ? (presentation.direction.x >= 0 ? 1 : -1) : (presentation.motion == .serveWindup ? (presentation.direction.x >= 0 ? -1 : 1) : 0)
         let torsoYOffset = presentation.motion == .idle && phase == 1 ? 1 : 0
-        let torso = TennisPoint(x: player.position.x + torsoXOffset, y: player.position.y + torsoYOffset)
-        drawPoint(torso, size: 8, color: palette.playerColor(for: side), using: renderer)
+        let worldTorso = TennisPoint(x: player.position.x + torsoXOffset, y: player.position.y + torsoYOffset)
+        // Anchor position only moves per projection; sprite sizes below stay fixed (GAME-19 v2 non-goal).
+        let projected = projection.worldToScreen(worldTorso)
+        let torso = TennisPoint(x: projected.x, y: projected.y)
+        let bodyZ = player.courtEnd == .near ? 2 : 5
+        let racketZ = player.courtEnd == .near ? 3 : 6
+        // Matches the net's z:4 straddling used by drawGrassPlayerSilhouette (the occlusion
+        // reference per GAME-19 v2) rather than the shared `drawPoint` helper's fixed z:5.
+        renderer.drawCmd(DrawCmd(animationId: UInt64(abs(torso.x * 1000 + torso.y + 30)), parentAnimationId: 0, dest: Rect(x: torso.x - 4, y: torso.y - 4, width: 8, height: 8), color: palette.playerColor(for: side), alpha: 1, z: bodyZ, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .rect(filled: true)))
         drawIdentityMark(for: side, at: torso, using: renderer)
         let strideOffset = presentation.motion == .locomotion && moving ? (phase == 0 ? 2 : -2) : 0
-        renderer.drawCmd(DrawCmd(animationId: UInt64(abs(torso.x * 1000 + torso.y + 31)), parentAnimationId: 0, dest: Rect(x: torso.x - 4 + strideOffset, y: torso.y + 4, width: 4, height: 1), color: palette.canvas, alpha: 1, z: 4, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(4, 0), thickness: 1)))
-        renderer.drawCmd(DrawCmd(animationId: UInt64(abs(torso.x * 1000 + torso.y + 33)), parentAnimationId: 0, dest: Rect(x: torso.x + 1 - strideOffset, y: torso.y + 4, width: 4, height: 1), color: palette.canvas, alpha: 1, z: 4, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(4, 0), thickness: 1)))
+        renderer.drawCmd(DrawCmd(animationId: UInt64(abs(torso.x * 1000 + torso.y + 31)), parentAnimationId: 0, dest: Rect(x: torso.x - 4 + strideOffset, y: torso.y + 4, width: 4, height: 1), color: palette.canvas, alpha: 1, z: bodyZ, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(4, 0), thickness: 1)))
+        renderer.drawCmd(DrawCmd(animationId: UInt64(abs(torso.x * 1000 + torso.y + 33)), parentAnimationId: 0, dest: Rect(x: torso.x + 1 - strideOffset, y: torso.y + 4, width: 4, height: 1), color: palette.canvas, alpha: 1, z: bodyZ, rotation: 0, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(4, 0), thickness: 1)))
         let chargeProgress = presentation.isChargeCapped ? 600 : min(600, presentation.elapsedMilliseconds)
         let followThroughAngle: Float = presentation.shot == .slice ? 30 : -30
         let racketAngle: Float = presentation.motion == .idle ? (phase == 1 ? 10 : 0) : (presentation.motion == .serveWindup ? 45 : (presentation.motion == .shotCharge ? -45 * Float(chargeProgress) / 600 : (presentation.motion == .followThrough ? followThroughAngle + 30 * Float(min(200, presentation.elapsedMilliseconds)) / 200 : 0)))
         let racketColor = presentation.impactElapsedMilliseconds == nil ? palette.primary : palette.impact
-        renderer.drawCmd(DrawCmd(animationId: UInt64(abs(torso.x * 1000 + torso.y + 32)), parentAnimationId: 0, dest: Rect(x: torso.x, y: torso.y - 7, width: 1, height: 7), color: racketColor, alpha: 1, z: 6, rotation: racketAngle, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(-3, -4), thickness: 1)))
+        renderer.drawCmd(DrawCmd(animationId: UInt64(abs(torso.x * 1000 + torso.y + 32)), parentAnimationId: 0, dest: Rect(x: torso.x, y: torso.y - 7, width: 1, height: 7), color: racketColor, alpha: 1, z: racketZ, rotation: racketAngle, rotationPoint: .zero, clippingRect: .zero, flip: [], time: 0, type: .line(to: Point(-3, -4), thickness: 1)))
     }
 
     private func drawGrassPlayerSilhouette(side: TennisSide, player: TennisPlayerState, presentation: TennisPlayerPresentation, using renderer: DisplayRenderClient) {
@@ -211,7 +340,9 @@ final class TennisRenderer {
         let moving = presentation.direction.x != 0 || presentation.direction.y != 0
         let torsoXOffset = presentation.motion == .followThrough ? (presentation.direction.x >= 0 ? 1 : -1) : (presentation.motion == .serveWindup ? (presentation.direction.x >= 0 ? -1 : 1) : 0)
         let torsoYOffset = presentation.motion == .idle && phase == 1 ? 1 : 0
-        let torso = TennisPoint(x: player.position.x + torsoXOffset, y: player.position.y + torsoYOffset)
+        let worldTorso = TennisPoint(x: player.position.x + torsoXOffset, y: player.position.y + torsoYOffset)
+        let projected = projection.worldToScreen(worldTorso)
+        let torso = TennisPoint(x: projected.x, y: projected.y)
         // Below-net (z2) when near, above-net (z5) when far — matches the caller's near/net/far draw order.
         let bodyZ = player.courtEnd == .near ? 2 : 5
         let racketZ = player.courtEnd == .near ? 3 : 6
@@ -234,7 +365,12 @@ final class TennisRenderer {
         let elapsed = flight.elapsedMilliseconds
         let duration = max(1, flight.contactToBounceMilliseconds)
         let progress = min(100, Int(elapsed * 100 / duration))
-        let current = flight.consecutiveGroundContacts > 0 ? flight.landing : TennisPoint(x: flight.origin.x + (flight.landing.x - flight.origin.x) * progress / 100, y: flight.origin.y + (flight.landing.y - flight.origin.y) * progress / 100 - flight.height * (progress <= 50 ? progress : 100 - progress) / 50)
+        // Height/Z stays a layered scalar on the flat world plane (unchanged), so the arc lift is
+        // applied in screen space, after projecting the flat world X/Y position.
+        let worldXY = flight.consecutiveGroundContacts > 0 ? flight.landing : TennisPoint(x: flight.origin.x + (flight.landing.x - flight.origin.x) * progress / 100, y: flight.origin.y + (flight.landing.y - flight.origin.y) * progress / 100)
+        let arcOffset = flight.consecutiveGroundContacts > 0 ? 0 : flight.height * (progress <= 50 ? progress : 100 - progress) / 50
+        let projectedXY = projection.worldToScreen(worldXY)
+        let current = TennisPoint(x: projectedXY.x, y: projectedXY.y - arcOffset)
         let squash = presentation?.bounceElapsedMilliseconds != nil
         let contact = presentation?.contactElapsedMilliseconds != nil
         let impact = presentation?.contactElapsedMilliseconds != nil
@@ -249,7 +385,8 @@ final class TennisRenderer {
     /// Stays pinned to the landing point while the ball itself arcs via its height offset in
     /// `drawBall`, so their on-screen separation grows through ascent and shrinks through descent.
     private func drawBallShadow(flight: TennisBallFlight, using renderer: DisplayRenderClient) {
-        drawPoint(flight.landing, size: 4, color: palette.canvas, using: renderer)
+        let projected = projection.worldToScreen(flight.landing)
+        drawPoint(TennisPoint(x: projected.x, y: projected.y), size: 4, color: palette.canvas, using: renderer)
     }
 
     private func drawIdentityMark(for side: TennisSide, at point: TennisPoint, using renderer: DisplayRenderClient) {

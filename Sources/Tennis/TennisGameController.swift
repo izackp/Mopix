@@ -63,6 +63,8 @@ final class TennisGameController: IUpdate, IDrawable, IEventListener {
             flow: flow,
             match: simulation?.snapshot,
             presentation: presentation.state,
+            humanServeBox: configuration.humanServeBox,
+            cpuServeBox: configuration.cpuServeBox,
             using: renderer
         )
     }

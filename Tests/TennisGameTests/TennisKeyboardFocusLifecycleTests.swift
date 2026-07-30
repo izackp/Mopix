@@ -194,12 +194,12 @@ final class TennisKeyboardFocusLifecycleTests: XCTestCase {
         for screen: TennisScreen in [.title, .surfaceSelect, .match, .result] {
             renderClient.clearCommands()
             let unfocused = TennisFlowState(screen: screen, highlightedSurface: .hard, result: screen == .result ? .human : nil, windowActive: true, keyboardFocused: false)
-            try renderer.draw(flow: unfocused, match: nil, presentation: presentation, using: renderClient)
+            try renderer.draw(flow: unfocused, match: nil, presentation: presentation, humanServeBox: TennisGameConfiguration.approvedMVP.humanServeBox, cpuServeBox: TennisGameConfiguration.approvedMVP.cpuServeBox, using: renderClient)
             XCTAssertTrue(containsCueText(renderClient), "expected CLICK GAME FOR KEYS cue on \(screen) while unfocused")
 
             renderClient.clearCommands()
             let focused = TennisFlowState(screen: screen, highlightedSurface: .hard, result: screen == .result ? .human : nil, windowActive: true, keyboardFocused: true)
-            try renderer.draw(flow: focused, match: nil, presentation: presentation, using: renderClient)
+            try renderer.draw(flow: focused, match: nil, presentation: presentation, humanServeBox: TennisGameConfiguration.approvedMVP.humanServeBox, cpuServeBox: TennisGameConfiguration.approvedMVP.cpuServeBox, using: renderClient)
             XCTAssertFalse(containsCueText(renderClient), "cue must clear once focused on \(screen)")
         }
     }

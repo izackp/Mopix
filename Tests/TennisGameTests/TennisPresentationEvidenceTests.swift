@@ -82,6 +82,8 @@ final class TennisPresentationEvidenceTests: XCTestCase {
                 flow: TennisFlowState(screen: .surfaceSelect, highlightedSurface: surface, result: nil),
                 match: nil,
                 presentation: presentation,
+                humanServeBox: TennisGameConfiguration.approvedMVP.humanServeBox,
+                cpuServeBox: TennisGameConfiguration.approvedMVP.cpuServeBox,
                 using: renderClient
             )
             let commands = commandList(in: renderClient)
@@ -102,12 +104,15 @@ final class TennisPresentationEvidenceTests: XCTestCase {
             flow: TennisFlowState(screen: .match, highlightedSurface: .hard, result: nil),
             match: match,
             presentation: presentation,
+            humanServeBox: TennisGameConfiguration.approvedMVP.humanServeBox,
+            cpuServeBox: TennisGameConfiguration.approvedMVP.cpuServeBox,
             using: renderClient
         )
         let matchCommands = commandList(in: renderClient)
         XCTAssertTrue(matchCommands.contains { if case .circle(radius: 4, filled: true) = $0.type { return true }; return false })
         XCTAssertTrue(matchCommands.filter { $0.color.rawValue == TennisPalette.approved.primary.rawValue }.count >= 8)
-        XCTAssertTrue(matchCommands.contains { $0.dest == Rect(x: match.ball!.landing.x - 2, y: match.ball!.landing.y - 2, width: 4, height: 4) && $0.color.rawValue == TennisPalette.approved.canvas.rawValue })
+        let projectedLanding = TennisCourtProjection(camera: .approved).worldToScreen(match.ball!.landing)
+        XCTAssertTrue(matchCommands.contains { $0.dest == Rect(x: projectedLanding.x - 2, y: projectedLanding.y - 2, width: 4, height: 4) && $0.color.rawValue == TennisPalette.approved.canvas.rawValue })
         XCTAssertTrue(matchCommands.contains { $0.color.rawValue == TennisPalette.approved.ball.rawValue })
         XCTAssertTrue(matchCommands.contains { if case .circle(radius: 5, filled: true) = $0.type { return true }; return false })
         XCTAssertTrue(matchCommands.contains { if case .line(to: Point(8, -6), thickness: 1) = $0.type { return true }; return false })
@@ -117,6 +122,8 @@ final class TennisPresentationEvidenceTests: XCTestCase {
             flow: TennisFlowState(screen: .result, highlightedSurface: .hard, result: .human),
             match: nil,
             presentation: presentation,
+            humanServeBox: TennisGameConfiguration.approvedMVP.humanServeBox,
+            cpuServeBox: TennisGameConfiguration.approvedMVP.cpuServeBox,
             using: renderClient
         )
         let resultCommands = commandList(in: renderClient)
